@@ -286,7 +286,7 @@ void MainWindow::on_searchButton_clicked()
 {
     ui->searchButton->setDisabled(true);
     resultsPerPage = ui->resultsPerPageComboBox->currentText().toInt();
-    //int dbIndex = ui->translationComboBox->currentIndex();
+    int dbIndex = ui->translationComboBox->currentIndex();
     Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive;
     if (ui->caseSensitiveCheckBox->isChecked())
         sensitivity = Qt::CaseSensitive;
@@ -362,10 +362,7 @@ void MainWindow::on_searchButton_clicked()
         displayResults(0, resultsPerPage);
     pageNumber = 1;
     ui->prevButton->setDisabled(true);
-    if (verseList.count() > resultsPerPage)
-        ui->nextButton->setEnabled(true);
-    else
-        ui->nextButton->setDisabled(true);
+    ui->nextButton->setEnabled(verseList.count() > resultsPerPage);
     ui->searchButton->setEnabled(true);
 }
 
