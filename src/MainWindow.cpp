@@ -328,7 +328,7 @@ void MainWindow::on_actionPreferences_triggered()
 {
     PreferenceDialog preferences(fontSize, fontFamily, currentLanguage);
     preferences.setModal(true);
-    preferences.setFixedSize(400, 228);
+    preferences.setFixedSize(400, 280);
     if (preferences.exec())  {
         QFont font = preferences.getFont();
         changeFont(font);

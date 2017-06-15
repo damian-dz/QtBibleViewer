@@ -24,6 +24,16 @@ CrossReferencePopup::CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> db,
     this->font = font;
 }
 
+void CrossReferencePopup::on_textBrowser_anchorClicked(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    QChar firstChar = argString[0];
+    if (firstChar == 'H' || firstChar == 'G') {
+        StrongPopup strongDialog(dbDct, argString, font);
+        strongDialog.exec();
+    }
+}
+
 QString formatReferences(QString text, QRegExp rfRegex)
 {
     text.replace("<FI>", "<i>").replace("<Fi>", "</i>");
@@ -124,15 +134,4 @@ void CrossReferencePopup::loadPassages(QSqlDatabase db, QString passageString, Q
 CrossReferencePopup::~CrossReferencePopup()
 {
     delete ui;
-}
-
-
-void CrossReferencePopup::on_textBrowser_anchorClicked(const QUrl &arg1)
-{
-    QString argString = arg1.toString();
-    QChar firstChar = argString[0];
-    if (firstChar == 'H' || firstChar == 'G') {
-        StrongPopup strongDialog(dbDct, argString, font);
-        strongDialog.exec();
-    }
 }

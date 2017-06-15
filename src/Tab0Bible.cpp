@@ -26,6 +26,9 @@ void MainWindow::loadPassage()
         currentPassage.clear();
         while (query.next()) {
             QString verseNumber = query.record().value(0).toString();
+
+
+
             QString xRefQueryString = "SELECT XRefs FROM CrossReferences"
                                       " WHERE BOOK = " + bookStr +
                                       " AND Chapter = " + chapterStr  +

@@ -48,6 +48,7 @@ void PreferenceDialog::changeLanguage(QString language)
         ui->fontFamilyLabel->setText("Rodzaj Czcionki");
         ui->fontSizeLabel->setText("Rozmiar Czcionki");
         ui->previewLabel->setText("Podgląd");
+        ui->loadFirstChapterCheckBox->setText("Wczytaj Pierwszy Rozdział przy Zmianie Księgi");
         ui->buttonBox->button(QDialogButtonBox::Cancel)->setText("Anuluj");
     }
 }
