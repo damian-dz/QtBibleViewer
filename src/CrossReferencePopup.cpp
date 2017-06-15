@@ -1,12 +1,15 @@
 #include "hdr/CrossReferencePopup.h"
 #include "ui_CrossReferencePopup.h"
 
-CrossReferencePopup::CrossReferencePopup(QSqlDatabase db,
+#include "hdr/StrongPopup.h"
+
+CrossReferencePopup::CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> db,
                                          QStringList hrefBookChapter,
                                          QStringList books,
                                          QFont font,
                                          QWidget* parent)
-    : QDialog(parent), ui(new Ui::CrossReferencePopup)
+    : QDialog(parent),
+      ui(new Ui::CrossReferencePopup)
 {
     ui->setupUi(this);
     ui->textBrowser->setFont(font);
@@ -16,7 +19,9 @@ CrossReferencePopup::CrossReferencePopup(QSqlDatabase db,
     QString verse = hrefSplit[1];
     QString title = bookName + " " + chapter + ":" + verse;
     QDialog::setWindowTitle(title);
-    loadPassages(db, hrefSplit[2], books);
+    loadPassages(db.first, hrefSplit[2], books);
+    dbDct = db.second;
+    this->font = font;
 }
 
 QString formatReferences(QString text, QRegExp rfRegex)
@@ -24,7 +29,6 @@ QString formatReferences(QString text, QRegExp rfRegex)
     text.replace("<FI>", "<i>").replace("<Fi>", "</i>");
     text.replace("<FR>", "<font color=#C80000>").replace("<Fr>", "</font>");
     text.remove(rfRegex);
-    //text.remove(QRegExp("<TS>.*<Ts>"));
     return text;
 }
 
@@ -122,3 +126,13 @@ CrossReferencePopup::~CrossReferencePopup()
     delete ui;
 }
 
+
+void CrossReferencePopup::on_textBrowser_anchorClicked(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    QChar firstChar = argString[0];
+    if (firstChar == 'H' || firstChar == 'G') {
+        StrongPopup strongDialog(dbDct, argString, font);
+        strongDialog.exec();
+    }
+}

@@ -64,9 +64,14 @@ private slots:
     void chapterBrowser_anchorClicked(const QUrl &arg1);
     void chapterBrowser_highlighted(const QUrl &arg1);
 
+    void on_actionAbout_triggered();
+
+    void on_actionCopy_triggered();
+
 private:
     Ui::MainWindow *ui;
     QCompleter *completer;
+    QLabel *statusLabel;
     QList<QTextBrowser*> chapterBrowsers;
     QList<QHBoxLayout*> chapterLayouts;
     QList<QStringList> globalNotes;

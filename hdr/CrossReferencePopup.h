@@ -15,16 +15,20 @@ class CrossReferencePopup : public QDialog
     Q_OBJECT
 
 public:
-    explicit CrossReferencePopup(QSqlDatabase db,
+    explicit CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> db,
                              QStringList hrefBookChapter,
                              QStringList books,
                              QFont font,
                              QWidget* parent = 0);
     ~CrossReferencePopup();
 
+private slots:
+    void on_textBrowser_anchorClicked(const QUrl &arg1);
+
 private:
     Ui::CrossReferencePopup *ui;
-    QSqlDatabase dbBbl;
+    QFont font;
+    QSqlDatabase dbDct;
     void loadPassages(QSqlDatabase db, QString passageString, QStringList bookNames);
 };
 

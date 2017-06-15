@@ -94,15 +94,14 @@ void MainWindow::on_chapterListWidget_currentRowChanged(int currentRow)
     ui->verseFirstComboBox->blockSignals(false);
     ui->verseLastComboBox->blockSignals(false);
     ui->verseLastComboBox->setCurrentIndex(ui->verseLastComboBox->count() - 1);
-    if (ui->bookListWidget->currentRow() == ui->bookListWidget->count() - 1 &&
-            ui->chapterListWidget->currentRow() == ui->chapterListWidget->count() - 1)
-        ui->nextChapterButton->setDisabled(true);
-    else
-        ui->nextChapterButton->setEnabled(true);
-    if (ui->bookListWidget->currentRow() == 0 && ui->chapterListWidget->currentRow() == 0)
-        ui->prevChapterButton->setDisabled(true);
-    else
-        ui->prevChapterButton->setEnabled(true);
+    ui->nextChapterButton->setDisabled(
+                ui->bookListWidget->currentRow()
+                == ui->bookListWidget->count() - 1
+                && ui->chapterListWidget->currentRow()
+                == ui->chapterListWidget->count() - 1);
+    ui->prevChapterButton->setDisabled(
+                ui->bookListWidget->currentRow() == 0
+                && ui->chapterListWidget->currentRow() == 0);
 }
 
 void MainWindow::on_verseFirstComboBox_currentIndexChanged(int index)

@@ -10,8 +10,8 @@
 
 
 MainWindow::MainWindow(QString appDir, QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent),
+      ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     lockCheckBoxes();
@@ -25,6 +25,8 @@ MainWindow::MainWindow(QString appDir, QWidget *parent)
     } else
         ui->bookListWidget->setDisabled(true);
     loadSettings(appDir, 1);
+    statusLabel = new QLabel;
+    ui->statusBar->addWidget(statusLabel);
 }
 
 void MainWindow::loadSettings(QString path, int counter)
@@ -378,7 +380,8 @@ void MainWindow::chapterBrowser_anchorClicked(const QUrl &arg1)
         verseInfo << argString
                   << QString::number(ui->bookListWidget->currentRow())
                   << QString::number(ui->chapterListWidget->currentItem()->text().toInt());
-        CrossReferencePopup xRefDialog(std::get<0>(databases[dbIndex]), verseInfo, bookNames, font);
+        CrossReferencePopup xRefDialog(qMakePair(std::get<0>(databases[dbIndex]), dbDct),
+                                       verseInfo, bookNames, font);
         xRefDialog.exec();
     }
 }
@@ -397,4 +400,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    QMessageBox::aboutQt(this, "About Qt");
+}
+
+void MainWindow::on_actionCopy_triggered()
+{
+    on_copyButton_clicked();
 }

@@ -134,7 +134,7 @@ void MainWindow::displayResults(int startIndex, int endIndex)
     else
         statusMessage = verses + QString::number(startIndex + 1) + "-" + QString::number(index) +
             " ("  + QString::number(verseList.count()) + inTotal + timeElapsed;
-    ui->statusBar->showMessage(statusMessage);
+    statusLabel->setText(statusMessage);
 }
 
 
@@ -357,7 +357,7 @@ void MainWindow::on_searchButton_clicked()
     timeElapsed = QString::number(watch.elapsed() / 1000.0) + " s";
     if (verseList.count() == 0) {
         ui->resultsTextBrowser->clear();
-        ui->statusBar->showMessage(noMatches + timeElapsed);
+        statusLabel->setText(noMatches + timeElapsed);
     } else
         displayResults(0, resultsPerPage);
     pageNumber = 1;
