@@ -377,10 +377,8 @@ void MainWindow::on_prevButton_clicked()
     int startIndex = resultsPerPage * pageNumber;
     pageNumber++;
     int endIndex = resultsPerPage * pageNumber;
-    if (pageNumber == 1)
-        ui->prevButton->setDisabled(true);
-    if (endIndex < verseList.count())
-        ui->nextButton->setEnabled(true);
+    ui->prevButton->setDisabled(pageNumber == 1);
+    ui->nextButton->setEnabled(endIndex < verseList.count());
     displayResults(startIndex, endIndex);
 }
 
@@ -390,8 +388,7 @@ void MainWindow::on_nextButton_clicked()
     int startIndex = resultsPerPage * pageNumber;
     pageNumber++;
     int endIndex = resultsPerPage * pageNumber;
-    if (endIndex >= verseList.count())
-        ui->nextButton->setDisabled(true);
+    ui->nextButton->setDisabled(endIndex >= verseList.count());
     displayResults(startIndex, endIndex);
 }
 
