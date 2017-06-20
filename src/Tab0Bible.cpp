@@ -6,6 +6,8 @@
 /* Bible Tab */
 void MainWindow::loadPassage()
 {
+    if (!loadFirstChapter)
+        return;
     int dbIndex = currentTranslationTab;
     int book = ui->bookListWidget->currentRow() + 1;
     int chapter = ui->chapterListWidget->currentRow() + 1;
@@ -26,9 +28,6 @@ void MainWindow::loadPassage()
         currentPassage.clear();
         while (query.next()) {
             QString verseNumber = query.record().value(0).toString();
-
-
-
             QString xRefQueryString = "SELECT XRefs FROM CrossReferences"
                                       " WHERE BOOK = " + bookStr +
                                       " AND Chapter = " + chapterStr  +
@@ -62,6 +61,7 @@ void MainWindow::on_bookListWidget_currentRowChanged(int currentRow)
     QString queryString = "SELECT Chapter FROM Bible"
                           " WHERE Book = " + QString::number(currentRow + 1) +
                           " AND Verse = 1";
+    loadFirstChapter = loadWhenBookChanged;
     ui->chapterListWidget->clear();
     QSqlQuery query(std::get<0>(databases[dbIndex]));
     query.exec(queryString);
@@ -72,6 +72,7 @@ void MainWindow::on_bookListWidget_currentRowChanged(int currentRow)
         return;
     }
     ui->chapterListWidget->setCurrentRow(0);
+    loadFirstChapter = true;
 }
 
 void MainWindow::on_chapterListWidget_currentRowChanged(int currentRow)

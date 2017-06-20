@@ -20,6 +20,9 @@
     </item>
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
+      </property>
       <property name="tabShape">
        <enum>QTabWidget::Rounded</enum>
       </property>
@@ -725,6 +728,16 @@
              </widget>
             </item>
             <item>
+             <widget class="QRadioButton" name="byStrongsNumberRadioButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>By Strong's Number</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="searchOptionsVerticalSpacer">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -834,9 +847,9 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_12">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <layout class="QHBoxLayout" name="dictMainHorizontalLayout">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_16">
+           <layout class="QVBoxLayout" name="entriesColumnVerticalLayout">
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_15">
               <item>
@@ -854,54 +867,38 @@
                   </property>
                  </widget>
                 </item>
-                <item>
-                 <spacer name="horizontalSpacer_2">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Fixed</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>80</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
                </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="numberLabel">
+                <property name="text">
+                 <string>Number:</string>
+                </property>
+               </widget>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_9">
                 <item>
                  <widget class="QLineEdit" name="searchDictionaryLineEdit"/>
                 </item>
-                <item>
-                 <widget class="QPushButton" name="searchDictionaryButton">
-                  <property name="text">
-                   <string>Search</string>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </item>
              </layout>
             </item>
             <item>
-             <widget class="QLabel" name="dictionaryResultLabel">
+             <widget class="QLabel" name="allEntriesLabel">
               <property name="text">
-               <string>Results:</string>
+               <string>All Entries:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextBrowser" name="dictionaryResultsTextBrowser"/>
+             <widget class="QListWidget" name="entriesListWidget"/>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
+           <layout class="QVBoxLayout" name="definitionColumnVerticalLayout">
             <item>
              <widget class="QLabel" name="definitionLabel">
               <property name="text">
@@ -1023,6 +1020,7 @@
     </property>
     <addaction name="actionShow_Help"/>
     <addaction name="actionAbout"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -1036,10 +1034,18 @@
     </property>
     <addaction name="actionCopy"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionIncrease_Font_Size"/>
+    <addaction name="actionDecrease_Font_Size"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuTools"/>
    <addaction name="menuOptions"/>
+   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -1116,6 +1122,27 @@
     <string>Recent File 1</string>
    </property>
   </action>
+  <action name="actionIncrease_Font_Size">
+   <property name="text">
+    <string>Increase Font Size</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionDecrease_Font_Size">
+   <property name="text">
+    <string>Decrease Font Size</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
@@ -1148,7 +1175,6 @@
   <tabstop>randomVerseTextBrowser</tabstop>
   <tabstop>openDictionaryButton</tabstop>
   <tabstop>searchDictionaryLineEdit</tabstop>
-  <tabstop>searchDictionaryButton</tabstop>
   <tabstop>definitionTextBrowser</tabstop>
  </tabstops>
  <resources/>

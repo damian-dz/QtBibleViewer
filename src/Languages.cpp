@@ -244,9 +244,13 @@ void MainWindow::changeLanguageToEnglish()
     ui->menuOptions->setTitle("Options");
     ui->actionPreferences->setText("Preferences");
     ui->menuLanguage->setTitle("Language");
+    ui->menuView->setTitle("View");
+    ui->actionIncrease_Font_Size->setText("Increase Font Size");
+    ui->actionDecrease_Font_Size->setText("Decrease Font Size");
     ui->menuHelp->setTitle("Help");
     ui->actionShow_Help->setText("Show Help");
     ui->actionAbout->setText("About");
+    ui->actionAbout_Qt->setText("About Qt");
     ui->tabWidget->setTabText(0, "Bible");
     ui->bookLabel->setText("Book:");
     ui->chapterLabel->setText("Chapter:");
@@ -280,6 +284,7 @@ void MainWindow::changeLanguageToEnglish()
     ui->exactPhraseRadioButton->setText("Exact Phrase");
     ui->allWordsRadioButton->setText("All of the Words");
     ui->anyWordsRadioButton->setText("Any of the Words");
+    ui->byStrongsNumberRadioButton->setText("By Strong's Number");
     ui->resultsLabel->setText("Results:");
     ui->prevButton->setToolTip("Previous page");
     ui->nextButton->setToolTip("Next page");
@@ -287,7 +292,8 @@ void MainWindow::changeLanguageToEnglish()
     ui->randomVerseButton->setToolTip("Returns a radom verse from the specified range.");
     ui->tabWidget->setTabText(3, "Dictionary");
     ui->openDictionaryButton->setText("Open Dicionary Module");
-    ui->searchDictionaryButton->setText("Search");
+    ui->numberLabel->setText("Number:");
+    ui->allEntriesLabel->setText("All Entries:");
     ui->definitionLabel->setText("Definition:");
     ui->tabWidget->setTabText(4, "Topics");
     ui->openTopicModuleButton->setText("Open Topic Module");
@@ -325,9 +331,13 @@ void MainWindow::changeLanguageToPolski()
     ui->menuOptions->setTitle("Opcje");
     ui->actionPreferences->setText("Preferencje");
     ui->menuLanguage->setTitle("Język");
+    ui->menuView->setTitle("Widok");
+    ui->actionIncrease_Font_Size->setText("Zwiększ Rozmiar Czcionki");
+    ui->actionDecrease_Font_Size->setText("Zmniejsz Rozmiar Czcionki");
     ui->menuHelp->setTitle("Pomoc");
     ui->actionShow_Help->setText("Pokaż Pomoc");
     ui->actionAbout->setText("O Programie");
+    ui->actionAbout_Qt->setText("O Platformie Qt");
     ui->tabWidget->setTabText(0, "Biblia");
     ui->bookLabel->setText("Księga:");
     ui->chapterLabel->setText("Rozdział:");
@@ -361,6 +371,7 @@ void MainWindow::changeLanguageToPolski()
     ui->exactPhraseRadioButton->setText("Dosłowna Fraza");
     ui->allWordsRadioButton->setText("Wszystkie ze Słów");
     ui->anyWordsRadioButton->setText("Dowolne ze Słów");
+    ui->byStrongsNumberRadioButton->setText("Po Numerze Stronga");
     ui->resultsLabel->setText("Wyniki:");
     ui->prevButton->setToolTip("Poprzednia strona");
     ui->nextButton->setToolTip("Następna strona");
@@ -368,7 +379,8 @@ void MainWindow::changeLanguageToPolski()
     ui->randomVerseButton->setToolTip("Zwraca losowy werset z wybranego zakresu.");
     ui->tabWidget->setTabText(3, "Słownik");
     ui->openDictionaryButton->setText("Otwórz Moduł Słownika");
-    ui->searchDictionaryButton->setText("Szukaj");
+    ui->numberLabel->setText("Numer:");
+    ui->allEntriesLabel->setText("Wszystkie Hasła:");
     ui->definitionLabel->setText("Definicja:");
     ui->tabWidget->setTabText(4, "Tematy");
     ui->openTopicModuleButton->setText("Otwórz Moduł Tematyczny");

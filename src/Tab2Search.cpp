@@ -214,7 +214,7 @@ void MainWindow::searchWithRegex(QList<QRegExp> patterns, int wordCount)
     }
 }
 
-void MainWindow::searchWithString(QString word, Qt::CaseSensitivity sensitivity)
+void MainWindow::searchWithString(QString phrase, Qt::CaseSensitivity sensitivity)
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
@@ -232,7 +232,7 @@ void MainWindow::searchWithString(QString word, Qt::CaseSensitivity sensitivity)
         QString text = query.record().value(3).toString();
         text.remove(regexNotes);
         text.remove(regexMarkup);
-        if (text.contains(word, sensitivity)) {
+        if (text.contains(phrase, sensitivity)) {
             QString book = query.record().value(0).toString();
             QString chapter = query.record().value(1).toString();
             QString verse = query.record().value(2).toString();
@@ -282,11 +282,32 @@ void MainWindow::searchWithString(QStringList words, int wordCount, Qt::CaseSens
     }
 }
 
+void MainWindow::searchByStrong(QString number)
+{
+    int dbIndex = ui->translationComboBox->currentIndex();
+    int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
+    int bookLastNumber = ui->searchToComboBox->currentIndex() + 1;
+    QString queryString = "SELECT * FROM Bible"
+                          " WHERE Scripture LIKE '%<W" + number + ">%'" +
+                          " AND Book >= " + QString::number(bookFirstNumber) +
+                          " AND Book <= " + QString::number(bookLastNumber);
+    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    query.exec(queryString);
+    while (query.next()) {
+        QString book = query.record().value(0).toString();
+        QString chapter = query.record().value(1).toString();
+        QString verse = query.record().value(2).toString();
+        verseList << query.record().value(3).toString();
+        referenceList << "<b><a href = \"" + book + "," + chapter + "," + verse +
+                         "\" style='text-decoration: none'>—" +
+                         bookNames[book.toInt() - 1] + " " + chapter + ":" + verse + "</a></b><br><br>";
+    }
+}
+
 void MainWindow::on_searchButton_clicked()
 {
     ui->searchButton->setDisabled(true);
     resultsPerPage = ui->resultsPerPageComboBox->currentText().toInt();
-    int dbIndex = ui->translationComboBox->currentIndex();
     Qt::CaseSensitivity sensitivity = Qt::CaseInsensitive;
     if (ui->caseSensitiveCheckBox->isChecked())
         sensitivity = Qt::CaseSensitive;
@@ -344,7 +365,7 @@ void MainWindow::on_searchButton_clicked()
             searchWithRegex(regex);
             displayRegex = regex;
         }
-    } else {
+    } else if (!ui->byStrongsNumberRadioButton->isChecked()) {
         if (ui->wholeWordsCheckBox->isChecked()) {
             QRegExp regex = QRegExp("\\b" + enteredText + "\\b", sensitivity);
             searchWithRegex(regex);
@@ -353,6 +374,9 @@ void MainWindow::on_searchButton_clicked()
             searchWithString(enteredText, sensitivity);
             displayRegex = QRegExp(enteredText, sensitivity);
         }
+    } else {
+        searchByStrong(enteredText);
+        displayRegex = QRegExp("\\b" + enteredText + "\\b", Qt::CaseInsensitive);
     }
     timeElapsed = QString::number(watch.elapsed() / 1000.0) + " s";
     if (verseList.count() == 0) {
@@ -504,4 +528,35 @@ void MainWindow::on_randomVerseTextBrowser_anchorClicked(const QUrl &arg1)
     sentByRandom = true;
     on_resultsTextBrowser_anchorClicked(arg1);
     sentByRandom = false;
+}
+
+void MainWindow::on_translationComboBox_currentIndexChanged(int index)
+{
+    ui->byStrongsNumberRadioButton->setEnabled(std::get<3>(databases[index]));
+    if (!ui->byStrongsNumberRadioButton->isEnabled()
+            && ui->byStrongsNumberRadioButton->isChecked())
+        ui->exactPhraseRadioButton->setChecked(true);
+}
+
+void MainWindow::on_byStrongsNumberRadioButton_toggled(bool checked)
+{
+    if (checked) {
+        QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
+        QValidator *validator = new QRegExpValidator(regex, this);
+        ui->enterLineEdit->setValidator(validator);
+        if (currentLanguage == "ENG")
+            ui->enterLabel->setText("Enter a Number:");
+        else if (currentLanguage == "PL")
+            ui->enterLabel->setText("Wpisz Numer:");
+    } else {
+        QRegExp regex("[^\n]+");
+        QValidator *validator = new QRegExpValidator(regex, this);
+        ui->enterLineEdit->setValidator(validator);
+        if (currentLanguage == "ENG")
+            ui->enterLabel->setText("Enter a Word or Phrase:");
+        else if (currentLanguage == "PL")
+            ui->enterLabel->setText("Wpisz Słowo lub Frazę:");
+    }
+    ui->caseSensitiveCheckBox->setDisabled(checked);
+    ui->wholeWordsCheckBox->setDisabled(checked);
 }

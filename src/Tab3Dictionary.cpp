@@ -33,21 +33,16 @@ void MainWindow::on_openDictionaryButton_clicked()
     }
 }
 
-void MainWindow::on_searchDictionaryButton_clicked()
+void MainWindow::on_searchDictionaryLineEdit_textEdited(const QString &arg1)
 {
-    QString entry = ui->searchDictionaryLineEdit->text();
-    QSqlQuery query(dbDct);
-    QString queryString = "SELECT data FROM dictionary WHERE word = '" +  entry + "'";
-    query.exec(queryString);
-    while (query.next()) {
-        QSqlRecord record = query.record();
-        ui->definitionTextBrowser->setHtml(record.value(0).toString());
+    if (arg1.isEmpty()) {
+        ui->entriesListWidget->setCurrentRow(-1);
+        return;
     }
-}
-
-void MainWindow::on_searchDictionaryLineEdit_textChanged(const QString &arg1)
-{
-
+    QList<QListWidgetItem *> matchList;
+    matchList = ui->entriesListWidget->findItems(arg1, Qt::MatchContains);
+    if (matchList.count() > 0)
+        ui->entriesListWidget->setCurrentItem(matchList[0]);
 }
 
 void MainWindow::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
@@ -55,16 +50,25 @@ void MainWindow::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
     QString entry = arg1.toString();
     entry = entry.right(entry.length() - 2);
     QSqlQuery query(dbDct);
-    QString queryString = "SELECT data FROM dictionary WHERE word = '" +  entry + "'";
+    QString queryString = "SELECT relativeorder, data "
+                          "FROM dictionary "
+                          "WHERE word = '" +  entry + "'";
     query.exec(queryString);
-    while (query.next()) {
+    if (query.next()) {
         QSqlRecord record = query.record();
-        ui->definitionTextBrowser->setHtml(record.value(0).toString());
+        ui->definitionTextBrowser->setHtml(record.value(1).toString());
+        ui->entriesListWidget->setCurrentRow(record.value(0).toInt() - 1);
     }
 }
 
-void MainWindow::on_searchDictionaryLineEdit_returnPressed()
+void MainWindow::on_entriesListWidget_currentTextChanged(const QString &currentText)
 {
-    on_searchDictionaryButton_clicked();
+    QSqlQuery query(dbDct);
+    QString queryString = "SELECT data FROM dictionary WHERE word = '" +  currentText + "'";
+    QString definition = "<center><h2>" + currentText + "</h2></center>";
+    query.exec(queryString);
+    if (query.next())
+        definition += query.record().value(0).toString();
+    ui->definitionTextBrowser->setHtml(definition);
 }
 

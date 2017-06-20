@@ -27,6 +27,8 @@ MainWindow::MainWindow(QString appDir, QWidget *parent)
     loadSettings(appDir, 1);
     statusLabel = new QLabel;
     ui->statusBar->addWidget(statusLabel);
+    ui->dictMainHorizontalLayout->setStretchFactor(ui->entriesColumnVerticalLayout, 2);
+    ui->dictMainHorizontalLayout->setStretchFactor(ui->definitionColumnVerticalLayout, 8);
 }
 
 void MainWindow::loadSettings(QString path, int counter)
@@ -35,7 +37,7 @@ void MainWindow::loadSettings(QString path, int counter)
         settingsPath = path + "/config/settings.ini";
     QSettings settings(settingsPath, QSettings::IniFormat);
     if (counter == 0) {
-        const QString setLanguage = settings.value("setLanguage").toString();
+        const QString setLanguage = settings.value("language").toString();
         if (!setLanguage.isEmpty()) {
             if (setLanguage == "ENG")
                 changeLanguageToEnglish();
@@ -43,14 +45,15 @@ void MainWindow::loadSettings(QString path, int counter)
                 changeLanguageToPolski();
         } else
             changeLanguageToEnglish();
+       loadWhenBookChanged = true;
        return;
     }
     const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
     if (!geometry.isEmpty())
         restoreGeometry(geometry);
-    const int setTranslation = settings.value("setTranslation").toInt();
+    const int setTranslation = settings.value("translation").toInt();
     ui->translationTabWidget->setCurrentIndex(setTranslation);
-    const QStringList setPassage = settings.value("setPassage").toStringList();
+    const QStringList setPassage = settings.value("passage").toStringList();
     if (!setPassage.isEmpty()) {
         ui->verseFirstComboBox->blockSignals(true);
         ui->verseLastComboBox->blockSignals(true);
@@ -62,30 +65,32 @@ void MainWindow::loadSettings(QString path, int counter)
         ui->verseFirstComboBox->blockSignals(false);
     } else
         ui->bookListWidget->setCurrentRow(0);
-    const QString setFontFamily = settings.value("setFontFamily").toString();
-    const int setFontSize = settings.value("setFontSize").toInt();
+    const QString setFontFamily = settings.value("fontFamily").toString();
+    const int setFontSize = settings.value("fontSize").toInt();
     if (!setFontFamily.isEmpty()) {
         QFont font;
         font.setFamily(setFontFamily);
         font.setPointSize(setFontSize);
         changeFont(font);
     }
+    loadWhenBookChanged = settings.value("loadWhenBookChanged").toBool();
 }
 
 void MainWindow::saveSettings()
 {
     QSettings settings(settingsPath, QSettings::IniFormat);
     settings.setValue("geometry", saveGeometry());
-    settings.setValue("setLanguage", currentLanguage);
-    settings.setValue("setTranslation", currentTranslationTab);
+    settings.setValue("language", currentLanguage);
+    settings.setValue("translation", currentTranslationTab);
     QStringList setPassage;
     setPassage << QString::number(ui->bookListWidget->currentRow())
                << QString::number(ui->chapterListWidget->currentRow())
                << QString::number(ui->verseFirstComboBox->currentIndex())
                << QString::number(ui->verseLastComboBox->currentIndex());
-    settings.setValue("setPassage", setPassage);
-    settings.setValue("setFontFamily", fontFamily);
-    settings.setValue("setFontSize", fontSize);
+    settings.setValue("passage", setPassage);
+    settings.setValue("fontFamily", fontFamily);
+    settings.setValue("fontSize", fontSize);
+    settings.setValue("loadWhenBookChanged", loadWhenBookChanged);
 }
 
 void MainWindow::lockCheckBoxes()
@@ -113,7 +118,6 @@ QStringList MainWindow::getModuleNames(QString path)
     return modulePathList;
 }
 
-
 void MainWindow::loadBibleModule(QString modulePath)
 {
     QSqlDatabase dbBbl;
@@ -129,8 +133,14 @@ void MainWindow::loadBibleModule(QString modulePath)
     if (query.next()) {
         moduleName = query.record().value(0).toString();
         hasOldTestament = query.record().value(1).toBool();
-        hasStrong = query.record().value(2).toBool();
+        // unreliable
+        // hasStrong = query.record().value(2).toBool();
     }
+    queryString = "SELECT scripture FROM Bible";
+    query.exec(queryString);
+    // this actually checks whether the module has Strong's numbers
+    if (query.next())
+        hasStrong = query.record().value(0).toString().contains(QRegExp("<W[HG][0-9]{1,4}>"));
     databases.append(std::make_tuple(dbBbl, moduleName, hasOldTestament, hasStrong));
 }
 
@@ -215,7 +225,10 @@ QString MainWindow::formatText(QString text, bool hasStrong)
 
 void MainWindow::on_actionOpen_Bible_Module_triggered()
 {
-    QString filename = QFileDialog::getOpenFileName(this, tr(openCaption.toUtf8().constData()), "/", openBblFilter);
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    tr(openCaption.toUtf8().constData()),
+                                                    "/",
+                                                    openBblFilter);
     if (filename.isNull() || filename.isEmpty())
         return;
     loadBibleModule(filename);
@@ -282,19 +295,19 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         QSqlQuery query(std::get<0>(databases[dbIndex]));
         query.exec(queryString);
         if (query.next()) {
-            ui->descriptionTextBrowser->setHtml(query.record().value(0).toString());
-            ui->abbreviationLineEdit->setText(query.record().value(1).toString());
-            ui->commentsTextBrowser->setHtml(formatPolish(query.record().value(2).toString()));
-            ui->versionLineEdit->setText(query.record().value(3).toString());
-            ui->versionDateLineEdit->setText(query.record().value(4).toString());
-            ui->publishDateLineEdit->setText(query.record().value(5).toString());
-            ui->rightToLeftCheckBox->setChecked(query.record().value(6).toBool());
-            ui->oldTestamentCheckBox->setChecked(query.record().value(7).toBool());
-            ui->newTestamentCheckBox->setChecked(query.record().value(8).toBool());
-            ui->strongsNumbersCheckBox->setChecked(query.record().value(9).toBool());
+            QSqlRecord record = query.record();
+            ui->descriptionTextBrowser->setHtml(record.value(0).toString());
+            ui->abbreviationLineEdit->setText(record.value(1).toString());
+            ui->commentsTextBrowser->setHtml(formatPolish(record.value(2).toString()));
+            ui->versionLineEdit->setText(record.value(3).toString());
+            ui->versionDateLineEdit->setText(record.value(4).toString());
+            ui->publishDateLineEdit->setText(record.value(5).toString());
+            ui->rightToLeftCheckBox->setChecked(record.value(6).toBool());
+            ui->oldTestamentCheckBox->setChecked(record.value(7).toBool());
+            ui->newTestamentCheckBox->setChecked(record.value(8).toBool());
+            ui->strongsNumbersCheckBox->setChecked(record.value(9).toBool());
         }
-    }
-    else if (index == 2) {
+    } else if (index == 2) {
         if (ui->searchFromComboBox->count() == 0 && ui->searchToComboBox->count() == 0) {
             ui->searchFromComboBox->addItems(bookNames);
             ui->searchToComboBox->addItems(bookNames);
@@ -309,6 +322,9 @@ void MainWindow::on_tabWidget_currentChanged(int index)
             ui->translationComboBox->setCurrentIndex(currentTranslationTab);
         } else
             ui->translationComboBox->setCurrentIndex(currentTranslationTab);
+    } else if (index == 3) {
+        if (ui->entriesListWidget->count() == 0)
+            fillEntriesWidget();
     }
 }
 
@@ -320,18 +336,91 @@ void MainWindow::changeFont(QFont font)
     ui->commentsTextBrowser->setFont(font);
     ui->resultsTextBrowser->setFont(font);
     ui->randomVerseTextBrowser->setFont(font);
+    ui->definitionTextBrowser->setFont(font);
     fontSize = font.pointSize();
     fontFamily = font.toString().split(",")[0];
 }
 
+void MainWindow::changeFontSize(bool increase)
+{
+    if (increase) {
+        if (fontSize < 16)
+            fontSize++;
+        else
+            fontSize += 2;
+    } else {
+        if (fontSize < 16)
+            fontSize--;
+        else
+            fontSize -= 2;
+    }
+    ui->actionIncrease_Font_Size->setDisabled(fontSize >= 24);
+    ui->actionDecrease_Font_Size->setDisabled(fontSize <= 8);
+    QFont font;
+    font.setFamily(fontFamily);
+    font.setPointSize(fontSize);
+    changeFont(font);
+}
+
+QSqlQuery fillQuery;
+bool fillFlag = false;
+QTimer *fillTimer;
+
+void MainWindow::fillEntriesWidget()
+{
+    if (!fillFlag) {
+        fillQuery = QSqlQuery(dbDct);
+        QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
+        QValidator *validator = new QRegExpValidator(regex, this);
+        ui->searchDictionaryLineEdit->setValidator(validator);
+        QString queryString = "SELECT word FROM dictionary WHERE relativeorder > 0";
+        fillQuery.exec(queryString);
+        fillTimer = new QTimer(this);
+        connect(fillTimer, SIGNAL(timeout()), this, SLOT(fillEntriesWidget()));
+        fillTimer->start(20);
+    }
+    QStringList dictEntryList;
+    int counter = 0;
+    while (fillQuery.next() && counter < 2500) {
+        dictEntryList << fillQuery.record().value(0).toString();
+        counter++;
+    }
+    ui->entriesListWidget->addItems(dictEntryList);
+    if (fillQuery.next()) {
+        fillQuery.previous();
+        fillQuery.previous();
+    } else {
+        disconnect(fillTimer, SIGNAL(timeout()), this, SLOT(fillEntriesWidget()));
+        fillTimer->stop();
+        delete fillTimer;
+    }
+    fillFlag = true;
+}
+
+
+//void MainWindow::fillEntriesWidget()
+//{
+//    QSqlQuery query(dbDct);
+//    QString queryString = "SELECT word FROM dictionary WHERE relativeorder > 0";
+//    query.exec(queryString);
+//    QStringList dictEntryList;
+//    while (query.next())
+//        dictEntryList << query.record().value(0).toString();
+//    ui->entriesListWidget->addItems(dictEntryList);
+//    QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
+//    QValidator *validator = new QRegExpValidator(regex, this);
+//    ui->searchDictionaryLineEdit->setValidator(validator);
+//}
+
 void MainWindow::on_actionPreferences_triggered()
 {
-    PreferenceDialog preferences(fontSize, fontFamily, currentLanguage);
+    PreferenceDialog preferences(fontSize, fontFamily, currentLanguage, loadWhenBookChanged);
     preferences.setModal(true);
     preferences.setFixedSize(400, 280);
     if (preferences.exec())  {
         QFont font = preferences.getFont();
         changeFont(font);
+        loadWhenBookChanged = preferences.loadFirstChapter();
     }
 }
 
@@ -404,10 +493,30 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::aboutQt(this, "About Qt");
+
 }
 
 void MainWindow::on_actionCopy_triggered()
 {
     on_copyButton_clicked();
 }
+
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+    QMessageBox::aboutQt(this, "About Qt");
+}
+
+
+void MainWindow::on_actionIncrease_Font_Size_triggered()
+{
+    changeFontSize(true);
+}
+
+void MainWindow::on_actionDecrease_Font_Size_triggered()
+{
+    changeFontSize(false);
+}
+
+
+
+

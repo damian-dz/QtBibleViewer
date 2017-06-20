@@ -4,9 +4,13 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-PreferenceDialog::PreferenceDialog(int size, QString family, QString lang, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::PreferenceDialog)
+PreferenceDialog::PreferenceDialog(int size,
+                                   QString family,
+                                   QString lang,
+                                   bool firstChapter,
+                                   QWidget *parent)
+    : QDialog(parent),
+      ui(new Ui::PreferenceDialog)
 {
     ui->setupUi(this);
     changeLanguage(lang);
@@ -16,6 +20,7 @@ PreferenceDialog::PreferenceDialog(int size, QString family, QString lang, QWidg
         font.setFamily(family);
     ui->fontComboBox->setCurrentFont(font);
     ui->previewTextBrowser->setText("ABCabc123");
+    ui->loadFirstChapterCheckBox->setChecked(firstChapter);
 }
 
 QFont PreferenceDialog::getFont()
@@ -24,6 +29,11 @@ QFont PreferenceDialog::getFont()
     font.setPointSize(ui->fontSizeComboBox->currentText().toInt());
     font.setFamily(ui->fontComboBox->currentFont().toString());
     return font;
+}
+
+bool PreferenceDialog::loadFirstChapter()
+{
+    return ui->loadFirstChapterCheckBox->isChecked();
 }
 
 void PreferenceDialog::on_fontComboBox_currentFontChanged(const QFont &f)

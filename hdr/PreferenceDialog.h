@@ -12,8 +12,13 @@ class PreferenceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PreferenceDialog(int size, QString family, QString lang, QWidget *parent = 0);
+    explicit PreferenceDialog(int size,
+                              QString family,
+                              QString lang,
+                              bool firstChapter,
+                              QWidget *parent = 0);
     QFont getFont();
+    bool loadFirstChapter();
     ~PreferenceDialog();
 
 private slots:
