@@ -45,19 +45,38 @@ void MainWindow::on_searchDictionaryLineEdit_textEdited(const QString &arg1)
         ui->entriesListWidget->setCurrentItem(matchList[0]);
 }
 
+
 void MainWindow::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
 {
-    QString entry = arg1.toString();
-    entry = entry.right(entry.length() - 2);
-    QSqlQuery query(dbDct);
-    QString queryString = "SELECT relativeorder, data "
-                          "FROM dictionary "
-                          "WHERE word = '" +  entry + "'";
-    query.exec(queryString);
-    if (query.next()) {
-        QSqlRecord record = query.record();
-        ui->definitionTextBrowser->setHtml(record.value(1).toString());
-        ui->entriesListWidget->setCurrentRow(record.value(0).toInt() - 1);
+    QString argString = arg1.toString();
+    QString id = argString.left(2);
+    if (id == "#d" || id == "#s") {
+        QString entry = argString.right(argString.length() - 2);
+        QSqlQuery query(dbDct);
+        QString queryString = "SELECT relativeorder, data "
+                              "FROM dictionary "
+                              "WHERE word = '" +  entry + "'";
+        query.exec(queryString);
+        if (query.next()) {
+            QSqlRecord record = query.record();
+            ui->definitionTextBrowser->setHtml(record.value(1).toString());
+            ui->entriesListWidget->setCurrentRow(record.value(0).toInt() - 1);
+        }
+    } else if (id == "#b") {
+        int dbIndex = currentTranslationTab;
+        ui->tabWidget->setCurrentIndex(0);
+        QString entry = argString.right(argString.length() - 2);
+        qDebug () << entry;
+        QStringList indices = entry.split(".");
+        highlightPassage(indices, dbIndex);
+
+    } else {
+        ui->tabWidget->setCurrentIndex(2);
+        ui->translationComboBox->setCurrentIndex(indexStrong);
+        ui->byStrongsNumberRadioButton->setChecked(true);
+        QString entry = argString.mid(1, argString.length() - 1);
+        ui->enterLineEdit->setText(entry);
+        on_searchButton_clicked();
     }
 }
 
@@ -65,7 +84,8 @@ void MainWindow::on_entriesListWidget_currentTextChanged(const QString &currentT
 {
     QSqlQuery query(dbDct);
     QString queryString = "SELECT data FROM dictionary WHERE word = '" +  currentText + "'";
-    QString definition = "<center><h2>" + currentText + "</h2></center>";
+    QString definition = "<center><h2><a class='dict' href='S" + currentText +
+            "' style='text-decoration:none'>" + currentText + "</a></h2></center>";
     query.exec(queryString);
     if (query.next())
         definition += query.record().value(0).toString();

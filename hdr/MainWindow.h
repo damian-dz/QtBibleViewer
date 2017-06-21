@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QCloseEvent>
-#include <QCompleter>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMessageBox>
@@ -31,6 +30,7 @@ protected:
 private slots:
     void chapterBrowser_anchorClicked(const QUrl &arg1);
     void chapterBrowser_highlighted(const QUrl &arg1);
+    void fillEntriesWidget();
     void on_actionAbout_Qt_triggered();
     void on_actionAbout_triggered();
     void on_actionCopy_triggered();
@@ -59,7 +59,6 @@ private slots:
     void on_randomVerseButton_clicked();
     void on_randomVerseTextBrowser_anchorClicked(const QUrl &arg1);
     void on_resultsTextBrowser_anchorClicked(const QUrl &arg1);
-    void on_resultsTextBrowser_highlighted(const QUrl &arg1);
     void on_searchButton_clicked();
     void on_searchDictionaryLineEdit_textEdited(const QString &arg1);
     void on_searchFromComboBox_currentIndexChanged(int index);
@@ -69,15 +68,13 @@ private slots:
     void on_translationTabWidget_currentChanged(int index);
     void on_verseFirstComboBox_currentIndexChanged(int index);
     void on_verseLastComboBox_currentIndexChanged(int index);
-void fillEntriesWidget();
 
 private:
     Ui::MainWindow *ui;
-    QCompleter *completer;
     QLabel *statusLabel;
-    QList<QTextBrowser*> chapterBrowsers;
-    QList<QHBoxLayout*> chapterLayouts;
+    QList<QHBoxLayout *> chapterLayouts;
     QList<QStringList> globalNotes;
+    QList<QTextBrowser *> chapterBrowsers;
     QList<std::tuple<QSqlDatabase, QString, bool, bool>> databases;
     QRegExp displayRegex;
     QRegExp searchRegex;
@@ -89,60 +86,60 @@ private:
     QString emptyMessage;
     QString enteredText;
     QString fontFamily = "";
+    QString inTotal;
+    QString noMatches;
     QString openBblFilter;
     QString openCaption;
     QString openDctFilter;
     QString randomResult;
     QString resultsMessage;
     QString searchQueryString;
-    QString unavailable;
-    QString warningCaption;
-    QString timeElapsed;
     QString settingsPath;
-    QString verses;
-    QString inTotal;
+    QString timeElapsed;
+    QString unavailable;
     QString verseInTotal;
-    QString noMatches;
+    QString verses;
+    QString warningCaption;
     QStringList bookNames;
     QStringList divisionNames;
     QStringList referenceList;
     QStringList verseList;
     Qt::CaseSensitivity sensitivity;
-    bool loadWhenBookChanged;
     bool languageChanging = false;
+    bool loadFirstChapter;
+    bool loadWhenBookChanged;
     bool sentByRandom = false;
     int currentTranslationTab = 0;
     int fontSize = 10;
+    int indexStrong;
     int pageNumber;
     int resultsPerPage = 25;
-    //int eventCounter;
-    bool loadFirstChapter;
     QString formatText(QString text, bool hasStrong);
     QStringList getModuleNames(QString path);
     void addSingleTranslation(int index);
     void addTranslationTabs();
+    void changeFont(QFont font);
+    void changeFontSize(bool increase);
     void changeLanguageToEnglish();
     void changeLanguageToPolski();
     void displayResults(int startIndex, int endIndex);
+    void highlightPassage(QStringList indices, int dbIndex);
     void loadBibleModule(QString moduleName);
     void loadPassage();
+    void loadSettings(QString path, int counter = 0);
     void loadXReferencesAndDict(QString path);
     void lockCheckBoxes();
     void populateChapterMenuItemsEnglish();
     void populateChapterMenuItemsPolski();
     void populateDivisionMenuItemsEnglish();
     void populateDivisionMenuItemsPolski();
+    void saveSettings();
+    void searchByStrong(QString number);
     void searchWithRegex(QList<QRegExp> patterns, int wordCount);
     void searchWithRegex(QRegExp pattern);
     void searchWithString(QString phrase, Qt::CaseSensitivity sensitivity);
     void searchWithString(QStringList words, int wordCount, Qt::CaseSensitivity sensitivity);
-    void searchByStrong(QString number);
     void updateRangeComboBoxes();
-    void loadSettings(QString path, int counter = 0);
-    void saveSettings();
-    void changeFont(QFont font);
-    void changeFontSize(bool increase);
-
 };
 
 #endif // MAINWINDOW_H

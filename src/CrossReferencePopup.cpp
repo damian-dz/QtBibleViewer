@@ -3,7 +3,7 @@
 
 #include "hdr/StrongPopup.h"
 
-CrossReferencePopup::CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> db,
+CrossReferencePopup::CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> dbs,
                                          QStringList hrefBookChapter,
                                          QStringList books,
                                          QFont font,
@@ -19,8 +19,8 @@ CrossReferencePopup::CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> db,
     QString verse = hrefSplit[1];
     QString title = bookName + " " + chapter + ":" + verse;
     QDialog::setWindowTitle(title);
-    loadPassages(db.first, hrefSplit[2], books);
-    dbDct = db.second;
+    loadPassages(dbs.first, hrefSplit[2], books);
+    dbDct = dbs.second;
     this->font = font;
 }
 
@@ -129,7 +129,6 @@ void CrossReferencePopup::loadPassages(QSqlDatabase db, QString passageString, Q
         ui->textBrowser->setHtml(formatStrong(references));
     }
 }
-
 
 CrossReferencePopup::~CrossReferencePopup()
 {

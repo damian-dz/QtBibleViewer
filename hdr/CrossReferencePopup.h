@@ -15,7 +15,7 @@ class CrossReferencePopup : public QDialog
     Q_OBJECT
 
 public:
-    explicit CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> db,
+    explicit CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> dbs,
                              QStringList hrefBookChapter,
                              QStringList books,
                              QFont font,

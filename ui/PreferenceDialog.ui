@@ -178,12 +178,12 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>30</x>
      <y>170</y>
-     <width>271</width>
+     <width>351</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Load the First Chapter when the Book Is Changed</string>
+    <string>Load the First Chapter when the Book Changes</string>
    </property>
    <property name="checked">
     <bool>true</bool>

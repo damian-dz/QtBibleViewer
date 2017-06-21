@@ -25,7 +25,7 @@ MainWindow::MainWindow(QString appDir, QWidget *parent)
     } else
         ui->bookListWidget->setDisabled(true);
     loadSettings(appDir, 1);
-    statusLabel = new QLabel;
+    statusLabel = new QLabel(this);
     ui->statusBar->addWidget(statusLabel);
     ui->dictMainHorizontalLayout->setStretchFactor(ui->entriesColumnVerticalLayout, 2);
     ui->dictMainHorizontalLayout->setStretchFactor(ui->definitionColumnVerticalLayout, 8);
@@ -141,6 +141,8 @@ void MainWindow::loadBibleModule(QString modulePath)
     // this actually checks whether the module has Strong's numbers
     if (query.next())
         hasStrong = query.record().value(0).toString().contains(QRegExp("<W[HG][0-9]{1,4}>"));
+    if (hasStrong && moduleName == "KJV")
+        indexStrong = databases.count();
     databases.append(std::make_tuple(dbBbl, moduleName, hasOldTestament, hasStrong));
 }
 
@@ -378,6 +380,7 @@ void MainWindow::fillEntriesWidget()
         fillTimer = new QTimer(this);
         connect(fillTimer, SIGNAL(timeout()), this, SLOT(fillEntriesWidget()));
         fillTimer->start(20);
+        fillFlag = true;
     }
     QStringList dictEntryList;
     int counter = 0;
@@ -394,9 +397,7 @@ void MainWindow::fillEntriesWidget()
         fillTimer->stop();
         delete fillTimer;
     }
-    fillFlag = true;
 }
-
 
 //void MainWindow::fillEntriesWidget()
 //{
@@ -473,11 +474,6 @@ void MainWindow::chapterBrowser_anchorClicked(const QUrl &arg1)
                                        verseInfo, bookNames, font);
         xRefDialog.exec();
     }
-}
-
-void MainWindow::on_resultsTextBrowser_highlighted(const QUrl &arg1)
-{
-
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

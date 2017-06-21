@@ -432,36 +432,41 @@ void MainWindow::on_resultsTextBrowser_anchorClicked(const QUrl &arg1)
         ui->tabWidget->setCurrentIndex(0);
         ui->translationTabWidget->setCurrentIndex(dbIndex);
         QStringList indices = argString.split(",");
-        int book = indices[0].toInt() - 1;
-        int chapter = indices[1].toInt() - 1;
-        int verse = indices[2].toInt();
-        ui->bookListWidget->setCurrentRow(book);
-        ui->chapterListWidget->setCurrentRow(chapter);
-        QString plainText = chapterBrowsers[dbIndex]->toPlainText();
-        QRegExp startRgx = QRegExp("\\b" + QString::number(verse) + " ");
-        int start = plainText.indexOf(startRgx);
-        int verseCount = ui->verseLastComboBox->count();
-        int *verseNumbers = new int[verseCount];
-        for (int i = 0; i < verseCount; ++i)
-            verseNumbers[i] = ui->verseLastComboBox->itemText(i).toInt();
-        int limit = -100;
-        for (int i = 0; i < verseCount; ++i) {
-            if (verseNumbers[i] > verse) {
-                limit = verseNumbers[i];
-                break;
-            }
-        }
-        delete[] verseNumbers;
-        QRegExp endRgx = QRegExp("\\b" + QString::number(limit) + " ");
-        int end = plainText.indexOf(endRgx);
-        if (end == - 1)
-            end = plainText.length() - 1;
-        QTextCursor cursor = chapterBrowsers[currentTranslationTab]->textCursor();
-        cursor.setPosition(start, QTextCursor::MoveAnchor);
-        cursor.setPosition(end, QTextCursor::KeepAnchor);
-        chapterBrowsers[dbIndex]->setTextCursor(cursor);
-        chapterBrowsers[dbIndex]->setFocus();
+        highlightPassage(indices, dbIndex);
     }
+}
+
+void MainWindow::highlightPassage(QStringList indices, int dbIndex)
+{
+    int book = indices[0].toInt() - 1;
+    int chapter = indices[1].toInt() - 1;
+    int verse = indices[2].toInt();
+    ui->bookListWidget->setCurrentRow(book);
+    ui->chapterListWidget->setCurrentRow(chapter);
+    QString plainText = chapterBrowsers[dbIndex]->toPlainText();
+    QRegExp startRgx = QRegExp("\\b" + QString::number(verse) + " ");
+    int start = plainText.indexOf(startRgx);
+    int verseCount = ui->verseLastComboBox->count();
+    int *verseNumbers = new int[verseCount];
+    for (int i = 0; i < verseCount; ++i)
+        verseNumbers[i] = ui->verseLastComboBox->itemText(i).toInt();
+    int limit = -100;
+    for (int i = 0; i < verseCount; ++i) {
+        if (verseNumbers[i] > verse) {
+            limit = verseNumbers[i];
+            break;
+        }
+    }
+    delete[] verseNumbers;
+    QRegExp endRgx = QRegExp("\\b" + QString::number(limit) + " ");
+    int end = plainText.indexOf(endRgx);
+    if (end == - 1)
+        end = plainText.length() - 1;
+    QTextCursor cursor = chapterBrowsers[currentTranslationTab]->textCursor();
+    cursor.setPosition(start, QTextCursor::MoveAnchor);
+    cursor.setPosition(end, QTextCursor::KeepAnchor);
+    chapterBrowsers[dbIndex]->setTextCursor(cursor);
+    chapterBrowsers[dbIndex]->setFocus();
 }
 
 void MainWindow::on_randomVerseButton_clicked()

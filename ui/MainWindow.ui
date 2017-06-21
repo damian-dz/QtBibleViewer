@@ -913,6 +913,9 @@
                 <pointsize>10</pointsize>
                </font>
               </property>
+              <property name="openLinks">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
            </layout>
