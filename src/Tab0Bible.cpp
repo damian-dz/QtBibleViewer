@@ -1,11 +1,16 @@
 #include "hdr/MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include "hdr/CrossReferencePopup.h"
+#include "hdr/StrongPopup.h"
+
 #include <QClipboard>
+#include <QToolTip>
 
 /* Bible Tab */
 void MainWindow::loadPassage()
 {
+    //qDebug() << "loadPassage()";
     if (!loadFirstChapter)
         return;
     int dbIndex = currentTranslationTab;
@@ -18,39 +23,48 @@ void MainWindow::loadPassage()
         QString bookStr = QString::number(book);
         QString chapterStr = QString::number(chapter);
         QString queryString = "SELECT Verse, Scripture FROM Bible"
-                              " WHERE Book = " + bookStr +
-                              " AND Chapter = " + chapterStr  +
-                              " AND Verse >=  " + QString::number(verseFirst) +
-                              " AND Verse <= " + QString::number(verseLast);
-        QSqlQuery query(std::get<0>(databases[dbIndex]));
+                              " WHERE Book = " % bookStr %
+                              " AND Chapter = " % chapterStr %
+                              " AND Verse >=  " % QString::number(verseFirst) %
+                              " AND Verse <= " % QString::number(verseLast);
+        QSqlQuery query(translations[dbIndex].database);
         query.exec(queryString);
         QSqlQuery xRefQuery(dbXRef);
         currentPassage.clear();
         while (query.next()) {
             QString verseNumber = query.record().value(0).toString();
-            QString xRefQueryString = "SELECT XRefs FROM CrossReferences"
-                                      " WHERE BOOK = " + bookStr +
-                                      " AND Chapter = " + chapterStr  +
-                                      " AND Verse = " + verseNumber;
+            QString xRefQueryString = QStringLiteral("SELECT XRefs FROM CrossReferences WHERE BOOK = ") % bookStr %
+                                      QStringLiteral(" AND Chapter = ") % chapterStr %
+                                      QStringLiteral(" AND Verse = ") % verseNumber;
             xRefQuery.exec(xRefQueryString);
             if (xRefQuery.next())
-                verseNumber = "<a href=\"x:" + verseNumber + ":" +
-                        xRefQuery.record().value(0).toString() + "\">" + verseNumber + "</a>";
-            QString currentVerse = "<b>" + verseNumber + "</b> " + query.record().value(1).toString() + "<br>";
+                verseNumber = "<a href='x:" % verseNumber % ":" +
+                        xRefQuery.record().value(0).toString() % "'>" + verseNumber % "</a>";
+            QString currentVerse = "<b>" % verseNumber % "</b> " % query.record().value(1).toString() % "<br>";
             if (currentVerse.contains("<TS>")) {
                 headerRegex.indexIn(currentVerse);
                 currentVerse.remove(headerRegex);
-                currentVerse = headerRegex.cap(0) + currentVerse;
+                currentVerse = headerRegex.cap(0) % currentVerse;
             }
             currentPassage += currentVerse;
         }
         if (currentPassage.isNull()) {
-            chapterBrowsers[dbIndex]->setHtml(unavailable);
+            chapterBrowsers[dbIndex]->setHtml("<center><h2>" % unavailable % "</center></h2>");
             return;
         }
-        currentPassage = formatText(currentPassage, std::get<3>(databases[dbIndex]));
+        currentPassage = formatText(currentPassage, translations[dbIndex].hasStrong);
         chapterBrowsers[dbIndex]->setHtml(currentPassage);
     }
+    ui->actionBack->setEnabled(historyList.count() > 1 && indexHistory > 0);
+    ui->actionForward->setEnabled(historyList.count() > 1 && indexHistory < historyList.count() - 1);
+    if (sentByBackForward)
+        return;
+    historyList.append({ (uchar)dbIndex, (uchar)book, (uchar)chapter, (uchar)verseFirst, (uchar)verseLast });
+    if (historyList.count() > maxRecentPassages)
+        historyList.removeFirst();
+    indexHistory = historyList.count() - 1;
+    ui->actionBack->setEnabled(historyList.count() > 1 && indexHistory > 0);
+    ui->actionForward->setDisabled(true);
 }
 
 void MainWindow::on_bookListWidget_currentRowChanged(int currentRow)
@@ -58,20 +72,25 @@ void MainWindow::on_bookListWidget_currentRowChanged(int currentRow)
     if (languageChanging)
         return;
     int dbIndex = currentTranslationTab;
-    QString queryString = "SELECT Chapter FROM Bible"
-                          " WHERE Book = " + QString::number(currentRow + 1) +
-                          " AND Verse = 1";
+    QString queryString = QStringLiteral("SELECT Chapter FROM Bible WHERE Book = ") %
+                          QString::number(currentRow + 1) %
+                          QStringLiteral(" AND Verse = 1");
     loadFirstChapter = loadWhenBookChanged;
+    ui->chapterListWidget->blockSignals(true);
     ui->chapterListWidget->clear();
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    ui->chapterListWidget->blockSignals(false);
+    QSqlQuery query(translations[dbIndex].database);
     query.exec(queryString);
+    QStringList chapterNumbers;
     while (query.next())
-        ui->chapterListWidget->addItem(query.record().value(0).toString());
-    if (ui->chapterListWidget->count() == 0) {
-        chapterBrowsers[dbIndex]->setHtml(unavailable);
+        chapterNumbers << query.record().value(0).toString();
+    ui->chapterListWidget->addItems(chapterNumbers);
+    if (chapterNumbers.count() == 0) {
+        chapterBrowsers[dbIndex]->setHtml("<center><h2>" % unavailable % "</center></h2>");
         return;
     }
-    ui->chapterListWidget->setCurrentRow(0);
+    if (!firstLoadBible)
+        ui->chapterListWidget->setCurrentRow(0);
     loadFirstChapter = true;
 }
 
@@ -79,33 +98,33 @@ void MainWindow::on_chapterListWidget_currentRowChanged(int currentRow)
 {
     ui->verseFirstComboBox->blockSignals(true);
     ui->verseLastComboBox->blockSignals(true);
-    int bookNumber = ui->bookListWidget->currentRow() + 1;
-    int chapterNumber = currentRow + 1;
+    int book = ui->bookListWidget->currentRow() + 1;
+    int chapter = currentRow + 1;
     ui->verseFirstComboBox->clear();
     ui->verseLastComboBox->clear();
     int dbIndex = currentTranslationTab;
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
-    QString queryString = "SELECT Verse FROM Bible"
-                          " WHERE Book = " + QString::number(bookNumber) +
-                          " AND Chapter = " + QString::number(chapterNumber);
+    QSqlQuery query(translations[dbIndex].database);
+    QString queryString = QStringLiteral("SELECT Verse FROM Bible WHERE Book = ") % QString::number(book) %
+                          QStringLiteral(" AND Chapter = ") % QString::number(chapter);
     query.exec(queryString);
-    while (query.next()) {
-        QString verseNumber = query.record().value(0).toString();
-        ui->verseFirstComboBox->addItem(verseNumber);
-        ui->verseLastComboBox->addItem(verseNumber);
-    }
-    ui->verseFirstComboBox->setCurrentIndex(0);
+    QStringList verseNumbers;
+    while (query.next())
+        verseNumbers << query.record().value(0).toString();
+    ui->verseFirstComboBox->addItems(verseNumbers);
+    ui->verseLastComboBox->addItems(verseNumbers);
+    if (!firstLoadBible)
+        ui->verseFirstComboBox->setCurrentIndex(0);
     ui->verseFirstComboBox->blockSignals(false);
     ui->verseLastComboBox->blockSignals(false);
     ui->verseLastComboBox->setCurrentIndex(ui->verseLastComboBox->count() - 1);
-    ui->nextChapterButton->setDisabled(
-                ui->bookListWidget->currentRow()
-                == ui->bookListWidget->count() - 1
-                && ui->chapterListWidget->currentRow()
-                == ui->chapterListWidget->count() - 1);
     ui->prevChapterButton->setDisabled(
-                ui->bookListWidget->currentRow() == 0
-                && ui->chapterListWidget->currentRow() == 0);
+                ui->bookListWidget->currentRow() == 0 &&
+                ui->chapterListWidget->currentRow() == 0);
+    ui->nextChapterButton->setDisabled(
+                ui->bookListWidget->currentRow() ==
+                ui->bookListWidget->count() - 1 &&
+                ui->chapterListWidget->currentRow() ==
+                ui->chapterListWidget->count() - 1);
 }
 
 void MainWindow::on_verseFirstComboBox_currentIndexChanged(int index)
@@ -126,6 +145,139 @@ void MainWindow::on_verseLastComboBox_currentIndexChanged(int index)
     loadPassage();
 }
 
+void MainWindow::chapterBrowser_actionCopy()
+{
+    chapterBrowsers[currentTranslationTab]->copy();
+}
+
+void MainWindow::chapterBrowser_actionCopyFormatted()
+{
+    QString plainText = chapterBrowsers[currentTranslationTab]->toPlainText();
+    QString start = QString::number(range.first) + "\\b";
+    if (range.first > ui->verseFirstComboBox->currentText().toInt())
+        start.prepend("(\n");
+    else
+        start.prepend("(");
+    QString end;
+    if (range.second ==
+            ui->verseLastComboBox->itemText(ui->verseLastComboBox->currentIndex()).toInt())
+        end = ")\n";
+    else
+        end = ")\n" + QString::number(range.second + 1) + "\\b";
+    QRegExp regex(start + ".*" + end);
+    int pos = regex.indexIn(plainText);
+    QString textToCopy;
+    if (pos > -1)
+        textToCopy = regex.cap(1);
+    textToCopy.replace(QRegExp("\n"), " ");
+    textToCopy.remove(QRegExp("\\*| \\*| \\* |\\* "));
+    if (translations[currentTranslationTab].hasStrong) {
+        textToCopy.remove(QRegExp(" [HG][0-9]{1,4}"));
+        textToCopy.replace("  ", " ");
+    }
+    textToCopy = textToCopy.trimmed();
+    textToCopy += "—" + bookNames[ui->bookListWidget->currentRow()] +
+            " " + ui->chapterListWidget->currentItem()->text() +
+            ":" + QString::number(range.first);
+    if (range.first != range.second)
+        textToCopy += "-" + QString::number(range.second);
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(textToCopy);
+    ui->statusBar->showMessage(copyMessage, 2500);
+}
+
+void MainWindow::chapterBrowser_actionSelectAll()
+{
+    chapterBrowsers[currentTranslationTab]->selectAll();
+}
+
+void MainWindow::getVerseRange()
+{
+    QString plainText = chapterBrowsers[currentTranslationTab]->toPlainText();
+    QTextCursor cursor = chapterBrowsers[currentTranslationTab]->textCursor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
+    int prev = 0;
+    int crnt = 0;
+    QRegularExpression regex("\n[0-9]{1,3}\\b");
+    QRegularExpressionMatchIterator iter = regex.globalMatch(plainText);
+    bool found = false;
+    int firstVerse = ui->verseFirstComboBox->currentIndex() + 1;
+    int lastVerse = ui->verseFirstComboBox->currentIndex() + 1;
+    while (iter.hasNext() && !found) {
+        QRegularExpressionMatch match = iter.next();
+        if (match.hasMatch()) {
+            QString crntMatch = match.captured();
+            crnt = plainText.indexOf(crntMatch);
+            if (start > prev && start <= crnt)
+                firstVerse = crntMatch.right(crntMatch.size() - 1).toInt() - 1;
+            if (end > prev && end <= crnt) {
+                lastVerse = crntMatch.right(crntMatch.size() - 1).toInt() - 1;
+                found = true;
+            }
+            prev = crnt;
+        }
+    }
+    crnt = plainText.lastIndexOf("\n");
+    if (start > prev && start <= crnt)
+        firstVerse = ui->verseLastComboBox->itemText(ui->verseLastComboBox->currentIndex()).toInt();
+    if (end > prev && end <= crnt + 2)
+        lastVerse = ui->verseLastComboBox->itemText(ui->verseLastComboBox->currentIndex()).toInt();
+    range = qMakePair(firstVerse, lastVerse);
+}
+
+
+void MainWindow::chapterBrowser_actionAddToFavorites()
+{
+    ui->tabWidget->setCurrentIndex(4);
+    insertIntoFavorites();
+}
+
+void MainWindow::showBibleContextMenu(const QPoint &pos)
+{
+    QPoint globalPos = chapterBrowsers[currentTranslationTab]->mapToGlobal(pos);
+    QMenu contextMenu(this);
+    contextMenu.addAction(cntxtActCopy,
+                          this,
+                          SLOT(chapterBrowser_actionCopy()),
+                          QKeySequence(tr("Ctrl+C")));
+    contextMenu.addAction(cntxtActCopyFormatted,
+                          this,
+                          SLOT(chapterBrowser_actionCopyFormatted()));
+    contextMenu.addAction(cntxtActSelectAll,
+                          this,
+                          SLOT(chapterBrowser_actionSelectAll()),
+                          QKeySequence(tr("Ctrl+A")));
+    contextMenu.addSeparator();
+    getVerseRange();
+    QString addVerseMsg;
+    if (range.first == range.second)
+        addVerseMsg = cntxtActAddVerse + QString::number(range.first) + cntxtActToFavorites;
+    else
+        addVerseMsg = cntxtActAddVerses + QString::number(range.first) +
+                "-" + QString::number(range.second) + cntxtActToFavorites;
+    contextMenu.addAction(addVerseMsg,
+                          this,
+                          SLOT(chapterBrowser_actionAddToFavorites()));
+    contextMenu.addSeparator();
+    contextMenu.addAction(contextActionBack,
+                          this,
+                          SLOT(on_actionBack_triggered()),
+                          QKeySequence(tr("Ctrl+Left")));
+    contextMenu.addAction(contextActionForward,
+                          this,
+                          SLOT(on_actionForward_triggered()),
+                          QKeySequence(tr("Ctrl+Right")));
+    QList<QAction *> contextActions = contextMenu.actions();
+    QTextCursor cursor = chapterBrowsers[currentTranslationTab]->textCursor();
+    contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
+    contextActions[1]->setEnabled(contextActions[0]->isEnabled());
+    contextActions[4]->setDisabled(range.first == 0 && range.second == 0);
+    contextActions[6]->setEnabled(ui->actionBack->isEnabled());
+    contextActions[7]->setEnabled(ui->actionForward->isEnabled());
+    contextMenu.exec(globalPos);
+}
+
 QString cleanBeforeCopying(QString text, bool hasStrong)
 {
     if (hasStrong)
@@ -143,7 +295,7 @@ QString cleanBeforeCopying(QString text, bool hasStrong)
 void MainWindow::on_copyButton_clicked()
 {
     int dbIndex = currentTranslationTab;
-    currentPassage = cleanBeforeCopying(currentPassage, std::get<3>(databases[dbIndex]));
+    currentPassage = cleanBeforeCopying(currentPassage, translations[dbIndex].hasStrong);
     QString textToAppend;
     QString bookName = ui->bookListWidget->currentItem()->text();
     QString chapterNumber = ui->chapterListWidget->currentItem()->text();
@@ -151,9 +303,9 @@ void MainWindow::on_copyButton_clicked()
     QString lastVerseNumber = ui->verseLastComboBox->currentText();
     int firstVerseIndex = ui->verseFirstComboBox->currentIndex();
     int lastVerseIndex = ui->verseLastComboBox->currentIndex();
-    if (firstVerseIndex == 0 && (lastVerseIndex + 1) == ui->verseLastComboBox->count()) {
+    if (firstVerseIndex == 0 && lastVerseIndex + 1 == ui->verseLastComboBox->count()) {
         textToAppend = "—" + bookName +
-                " " + chapterNumber;
+                       " " + chapterNumber;
     } else if (firstVerseNumber != lastVerseNumber) {
         textToAppend = "—" + bookName +
                        " " + chapterNumber +
@@ -170,7 +322,7 @@ void MainWindow::on_copyButton_clicked()
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(currentPassage);
     ui->verseLineEdit->setText(currentPassage);
-    ui->statusBar->showMessage(copyMessage, 2000);
+    ui->statusBar->showMessage(copyMessage, 2500);
 }
 
 void MainWindow::on_prevChapterButton_clicked()
@@ -195,6 +347,66 @@ void MainWindow::on_nextChapterButton_clicked()
 void MainWindow::on_translationTabWidget_currentChanged(int index)
 {
     currentTranslationTab = index;
-    loadPassage();
+    if (!firstLoadBible)
+        loadPassage();
+    if (ui->chapterListWidget->count() == 0) {
+        int currentIndex = ui->bookListWidget->currentRow();
+        ui->bookListWidget->blockSignals(true);
+        ui->bookListWidget->setCurrentRow(-1);
+        ui->bookListWidget->blockSignals(false);
+        ui->bookListWidget->setCurrentRow(currentIndex);
+    }
 }
+
+void MainWindow::chapterBrowser_highlighted(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    if (!argString.isNull()) {
+        QStringList argSplit = argString.split(":");
+        if (argSplit[0] == "c") {
+            int index = currentTranslationTab;
+            QPoint point = chapterBrowsers[index]->mapFromParent(QCursor::pos());
+            double offset = 3.4 * fontSize;
+            point.setY(point.y() - offset);
+            QRect rect;
+            int subIndex = argSplit[1].toInt();
+            QString markupText = globalNotes[index][subIndex];
+            QString plainText = markupText.mid(4, markupText.size() - 8);
+            plainText.replace("[i]", "<i>").replace("[/i]", "</i>");
+            plainText.replace("[0A]", "<font color=#00000a>").replace("[0a]", "</font>");
+            QString note = "<p style='white-space:pre'>" + plainText + "</p>";
+            QFont font;
+            if (!fontFamily.isEmpty())
+                font.setFamily(fontFamily);
+            font.setPointSize(fontSize);
+            QToolTip::setFont(font);
+            QToolTip::showText(point, note, 0, rect, 2147483647);
+        }
+    } else
+        QToolTip::hideText();
+}
+
+void MainWindow::chapterBrowser_anchorClicked(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    QFont font;
+    if (!fontFamily.isEmpty())
+       font.setFamily(fontFamily);
+    font.setPointSize(fontSize);
+    QChar firstChar = argString[0];
+    if (firstChar == 'H' || firstChar == 'G') {
+        StrongPopup strongDialog(dbDct, argString, font, this);
+        strongDialog.exec();
+    } else if (firstChar == 'x') {
+        int dbIndex = currentTranslationTab;
+        QStringList verseInfo;
+        verseInfo << argString
+                  << QString::number(ui->bookListWidget->currentRow())
+                  << QString::number(ui->chapterListWidget->currentItem()->text().toInt());
+        CrossReferencePopup xRefDialog(qMakePair(translations[dbIndex].database, dbDct),
+                                       verseInfo, bookNames, font, this);
+        xRefDialog.exec();
+    }
+}
+
 

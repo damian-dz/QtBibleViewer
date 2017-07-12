@@ -1,12 +1,15 @@
 #include "hdr/CrossReferencePopup.h"
 #include "ui_CrossReferencePopup.h"
 
+#include <QStringBuilder>
+#include <QTime>
+
 #include "hdr/StrongPopup.h"
 
-CrossReferencePopup::CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> dbs,
-                                         QStringList hrefBookChapter,
-                                         QStringList books,
-                                         QFont font,
+CrossReferencePopup::CrossReferencePopup(const QPair<QSqlDatabase, QSqlDatabase> &dbs,
+                                         const QStringList &hrefBookChapter,
+                                         const QStringList &books,
+                                         const QFont &font,
                                          QWidget* parent)
     : QDialog(parent),
       ui(new Ui::CrossReferencePopup)
@@ -19,9 +22,17 @@ CrossReferencePopup::CrossReferencePopup(QPair<QSqlDatabase, QSqlDatabase> dbs,
     QString verse = hrefSplit[1];
     QString title = bookName + " " + chapter + ":" + verse;
     QDialog::setWindowTitle(title);
+    QTime t;
+    t.start();
     loadPassages(dbs.first, hrefSplit[2], books);
+    qDebug() << t.elapsed();
     dbDct = dbs.second;
     this->font = font;
+}
+
+CrossReferencePopup::~CrossReferencePopup()
+{
+    delete ui;
 }
 
 void CrossReferencePopup::on_textBrowser_anchorClicked(const QUrl &arg1)
@@ -29,15 +40,17 @@ void CrossReferencePopup::on_textBrowser_anchorClicked(const QUrl &arg1)
     QString argString = arg1.toString();
     QChar firstChar = argString[0];
     if (firstChar == 'H' || firstChar == 'G') {
-        StrongPopup strongDialog(dbDct, argString, font);
+        StrongPopup strongDialog(dbDct, argString, font, this);
         strongDialog.exec();
     }
 }
 
-QString formatReferences(QString text, QRegExp rfRegex)
+QString formatReferences(QString text, const QRegExp &rfRegex)
 {
-    text.replace("<FI>", "<i>").replace("<Fi>", "</i>");
-    text.replace("<FR>", "<font color=#C80000>").replace("<Fr>", "</font>");
+    text.replace(QStringLiteral("<FI>"), QStringLiteral("<i>"))
+            .replace(QStringLiteral("<Fi>"), QStringLiteral("</i>"));
+    text.replace(QStringLiteral("<FR>"), QStringLiteral("<font color=#C80000>"))
+            .replace(QStringLiteral("<Fr>"), QStringLiteral("</font>"));
     text.remove(rfRegex);
     return text;
 }
@@ -51,13 +64,17 @@ QString formatStrong(QString text)
         if (match.hasMatch()) {
             QString original = match.captured(0);
             QString modified = original.mid(2, original.size() - 3);
-            text.replace(original, " <a href=\"" + modified + "\">" + modified + "</a>");
+            text.replace(original, QStringLiteral(" <a href ='") %
+                         modified % QStringLiteral("'>") % modified %
+                         QStringLiteral("</a>"));
+
+           // text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
         }
     }
     return text;
 }
 
-void CrossReferencePopup::loadPassages(QSqlDatabase db, QString passageString, QStringList bookNames)
+void CrossReferencePopup::loadPassages(const QSqlDatabase &db, QString passageString, QStringList bookNames)
 {
     QStringList passageList = passageString.split(",");
     QSqlQuery query(db);
@@ -70,15 +87,11 @@ void CrossReferencePopup::loadPassages(QSqlDatabase db, QString passageString, Q
             QString book = bookChapterVerse[0];
             QString chapter = bookChapterVerse[1];
             QString verse = bookChapterVerse[2];
-            QString queryString = "SELECT Scripture FROM Bible"
-                                  " WHERE Book = " + book +
-                                  " AND Chapter = " + chapter +
-                                  " AND Verse = " + verse;
-            query.exec(queryString);
+            query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse = %3")
+                       .arg(book, chapter, verse));
             if (query.next())
-                references += formatReferences(query.record().value(0).toString(), rfRegex) +
-                              QString("<a href=\"%1,%2,%3\" style='text-decoration: none'><b>—%4 %5:%6</b></a><br><br>")
-                              .arg(book, chapter, verse, bookNames[book.toInt() - 1], chapter, verse);
+                references += formatReferences(query.record().value(0).toString(), rfRegex) %
+                              QStringLiteral("<a href=\"%1,%2,%3\" style='text-decoration:none'><b>—%4 %5:%6</b></a><br><br>").arg(book, chapter, verse, bookNames[book.toInt() - 1], chapter, verse);
         } else {
             QStringList fromTo = passageList[i].split("-");
             QStringList bookChapterVerseFrom = fromTo[0].split(".");
@@ -89,48 +102,31 @@ void CrossReferencePopup::loadPassages(QSqlDatabase db, QString passageString, Q
             QString chapterTo = bookChapterVerseTo[1];
             QString verseTo = bookChapterVerseTo[2];
             if (chapterFrom == chapterTo) {
-                QString queryString = "SELECT Scripture FROM Bible"
-                                      " WHERE Book = " + book +
-                                      " AND Chapter = " + chapterFrom  +
-                                      " AND Verse >= " + verseFrom +
-                                      " AND Verse <= " + verseTo;
-                query.exec(queryString);
+                query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3 AND Verse <= %4").arg(book, chapterFrom, verseFrom, verseTo));
                 QString passage;
                 while (query.next())
                     passage += query.record().value(0).toString() + " ";
-                references += formatReferences(passage.left(passage.size() - 1), rfRegex) +
-                        QString("<a href=\"%1,%2,%3-%4\" style='text-decoration: none'><b>—%5 %6:%7-%8</b></a><br><br>")
+                references += formatReferences(passage.left(passage.size() - 1), rfRegex) %
+                        QStringLiteral("<a href='%1,%2,%3-%4' style='text-decoration:none'><b>—%5 %6:%7-%8</b></a><br><br>")
                         .arg(book, chapterFrom, verseFrom, verseTo,
                         bookNames[book.toInt() - 1], chapterFrom, verseFrom, verseTo);
             } else {
-                QString queryString = "SELECT Scripture FROM Bible"
-                                      " WHERE Book = " + book +
-                                      " AND Chapter = " + chapterFrom  +
-                                      " AND Verse >= " + verseFrom;
-                query.exec(queryString);
+                query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3")
+                           .arg(book, chapterFrom, verseFrom));
                 QString passage;
                 while (query.next())
-                    passage += query.record().value(0).toString() + " ";
-                queryString = "SELECT Scripture FROM Bible"
-                              " WHERE Book = " + book +
-                              " AND Chapter = " + chapterTo  +
-                              " AND Verse <= " + verseTo;
-                query.exec(queryString);
+                    passage += query.record().value(0).toString() % " ";
+                query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse <= %3")
+                           .arg(book, chapterTo, verseTo));
                 while (query.next())
-                    passage += query.record().value(0).toString() + " ";
-                references += formatReferences(passage.left(passage.size() - 1), rfRegex) +
-                        QString("<a href=\"%1,%2,%3-%4,%5\" style='text-decoration: none'>")
-                        .arg(book, chapterFrom, verseFrom, chapterTo, verseTo ) +
-                        QString("<b>—%1 %2:%3-%4:%5</b></a><br><br>")
+                    passage += query.record().value(0).toString() % " ";
+                references += formatReferences(passage.left(passage.size() - 1), rfRegex) %
+                        QStringLiteral("<a href='%1,%2,%3-%4,%5' style='text-decoration:none'>")
+                        .arg(book, chapterFrom, verseFrom, chapterTo, verseTo ) %
+                        QStringLiteral("<b>—%1 %2:%3-%4:%5</b></a><br><br>")
                         .arg(bookNames[book.toInt() - 1], chapterFrom, verseFrom, chapterTo, verseTo);
             }
         }
-
         ui->textBrowser->setHtml(formatStrong(references));
     }
-}
-
-CrossReferencePopup::~CrossReferencePopup()
-{
-    delete ui;
 }

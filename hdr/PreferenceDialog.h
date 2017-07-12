@@ -13,13 +13,15 @@ class PreferenceDialog : public QDialog
 
 public:
     explicit PreferenceDialog(int size,
-                              QString family,
-                              QString lang,
+                              const QString &family,
+                              const QString &lang,
                               bool firstChapter,
+                              int recentCount,
                               QWidget *parent = 0);
-    QFont getFont();
-    bool loadFirstChapter();
     ~PreferenceDialog();
+    QFont getFont();
+    int getMaxRecentPassages();
+    bool loadFirstChapter();
 
 private slots:
     void on_fontComboBox_currentFontChanged(const QFont &f);
@@ -27,7 +29,7 @@ private slots:
 
 private:
     Ui::PreferenceDialog *ui;
-    void changeLanguage(QString language);
+    void changeLanguage(const QString &language);
 };
 
 #endif // PREFERENCEDIALOG_H

@@ -5,9 +5,10 @@
 #include <QPushButton>
 
 PreferenceDialog::PreferenceDialog(int size,
-                                   QString family,
-                                   QString lang,
+                                   const QString &family,
+                                   const QString &lang,
                                    bool firstChapter,
+                                   int recentCount,
                                    QWidget *parent)
     : QDialog(parent),
       ui(new Ui::PreferenceDialog)
@@ -21,6 +22,12 @@ PreferenceDialog::PreferenceDialog(int size,
     ui->fontComboBox->setCurrentFont(font);
     ui->previewTextBrowser->setText("ABCabc123");
     ui->loadFirstChapterCheckBox->setChecked(firstChapter);
+    ui->recentCountSpinBox->setValue(recentCount);
+}
+
+PreferenceDialog::~PreferenceDialog()
+{
+    delete ui;
 }
 
 QFont PreferenceDialog::getFont()
@@ -34,6 +41,11 @@ QFont PreferenceDialog::getFont()
 bool PreferenceDialog::loadFirstChapter()
 {
     return ui->loadFirstChapterCheckBox->isChecked();
+}
+
+int PreferenceDialog::getMaxRecentPassages()
+{
+    return ui->recentCountSpinBox->value();
 }
 
 void PreferenceDialog::on_fontComboBox_currentFontChanged(const QFont &f)
@@ -51,19 +63,15 @@ void PreferenceDialog::on_fontSizeComboBox_currentTextChanged(const QString &arg
     ui->previewTextBrowser->setFont(font);
 }
 
-void PreferenceDialog::changeLanguage(QString language)
+void PreferenceDialog::changeLanguage(const QString &language)
 {
     if (language == "PL") {
-        setWindowTitle("Preferencje");
+        QDialog::setWindowTitle("Preferencje");
         ui->fontFamilyLabel->setText("Rodzaj Czcionki");
         ui->fontSizeLabel->setText("Rozmiar Czcionki");
         ui->previewLabel->setText("Podgląd");
         ui->loadFirstChapterCheckBox->setText("Wczytaj Pierwszy Rozdział przy Zmianie Księgi");
+        ui->recentPassagesInMemoryLabel->setText("Liczba Ostatnich Fragmentów w Pamięci:");
         ui->buttonBox->button(QDialogButtonBox::Cancel)->setText("Anuluj");
     }
-}
-
-PreferenceDialog::~PreferenceDialog()
-{
-    delete ui;
 }

@@ -13,7 +13,10 @@ class StrongPopup : public QDialog
     Q_OBJECT
 
 public:
-    explicit StrongPopup(QSqlDatabase db, QString number, const QFont &font, QWidget *parent = 0);
+    explicit StrongPopup(const QSqlDatabase &db,
+                         const QString &number,
+                         const QFont &font,
+                         QWidget *parent = 0);
     ~StrongPopup();
 
 private slots:
@@ -23,8 +26,8 @@ private:
     Ui::StrongPopup *ui;
     QSqlDatabase dbDct;
     QSqlDatabase dbXRef;
-    void loadDefinition(QString number);
-    void loadCrossReferences(QString numbers);
+    void loadCrossReferences(const QString &numbers);
+    void loadDefinition(const QString &number);
 };
 
 #endif // STRONGPOPUP_H

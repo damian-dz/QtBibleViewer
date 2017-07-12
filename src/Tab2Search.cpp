@@ -1,6 +1,7 @@
 #include "hdr/MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include "hdr/AuxiliaryMethods.h"
 #include "hdr/StrongPopup.h"
 
 /* Search Tab */
@@ -75,14 +76,19 @@ void MainWindow::on_divisionComboBox_currentIndexChanged(int index)
     ui->searchToComboBox->blockSignals(false);
 }
 
-QString formatResult(QString text, QRegExp regex, bool hasStrong)
+void MainWindow::on_enterLineEdit_textChanged(const QString &arg1)
+{
+    ui->searchButton->setDisabled(arg1.trimmed().isEmpty());
+}
+
+QString formatResult(QString text, const QRegExp &regex, bool hasStrong)
 {
     text.remove(regex);
-    text.replace("<FI>", "<i>");
-    text.replace("<Fi>", "</i>");
-    text.replace("<FR>", "<font color=#C80000>");
-    text.replace("<Fr>", "</font>");
-    text.remove("<CM>");
+    text.replace(QStringLiteral("<FI>"), QStringLiteral("<i>"));
+    text.replace(QStringLiteral("<Fi>"), QStringLiteral("</i>"));
+    text.replace(QStringLiteral("<FR>"), QStringLiteral("<font color=#C80000>"));
+    text.replace(QStringLiteral("<Fr>"), QStringLiteral("</font>"));
+    text.remove(QStringLiteral("<CM>"));
     if (hasStrong) {
         QRegularExpression regex("<W[^<]*>");
         QRegularExpressionMatchIterator iter = regex.globalMatch(text);
@@ -91,7 +97,10 @@ QString formatResult(QString text, QRegExp regex, bool hasStrong)
             if (match.hasMatch()) {
                 QString original = match.captured(0);
                 QString modified = original.mid(2, original.size() -3);
-                text.replace(original, " <a href = \"" + modified + "\">" + modified + "</a>");
+                text.replace(original, QStringLiteral(" <a href ='") %
+                             modified % QStringLiteral("'>") % modified %
+                             QStringLiteral("</a>"));
+                //text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
             }
         }
     }
@@ -103,9 +112,9 @@ void MainWindow::displayResults(int startIndex, int endIndex)
     int dbIndex = ui->translationComboBox->currentIndex();
     int index = startIndex;
     QString resultString;
-    QRegExp regex = QRegExp("<RF>.*<Rf>");
+    QRegExp regex("<RF>.*<Rf>");
     while (index < verseList.count() && index < endIndex) {
-        resultString += formatResult(verseList[index], regex, std::get<3>(databases[dbIndex]));
+        resultString += formatResult(verseList[index], regex, translations[dbIndex].hasStrong);
         resultString += referenceList[index++];
     }
     ui->resultsTextBrowser->setHtml(resultString);
@@ -137,16 +146,7 @@ void MainWindow::displayResults(int startIndex, int endIndex)
     statusLabel->setText(statusMessage);
 }
 
-
-void MainWindow::on_enterLineEdit_textChanged(const QString &arg1)
-{
-    if (arg1.trimmed().isEmpty())
-        ui->searchButton->setDisabled(true);
-    else
-        ui->searchButton->setEnabled(true);
-}
-
-void MainWindow::searchWithRegex(QRegExp pattern)
+void MainWindow::searchWithRegex(const QRegExp &pattern)
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
@@ -154,30 +154,27 @@ void MainWindow::searchWithRegex(QRegExp pattern)
     QString queryString = "SELECT * FROM Bible"
                           " WHERE Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QRegExp regexNotes = QRegExp("<RF>.*<Rf>");
-    QRegExp regexMarkup = QRegExp("<..>|<W[HG][0-9]{1,4}>");
-    //QRegExp regexMarkup = QRegExp("<[^<]*>");
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
+    QSqlQuery query(translations[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
         QString text = query.record().value(3).toString();
-        text.remove(regexNotes);
-        text.remove(regexMarkup);
+        text.remove(rgxMarkupStrongNotes);
         if (text.contains(pattern)) {
             QString book = query.record().value(0).toString();
             QString chapter = query.record().value(1).toString();
             QString verse = query.record().value(2).toString();
             verseList << query.record().value(3).toString();
-            referenceList << "<b><a href = \"" + book + "," + chapter + "," + verse +
-                             "\" style='text-decoration: none'>—" +
-                             bookNames[book.toInt() - 1] + " " + chapter + ":" + verse + "</a></b><br><br>";
+            referenceList << "<b><a href = \"" % book % "," % chapter % "," % verse %
+                             "\" style='text-decoration: none'>—" %
+                             bookNames[book.toInt() - 1] % " " % chapter % ":" % verse % "</a></b><br><br>";
             resultCount++;
         }
     }
 }
 
-void MainWindow::searchWithRegex(QList<QRegExp> patterns, int wordCount)
+void MainWindow::searchWithRegex(const QList<QRegExp> &patterns, int wordCount)
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
@@ -185,15 +182,13 @@ void MainWindow::searchWithRegex(QList<QRegExp> patterns, int wordCount)
     QString queryString = "SELECT * FROM Bible"
                           " WHERE Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QRegExp regexNotes = QRegExp("<RF>.*<Rf>");
-    QRegExp regexMarkup = QRegExp("<..>|<W[HG][0-9]{1,4}>");
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
+    QSqlQuery query(translations[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
         QString text = query.record().value(3).toString();
-        text.remove(regexNotes);
-        text.remove(regexMarkup);
+        text.remove(rgxMarkupStrongNotes);
         bool hasAll = true;
         for (int i = 0; i < wordCount; i++) {
             if (!text.contains(patterns[i])) {
@@ -206,15 +201,15 @@ void MainWindow::searchWithRegex(QList<QRegExp> patterns, int wordCount)
             QString chapter = query.record().value(1).toString();
             QString verse = query.record().value(2).toString();
             verseList << query.record().value(3).toString();
-            referenceList << "<b><a href = \"" + book + "," + chapter + "," + verse +
-                             "\" style='text-decoration: none'>—" +
-                             bookNames[book.toInt() - 1] + " " + chapter + ":" + verse + "</a></b><br><br>";
+            referenceList << "<b><a href = \"" % book % "," % chapter % "," % verse %
+                             "\" style='text-decoration: none'>—" %
+                             bookNames[book.toInt() - 1] % " " + chapter % ":" % verse % "</a></b><br><br>";
             resultCount++;
         }
     }
 }
 
-void MainWindow::searchWithString(QString phrase, Qt::CaseSensitivity sensitivity)
+void MainWindow::searchWithString(const QString &phrase, Qt::CaseSensitivity sensitivity)
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
@@ -222,30 +217,28 @@ void MainWindow::searchWithString(QString phrase, Qt::CaseSensitivity sensitivit
     QString queryString = "SELECT * FROM Bible"
                           " WHERE Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QRegExp regexNotes = QRegExp("<RF>.*<Rf>");
-    QRegExp regexMarkup = QRegExp("<..>|<W[HG][0-9]{1,4}>");
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
     //QRegExp regexMarkup = QRegExp("<[^<]*>");
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    QSqlQuery query(translations[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
         QString text = query.record().value(3).toString();
-        text.remove(regexNotes);
-        text.remove(regexMarkup);
+        text.remove(rgxMarkupStrongNotes);
         if (text.contains(phrase, sensitivity)) {
             QString book = query.record().value(0).toString();
             QString chapter = query.record().value(1).toString();
             QString verse = query.record().value(2).toString();
             verseList << query.record().value(3).toString();
-            referenceList << "<b><a href = \"" + book + "," + chapter + "," + verse +
+            referenceList << "<b><a href = \"" % book % "," % chapter % "," % verse %
                              "\" style='text-decoration: none'>—" +
-                             bookNames[book.toInt() - 1] + " " + chapter + ":" + verse + "</a></b><br><br>";
+                             bookNames[book.toInt() - 1] % " " % chapter % ":" % verse % "</a></b><br><br>";
             resultCount++;
         }
     }
 }
 
-void MainWindow::searchWithString(QStringList words, int wordCount, Qt::CaseSensitivity sensitivity)
+void MainWindow::searchWithString(const QStringList &words, int wordCount, Qt::CaseSensitivity sensitivity)
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
@@ -253,15 +246,13 @@ void MainWindow::searchWithString(QStringList words, int wordCount, Qt::CaseSens
     QString queryString = "SELECT * FROM Bible"
                           " WHERE Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QRegExp regexNotes = QRegExp("<RF>.*<Rf>");
-    QRegExp regexMarkup = QRegExp("<..>|<W[HG][0-9]{1,4}>");
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
+    QSqlQuery query(translations[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
         QString text = query.record().value(3).toString();
-        text.remove(regexNotes);
-        text.remove(regexMarkup);
+        text.remove(rgxMarkupStrongNotes);
         bool hasAll = true;
         for (int i = 0; i < wordCount; i++) {
             if (!text.contains(words[i], sensitivity)) {
@@ -274,15 +265,294 @@ void MainWindow::searchWithString(QStringList words, int wordCount, Qt::CaseSens
             QString chapter = query.record().value(1).toString();
             QString verse = query.record().value(2).toString();
             verseList << query.record().value(3).toString();
-            referenceList << "<b><a href = \"" + book + "," + chapter + "," + verse +
-                             "\" style='text-decoration: none'>—" +
-                             bookNames[book.toInt() - 1] + " " + chapter + ":" + verse + "</a></b><br><br>";
+            referenceList << "<b><a href = \"" % book % "," % chapter % "," % verse %
+                             "\" style='text-decoration: none'>—" %
+                             bookNames[book.toInt() - 1] % " " % chapter % ":" % verse % "</a></b><br><br>";
             resultCount++;
         }
     }
 }
 
-void MainWindow::searchByStrong(QString number)
+QStringList getCombinations(const QString &text)
+{
+    const QString specialCharacters = "ćĆłŁóÓśŚźŹżŻ";
+    QStringList textSplit = text.toLower().split(" ");
+    QStringList combinationList;
+    QMap<int, QChar> characterMap;
+    QChar firstLetter;
+    for (int pos = 0; pos < textSplit.count(); ++pos) {
+        for (int i = 0; i < specialCharacters.length(); ++i) {
+            firstLetter = textSplit[pos][0];
+            if (specialCharacters[i] == firstLetter)
+                characterMap.insert(pos, firstLetter);
+        }
+    }
+    int totalCombinations = 2 << (characterMap.count() - 1);
+    int characterCount = characterMap.count();
+    for (int com = 0; com < totalCombinations; ++com) {
+        QVector<int> bitVector;
+        for (int i = 0; i < characterCount; ++i)
+            bitVector.append((com >> i) & 1);
+        QMapIterator<int, QChar> iterator(characterMap);
+        while (iterator.hasNext()) {
+            for (int i = 0; i < characterCount; ++i) {
+                iterator.next();
+                int index = iterator.key();
+                if (bitVector[i] == 0)
+                    firstLetter = iterator.value();
+                else
+                    firstLetter = iterator.value().toUpper();
+                textSplit[index][0] = firstLetter;
+            }
+        }
+        combinationList << textSplit.join(" ");
+    }
+    return combinationList;
+}
+
+QString getFromWhereLikeQueryString(QString text)
+{
+    QStringList combinationList = getCombinations(text);
+    if (combinationList.count() == 0)
+        return "SELECT * FROM Bible WHERE Scripture LIKE '%" + text + "%'";
+    QString searchQuery = "SELECT * FROM Bible WHERE (";
+    for (int i = 0; i < combinationList.count(); ++i) {
+        if (i != 0)
+            searchQuery += " OR ";
+        searchQuery += "Scripture LIKE '%" + combinationList[i] + "%'";
+        if (i == combinationList.count() - 1)
+            searchQuery += ")"        ;
+    }
+    return searchQuery;
+}
+
+
+QString multipleWordsQueryString(QStringList words, QString oprtr)
+{
+    QStringList list = words;
+    for (int i = 0; i < list.count(); ++i) {
+        list[i] = list[i].toLower();
+        if (AuxiliaryMethods::startsWithNonLatin(list[i]))
+            list[i] = list[i].right(list[i].length() - 1);
+    }
+    QString queryString = "SELECT * FROM Bible"
+                          " WHERE Scripture LIKE '%" % list[0] % "%'";
+    for (int i = 1; i < list.count(); ++i)
+        queryString += " " + oprtr + " Scripture LIKE '%" % list[i] % "%'";
+    return queryString;
+}
+
+void MainWindow::searchWithLIKE(const QString &word, Qt::CaseSensitivity sensitivity)
+{
+    qDebug() << "searchWithLIKE(const QString &word, Qt::CaseSensitivity sensitivity)";
+    int dbIndex = ui->translationComboBox->currentIndex();
+    int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
+    int bookLastNumber = ui->searchToComboBox->currentIndex() + 1;
+    QString queryString = AuxiliaryMethods::singleWordQueryString(word, "*") %
+                          " AND Book >= " % QString::number(bookFirstNumber) %
+                          " AND Book <= " % QString::number(bookLastNumber);
+    QSqlQuery query(translations[dbIndex].database);
+    query.exec(queryString);
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
+    while (query.next()) {
+        QSqlRecord record = query.record();
+        QString book = record.value(0).toString();
+        QString chapter = record.value(1).toString();
+        QString verse = record.value(2).toString();
+        QString scripture = record.value(3).toString();
+        QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+        if (scriptureNoNotes.contains(word, sensitivity)) {
+            verseList << scripture;
+            referenceList << QStringLiteral("<b><a href='") % book %
+                             QStringLiteral(",") % chapter %
+                             QStringLiteral(",") % verse %
+                             QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                             QStringLiteral(" ") % chapter %
+                             QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
+        }
+    }
+}
+
+bool containsAllWords(QString text, const QStringList &words, Qt::CaseSensitivity sensitivity)
+{
+    bool hasAll = true;
+    for (int i = 0; i < words.count(); ++i) {
+        if (!text.contains(words[i], sensitivity)) {
+            hasAll = false;
+            break;
+        }
+    }
+    return hasAll;
+}
+
+bool containsAllWords(QString text, const QList<QRegExp> &words)
+{
+    bool hasAll = true;
+    for (int i = 0; i < words.count(); ++i) {
+        if (!text.contains(words[i])) {
+            hasAll = false;
+            break;
+        }
+    }
+    return hasAll;
+}
+
+bool containsAnyWord(QString text, const QStringList &words, Qt::CaseSensitivity sensitivity)
+{
+    bool hasAny = false;
+    for (int i = 0; i < words.count(); ++i) {
+        if (text.contains(words[i], sensitivity)) {
+            hasAny = true;
+            break;
+        }
+    }
+    return hasAny;
+}
+
+bool containsAnyWord(QString text, const QList<QRegExp> &words)
+{
+    bool hasAny = false;
+    for (int i = 0; i < words.count(); ++i) {
+        if (text.contains(words[i])) {
+            hasAny = true;
+            break;
+        }
+    }
+    return hasAny;
+}
+
+void MainWindow::searchWithLIKE(const QStringList &words, Qt::CaseSensitivity sensitivity, QString oprtr)
+{
+    int dbIndex = ui->translationComboBox->currentIndex();
+    int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
+    int bookLastNumber = ui->searchToComboBox->currentIndex() + 1;
+    QString queryString = multipleWordsQueryString(words, oprtr) +
+                          " AND Book >= " + QString::number(bookFirstNumber) +
+                          " AND Book <= " + QString::number(bookLastNumber);
+    QSqlQuery query(translations[dbIndex].database);
+    query.exec(queryString);
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
+    if (oprtr == "AND") {
+        while (query.next()) {
+            QSqlRecord record = query.record();
+            QString book = record.value(0).toString();
+            QString chapter = record.value(1).toString();
+            QString verse = record.value(2).toString();
+            QString scripture = record.value(3).toString();
+            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+            if (containsAllWords(scriptureNoNotes, words, sensitivity)) {
+                verseList << scripture;
+                referenceList << QStringLiteral("<b><a href='") % book %
+                                 QStringLiteral(",") % chapter %
+                                 QStringLiteral(",") % verse %
+                                 QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                                 QStringLiteral(" ") % chapter %
+                                 QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
+            }
+        }
+    } else if (oprtr == "OR") {
+        while (query.next()) {
+            QSqlRecord record = query.record();
+            QString book = record.value(0).toString();
+            QString chapter = record.value(1).toString();
+            QString verse = record.value(2).toString();
+            QString scripture = record.value(3).toString();
+            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+            if (containsAnyWord(scriptureNoNotes, words, sensitivity)) {
+                verseList << scripture;
+                referenceList << QStringLiteral("<b><a href='") % book %
+                                 QStringLiteral(",") % chapter %
+                                 QStringLiteral(",") % verse %
+                                 QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                                 QStringLiteral(" ") % chapter %
+                                 QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
+            }
+        }
+    }
+}
+
+void MainWindow::searchWithLIKE(const QList<QRegExp> &wordsRgx, const QStringList &words, QString oprtr)
+{
+    int dbIndex = ui->translationComboBox->currentIndex();
+    int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
+    int bookLastNumber = ui->searchToComboBox->currentIndex() + 1;
+    QString queryString = multipleWordsQueryString(words, oprtr) +
+                          " AND Book >= " + QString::number(bookFirstNumber) +
+                          " AND Book <= " + QString::number(bookLastNumber);
+    QSqlQuery query(translations[dbIndex].database);
+    query.exec(queryString);
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
+    if (oprtr == "AND") {
+        while (query.next()) {
+            QSqlRecord record = query.record();
+            QString book = record.value(0).toString();
+            QString chapter = record.value(1).toString();
+            QString verse = record.value(2).toString();
+            QString scripture = record.value(3).toString();
+            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+            if (containsAllWords(scriptureNoNotes, wordsRgx)) {
+                verseList << scripture;
+                referenceList << QStringLiteral("<b><a href='") % book %
+                                 QStringLiteral(",") % chapter %
+                                 QStringLiteral(",") % verse %
+                                 QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                                 QStringLiteral(" ") % chapter %
+                                 QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
+            }
+        }
+    } else if (oprtr == "OR") {
+        while (query.next()) {
+            QSqlRecord record = query.record();
+            QString book = record.value(0).toString();
+            QString chapter = record.value(1).toString();
+            QString verse = record.value(2).toString();
+            QString scripture = record.value(3).toString();
+            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+            if (containsAnyWord(scriptureNoNotes, wordsRgx)) {
+                verseList << scripture;
+                referenceList << QStringLiteral("<b><a href='") % book %
+                                 QStringLiteral(",") % chapter %
+                                 QStringLiteral(",") % verse %
+                                 QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                                 QStringLiteral(" ") % chapter %
+                                 QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
+            }
+        }
+    }
+}
+
+void MainWindow::searchWithLIKE(const QRegExp &text, const QStringList &words)
+{
+    int dbIndex = ui->translationComboBox->currentIndex();
+    int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
+    int bookLastNumber = ui->searchToComboBox->currentIndex() + 1;
+    QString queryString = multipleWordsQueryString(words, "AND") +
+                          " AND Book >= " + QString::number(bookFirstNumber) +
+                          " AND Book <= " + QString::number(bookLastNumber);
+    QSqlQuery query(translations[dbIndex].database);
+    query.exec(queryString);
+    QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
+    while (query.next()) {
+        QSqlRecord record = query.record();
+        QString book = record.value(0).toString();
+        QString chapter = record.value(1).toString();
+        QString verse = record.value(2).toString();
+        QString scripture = record.value(3).toString();
+        QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+        if (scriptureNoNotes.contains(text)) {
+            verseList << query.record().value(3).toString();
+            referenceList << QStringLiteral("<b><a href='") % book %
+                             QStringLiteral(",") % chapter %
+                             QStringLiteral(",") % verse %
+                             QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                             QStringLiteral(" ") % chapter %
+                             QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
+        }
+
+    }
+}
+
+void MainWindow::searchByStrong(const QString &number)
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int bookFirstNumber = ui->searchFromComboBox->currentIndex() + 1;
@@ -291,17 +561,22 @@ void MainWindow::searchByStrong(QString number)
                           " WHERE Scripture LIKE '%<W" + number + ">%'" +
                           " AND Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    QSqlQuery query(translations[dbIndex].database);
     query.exec(queryString);
     while (query.next()) {
-        QString book = query.record().value(0).toString();
-        QString chapter = query.record().value(1).toString();
-        QString verse = query.record().value(2).toString();
-        verseList << query.record().value(3).toString();
-        referenceList << "<b><a href = \"" + book + "," + chapter + "," + verse +
-                         "\" style='text-decoration: none'>—" +
-                         bookNames[book.toInt() - 1] + " " + chapter + ":" + verse + "</a></b><br><br>";
+        QSqlRecord record = query.record();
+        QString book = record.value(0).toString();
+        QString chapter = record.value(1).toString();
+        QString verse = record.value(2).toString();
+        verseList << record.value(3).toString();
+        referenceList << QStringLiteral("<b><a href='") % book %
+                         QStringLiteral(",") % chapter %
+                         QStringLiteral(",") % verse %
+                         QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                         QStringLiteral(" ") % chapter %
+                         QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
     }
+
 }
 
 void MainWindow::on_searchButton_clicked()
@@ -320,13 +595,24 @@ void MainWindow::on_searchButton_clicked()
     watch.start();
     if (wordCount > 1) {
         if (ui->exactPhraseRadioButton->isChecked()) {
+            float avgCharCount = 0;
+            for (int i = 0; i < wordCount; ++i)
+                avgCharCount += searchWordList[i].length();
+            avgCharCount /= wordCount;
             if (ui->wholeWordsCheckBox->isChecked()) {
-                QRegExp regex = QRegExp("\\b" + enteredText + "\\b", sensitivity);
-                searchWithRegex(regex);
+               QRegExp regex("\\b" + enteredText + "\\b", sensitivity);
+               if (avgCharCount > 3)
+                   searchWithLIKE(regex, searchWordList);
+               else
+                   searchWithRegex(regex);
                 displayRegex = regex;
             } else {
-                searchWithString(enteredText, sensitivity);
-                displayRegex = QRegExp(enteredText, sensitivity);
+                QRegExp regex(enteredText, sensitivity);
+                if (avgCharCount > 3)
+                    searchWithLIKE(regex, searchWordList);
+                else
+                    searchWithString(enteredText, sensitivity);
+                displayRegex = regex;
             }
         } else if (ui->allWordsRadioButton->isChecked()) {
             if (ui->wholeWordsCheckBox->isChecked()) {
@@ -339,40 +625,57 @@ void MainWindow::on_searchButton_clicked()
                 }
                 displayRegexString += searchWordList[wordCount - 1] + "\\b";
                 regexList << QRegExp("\\b" + searchWordList[wordCount - 1] + "\\b", sensitivity);
-                searchWithRegex(regexList, wordCount);
+                searchWithLIKE(regexList, searchWordList, "AND");
+                //searchWithRegex(regexList, wordCount);
                 displayRegex = QRegExp(displayRegexString, sensitivity);
             } else {
                 QString displayRegexString;
-                for (int i = 0; i < wordCount - 1; i++)
+                for (int i = 0; i < wordCount - 1; ++i)
                     displayRegexString += searchWordList[i] + "|";
                 displayRegexString += searchWordList[wordCount - 1];
-                searchWithString(searchWordList, wordCount, sensitivity);
+                searchWithLIKE(searchWordList, sensitivity, "AND");
+                //searchWithString(searchWordList, wordCount, sensitivity);
                 displayRegex = QRegExp(displayRegexString, sensitivity);
             }
         } else if (ui->anyWordsRadioButton->isChecked()) {
             QString regexString;
+            QList<QRegExp> regexList;
             if (ui->wholeWordsCheckBox->isChecked()) {
                 regexString += "\\b";
-                for (int i = 0; i < wordCount - 1; i++)
+                for (int i = 0; i < wordCount - 1; ++i) {
                     regexString += searchWordList[i] + "\\b|\\b";
+                    regexList << QRegExp("\\b" + searchWordList[i] + "\\b", sensitivity);
+                }
                 regexString += searchWordList[wordCount - 1] + "\\b";
+                regexList << QRegExp("\\b" + searchWordList[wordCount - 1] + "\\b", sensitivity);
             } else {
-                for (int i = 0; i < wordCount - 1; i++)
+                for (int i = 0; i < wordCount - 1; ++i) {
                     regexString += searchWordList[i] + "|";
+                    regexList << QRegExp(searchWordList[i], sensitivity);
+                }
                 regexString += searchWordList[wordCount - 1];
+                regexList << QRegExp(searchWordList[wordCount - 1], sensitivity);
             }
-            QRegExp regex = QRegExp(regexString, sensitivity);
-            searchWithRegex(regex);
+            QRegExp regex(regexString, sensitivity);
+            searchWithLIKE(regexList, searchWordList, "OR");
+            //searchWithRegex(regex);
             displayRegex = regex;
         }
     } else if (!ui->byStrongsNumberRadioButton->isChecked()) {
         if (ui->wholeWordsCheckBox->isChecked()) {
-            QRegExp regex = QRegExp("\\b" + enteredText + "\\b", sensitivity);
-            searchWithRegex(regex);
+            QRegExp regex("\\b" + enteredText + "\\b", sensitivity);
+            if (enteredText.length() > 3)
+                searchWithLIKE(regex, searchWordList);
+            else
+                searchWithRegex(regex);
             displayRegex = regex;
         } else {
-            searchWithString(enteredText, sensitivity);
-            displayRegex = QRegExp(enteredText, sensitivity);
+            QRegExp regex(enteredText, sensitivity);
+            if (enteredText.length() > 3)
+                searchWithLIKE(regex, searchWordList);
+            else
+                searchWithLIKE(enteredText, sensitivity);
+            displayRegex = regex;
         }
     } else {
         searchByStrong(enteredText);
@@ -425,7 +728,7 @@ void MainWindow::on_resultsTextBrowser_anchorClicked(const QUrl &arg1)
         if (!fontFamily.isEmpty())
            font.setFamily(fontFamily);
         font.setPointSize(fontSize);
-        StrongPopup strong(dbDct, argString, font);
+        StrongPopup strong(dbDct, argString, font, this);
         strong.exec();
     } else {
         int dbIndex = ui->translationComboBox->currentIndex();
@@ -436,7 +739,7 @@ void MainWindow::on_resultsTextBrowser_anchorClicked(const QUrl &arg1)
     }
 }
 
-void MainWindow::highlightPassage(QStringList indices, int dbIndex)
+void MainWindow::highlightPassage(const QStringList &indices, int dbIndex)
 {
     int book = indices[0].toInt() - 1;
     int chapter = indices[1].toInt() - 1;
@@ -473,8 +776,8 @@ void MainWindow::on_randomVerseButton_clicked()
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int min = ui->searchFromComboBox->currentIndex() + 1;
-    if (min < 40 && !std::get<2>(databases[dbIndex])) {
-        QMessageBox::critical(this, "Error", "The current transation contains only the New Testament.");
+    if (min < 40 && !translations[dbIndex].hasOldTestament) {
+        QMessageBox::critical(this, titleError, containsOnlyNT);
         ui->divisionComboBox->setCurrentIndex(7);
         return;
     }
@@ -482,7 +785,7 @@ void MainWindow::on_randomVerseButton_clicked()
     uint seed = QTime::currentTime().msec();
     qsrand(seed);
     int bookNumber = qrand() % (max - min) + min;
-    QSqlQuery query(std::get<0>(databases[dbIndex]));
+    QSqlQuery query(translations[dbIndex].database);
     QString book = QString::number(bookNumber);
     QString verseText;
     while (verseText.isNull()) {
@@ -518,7 +821,7 @@ void MainWindow::on_randomVerseButton_clicked()
             randomResult = query.record().value(0).toString();
             ui->randomVerseTextBrowser->clear();
             verseText = formatResult(randomResult, QRegExp("<RF>.*<Rf>"),
-                                   std::get<3>(databases[dbIndex]));
+                                   translations[dbIndex].hasStrong);
             verseText += "<b><a href = \"" + book + "," + chapter + "," + verse +
                          "\" style='text-decoration: none'>—" +
                          ui->bookListWidget->item(bookNumber - 1)->text() + " " +
@@ -537,7 +840,7 @@ void MainWindow::on_randomVerseTextBrowser_anchorClicked(const QUrl &arg1)
 
 void MainWindow::on_translationComboBox_currentIndexChanged(int index)
 {
-    ui->byStrongsNumberRadioButton->setEnabled(std::get<3>(databases[index]));
+    ui->byStrongsNumberRadioButton->setEnabled(translations[index].hasStrong);
     if (!ui->byStrongsNumberRadioButton->isEnabled()
             && ui->byStrongsNumberRadioButton->isChecked())
         ui->exactPhraseRadioButton->setChecked(true);
