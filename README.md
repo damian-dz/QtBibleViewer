@@ -1,6 +1,6 @@
 # Qt Bible Viewer
 
-A desktop application for viewing and searching .mybible (MySword) modules.
+A Qt-based desktop application for viewing and searching .mybible (MySword) modules.
 
 Currently, the main window has the following tabs:
 
