@@ -114,7 +114,7 @@ void MainWindow::displayResults(int startIndex, int endIndex)
     QString resultString;
     QRegExp regex("<RF>.*<Rf>");
     while (index < verseList.count() && index < endIndex) {
-        resultString += formatResult(verseList[index], regex, translations[dbIndex].hasStrong);
+        resultString += formatResult(verseList[index], regex, modules[dbIndex].hasStrong);
         resultString += referenceList[index++];
     }
     ui->resultsTextBrowser->setHtml(resultString);
@@ -139,10 +139,10 @@ void MainWindow::displayResults(int startIndex, int endIndex)
     ui->resultsTextBrowser->moveCursor(QTextCursor::Start);
     QString statusMessage;
     if (verseList.count() == 1)
-        statusMessage = verseInTotal + timeElapsed;
+        statusMessage = tr("Verse 1 (1 in total); ") + timeElapsed;
     else
-        statusMessage = verses + QString::number(startIndex + 1) + "-" + QString::number(index) +
-            " ("  + QString::number(verseList.count()) + inTotal + timeElapsed;
+        statusMessage = tr("Verses ") + QString::number(startIndex + 1) + "-" + QString::number(index) +
+            " ("  + QString::number(verseList.count()) + tr(" in total); ") + timeElapsed;
     statusLabel->setText(statusMessage);
 }
 
@@ -155,7 +155,7 @@ void MainWindow::searchWithRegex(const QRegExp &pattern)
                           " WHERE Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
@@ -183,7 +183,7 @@ void MainWindow::searchWithRegex(const QList<QRegExp> &patterns, int wordCount)
                           " WHERE Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
@@ -219,7 +219,7 @@ void MainWindow::searchWithString(const QString &phrase, Qt::CaseSensitivity sen
                           " AND Book <= " + QString::number(bookLastNumber);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
     //QRegExp regexMarkup = QRegExp("<[^<]*>");
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
@@ -247,7 +247,7 @@ void MainWindow::searchWithString(const QStringList &words, int wordCount, Qt::C
                           " WHERE Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     int resultCount = 0;
     while (query.next()) {
@@ -351,7 +351,7 @@ void MainWindow::searchWithLIKE(const QString &word, Qt::CaseSensitivity sensiti
     QString queryString = AuxiliaryMethods::singleWordQueryString(word, "*") %
                           " AND Book >= " % QString::number(bookFirstNumber) %
                           " AND Book <= " % QString::number(bookLastNumber);
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
     while (query.next()) {
@@ -429,7 +429,7 @@ void MainWindow::searchWithLIKE(const QStringList &words, Qt::CaseSensitivity se
     QString queryString = multipleWordsQueryString(words, oprtr) +
                           " AND Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
     if (oprtr == "AND") {
@@ -479,7 +479,7 @@ void MainWindow::searchWithLIKE(const QList<QRegExp> &wordsRgx, const QStringLis
     QString queryString = multipleWordsQueryString(words, oprtr) +
                           " AND Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
     if (oprtr == "AND") {
@@ -529,7 +529,7 @@ void MainWindow::searchWithLIKE(const QRegExp &text, const QStringList &words)
     QString queryString = multipleWordsQueryString(words, "AND") +
                           " AND Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
     while (query.next()) {
@@ -561,7 +561,7 @@ void MainWindow::searchByStrong(const QString &number)
                           " WHERE Scripture LIKE '%<W" + number + ">%'" +
                           " AND Book >= " + QString::number(bookFirstNumber) +
                           " AND Book <= " + QString::number(bookLastNumber);
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     while (query.next()) {
         QSqlRecord record = query.record();
@@ -684,7 +684,7 @@ void MainWindow::on_searchButton_clicked()
     timeElapsed = QString::number(watch.elapsed() / 1000.0) + " s";
     if (verseList.count() == 0) {
         ui->resultsTextBrowser->clear();
-        statusLabel->setText(noMatches + timeElapsed);
+        statusLabel->setText(tr("No matches; ") + timeElapsed);
     } else
         displayResults(0, resultsPerPage);
     pageNumber = 1;
@@ -776,8 +776,10 @@ void MainWindow::on_randomVerseButton_clicked()
 {
     int dbIndex = ui->translationComboBox->currentIndex();
     int min = ui->searchFromComboBox->currentIndex() + 1;
-    if (min < 40 && !translations[dbIndex].hasOldTestament) {
-        QMessageBox::critical(this, titleError, containsOnlyNT);
+    if (min < 40 && !modules[dbIndex].hasOldTestament) {
+        QMessageBox::critical(this,
+                              tr("Error"),
+                              tr("The current transation contains only the New Testament."));
         ui->divisionComboBox->setCurrentIndex(7);
         return;
     }
@@ -785,14 +787,14 @@ void MainWindow::on_randomVerseButton_clicked()
     uint seed = QTime::currentTime().msec();
     qsrand(seed);
     int bookNumber = qrand() % (max - min) + min;
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     QString book = QString::number(bookNumber);
     QString verseText;
     while (verseText.isNull()) {
         QString queryString = "SELECT Min(Chapter), Max(Chapter) FROM Bible"
                               " WHERE Book = " + book;
         query.exec(queryString);
-        while (query.next()) {
+        if (query.next()) {
             QSqlRecord record = query.record();
             min = record.value(0).toInt();
             max = record.value(1).toInt();
@@ -804,7 +806,7 @@ void MainWindow::on_randomVerseButton_clicked()
                       " WHERE Book = " + book +
                       " AND Chapter = " + chapter;
         query.exec(queryString);
-        while (query.next()) {
+        if (query.next()) {
             QSqlRecord record = query.record();
             min = record.value(0).toInt();
             max = record.value(1).toInt();
@@ -817,15 +819,15 @@ void MainWindow::on_randomVerseButton_clicked()
                       " AND Chapter = " + chapter +
                       " AND Verse =  " + verse;
         query.exec(queryString);
-        while (query.next()) {
-            randomResult = query.record().value(0).toString();
+        if (query.next()) {
+            QString randomResult = query.record().value(0).toString();
             ui->randomVerseTextBrowser->clear();
             verseText = formatResult(randomResult, QRegExp("<RF>.*<Rf>"),
-                                   translations[dbIndex].hasStrong);
-            verseText += "<b><a href = \"" + book + "," + chapter + "," + verse +
-                         "\" style='text-decoration: none'>—" +
-                         ui->bookListWidget->item(bookNumber - 1)->text() + " " +
-                         chapter + ":" + verse + "</a></b>";
+                                   modules[dbIndex].hasStrong);
+            verseText += "<b><a href='" % book % "," % chapter % "," % verse %
+                         "' style='text-decoration:none'>—" %
+                         bookNames[bookNumber - 1] + " " %
+                         chapter % ":" % verse % "</a></b>";
             ui->randomVerseTextBrowser->setHtml(verseText);
         }
     }
@@ -840,7 +842,7 @@ void MainWindow::on_randomVerseTextBrowser_anchorClicked(const QUrl &arg1)
 
 void MainWindow::on_translationComboBox_currentIndexChanged(int index)
 {
-    ui->byStrongsNumberRadioButton->setEnabled(translations[index].hasStrong);
+    ui->byStrongsNumberRadioButton->setEnabled(modules[index].hasStrong);
     if (!ui->byStrongsNumberRadioButton->isEnabled()
             && ui->byStrongsNumberRadioButton->isChecked())
         ui->exactPhraseRadioButton->setChecked(true);

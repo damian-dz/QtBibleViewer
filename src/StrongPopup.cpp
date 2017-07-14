@@ -11,7 +11,7 @@ StrongPopup::StrongPopup(const QSqlDatabase &db,
     ui->setupUi(this);
     ui->definitionTextBrowser->setFont(font);
     QDialog::setWindowTitle(number);
-    dbDct = db;
+    dbDct = &db;
     loadDefinition(number);
 }
 
@@ -30,15 +30,9 @@ void StrongPopup::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
 
 void StrongPopup::loadDefinition(const QString &number)
 {
-    QSqlQuery query(dbDct);
+    QSqlQuery query(*dbDct);
     QString queryString =  "SELECT data FROM dictionary WHERE word = '" + number + "'";
     query.exec(queryString);
     if (query.next())
         ui->definitionTextBrowser->setHtml(query.record().value(0).toString());
-}
-
-void StrongPopup::loadCrossReferences(const QString &numbers)
-{
-    QSqlQuery query(dbXRef);
-    QStringList passages = numbers.split(",");
 }

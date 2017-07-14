@@ -65,13 +65,13 @@ void PreferenceDialog::on_fontSizeComboBox_currentTextChanged(const QString &arg
 
 void PreferenceDialog::changeLanguage(const QString &language)
 {
-    if (language == "PL") {
-        QDialog::setWindowTitle("Preferencje");
-        ui->fontFamilyLabel->setText("Rodzaj Czcionki");
-        ui->fontSizeLabel->setText("Rozmiar Czcionki");
-        ui->previewLabel->setText("Podgląd");
-        ui->loadFirstChapterCheckBox->setText("Wczytaj Pierwszy Rozdział przy Zmianie Księgi");
-        ui->recentPassagesInMemoryLabel->setText("Liczba Ostatnich Fragmentów w Pamięci:");
-        ui->buttonBox->button(QDialogButtonBox::Cancel)->setText("Anuluj");
-    }
+//    if (language == "PL") {
+//        QDialog::setWindowTitle("Preferencje");
+//        ui->fontFamilyLabel->setText("Rodzaj Czcionki");
+//        ui->fontSizeLabel->setText("Rozmiar Czcionki");
+//        ui->previewLabel->setText("Podgląd");
+//        ui->loadFirstChapterCheckBox->setText("Wczytaj Pierwszy Rozdział przy Zmianie Księgi");
+//        ui->recentPassagesInMemoryLabel->setText("Liczba Ostatnich Fragmentów w Pamięci:");
+//        ui->buttonBox->button(QDialogButtonBox::Cancel)->setText("Anuluj");
+//    }
 }

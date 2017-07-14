@@ -6,7 +6,7 @@
 
 #include "hdr/StrongPopup.h"
 
-CrossReferencePopup::CrossReferencePopup(const QPair<QSqlDatabase, QSqlDatabase> &dbs,
+CrossReferencePopup::CrossReferencePopup(const QPair<QSqlDatabase, const QSqlDatabase &> &dbs,
                                          const QStringList &hrefBookChapter,
                                          const QStringList &books,
                                          const QFont &font,
@@ -26,7 +26,7 @@ CrossReferencePopup::CrossReferencePopup(const QPair<QSqlDatabase, QSqlDatabase>
     t.start();
     loadPassages(dbs.first, hrefSplit[2], books);
     qDebug() << t.elapsed();
-    dbDct = dbs.second;
+    dbDct = &dbs.second;
     this->font = font;
 }
 
@@ -40,7 +40,7 @@ void CrossReferencePopup::on_textBrowser_anchorClicked(const QUrl &arg1)
     QString argString = arg1.toString();
     QChar firstChar = argString[0];
     if (firstChar == 'H' || firstChar == 'G') {
-        StrongPopup strongDialog(dbDct, argString, font, this);
+        StrongPopup strongDialog(*dbDct, argString, font, this);
         strongDialog.exec();
     }
 }
@@ -67,14 +67,14 @@ QString formatStrong(QString text)
             text.replace(original, QStringLiteral(" <a href ='") %
                          modified % QStringLiteral("'>") % modified %
                          QStringLiteral("</a>"));
-
-           // text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
         }
     }
     return text;
 }
 
-void CrossReferencePopup::loadPassages(const QSqlDatabase &db, QString passageString, QStringList bookNames)
+void CrossReferencePopup::loadPassages(const QSqlDatabase &db,
+                                       const QString &passageString,
+                                       const QStringList &bookNames)
 {
     QStringList passageList = passageString.split(",");
     QSqlQuery query(db);

@@ -4,8 +4,11 @@
 /* Dictionary Tab */
 void MainWindow::on_openDictionaryButton_clicked()
 {
-    QString filename = QFileDialog::getOpenFileName(this, tr(openCaption.toUtf8().constData()), "/", openDctFilter);
-    if (filename.isNull())
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                    tr("Open MYBIBLE Module"),
+                                                    "/",
+                                                    tr("MYBIBLE Modules (*.dct.mybible);;All Files (*.*)"));
+    if (filename.isNull() || filename.isEmpty())
         return;
     if (dbDct.isOpen()) {
         QString connection;

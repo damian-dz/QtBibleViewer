@@ -9,8 +9,8 @@ void MainWindow::loadCompareTab()
     dbCnt = QSqlDatabase::addDatabase("QSQLITE", "Counters");
     dbCnt.setDatabaseName(executionPath + "/xref/counters.bblv");
     dbCnt.open();
-    connect(ui->compareTextBrowser, SIGNAL(customContextMenuRequested(const QPoint&)),
-        this, SLOT(showCompareContextMenu(const QPoint&)));
+    connect(ui->compareTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+        this, SLOT(showBasicContextMenu(const QPoint &)));
     ui->compareBookListWidget->addItems(bookNames);
     if (!recentVerse.isEmpty()) {
         int book = recentVerse[0].toInt();
@@ -98,14 +98,14 @@ void MainWindow::on_compareVerseListWidget_currentRowChanged(int currentRow)
                           QStringLiteral(" AND Chapter = ") % chapter %
                           QStringLiteral(" AND Verse = ") % verse;
     QString text = QStringLiteral("<table border='1' cellpadding='8' width='100%'>");
-    for (int i = 0; i < translations.count(); ++i) {
-        QSqlQuery query(translations[i].database);
+    for (int i = 0; i < modules.count(); ++i) {
+        QSqlQuery query(modules[i].database);
         query.exec(queryString);
         if (query.next()) {
             text += QStringLiteral("<tr><td><b><a href='t:") % QString::number(i) % QStringLiteral("'>") +
-                    translations[i].moduleName % QStringLiteral(":</a></b>");
+                    modules[i].name % QStringLiteral(":</a></b>");
             QString scripture = query.record().value(0).toString().trimmed();
-            text += QStringLiteral(" ") % formatScripture(scripture, translations[i].hasStrong);
+            text += QStringLiteral(" ") % formatScripture(scripture, modules[i].hasStrong);
             text += QStringLiteral("</td></tr>");
         }
     }
@@ -171,33 +171,4 @@ void MainWindow::on_compareNextButton_clicked()
         ui->compareChapterListWidget->setCurrentRow(ui->compareChapterListWidget->currentRow() + 1);
     else
         ui->compareBookListWidget->setCurrentRow(ui->compareBookListWidget->currentRow() + 1);
-}
-
-void MainWindow::compareTextBrowser_actionCopy()
-{
-    ui->compareTextBrowser->copy();
-}
-
-void MainWindow::compareTextBrowser_actionSelectAll()
-{
-    ui->compareTextBrowser->selectAll();
-}
-
-void MainWindow::showCompareContextMenu(const QPoint& pos)
-{
-    QPoint globalPos = ui->compareTextBrowser->mapToGlobal(pos);
-    QMenu contextMenu(this);
-    contextMenu.addAction(cntxtActCopy,
-                          this,
-                          SLOT(compareTextBrowser_actionCopy()),
-                          QKeySequence(tr("Ctrl+C")));
-    contextMenu.addSeparator();
-    contextMenu.addAction(cntxtActSelectAll,
-                          this,
-                          SLOT(compareTextBrowser_actionSelectAll()),
-                          QKeySequence(tr("Ctrl+A")));
-    QList<QAction *> contextActions = contextMenu.actions();
-    QTextCursor cursor = ui->compareTextBrowser->textCursor();
-    contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
-    contextMenu.exec(globalPos);
 }

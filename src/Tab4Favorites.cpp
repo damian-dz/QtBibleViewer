@@ -42,7 +42,7 @@ void MainWindow::loadFavoritesTab()
             if (verseFirst != verseLast)
                 passageId += "-" % QString::number(verseLast);
             favList << passageId;
-            favoriteList.append({ (uchar)0, (uchar)book, (uchar)chapter, (uchar)verseFirst, (uchar)verseLast });
+            favorites.append({ 0, (uchar)book, (uchar)chapter, (uchar)verseFirst, (uchar)verseLast });
         }
         if (favList.count() > 0) {
             ui->favoritePassagesListWidget->addItems(favList);
@@ -64,8 +64,8 @@ void MainWindow::insertIntoFavorites()
                           " AND VerseLast = " % verseLast;
     query.exec(queryString);
     if (query.next()) {
-        QMessageBox::critical(this, titleError, entryExists);
-        int index = favoriteList.indexOf(TabBookChapterVerses({ 0,
+        QMessageBox::critical(this, tr("Error"), tr("An entry for this passage already exists."));
+        int index = favorites.indexOf(TabBookChapterVerses({ 0,
                                                                 (uchar)book.toInt(),
                                                                 (uchar)chapter.toInt(),
                                                                 range.first,
@@ -80,7 +80,7 @@ void MainWindow::insertIntoFavorites()
     if (range.first != range.second)
         passageId += "-" % verseLast;
     ui->favoritePassagesListWidget->addItem(passageId);
-    favoriteList.append({ 0, (uchar)book.toInt(), (uchar)chapter.toInt(), range.first, range.second });
+    favorites.append({ 0, (uchar)book.toInt(), (uchar)chapter.toInt(), range.first, range.second });
     ui->favoritePassagesListWidget->setCurrentRow(ui->favoritePassagesListWidget->count() - 1);
 }
 
@@ -89,23 +89,23 @@ void MainWindow::on_deleteButton_clicked()
     int index = ui->favoritePassagesListWidget->currentRow();
     QString passageId = ui->favoritePassagesListWidget->currentItem()->text();
     QMessageBox questionMsgBox(QMessageBox::Question,
-                               confirmDeletion,
-                               areYouSure + passageId + "?",
+                               tr("Confirm Deletion"),
+                               tr("Delete entry ") + passageId + "?",
                                QMessageBox::Yes | QMessageBox::No);
-    questionMsgBox.setButtonText(QMessageBox::Yes, replyYes);
-    questionMsgBox.setButtonText(QMessageBox::No, replyNo);
+    questionMsgBox.setButtonText(QMessageBox::Yes, tr("Yes"));
+    questionMsgBox.setButtonText(QMessageBox::No, tr("No"));
     if (questionMsgBox.exec() == QMessageBox::Yes) {
         QSqlQuery query(dbUsr);
-        QString book = QString::number(favoriteList[index].book);
-        QString chapter = QString::number(favoriteList[index].chapter);
-        QString verseFirst = QString::number(favoriteList[index].verseFirst);
-        QString verseLast = QString::number(favoriteList[index].verseLast);
+        QString book = QString::number(favorites[index].book);
+        QString chapter = QString::number(favorites[index].chapter);
+        QString verseFirst = QString::number(favorites[index].verseFirst);
+        QString verseLast = QString::number(favorites[index].verseLast);
         QString queryString = "DELETE FROM Favorites WHERE Book = " % book %
                              " AND Chapter = " % chapter %
                              " AND VerseFirst = " % verseFirst %
                              " AND VerseLast = " % verseLast;
         if (query.exec(queryString)) {
-            favoriteList.removeAt(index);
+            favorites.removeAt(index);
             delete ui->favoritePassagesListWidget->currentItem();
         }
     }
@@ -114,10 +114,10 @@ void MainWindow::on_deleteButton_clicked()
 void MainWindow::on_saveButton_clicked()
 {
     int index = ui->favoritePassagesListWidget->currentRow();
-    QString book = QString::number(favoriteList[index].book);
-    QString chapter = QString::number(favoriteList[index].chapter);
-    QString verseFirst = QString::number(favoriteList[index].verseFirst);
-    QString verseLast = QString::number(favoriteList[index].verseLast);
+    QString book = QString::number(favorites[index].book);
+    QString chapter = QString::number(favorites[index].chapter);
+    QString verseFirst = QString::number(favorites[index].verseFirst);
+    QString verseLast = QString::number(favorites[index].verseLast);
     QString comment = ui->favoriteCommentTextEdit->toPlainText();
     QString queryString = "UPDATE Favorites SET Comment = '" % comment % "'" %
                           " WHERE Book = " % book %
@@ -126,15 +126,15 @@ void MainWindow::on_saveButton_clicked()
                           " AND VerseLast = " % verseLast;
     QSqlQuery query(dbUsr);
     if (query.exec(queryString))
-        ui->statusBar->showMessage(entryUpdated, 2500);
+        ui->statusBar->showMessage(tr("Entry updated."), 2500);
 }
 
 void MainWindow::on_favoritePassagesListWidget_currentRowChanged(int currentRow)
 {
-    QString book = QString::number(favoriteList[currentRow].book);
-    QString chapter = QString::number(favoriteList[currentRow].chapter);
-    QString verseFirst = QString::number(favoriteList[currentRow].verseFirst);
-    QString verseLast = QString::number(favoriteList[currentRow].verseLast);
+    QString book = QString::number(favorites[currentRow].book);
+    QString chapter = QString::number(favorites[currentRow].chapter);
+    QString verseFirst = QString::number(favorites[currentRow].verseFirst);
+    QString verseLast = QString::number(favorites[currentRow].verseLast);
     QString queryString = "SELECT Comment FROM Favorites WHERE Book = " % book %
                          " AND Chapter = " % chapter %
                          " AND VerseFirst = " % verseFirst %
@@ -144,21 +144,32 @@ void MainWindow::on_favoritePassagesListWidget_currentRowChanged(int currentRow)
         return;
     if (query.next())
         ui->favoriteCommentTextEdit->setText(query.record().value(0).toString());
-    query = QSqlQuery(translations[currentTranslationTab].database);
-    QString passage;
+    int index = currentTranslationTab;
+    query = QSqlQuery(modules[index].database);
     queryString = "SELECT Verse, Scripture FROM Bible WHERE Book = " % book %
                   " AND Chapter = " % chapter %
                   " AND Verse >= " % verseFirst %
                   " AND Verse <= " % verseLast;
     if (!query.exec(queryString))
         return;
+    QString passage;
     while (query.next()) {
         QSqlRecord record = query.record();
         QString verse = record.value(0).toString();
         QString scripture = record.value(1).toString();
         passage += " <b>" % verse % "</b>" % " " % scripture;
     }
-    passage = formatScripture(passage, translations[currentTranslationTab].hasStrong).trimmed();
+    if (passage.isNull()) {
+        ui->favoritePassageTextBrowser->setHtml("<center><h2>" % tr("Unavailable in this module.") % "</center></h2>");
+        return;
+    }
+    passage = formatScripture(passage, modules[index].hasStrong).trimmed();
+    passage += "<b>—" % bookNames[favorites[currentRow].book - 1] % " " %
+            chapter % ":" % verseFirst;
+    if (verseFirst != verseLast)
+        passage += "-" % verseLast % "</b>";
+    else
+        passage += "</b>";
     ui->favoritePassageTextBrowser->setHtml(passage);
 }
 

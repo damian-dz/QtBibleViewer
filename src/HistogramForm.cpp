@@ -5,15 +5,14 @@
 
 #include<QMenu>
 
-HistogramForm::HistogramForm(const QSqlDatabase &db, const QString &lang, QWidget *parent)
+HistogramForm::HistogramForm(const QSqlDatabase &db, QWidget *parent)
     : QWidget(parent),
       ui(new Ui::HistogramForm),
       opening(true)
 {
     ui->setupUi(this);
-    this->db = db;
-    changeLanguage(lang);
-    loadBookAbbreviations(lang);
+    this->db = &db;
+    loadBookAbbreviations();
     setUpChartsAndValidator();
 }
 
@@ -47,7 +46,7 @@ void HistogramForm::searchAndPlot(const QString &word)
     QHash<uchar, int> hashNT;
     QString queryString = AuxiliaryMethods::singleWordQueryString(word, "Book, Scripture");
     QRegExp rgxMarkupNotes("<..>|<RF>.*<Rf>");
-    QSqlQuery query(db);
+    QSqlQuery query(*db);
     query.exec(queryString);
     while (query.next()) {
         QSqlRecord record = query.record();
@@ -184,15 +183,6 @@ void HistogramForm::on_wordLineEdit_textChanged(const QString &arg1)
 //    qDebug() << "A";
 //}
 
-void HistogramForm::changeLanguage(const QString &language)
-{
-    if (language == "PL") {
-        QWidget::setWindowTitle("Częstość Występowania Słowa");
-        ui->enterWordLabel->setText("Wpisz Słowo:");
-        ui->visualizeButton->setText("Wizualizuj");
-    }
-}
-
 void HistogramForm::enableVisualizeButton()
 {
     ui->visualizeButton->setEnabled(true);
@@ -204,141 +194,72 @@ void HistogramForm::enableButtonAndSignals()
     ui->wordLineEdit->blockSignals(false);
 }
 
-void HistogramForm::loadBookAbbreviations(const QString &language)
+void HistogramForm::loadBookAbbreviations()
 {
-    if (language == "ENG") {
-        abbreviations << "Gen"
-                      << "Exo"
-                      << "Lev"
-                      << "Num"
-                      << "Deu"
-                      << "Jos"
-                      << "Jdg"
-                      << "Rut"
-                      << "1Sa"
-                      << "2Sa"
-                      << "1Ki"
-                      << "2Ki"
-                      << "1Ch"
-                      << "2Ch"
-                      << "Ezr"
-                      << "Neh"
-                      << "Est"
-                      << "Job"
-                      << "Psa"
-                      << "Pro"
-                      << "Ecc"
-                      << "Sol"
-                      << "Isa"
-                      << "Jer"
-                      << "Lam"
-                      << "Eze"
-                      << "Dan"
-                      << "Hos"
-                      << "Joe"
-                      << "Amo"
-                      << "Oba"
-                      << "Jon"
-                      << "Mic"
-                      << "Nah"
-                      << "Hab"
-                      << "Zep"
-                      << "Hag"
-                      << "Zec"
-                      << "Mal"
-                      << "Mat"
-                      << "Mar"
-                      << "Luk"
-                      << "Joh"
-                      << "Act"
-                      << "Rom"
-                      << "1Co"
-                      << "2Co"
-                      << "Gal"
-                      << "Eph"
-                      << "Phi"
-                      << "Col"
-                      << "1Th"
-                      << "2Th"
-                      << "1Ti"
-                      << "2Ti"
-                      << "Tit"
-                      << "Phm"
-                      << "Heb"
-                      << "Jam"
-                      << "1Pe"
-                      << "2Pe"
-                      << "1Jo"
-                      << "2Jo"
-                      << "3Jo"
-                      << "Jud"
-                      << "Rev";
-    } else if (language == "PL") {
-        abbreviations << "Rdz"
-                      << "Wj"
-                      << "Kpł"
-                      << "Lb"
-                      << "Pwt"
-                      << "Joz"
-                      << "Sdz"
-                      << "Rt"
-                      << "1Sm"
-                      << "2Sm"
-                      << "1Krl"
-                      << "2Krl"
-                      << "1Krn"
-                      << "2Krn"
-                      << "Ezd"
-                      << "Ne"
-                      << "Est"
-                      << "Hi"
-                      << "Ps"
-                      << "Prz"
-                      << "Koh"
-                      << "Pnp"
-                      << "Iz"
-                      << "Jr"
-                      << "Lm"
-                      << "Ez"
-                      << "Dn"
-                      << "Oz"
-                      << "Jl"
-                      << "Am"
-                      << "Ab"
-                      << "Jon"
-                      << "Mi"
-                      << "Na"
-                      << "Ha"
-                      << "So"
-                      << "Ag"
-                      << "Za"
-                      << "Ml"
-                      << "Mt"
-                      << "Mk"
-                      << "Łk"
-                      << "J"
-                      << "Dz"
-                      << "Rz"
-                      << "1Kor"
-                      << "2Kor"
-                      << "Ga"
-                      << "Ef"
-                      << "Flp"
-                      << "Kol"
-                      << "1Tes"
-                      << "2Tes"
-                      << "1Tm"
-                      << "2Tm"
-                      << "Tt"
-                      << "Flm"
-                      << "Hbr"
-                      << "Jk"
-                      << "1P"
-                      << "2P"
-                      << "1J"
-                      << "2J"
-                      << "3J"
-                      << "Jud"
-                      << "Ap";
-    }
+    abbreviations << tr("Gen")
+                  << tr("Exo")
+                  << tr("Lev")
+                  << tr("Num")
+                  << tr("Deu")
+                  << tr("Jos")
+                  << tr("Jdg")
+                  << tr("Rut")
+                  << tr("1Sa")
+                  << tr("2Sa")
+                  << tr("1Ki")
+                  << tr("2Ki")
+                  << tr("1Ch")
+                  << tr("2Ch")
+                  << tr("Ezr")
+                  << tr("Neh")
+                  << tr("Est")
+                  << tr("Job")
+                  << tr("Psa")
+                  << tr("Pro")
+                  << tr("Ecc")
+                  << tr("Sol")
+                  << tr("Isa")
+                  << tr("Jer")
+                  << tr("Lam")
+                  << tr("Eze")
+                  << tr("Dan")
+                  << tr("Hos")
+                  << tr("Joe")
+                  << tr("Amo")
+                  << tr("Oba")
+                  << tr("Jon")
+                  << tr("Mic")
+                  << tr("Nah")
+                  << tr("Hab")
+                  << tr("Zep")
+                  << tr("Hag")
+                  << tr("Zec")
+                  << tr("Mal")
+                  << tr("Mat")
+                  << tr("Mar")
+                  << tr("Luk")
+                  << tr("Joh")
+                  << tr("Act")
+                  << tr("Rom")
+                  << tr("1Co")
+                  << tr("2Co")
+                  << tr("Gal")
+                  << tr("Eph")
+                  << tr("Phi")
+                  << tr("Col")
+                  << tr("1Th")
+                  << tr("2Th")
+                  << tr("1Ti")
+                  << tr("2Ti")
+                  << tr("Tit")
+                  << tr("Phm")
+                  << tr("Heb")
+                  << tr("Jam")
+                  << tr("1Pe")
+                  << tr("2Pe")
+                  << tr("1Jo")
+                  << tr("2Jo")
+                  << tr("3Jo")
+                  << tr("Jud")
+                  << tr("Rev");
 }

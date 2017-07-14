@@ -158,13 +158,8 @@
              <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>-1</number>
             </property>
-            <widget class="QWidget" name="tab1">
-             <attribute name="title">
-              <string>No Modules</string>
-             </attribute>
-            </widget>
            </widget>
           </item>
           <item>
@@ -173,6 +168,9 @@
              <widget class="QPushButton" name="prevChapterButton">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Previous Chapter</string>
               </property>
               <property name="text">
                <string>&lt;&lt;</string>
@@ -183,6 +181,9 @@
              <widget class="QPushButton" name="nextChapterButton">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Next Chapter</string>
               </property>
               <property name="text">
                <string>&gt;&gt;</string>
@@ -244,6 +245,9 @@
                     <pointsize>10</pointsize>
                    </font>
                   </property>
+                  <property name="contextMenuPolicy">
+                   <enum>Qt::CustomContextMenu</enum>
+                  </property>
                  </widget>
                 </item>
                 <item>
@@ -287,6 +291,9 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="contextMenuPolicy">
+                   <enum>Qt::NoContextMenu</enum>
+                  </property>
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
@@ -318,6 +325,9 @@
                   <pointsize>10</pointsize>
                  </font>
                 </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
                 <property name="openExternalLinks">
                  <bool>true</bool>
                 </property>
@@ -343,6 +353,9 @@
               </item>
               <item>
                <widget class="QLineEdit" name="versionLineEdit">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::NoContextMenu</enum>
+                </property>
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -361,6 +374,9 @@
               </item>
               <item>
                <widget class="QLineEdit" name="versionDateLineEdit">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::NoContextMenu</enum>
+                </property>
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -379,6 +395,9 @@
               </item>
               <item>
                <widget class="QLineEdit" name="publishDateLineEdit">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::NoContextMenu</enum>
+                </property>
                 <property name="readOnly">
                  <bool>true</bool>
                 </property>
@@ -569,6 +588,9 @@
                <font>
                 <pointsize>10</pointsize>
                </font>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::CustomContextMenu</enum>
               </property>
               <property name="openLinks">
                <bool>false</bool>
@@ -762,6 +784,9 @@
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
+                <property name="toolTip">
+                 <string>Previous Page</string>
+                </property>
                 <property name="text">
                  <string>&lt;&lt;</string>
                 </property>
@@ -771,6 +796,9 @@
                <widget class="QPushButton" name="nextButton">
                 <property name="enabled">
                  <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Next Page</string>
                 </property>
                 <property name="text">
                  <string>&gt;&gt;</string>
@@ -802,6 +830,9 @@
                 <width>100</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Returns a radom verse from the specified range.</string>
               </property>
               <property name="text">
                <string>Random Verse</string>
@@ -960,6 +991,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <widget class="QPushButton" name="comparePrevButton">
+              <property name="toolTip">
+               <string>Previous Verse</string>
+              </property>
               <property name="text">
                <string>&lt;&lt;</string>
               </property>
@@ -967,6 +1001,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="compareNextButton">
+              <property name="toolTip">
+               <string>Next Verse</string>
+              </property>
               <property name="text">
                <string>&gt;&gt;</string>
               </property>
@@ -1120,7 +1157,11 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_9">
                 <item>
-                 <widget class="QLineEdit" name="searchDictionaryLineEdit"/>
+                 <widget class="QLineEdit" name="searchDictionaryLineEdit">
+                  <property name="placeholderText">
+                   <string/>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -1327,7 +1368,7 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>English</string>
@@ -1367,11 +1408,6 @@
   <action name="actionCopy">
    <property name="text">
     <string>Copy</string>
-   </property>
-  </action>
-  <action name="actionModule_Details">
-   <property name="text">
-    <string>Module Details</string>
    </property>
   </action>
   <action name="actionRecent_File_1">

@@ -27,7 +27,7 @@ void MainWindow::loadPassage()
                               " AND Chapter = " % chapterStr %
                               " AND Verse >=  " % QString::number(verseFirst) %
                               " AND Verse <= " % QString::number(verseLast);
-        QSqlQuery query(translations[dbIndex].database);
+        QSqlQuery query(modules[dbIndex].database);
         query.exec(queryString);
         QSqlQuery xRefQuery(dbXRef);
         currentPassage.clear();
@@ -49,21 +49,21 @@ void MainWindow::loadPassage()
             currentPassage += currentVerse;
         }
         if (currentPassage.isNull()) {
-            chapterBrowsers[dbIndex]->setHtml("<center><h2>" % unavailable % "</center></h2>");
+            chapterBrowsers[dbIndex]->setHtml("<center><h2>" % tr("Unavailable in this module.") % "</center></h2>");
             return;
         }
-        currentPassage = formatText(currentPassage, translations[dbIndex].hasStrong);
+        currentPassage = formatText(currentPassage, modules[dbIndex].hasStrong);
         chapterBrowsers[dbIndex]->setHtml(currentPassage);
     }
-    ui->actionBack->setEnabled(historyList.count() > 1 && indexHistory > 0);
-    ui->actionForward->setEnabled(historyList.count() > 1 && indexHistory < historyList.count() - 1);
+    ui->actionBack->setEnabled(history.count() > 1 && indexHistory > 0);
+    ui->actionForward->setEnabled(history.count() > 1 && indexHistory < history.count() - 1);
     if (sentByBackForward)
         return;
-    historyList.append({ (uchar)dbIndex, (uchar)book, (uchar)chapter, (uchar)verseFirst, (uchar)verseLast });
-    if (historyList.count() > maxRecentPassages)
-        historyList.removeFirst();
-    indexHistory = historyList.count() - 1;
-    ui->actionBack->setEnabled(historyList.count() > 1 && indexHistory > 0);
+    history.append({ (uchar)dbIndex, (uchar)book, (uchar)chapter, (uchar)verseFirst, (uchar)verseLast });
+    if (history.count() > maxRecentPassages)
+        history.removeFirst();
+    indexHistory = history.count() - 1;
+    ui->actionBack->setEnabled(history.count() > 1 && indexHistory > 0);
     ui->actionForward->setDisabled(true);
 }
 
@@ -79,14 +79,14 @@ void MainWindow::on_bookListWidget_currentRowChanged(int currentRow)
     ui->chapterListWidget->blockSignals(true);
     ui->chapterListWidget->clear();
     ui->chapterListWidget->blockSignals(false);
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     query.exec(queryString);
     QStringList chapterNumbers;
     while (query.next())
         chapterNumbers << query.record().value(0).toString();
     ui->chapterListWidget->addItems(chapterNumbers);
     if (chapterNumbers.count() == 0) {
-        chapterBrowsers[dbIndex]->setHtml("<center><h2>" % unavailable % "</center></h2>");
+        chapterBrowsers[dbIndex]->setHtml("<center><h2>" % tr("Unavailable in this module.") % "</center></h2>");
         return;
     }
     if (!firstLoadBible)
@@ -103,7 +103,7 @@ void MainWindow::on_chapterListWidget_currentRowChanged(int currentRow)
     ui->verseFirstComboBox->clear();
     ui->verseLastComboBox->clear();
     int dbIndex = currentTranslationTab;
-    QSqlQuery query(translations[dbIndex].database);
+    QSqlQuery query(modules[dbIndex].database);
     QString queryString = QStringLiteral("SELECT Verse FROM Bible WHERE Book = ") % QString::number(book) %
                           QStringLiteral(" AND Chapter = ") % QString::number(chapter);
     query.exec(queryString);
@@ -171,7 +171,7 @@ void MainWindow::chapterBrowser_actionCopyFormatted()
         textToCopy = regex.cap(1);
     textToCopy.replace(QRegExp("\n"), " ");
     textToCopy.remove(QRegExp("\\*| \\*| \\* |\\* "));
-    if (translations[currentTranslationTab].hasStrong) {
+    if (modules[currentTranslationTab].hasStrong) {
         textToCopy.remove(QRegExp(" [HG][0-9]{1,4}"));
         textToCopy.replace("  ", " ");
     }
@@ -183,7 +183,7 @@ void MainWindow::chapterBrowser_actionCopyFormatted()
         textToCopy += "-" + QString::number(range.second);
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(textToCopy);
-    ui->statusBar->showMessage(copyMessage, 2500);
+    ui->statusBar->showMessage(tr("Text copied to clipboard."), 2500);
 }
 
 void MainWindow::chapterBrowser_actionSelectAll()
@@ -237,34 +237,34 @@ void MainWindow::showBibleContextMenu(const QPoint &pos)
 {
     QPoint globalPos = chapterBrowsers[currentTranslationTab]->mapToGlobal(pos);
     QMenu contextMenu(this);
-    contextMenu.addAction(cntxtActCopy,
+    contextMenu.addAction(tr("Copy"),
                           this,
                           SLOT(chapterBrowser_actionCopy()),
-                          QKeySequence(tr("Ctrl+C")));
-    contextMenu.addAction(cntxtActCopyFormatted,
+                          QKeySequence("Ctrl+C"));
+    contextMenu.addAction(tr("Copy with Reference"),
                           this,
                           SLOT(chapterBrowser_actionCopyFormatted()));
-    contextMenu.addAction(cntxtActSelectAll,
+    contextMenu.addAction(tr("Select All"),
                           this,
                           SLOT(chapterBrowser_actionSelectAll()),
-                          QKeySequence(tr("Ctrl+A")));
+                          QKeySequence("Ctrl+A"));
     contextMenu.addSeparator();
     getVerseRange();
     QString addVerseMsg;
     if (range.first == range.second)
-        addVerseMsg = cntxtActAddVerse + QString::number(range.first) + cntxtActToFavorites;
+        addVerseMsg = tr("Add Verse ") + QString::number(range.first) + tr(" to Favorites");
     else
-        addVerseMsg = cntxtActAddVerses + QString::number(range.first) +
-                "-" + QString::number(range.second) + cntxtActToFavorites;
+        addVerseMsg = tr("Add Verses ") + QString::number(range.first) +
+                "-" + QString::number(range.second) + tr(" to Favorites");
     contextMenu.addAction(addVerseMsg,
                           this,
                           SLOT(chapterBrowser_actionAddToFavorites()));
     contextMenu.addSeparator();
-    contextMenu.addAction(contextActionBack,
+    contextMenu.addAction(tr("Back"),
                           this,
                           SLOT(on_actionBack_triggered()),
                           QKeySequence(tr("Ctrl+Left")));
-    contextMenu.addAction(contextActionForward,
+    contextMenu.addAction(tr("Forward"),
                           this,
                           SLOT(on_actionForward_triggered()),
                           QKeySequence(tr("Ctrl+Right")));
@@ -295,7 +295,7 @@ QString cleanBeforeCopying(QString text, bool hasStrong)
 void MainWindow::on_copyButton_clicked()
 {
     int dbIndex = currentTranslationTab;
-    currentPassage = cleanBeforeCopying(currentPassage, translations[dbIndex].hasStrong);
+    currentPassage = cleanBeforeCopying(currentPassage, modules[dbIndex].hasStrong);
     QString textToAppend;
     QString bookName = ui->bookListWidget->currentItem()->text();
     QString chapterNumber = ui->chapterListWidget->currentItem()->text();
@@ -322,7 +322,7 @@ void MainWindow::on_copyButton_clicked()
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(currentPassage);
     ui->verseLineEdit->setText(currentPassage);
-    ui->statusBar->showMessage(copyMessage, 2500);
+    ui->statusBar->showMessage(tr("Text copied to clipboard."), 2500);
 }
 
 void MainWindow::on_prevChapterButton_clicked()
@@ -403,7 +403,7 @@ void MainWindow::chapterBrowser_anchorClicked(const QUrl &arg1)
         verseInfo << argString
                   << QString::number(ui->bookListWidget->currentRow())
                   << QString::number(ui->chapterListWidget->currentItem()->text().toInt());
-        CrossReferencePopup xRefDialog(qMakePair(translations[dbIndex].database, dbDct),
+        CrossReferencePopup xRefDialog(qMakePair(modules[dbIndex].database, dbDct),
                                        verseInfo, bookNames, font, this);
         xRefDialog.exec();
     }

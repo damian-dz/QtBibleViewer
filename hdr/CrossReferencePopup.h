@@ -15,7 +15,7 @@ class CrossReferencePopup : public QDialog
     Q_OBJECT
 
 public:
-    explicit CrossReferencePopup(const QPair<QSqlDatabase, QSqlDatabase> &dbs,
+    explicit CrossReferencePopup(const QPair<QSqlDatabase, const QSqlDatabase &> &dbs,
                              const QStringList &hrefBookChapter,
                              const QStringList &books,
                              const QFont &font,
@@ -28,8 +28,8 @@ private slots:
 private:
     Ui::CrossReferencePopup *ui;
     QFont font;
-    QSqlDatabase dbDct;
-    void loadPassages(const QSqlDatabase &db, QString passageString, QStringList bookNames);
+    const QSqlDatabase *dbDct;
+    void loadPassages(const QSqlDatabase &db, const QString &passageString, const QStringList &bookNames);
 };
 
 #endif // CROSSREFERENCEPOPUP_H

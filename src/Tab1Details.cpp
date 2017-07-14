@@ -19,7 +19,6 @@ QString formatPolish(QString text)
 
 void MainWindow::fillDetails()
 {
-    int index = currentTranslationTab;
     QString queryString = "SELECT "
                           "Description, "
                           "Abbreviation, "
@@ -32,7 +31,8 @@ void MainWindow::fillDetails()
                           "NT, "
                           "Strong "
                           "FROM Details";
-    QSqlQuery query(translations[index].database);
+    int index = currentTranslationTab;
+    QSqlQuery query(modules[index].database);
     query.exec(queryString);
     if (query.next()) {
         QSqlRecord record = query.record();

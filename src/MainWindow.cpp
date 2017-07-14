@@ -5,13 +5,15 @@
 
 #include <QFileInfo>
 
-MainWindow::MainWindow(QString appDir, QWidget *parent)
+MainWindow::MainWindow(const QString &appDir, const QString &lang, QTranslator &ts, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+      translatorInstalled(false),
       firstLoadBible(true),
       firstLoadCompare(true)
 {
     ui->setupUi(this);
+    translator = &ts;
     lockCheckBoxes();
     loadSettings(appDir);
     loadXRefAndDict(appDir);
@@ -26,11 +28,25 @@ MainWindow::MainWindow(QString appDir, QWidget *parent)
     statusLabel = new QLabel(this);
     ui->statusBar->addWidget(statusLabel);
     executionPath = appDir;
+    if (lang == "ENG")
+        ui->actionEnglish->setChecked(true);
+    else if (lang == "PL")
+        ui->actionPolski->setChecked(true);
+    currentLanguage = lang;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::LanguageChange) {
+        ui->retranslateUi(this);
+        updateBooksAndDivisions();
+    }
+    QMainWindow::changeEvent(event);
 }
 
 void MainWindow::loadSettings(const QString &path, int counter)
@@ -39,29 +55,29 @@ void MainWindow::loadSettings(const QString &path, int counter)
         settingsPath = path + "/config/settings.ini";
     QSettings settings(settingsPath, QSettings::IniFormat);
     if (counter == 0) {
-        const QString setLanguage = settings.value("language").toString();
-        if (!setLanguage.isEmpty()) {
-            if (setLanguage == "ENG")
-                changeLanguageToEnglish();
-            else if (setLanguage == "PL")
-                changeLanguageToPolski();
-        } else
-            changeLanguageToEnglish();
-       loadWhenBookChanged = true;
-       return;
+        if (ui->bookListWidget->count() > 0)
+            ui->bookListWidget->clear();
+        if (ui->divisionComboBox->count() > 0)
+            ui->divisionComboBox->clear();
+        populateBookList();
+        populateDivisionList();
+        ui->bookListWidget->addItems(bookNames);
+        ui->divisionComboBox->addItems(divisionNames);
+        loadWhenBookChanged = true;
+        return;
     }
     const QByteArray geometry = settings.value("geometry", QByteArray()).toByteArray();
     if (!geometry.isEmpty())
         restoreGeometry(geometry);
     const int setTranslation = settings.value("translation").toInt();
     const QStringList setPassage = settings.value("passage").toStringList();
-    if (!setPassage.isEmpty())
+    if (!setPassage.isEmpty()) {
         setTabBookChapterVerses(setTranslation,
                                 setPassage[0].toInt(),
                                 setPassage[1].toInt(),
                                 setPassage[2].toInt(),
                                 setPassage[3].toInt());
-    else
+    } else
         ui->bookListWidget->setCurrentRow(0);
     const QString setFontFamily = settings.value("fontFamily").toString();
     const int setFontSize = settings.value("fontSize").toInt();
@@ -103,7 +119,7 @@ void MainWindow::lockCheckBoxes()
     ui->strongsNumbersCheckBox->setFocusPolicy(Qt::NoFocus);
 }
 
-QStringList MainWindow::getModuleNames(QString path)
+QStringList MainWindow::getModuleNames(const QString &path)
 {
     QDir dir(path + "/modules");
     QStringList filters;
@@ -116,11 +132,11 @@ QStringList MainWindow::getModuleNames(QString path)
     return modulePathList;
 }
 
-void MainWindow::loadBibleModule(const QString &modulePath)
+void MainWindow::loadBibleModule(const QString &path)
 {
     QSqlDatabase dbBbl;
-    dbBbl = QSqlDatabase::addDatabase("QSQLITE", modulePath);
-    dbBbl.setDatabaseName(modulePath);
+    dbBbl = QSqlDatabase::addDatabase("QSQLITE", path);
+    dbBbl.setDatabaseName(path);
     dbBbl.open();
     QSqlQuery query(dbBbl);
     QString moduleName;
@@ -139,10 +155,10 @@ void MainWindow::loadBibleModule(const QString &modulePath)
     query.exec(queryString);
     // this actually checks whether the module has Strong's numbers
     if (query.next())
-        hasStrong = query.record().value(0).toString().contains(QRegExp("<W[HG][0-9]{1,4}>"));
-    if (hasStrong && moduleName == "KJV")
-        indexStrong = translations.count();
-    translations.append({ dbBbl, moduleName, hasOldTestament, hasStrong });
+        hasStrong = query.record().value(0).toString().contains(QRegExp(QStringLiteral("<W[HG][0-9]{1,4}>")));
+    if (hasStrong)
+        indexStrong = modules.count();
+    modules.append({ dbBbl, moduleName, hasOldTestament, hasStrong });
 }
 
 void MainWindow::addSingleTranslation(int index)
@@ -153,11 +169,10 @@ void MainWindow::addSingleTranslation(int index)
     chapterBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(chapterBrowser, SIGNAL(highlighted(QUrl)), this, SLOT(chapterBrowser_highlighted(QUrl)));
     connect(chapterBrowser, SIGNAL(anchorClicked(QUrl)), this, SLOT(chapterBrowser_anchorClicked(QUrl)));
-    connect(chapterBrowser, SIGNAL(customContextMenuRequested(const QPoint&)),
-        this, SLOT(showBibleContextMenu(const QPoint&)));
+    connect(chapterBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+        this, SLOT(showBibleContextMenu(const QPoint &)));
     QHBoxLayout *chapterLayout = new QHBoxLayout(ui->translationTabWidget->widget(index));
-    chapterLayout->setSpacing(6);
-    chapterLayout->setContentsMargins(11, 11, 11, 11);
+    chapterLayout->setContentsMargins(5, 5, 5, 5);
     chapterLayout->addWidget(chapterBrowser);
     chapterBrowsers.append(chapterBrowser);
     chapterLayouts.append(chapterLayout);
@@ -166,12 +181,9 @@ void MainWindow::addSingleTranslation(int index)
 
 void MainWindow::addTranslationTabs()
 {
-    for (int i = 0; i < translations.count(); ++i) {
-        if (i == 0)
-            ui->translationTabWidget->setTabText(i, translations[i].moduleName);
-        else
-            ui->translationTabWidget->addTab(new QWidget(this), translations[i].moduleName);
-       addSingleTranslation(i);
+    for (int i = 0; i < modules.count(); ++i) {
+        ui->translationTabWidget->addTab(new QWidget(this), modules[i].name);
+        addSingleTranslation(i);
     }
 }
 
@@ -250,20 +262,20 @@ QString MainWindow::formatText(QString text, bool hasStrong)
 void MainWindow::on_actionOpen_Bible_Module_triggered()
 {
     QString filename = QFileDialog::getOpenFileName(this,
-                                                    tr(openCaption.toUtf8().constData()),
+                                                    tr("Open MYBIBLE Module"),
                                                     "/",
-                                                    openBblFilter);
+                                                    tr("MYBIBLE Modules (*.bbl.mybible);;All Files (*.*)"));
     if (filename.isNull() || filename.isEmpty())
         return;
     loadBibleModule(filename);
-    int index = translations.count() - 1;
+    int index = modules.count() - 1;
     if (index == 0) {
         ui->bookListWidget->setEnabled(true);
-        ui->translationTabWidget->setTabText(index, translations[index].moduleName);
+        ui->translationTabWidget->setTabText(index, modules[index].name);
     } else
-        ui->translationTabWidget->addTab(new QWidget(), translations[index].moduleName);
+        ui->translationTabWidget->addTab(new QWidget(this), modules[index].name);
     addSingleTranslation(index);
-    ui->translationComboBox->addItem(translations[index].moduleName);
+    ui->translationComboBox->addItem(modules[index].name);
     ui->translationTabWidget->setCurrentIndex(index);
     if (ui->bookListWidget->currentRow() == -1)
         ui->bookListWidget->setCurrentRow(0);
@@ -287,10 +299,19 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
-    if (index == 1)
+    if (index == 1) {
+        if (ui->abbreviationLineEdit->text().isEmpty()) {
+            connect(ui->descriptionTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+                    this, SLOT(showBasicContextMenu(const QPoint &)));
+            connect(ui->commentsTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+                    this, SLOT(showBasicContextMenu(const QPoint &)));
+        }
         fillDetails();
+    }
     else if (index == 2) {
         if (ui->searchFromComboBox->count() == 0 && ui->searchToComboBox->count() == 0) {
+            connect(ui->resultsTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+                this, SLOT(showBasicContextMenu(const QPoint &)));
             ui->searchFromComboBox->addItems(bookNames);
             ui->searchToComboBox->addItems(bookNames);
             ui->searchToComboBox->setCurrentIndex(ui->searchToComboBox->count() - 1);
@@ -298,8 +319,8 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         }
         if (ui->translationComboBox->count() == 0) {
             QStringList translationNames;
-            for (int i = 0; i < translations.count(); ++i)
-                translationNames << translations[i].moduleName;
+            for (int i = 0; i < modules.count(); ++i)
+                translationNames << modules[i].name;
             ui->translationComboBox->addItems(translationNames);
             ui->translationComboBox->setCurrentIndex(currentTranslationTab);
         } else
@@ -307,9 +328,11 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     } else if (index == 3) {
         if (ui->compareBookListWidget->count() == 0)
             loadCompareTab();
-    }  else if (index == 4) {
+    } else if (index == 4) {
         if (!dbUsr.isOpen())
             loadFavoritesTab();
+        else if (ui->favoritePassagesListWidget->count() > 0)
+            on_favoritePassagesListWidget_currentRowChanged(ui->favoritePassagesListWidget->currentRow());
     } else if (index == 5) {
         if (ui->entriesListWidget->count() == 0)
             fillDictionaryEntriesWidget();
@@ -353,20 +376,6 @@ void MainWindow::changeFontSize(bool increase)
     changeFont(font);
 }
 
-//void MainWindow::fillEntriesWidget()
-//{
-//    QSqlQuery query(dbDct);
-//    QString queryString = "SELECT word FROM dictionary WHERE relativeorder > 0";
-//    query.exec(queryString);
-//    QStringList dictEntryList;
-//    while (query.next())
-//        dictEntryList << query.record().value(0).toString();
-//    ui->entriesListWidget->addItems(dictEntryList);
-//    QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
-//    QValidator *validator = new QRegExpValidator(regex, this);
-//    ui->searchDictionaryLineEdit->setValidator(validator);
-//}
-
 void MainWindow::on_actionPreferences_triggered()
 {
     PreferenceDialog preferences(fontSize,
@@ -391,9 +400,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_actionAbout_triggered()
 {
-//    QTextCursor cursor = chapterBrowsers[currentTranslationTab]->textCursor();
-//    qDebug() << cursor.selectionStart();
-//    qDebug() << cursor.selectionEnd();
+
 }
 
 void MainWindow::on_actionCopy_triggered()
@@ -424,14 +431,14 @@ void MainWindow::on_actionSearch_triggered()
 void MainWindow::on_actionWord_Frequency_triggered()
 {
     int index = currentTranslationTab;
-    histogramForm = new HistogramForm(translations[index].database, currentLanguage);
+    QScopedPointer<HistogramForm> histogramForm(new HistogramForm(modules[index].database));
     histogramForm->setAttribute(Qt::WA_DeleteOnClose);
-    histogramForm->show();
+    histogramForm.take()->show();
 }
 
 void MainWindow::on_actionBack_triggered()
 {
-    auto indices = historyList[--indexHistory];
+    auto indices = history[--indexHistory];
     sentByBackForward = true;
     setTabBookChapterVerses(indices.tab,
                             indices.book - 1,
@@ -443,7 +450,7 @@ void MainWindow::on_actionBack_triggered()
 
 void MainWindow::on_actionForward_triggered()
 {
-    auto indices = historyList[++indexHistory];
+    auto indices = history[++indexHistory];
     sentByBackForward = true;
     setTabBookChapterVerses(indices.tab,
                             indices.book - 1,
@@ -451,4 +458,35 @@ void MainWindow::on_actionForward_triggered()
                             indices.verseFirst - 1,
                             indices.verseLast - 1);
     sentByBackForward = false;
+}
+
+void MainWindow::textBrowser_actionCopy()
+{
+    textBrowser->copy();
+}
+
+void MainWindow::textBrowser_actionSelectAll()
+{
+    textBrowser->selectAll();
+}
+
+void MainWindow::showBasicContextMenu(const QPoint &pos)
+{
+    textBrowser = qobject_cast<QTextBrowser *>(QObject::sender());
+    QPoint globalPos = textBrowser->mapToGlobal(pos);
+    QMenu contextMenu(this);
+    contextMenu.addAction(tr("Copy"),
+                          this,
+                          SLOT(textBrowser_actionCopy()),
+                          QKeySequence("Ctrl+C"));
+    contextMenu.addSeparator();
+    contextMenu.addAction(tr("Select All"),
+                          this,
+                          SLOT(textBrowser_actionSelectAll()),
+                          QKeySequence("Ctrl+A"));
+    QList<QAction *> contextActions = contextMenu.actions();
+    QTextCursor cursor = textBrowser->textCursor();
+    contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
+    contextActions[2]->setDisabled(textBrowser->toPlainText().isEmpty());
+    contextMenu.exec(globalPos);
 }

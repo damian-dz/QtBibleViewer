@@ -11,6 +11,7 @@
 #include <QTextBrowser>
 #include <QTextDocument>
 #include <QtSql>
+#include <QTranslator>
 
 #include "HistogramForm.h"
 
@@ -23,10 +24,11 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QString appDir, QWidget *parent = 0);
+    explicit MainWindow(const QString &appDir, const QString &lang, QTranslator &ts, QWidget *parent = 0);
     ~MainWindow();
 
 protected:
+    void changeEvent(QEvent *event);
     void closeEvent(QCloseEvent *event);
 
 private slots:
@@ -36,8 +38,8 @@ private slots:
     void chapterBrowser_actionSelectAll();
     void chapterBrowser_anchorClicked(const QUrl &arg1);
     void chapterBrowser_highlighted(const QUrl &arg1);
-    void compareTextBrowser_actionCopy();
-    void compareTextBrowser_actionSelectAll();
+    void textBrowser_actionCopy();
+    void textBrowser_actionSelectAll();
     void fillDictionaryEntriesWidget();
     void on_actionAbout_Qt_triggered();
     void on_actionAbout_triggered();
@@ -90,8 +92,8 @@ private slots:
     void on_translationTabWidget_currentChanged(int index);
     void on_verseFirstComboBox_currentIndexChanged(int index);
     void on_verseLastComboBox_currentIndexChanged(int index);
-    void showBibleContextMenu(const QPoint& pos);
-    void showCompareContextMenu(const QPoint& pos);
+    void showBibleContextMenu(const QPoint &pos);
+    void showBasicContextMenu(const QPoint &pos);
 
 private:
     Ui::MainWindow *ui;
@@ -99,7 +101,7 @@ private:
     struct TranslationData
     {
         QSqlDatabase database;
-        QString moduleName;
+        QString name;
         bool hasOldTestament;
         bool hasStrong;
     };
@@ -126,7 +128,7 @@ private:
     bool loadWhenBookChanged;
     bool sentByBackForward = false;
     bool sentByRandom = false;
-    HistogramForm *histogramForm;
+    bool translatorInstalled;
     int currentTranslationTab = 0;
     int fontSize = 10;
     int indexHistory;
@@ -138,9 +140,9 @@ private:
     QList<QHBoxLayout *> chapterLayouts;
     QList<QStringList> globalNotes;
     QList<QTextBrowser *> chapterBrowsers;
-    QList<TabBookChapterVerses> favoriteList;
-    QList<TabBookChapterVerses> historyList;
-    QList<TranslationData> translations;
+    QList<TabBookChapterVerses> favorites;
+    QList<TabBookChapterVerses> history;
+    QList<TranslationData> modules;
     QPair<uchar, uchar> range;
     QRegExp displayRegex;
     QRegExp searchRegex;
@@ -148,55 +150,26 @@ private:
     QSqlDatabase dbDct;
     QSqlDatabase dbUsr;
     QSqlDatabase dbXRef;
-    QString cntxtActCopy;
-    QString cntxtActCopyFormatted;
-    QString cntxtActSelectAll;
-    QString cntxtActAddVerse;
-    QString cntxtActAddVerses;
-    QString cntxtActToFavorites;
-    QString confirmDeletion;
-    QString areYouSure;
-    QString copyMessage;
     QString currentLanguage;
     QString currentPassage;
-    QString emptyMessage;
     QString enteredText;
     QString executionPath;
     QString fontFamily = "";
-    QString inTotal;
-    QString noMatches;
-    QString openBblFilter;
-    QString openCaption;
-    QString openDctFilter;
-    QString randomResult;
-    QString resultsMessage;
-    QString replyYes;
-    QString replyNo;
-    QString searchQueryString;
     QString settingsPath;
     QString timeElapsed;
-    QString unavailable;
-    QString contextActionBack;
-    QString contextActionForward;
-    QString verseInTotal;
-    QString verses;
-    QString warningCaption;
-    QString entryUpdated;
-    QString titleError;
-    QString entryExists;
-    QString containsOnlyNT;
     QStringList bookNames;
     QStringList divisionNames;
     QStringList recentVerse;
     QStringList referenceList;
     QStringList verseList;
     Qt::CaseSensitivity sensitivity;
+    QTextBrowser *textBrowser;
+    QTranslator *translator;
     // methods
     QString formatScripture(QString text, bool hasStrong);
     QString formatText(QString text, bool hasStrong);
-    QStringList getModuleNames(QString path);
+    QStringList getModuleNames(const QString &path);
     void addSingleTranslation(int index);
-    void insertIntoFavorites();
     void addTranslationTabs();
     void changeFont(const QFont &font);
     void changeFontSize(bool increase);
@@ -206,17 +179,16 @@ private:
     void fillDetails();
     void getVerseRange();
     void highlightPassage(const QStringList &indices, int dbIndex);
-    void loadBibleModule(const QString &moduleName);
+    void insertIntoFavorites();
+    void loadBibleModule(const QString &path);
     void loadCompareTab();
     void loadFavoritesTab();
     void loadPassage();
     void loadSettings(const QString &path, int counter = 0);
     void loadXRefAndDict(const QString &path);
     void lockCheckBoxes();
-    void populateChapterMenuItemsEnglish();
-    void populateChapterMenuItemsPolski();
-    void populateDivisionMenuItemsEnglish();
-    void populateDivisionMenuItemsPolski();
+    void populateBookList();
+    void populateDivisionList();
     void saveSettings();
     void searchByStrong(const QString &number);
     void searchWithLIKE(const QList<QRegExp> &wordsRgx, const QStringList &words, QString oprtr);
@@ -228,7 +200,7 @@ private:
     void searchWithString(const QString &phrase, Qt::CaseSensitivity sensitivity);
     void searchWithString(const QStringList &words, int wordCount, Qt::CaseSensitivity sensitivity);
     void setTabBookChapterVerses(int tab, int book, int chapter, int verseFirst, int verseLast);
-    void updateRangeComboBoxes();
+    void updateBooksAndDivisions();
 };
 
 #endif // MAINWINDOW_H

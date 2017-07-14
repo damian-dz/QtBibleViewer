@@ -25,7 +25,7 @@ class HistogramForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit HistogramForm(const QSqlDatabase &db, const QString &lang, QWidget *parent = 0);
+    explicit HistogramForm(const QSqlDatabase &db, QWidget *parent = 0);
     ~HistogramForm();
 
 protected:
@@ -51,10 +51,9 @@ private:
 //    QHBoxLayout *horizontalLayoutNT;
 //    QPushButton *saveButtonOT;
 //    QPushButton *saveButtonNT;
-    QSqlDatabase db;
+    const QSqlDatabase *db;
     QStringList abbreviations;
-    void changeLanguage(const QString &language);
-    void loadBookAbbreviations(const QString &language);
+    void loadBookAbbreviations();
     void searchAndPlot(const QString &word);
     void setUpChartsAndValidator();
 };

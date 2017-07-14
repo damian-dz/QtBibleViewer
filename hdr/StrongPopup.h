@@ -24,9 +24,7 @@ private slots:
 
 private:
     Ui::StrongPopup *ui;
-    QSqlDatabase dbDct;
-    QSqlDatabase dbXRef;
-    void loadCrossReferences(const QString &numbers);
+    const QSqlDatabase *dbDct;
     void loadDefinition(const QString &number);
 };
 
