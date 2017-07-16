@@ -13,8 +13,6 @@
 #include <QtSql>
 #include <QTranslator>
 
-#include "HistogramForm.h"
-
 namespace Ui {
 class MainWindow;
 }
@@ -38,8 +36,11 @@ private slots:
     void chapterBrowser_actionSelectAll();
     void chapterBrowser_anchorClicked(const QUrl &arg1);
     void chapterBrowser_highlighted(const QUrl &arg1);
-    void textBrowser_actionCopy();
-    void textBrowser_actionSelectAll();
+    void actionCopy();
+    void actionCut();
+    void actionClear();
+    void actionPaste();
+    void actionSelectAll();
     void fillDictionaryEntriesWidget();
     void on_actionAbout_Qt_triggered();
     void on_actionAbout_triggered();
@@ -94,6 +95,7 @@ private slots:
     void on_verseLastComboBox_currentIndexChanged(int index);
     void showBibleContextMenu(const QPoint &pos);
     void showBasicContextMenu(const QPoint &pos);
+    void showEditContextMenu(const QPoint &pos);
 
 private:
     Ui::MainWindow *ui;
@@ -121,6 +123,7 @@ private:
         }
     };
     // global variables
+    bool clipboardSet = true;
     bool firstLoadBible;
     bool firstLoadCompare;
     bool languageChanging = false;
@@ -160,10 +163,12 @@ private:
     QStringList bookNames;
     QStringList divisionNames;
     QStringList recentVerse;
-    QStringList referenceList;
-    QStringList verseList;
+    QStringList references;
+    QStringList verses;
     Qt::CaseSensitivity sensitivity;
     QTextBrowser *textBrowser;
+    QLineEdit *lineEdit;
+    QTextEdit *textEdit;
     QTranslator *translator;
     // methods
     QString formatScripture(QString text, bool hasStrong);
@@ -199,7 +204,7 @@ private:
     void searchWithRegex(const QRegExp &pattern);
     void searchWithString(const QString &phrase, Qt::CaseSensitivity sensitivity);
     void searchWithString(const QStringList &words, int wordCount, Qt::CaseSensitivity sensitivity);
-    void setTabBookChapterVerses(int tab, int book, int chapter, int verseFirst, int verseLast);
+    void setTabBookChapterVerses(const TabBookChapterVerses &tbcvs);
     void updateBooksAndDivisions();
 };
 

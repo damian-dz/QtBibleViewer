@@ -6,7 +6,6 @@
 
 PreferenceDialog::PreferenceDialog(int size,
                                    const QString &family,
-                                   const QString &lang,
                                    bool firstChapter,
                                    int recentCount,
                                    QWidget *parent)
@@ -14,7 +13,6 @@ PreferenceDialog::PreferenceDialog(int size,
       ui(new Ui::PreferenceDialog)
 {
     ui->setupUi(this);
-    changeLanguage(lang);
     ui->fontSizeComboBox->setCurrentIndex(ui->fontSizeComboBox->findText(QString::number(size)));
     QFont font;
     if (!family.isEmpty())
@@ -61,17 +59,4 @@ void PreferenceDialog::on_fontSizeComboBox_currentTextChanged(const QString &arg
     font.setFamily(ui->fontComboBox->currentFont().toString());
     font.setPointSize(arg1.toInt());
     ui->previewTextBrowser->setFont(font);
-}
-
-void PreferenceDialog::changeLanguage(const QString &language)
-{
-//    if (language == "PL") {
-//        QDialog::setWindowTitle("Preferencje");
-//        ui->fontFamilyLabel->setText("Rodzaj Czcionki");
-//        ui->fontSizeLabel->setText("Rozmiar Czcionki");
-//        ui->previewLabel->setText("Podgląd");
-//        ui->loadFirstChapterCheckBox->setText("Wczytaj Pierwszy Rozdział przy Zmianie Księgi");
-//        ui->recentPassagesInMemoryLabel->setText("Liczba Ostatnich Fragmentów w Pamięci:");
-//        ui->buttonBox->button(QDialogButtonBox::Cancel)->setText("Anuluj");
-//    }
 }

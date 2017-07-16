@@ -14,7 +14,6 @@ class PreferenceDialog : public QDialog
 public:
     explicit PreferenceDialog(int size,
                               const QString &family,
-                              const QString &lang,
                               bool firstChapter,
                               int recentCount,
                               QWidget *parent = 0);
@@ -29,7 +28,6 @@ private slots:
 
 private:
     Ui::PreferenceDialog *ui;
-    void changeLanguage(const QString &language);
 };
 
 #endif // PREFERENCEDIALOG_H

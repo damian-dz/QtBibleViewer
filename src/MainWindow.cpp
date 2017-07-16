@@ -1,16 +1,18 @@
 #include "hdr/MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include "hdr/HistogramForm.h"
 #include "hdr/PreferenceDialog.h"
 
+#include <QClipboard>
 #include <QFileInfo>
 
 MainWindow::MainWindow(const QString &appDir, const QString &lang, QTranslator &ts, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      translatorInstalled(false),
       firstLoadBible(true),
-      firstLoadCompare(true)
+      firstLoadCompare(true),
+      translatorInstalled(false)
 {
     ui->setupUi(this);
     translator = &ts;
@@ -72,11 +74,11 @@ void MainWindow::loadSettings(const QString &path, int counter)
     const int setTranslation = settings.value("translation").toInt();
     const QStringList setPassage = settings.value("passage").toStringList();
     if (!setPassage.isEmpty()) {
-        setTabBookChapterVerses(setTranslation,
-                                setPassage[0].toInt(),
-                                setPassage[1].toInt(),
-                                setPassage[2].toInt(),
-                                setPassage[3].toInt());
+        setTabBookChapterVerses(TabBookChapterVerses{ (uchar)setTranslation,
+                                                      (uchar)setPassage[0].toInt(),
+                                                      (uchar)setPassage[1].toInt(),
+                                                      (uchar)setPassage[2].toInt(),
+                                                      (uchar)setPassage[3].toInt() });
     } else
         ui->bookListWidget->setCurrentRow(0);
     const QString setFontFamily = settings.value("fontFamily").toString();
@@ -182,7 +184,7 @@ void MainWindow::addSingleTranslation(int index)
 void MainWindow::addTranslationTabs()
 {
     for (int i = 0; i < modules.count(); ++i) {
-        ui->translationTabWidget->addTab(new QWidget(this), modules[i].name);
+        ui->translationTabWidget->addTab(new QWidget(ui->tabWidget), modules[i].name);
         addSingleTranslation(i);
     }
 }
@@ -197,15 +199,15 @@ void MainWindow::loadXRefAndDict(const QString &path)
     dbDct.open();
 }
 
-void MainWindow::setTabBookChapterVerses(int tab, int book, int chapter, int verseFirst, int verseLast)
+void MainWindow::setTabBookChapterVerses(const TabBookChapterVerses &tbcvs)
 {
-    ui->translationTabWidget->setCurrentIndex(tab);
+    ui->translationTabWidget->setCurrentIndex(tbcvs.tab);
     ui->verseFirstComboBox->blockSignals(true);
     ui->verseLastComboBox->blockSignals(true);
-    ui->bookListWidget->setCurrentRow(book);
-    ui->chapterListWidget->setCurrentRow(chapter);
-    ui->verseFirstComboBox->setCurrentIndex(verseFirst);
-    ui->verseLastComboBox->setCurrentIndex(verseLast);
+    ui->bookListWidget->setCurrentRow(tbcvs.book);
+    ui->chapterListWidget->setCurrentRow(tbcvs.chapter);
+    ui->verseFirstComboBox->setCurrentIndex(tbcvs.verseFirst);
+    ui->verseLastComboBox->setCurrentIndex(tbcvs.verseLast);
     ui->verseFirstComboBox->blockSignals(false);
     ui->verseLastComboBox->blockSignals(false);
     firstLoadBible = false;
@@ -273,7 +275,7 @@ void MainWindow::on_actionOpen_Bible_Module_triggered()
         ui->bookListWidget->setEnabled(true);
         ui->translationTabWidget->setTabText(index, modules[index].name);
     } else
-        ui->translationTabWidget->addTab(new QWidget(this), modules[index].name);
+        ui->translationTabWidget->addTab(new QWidget(ui->tabWidget), modules[index].name);
     addSingleTranslation(index);
     ui->translationComboBox->addItem(modules[index].name);
     ui->translationTabWidget->setCurrentIndex(index);
@@ -310,12 +312,14 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     }
     else if (index == 2) {
         if (ui->searchFromComboBox->count() == 0 && ui->searchToComboBox->count() == 0) {
-            connect(ui->resultsTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
-                this, SLOT(showBasicContextMenu(const QPoint &)));
             ui->searchFromComboBox->addItems(bookNames);
             ui->searchToComboBox->addItems(bookNames);
             ui->searchToComboBox->setCurrentIndex(ui->searchToComboBox->count() - 1);
             ui->divisionComboBox->setCurrentIndex(0);
+            connect(ui->resultsTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+                this, SLOT(showBasicContextMenu(const QPoint &)));
+            connect(ui->enterLineEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
+                    this, SLOT(showEditContextMenu(const QPoint &)));
         }
         if (ui->translationComboBox->count() == 0) {
             QStringList translationNames;
@@ -329,13 +333,20 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         if (ui->compareBookListWidget->count() == 0)
             loadCompareTab();
     } else if (index == 4) {
-        if (!dbUsr.isOpen())
+        if (!dbUsr.isOpen()) {
             loadFavoritesTab();
-        else if (ui->favoritePassagesListWidget->count() > 0)
+            connect(ui->favoritePassageTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+                    this, SLOT(showBasicContextMenu(const QPoint &)));
+            connect(ui->favoriteCommentTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
+                    this, SLOT(showEditContextMenu(const QPoint &)));
+        } else if (ui->favoritePassagesListWidget->count() > 0)
             on_favoritePassagesListWidget_currentRowChanged(ui->favoritePassagesListWidget->currentRow());
     } else if (index == 5) {
-        if (ui->entriesListWidget->count() == 0)
+        if (ui->entriesListWidget->count() == 0) {
             fillDictionaryEntriesWidget();
+            connect(ui->definitionTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+                    this, SLOT(showBasicContextMenu(const QPoint &)));
+        }
     }
 }
 
@@ -380,7 +391,6 @@ void MainWindow::on_actionPreferences_triggered()
 {
     PreferenceDialog preferences(fontSize,
                                  fontFamily,
-                                 currentLanguage,
                                  loadWhenBookChanged,
                                  maxRecentPassages);
     preferences.setModal(true);
@@ -440,11 +450,7 @@ void MainWindow::on_actionBack_triggered()
 {
     auto indices = history[--indexHistory];
     sentByBackForward = true;
-    setTabBookChapterVerses(indices.tab,
-                            indices.book - 1,
-                            indices.chapter - 1,
-                            indices.verseFirst - 1,
-                            indices.verseLast - 1);
+    setTabBookChapterVerses(indices);
     sentByBackForward = false;
 }
 
@@ -452,41 +458,126 @@ void MainWindow::on_actionForward_triggered()
 {
     auto indices = history[++indexHistory];
     sentByBackForward = true;
-    setTabBookChapterVerses(indices.tab,
-                            indices.book - 1,
-                            indices.chapter - 1,
-                            indices.verseFirst - 1,
-                            indices.verseLast - 1);
+    setTabBookChapterVerses(indices);
     sentByBackForward = false;
 }
 
-void MainWindow::textBrowser_actionCopy()
+void MainWindow::actionCopy()
 {
-    textBrowser->copy();
+    if (textBrowser)
+        textBrowser->copy();
+    else if (textEdit)
+        textEdit->copy();
+    else if (lineEdit)
+        lineEdit->copy();
 }
 
-void MainWindow::textBrowser_actionSelectAll()
+void MainWindow::actionCut()
 {
-    textBrowser->selectAll();
+    if (textEdit)
+        textEdit->cut();
+    else if (lineEdit)
+        lineEdit->cut();
+}
+
+void MainWindow::actionClear()
+{
+    if (textEdit)
+        textEdit->clear();
+    else if (lineEdit)
+        lineEdit->clear();
+}
+
+void MainWindow::actionPaste()
+{
+    if (textEdit)
+        textEdit->paste();
+    else if (lineEdit)
+        lineEdit->paste();
+}
+
+void MainWindow::actionSelectAll()
+{
+    if (textBrowser)
+        textBrowser->selectAll();
+    else if (textEdit)
+        textEdit->selectAll();
+    else if (lineEdit)
+        lineEdit->selectAll();
 }
 
 void MainWindow::showBasicContextMenu(const QPoint &pos)
 {
     textBrowser = qobject_cast<QTextBrowser *>(QObject::sender());
+    textEdit = nullptr;
+    lineEdit = nullptr;
     QPoint globalPos = textBrowser->mapToGlobal(pos);
     QMenu contextMenu(this);
     contextMenu.addAction(tr("Copy"),
                           this,
-                          SLOT(textBrowser_actionCopy()),
+                          SLOT(actionCopy()),
                           QKeySequence("Ctrl+C"));
     contextMenu.addSeparator();
     contextMenu.addAction(tr("Select All"),
                           this,
-                          SLOT(textBrowser_actionSelectAll()),
+                          SLOT(actionSelectAll()),
                           QKeySequence("Ctrl+A"));
     QList<QAction *> contextActions = contextMenu.actions();
     QTextCursor cursor = textBrowser->textCursor();
     contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
     contextActions[2]->setDisabled(textBrowser->toPlainText().isEmpty());
+    contextMenu.exec(globalPos);
+}
+
+void MainWindow::showEditContextMenu(const QPoint &pos)
+{
+    QMenu contextMenu(this);
+    contextMenu.addAction(tr("Cut"),
+                          this,
+                          SLOT(actionCut()),
+                          QKeySequence("Ctrl+X"));
+    contextMenu.addAction(tr("Copy"),
+                          this,
+                          SLOT(actionCopy()),
+                          QKeySequence("Ctrl+C"));
+    contextMenu.addAction(tr("Paste"),
+                          this,
+                          SLOT(actionPaste()),
+                          QKeySequence("Ctrl+V"));
+    contextMenu.addAction(tr("Clear"),
+                          this,
+                          SLOT(actionClear()));
+    contextMenu.addSeparator();
+    contextMenu.addAction(tr("Select All"),
+                          this,
+                          SLOT(actionSelectAll()),
+                          QKeySequence("Ctrl+A"));
+    QList<QAction *> contextActions = contextMenu.actions();
+    QString senderName = QObject::sender()->metaObject()->className();
+    QPoint globalPos;
+    if (senderName == "QLineEdit") {
+        textEdit = nullptr;
+        textBrowser = nullptr;
+        lineEdit = qobject_cast<QLineEdit *>(QObject::sender());
+        globalPos = lineEdit->mapToGlobal(pos);
+        bool isSelected = (lineEdit->selectedText().length() > 0);
+        contextActions[0]->setEnabled(isSelected);
+        contextActions[1]->setEnabled(isSelected);
+        bool isEmpty = lineEdit->text().isEmpty();
+        contextActions[3]->setDisabled(isEmpty);
+        contextActions[5]->setDisabled(isEmpty);
+    } else if (senderName == "QTextEdit") {
+        lineEdit = nullptr;
+        textBrowser = nullptr;
+        textEdit = qobject_cast<QTextEdit *>(QObject::sender());
+        globalPos = textEdit->mapToGlobal(pos);
+        QTextCursor cursor = textEdit->textCursor();
+        contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
+        contextActions[1]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
+        bool isEmpty = textEdit->toPlainText().isEmpty();
+        contextActions[3]->setDisabled(isEmpty);
+        contextActions[5]->setDisabled(isEmpty);
+    }
+    contextActions[2]->setDisabled(qApp->clipboard()->text().isEmpty());
     contextMenu.exec(globalPos);
 }

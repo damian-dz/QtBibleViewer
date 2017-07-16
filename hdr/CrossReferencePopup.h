@@ -16,10 +16,10 @@ class CrossReferencePopup : public QDialog
 
 public:
     explicit CrossReferencePopup(const QPair<QSqlDatabase, const QSqlDatabase &> &dbs,
-                             const QStringList &hrefBookChapter,
-                             const QStringList &books,
-                             const QFont &font,
-                             QWidget* parent = 0);
+                                 const QStringList &hrefBookChapter,
+                                 const QStringList &books,
+                                 const QFont &font,
+                                 QWidget* parent = 0);
     ~CrossReferencePopup();
 
 private slots:

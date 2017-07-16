@@ -44,6 +44,23 @@ void MainWindow::updateBooksAndDivisions()
         ui->compareBookListWidget->setCurrentRow(currentIndex);
         ui->compareBookListWidget->blockSignals(false);
     }
+    if (ui->favoritePassagesListWidget->count() > 0) {
+        QStringList favList;
+        for (int i = 0; i < favorites.count(); ++i) {
+            QString passageId = bookNames[favorites[i].book - 1] % " " %
+                                QString::number(favorites[i].chapter) % ":" %
+                                QString::number(favorites[i].verseFirst);
+            if (favorites[i].verseFirst != favorites[i].verseLast)
+                passageId += "-" % QString::number(favorites[i].verseLast);
+            favList << passageId;
+        }
+        ui->favoritePassagesListWidget->blockSignals(true);
+        int currentIndex = ui->favoritePassagesListWidget->currentRow();
+        ui->favoritePassagesListWidget->clear();
+        ui->favoritePassagesListWidget->addItems(favList);
+        ui->favoritePassagesListWidget->setCurrentRow(currentIndex);
+        ui->favoritePassagesListWidget->blockSignals(false);
+    }
 }
 
 void MainWindow::populateBookList()

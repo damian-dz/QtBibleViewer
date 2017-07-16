@@ -31,6 +31,7 @@ void MainWindow::loadPassage()
         query.exec(queryString);
         QSqlQuery xRefQuery(dbXRef);
         currentPassage.clear();
+        clipboardSet = false;
         while (query.next()) {
             QString verseNumber = query.record().value(0).toString();
             QString xRefQueryString = QStringLiteral("SELECT XRefs FROM CrossReferences WHERE BOOK = ") % bookStr %
@@ -278,7 +279,7 @@ void MainWindow::showBibleContextMenu(const QPoint &pos)
     contextMenu.exec(globalPos);
 }
 
-QString cleanBeforeCopying(QString text, bool hasStrong)
+void cleanBeforeCopying(QString &text, bool hasStrong)
 {
     if (hasStrong)
         text.replace(QRegExp(" <a href[^<]*</a>"), "");
@@ -289,20 +290,23 @@ QString cleanBeforeCopying(QString text, bool hasStrong)
     text.remove(QRegExp("<RF>.*<Rf>"));
     text.remove(QRegExp("<[^<]*>"));
     text.remove(QRegExp("<..>"));
-    return text;
 }
 
 void MainWindow::on_copyButton_clicked()
 {
-    int dbIndex = currentTranslationTab;
-    currentPassage = cleanBeforeCopying(currentPassage, modules[dbIndex].hasStrong);
-    QString textToAppend;
+    if (clipboardSet) {
+        QApplication::clipboard()->setText(currentPassage);
+        return;
+    }
+    int index = currentTranslationTab;
+    cleanBeforeCopying(currentPassage, modules[index].hasStrong);
     QString bookName = ui->bookListWidget->currentItem()->text();
     QString chapterNumber = ui->chapterListWidget->currentItem()->text();
     QString firstVerseNumber = ui->verseFirstComboBox->currentText();
     QString lastVerseNumber = ui->verseLastComboBox->currentText();
     int firstVerseIndex = ui->verseFirstComboBox->currentIndex();
     int lastVerseIndex = ui->verseLastComboBox->currentIndex();
+    QString textToAppend;
     if (firstVerseIndex == 0 && lastVerseIndex + 1 == ui->verseLastComboBox->count()) {
         textToAppend = "—" + bookName +
                        " " + chapterNumber;
@@ -319,10 +323,10 @@ void MainWindow::on_copyButton_clicked()
     }
     currentPassage.resize(currentPassage.length() - 1);
     currentPassage += textToAppend;
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(currentPassage);
+    QApplication::clipboard()->setText(currentPassage);
     ui->verseLineEdit->setText(currentPassage);
     ui->statusBar->showMessage(tr("Text copied to clipboard."), 2500);
+    clipboardSet = true;
 }
 
 void MainWindow::on_prevChapterButton_clicked()

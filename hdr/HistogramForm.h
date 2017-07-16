@@ -29,7 +29,6 @@ public:
     ~HistogramForm();
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *event);
     void resizeEvent(QResizeEvent *event);
 
 private slots:
@@ -38,7 +37,9 @@ private slots:
     void on_visualizeButton_clicked();
     void on_wordLineEdit_returnPressed();
     void on_wordLineEdit_textChanged(const QString &arg1);
-   //void on_saveButtonOT_clicked();
+    void showSaveContextMenu(const QPoint &pos);
+    void chartView_actionSave();
+    void connectSignalsToSlots();
 
 private:
     Ui::HistogramForm *ui;
@@ -47,10 +48,7 @@ private:
     QChart *chartNT;
     QChartView *chartViewOT;
     QChartView *chartViewNT;
-//    QHBoxLayout *horizontalLayoutOT;
-//    QHBoxLayout *horizontalLayoutNT;
-//    QPushButton *saveButtonOT;
-//    QPushButton *saveButtonNT;
+    QChartView *chartView;
     const QSqlDatabase *db;
     QStringList abbreviations;
     void loadBookAbbreviations();

@@ -1,10 +1,10 @@
 #include "hdr/CrossReferencePopup.h"
 #include "ui_CrossReferencePopup.h"
 
+#include "hdr/StrongPopup.h"
+
 #include <QStringBuilder>
 #include <QTime>
-
-#include "hdr/StrongPopup.h"
 
 CrossReferencePopup::CrossReferencePopup(const QPair<QSqlDatabase, const QSqlDatabase &> &dbs,
                                          const QStringList &hrefBookChapter,

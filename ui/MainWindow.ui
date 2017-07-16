@@ -483,7 +483,11 @@
             <item>
              <layout class="QHBoxLayout" name="enterHorizontalLayout">
               <item>
-               <widget class="QLineEdit" name="enterLineEdit"/>
+               <widget class="QLineEdit" name="enterLineEdit">
+                <property name="contextMenuPolicy">
+                 <enum>Qt::CustomContextMenu</enum>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QPushButton" name="searchButton">
@@ -750,6 +754,9 @@
              <widget class="QRadioButton" name="byStrongsNumberRadioButton">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Search with a Strong's number. (The selected module must contain Strong's numbers.)</string>
               </property>
               <property name="text">
                <string>By Strong's Number</string>
@@ -1070,6 +1077,9 @@
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
            <widget class="QTextBrowser" name="favoritePassageTextBrowser">
+            <property name="contextMenuPolicy">
+             <enum>Qt::CustomContextMenu</enum>
+            </property>
             <property name="openLinks">
              <bool>false</bool>
             </property>
@@ -1113,7 +1123,11 @@
            </layout>
           </item>
           <item>
-           <widget class="QTextEdit" name="favoriteCommentTextEdit"/>
+           <widget class="QTextEdit" name="favoriteCommentTextEdit">
+            <property name="contextMenuPolicy">
+             <enum>Qt::CustomContextMenu</enum>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -1195,6 +1209,9 @@
                 <pointsize>10</pointsize>
                </font>
               </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::CustomContextMenu</enum>
+              </property>
               <property name="openLinks">
                <bool>false</bool>
               </property>
@@ -1212,9 +1229,9 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_15">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_14">
+         <layout class="QHBoxLayout" name="topicsTabHorizontalLayout">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_19">
+           <layout class="QVBoxLayout" name="openTopicModuleVerticalLayout">
             <item>
              <widget class="QPushButton" name="openTopicModuleButton">
               <property name="text">
@@ -1241,7 +1258,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_18">
+           <layout class="QVBoxLayout" name="versesVerticalLayout">
             <item>
              <widget class="QLabel" name="versesLabel">
               <property name="text">

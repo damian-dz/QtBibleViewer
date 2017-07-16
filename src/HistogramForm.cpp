@@ -3,7 +3,8 @@
 
 #include "hdr/AuxiliaryMethods.h"
 
-#include<QMenu>
+#include <QFileDialog>
+#include <QMenu>
 
 HistogramForm::HistogramForm(const QSqlDatabase &db, QWidget *parent)
     : QWidget(parent),
@@ -14,6 +15,7 @@ HistogramForm::HistogramForm(const QSqlDatabase &db, QWidget *parent)
     this->db = &db;
     loadBookAbbreviations();
     setUpChartsAndValidator();
+    connectSignalsToSlots();
 }
 
 HistogramForm::~HistogramForm()
@@ -21,11 +23,36 @@ HistogramForm::~HistogramForm()
     delete ui;
 }
 
-void HistogramForm::contextMenuEvent(QContextMenuEvent *event)
+void HistogramForm::showSaveContextMenu(const QPoint &pos)
 {
-    QMenu menu(chartViewOT);
-    menu.addAction("Save");
-    menu.exec(event->globalPos());
+    chartView = qobject_cast<QChartView *>(QObject::sender());
+    QPoint globalPos = chartView->mapToGlobal(pos);
+    QMenu contextMenu(this);
+    contextMenu.addAction(tr("Save as Image"),
+                          this,
+                          SLOT(chartView_actionSave()),
+                          QKeySequence("Ctrl+S"));
+    contextMenu.exec(globalPos);
+}
+
+void HistogramForm::chartView_actionSave()
+{
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    tr("Save as Image"),
+                                                    "/",
+                                                    tr("PNG Files (*.png);;All Files (*.*)"));
+    if (filename.isNull() || filename.isEmpty())
+        return;
+    QPixmap pixmap = chartView->grab();
+    pixmap.save(filename, "PNG");
+}
+
+void HistogramForm::connectSignalsToSlots()
+{
+    connect(chartViewOT, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showSaveContextMenu(const QPoint &)));
+    connect(chartViewNT, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showSaveContextMenu(const QPoint &)));
 }
 
 void HistogramForm::resizeEvent(QResizeEvent *event)
@@ -135,23 +162,14 @@ void HistogramForm::searchAndPlot(const QString &word)
 void HistogramForm::setUpChartsAndValidator()
 {
     chartOT = new QChart;
-    chartNT = new QChart;
     chartOT->setAnimationOptions(QChart::SeriesAnimations);
-    chartNT->setAnimationOptions(QChart::SeriesAnimations);
     chartViewOT = new QChartView(chartOT, this);
-    chartViewNT = new QChartView(chartNT, this);
-//    saveButtonOT = new QPushButton(QStringLiteral("Save"));
-//    saveButtonOT->setObjectName(QStringLiteral("saveButtonOT"));
-//    saveButtonOT->setGeometry(QRect(215, 75, 31, 31));
-//    saveButtonNT = new QPushButton(QStringLiteral("Save"));
-//    saveButtonNT->setGeometry(QRect(215, 75, 31, 31));
-//    horizontalLayoutOT = new QHBoxLayout;
-//    horizontalLayoutNT = new QHBoxLayout;
-//    horizontalLayoutOT->addWidget(chartViewOT);
-//    horizontalLayoutOT->addWidget(saveButtonOT);
-//    horizontalLayoutNT->addWidget(chartViewNT);
-//    horizontalLayoutNT->addWidget(saveButtonNT);
+    chartViewOT->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->verticalLayout->addWidget(chartViewOT);
+    chartNT = new QChart;
+    chartNT->setAnimationOptions(QChart::SeriesAnimations);    
+    chartViewNT = new QChartView(chartNT, this);    
+    chartViewNT->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->verticalLayout->addWidget(chartViewNT);
     QRegExp regex("^\s*([a-zA-ZąĄćĆęĘłŁńŃóÓśŚźŹżŻ0-9]+\s*)$");
     QValidator *validator = new QRegExpValidator(regex, this);
@@ -177,11 +195,6 @@ void HistogramForm::on_wordLineEdit_textChanged(const QString &arg1)
 {   
     ui->visualizeButton->setDisabled(arg1.trimmed().isEmpty());
 }
-
-//void HistogramForm::on_saveButtonOT_clicked()
-//{
-//    qDebug() << "A";
-//}
 
 void HistogramForm::enableVisualizeButton()
 {
