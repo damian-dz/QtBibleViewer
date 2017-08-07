@@ -60,7 +60,11 @@ void MainWindow::loadPassage()
     ui->actionForward->setEnabled(history.count() > 1 && indexHistory < history.count() - 1);
     if (sentByBackForward)
         return;
-    history.append({ (uchar)dbIndex, (uchar)book, (uchar)chapter, (uchar)verseFirst, (uchar)verseLast });
+    history.append({ (uchar)dbIndex,
+                     uchar(book - 1),
+                     uchar(chapter - 1),
+                     uchar(verseFirst - 1),
+                     uchar(verseLast - 1) });
     if (history.count() > maxRecentPassages)
         history.removeFirst();
     indexHistory = history.count() - 1;

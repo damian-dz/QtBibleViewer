@@ -765,7 +765,8 @@ void MainWindow::highlightPassage(const QStringList &indices, int dbIndex)
     QRegExp endRgx = QRegExp("\\b" + QString::number(limit) + " ");
     int end = plainText.indexOf(endRgx);
     if (end == - 1)
-        end = plainText.length() - 1;
+        end = plainText.length();
+    end--;
     QTextCursor cursor = chapterBrowsers[currentTranslationTab]->textCursor();
     cursor.setPosition(start, QTextCursor::MoveAnchor);
     cursor.setPosition(end, QTextCursor::KeepAnchor);
@@ -775,9 +776,9 @@ void MainWindow::highlightPassage(const QStringList &indices, int dbIndex)
 
 void MainWindow::on_randomVerseButton_clicked()
 {
-    int dbIndex = ui->translationComboBox->currentIndex();
+    int index = ui->translationComboBox->currentIndex();
     int min = ui->searchFromComboBox->currentIndex() + 1;
-    if (min < 40 && !modules[dbIndex].hasOldTestament) {
+    if (min < 40 && !modules[index].hasOldTestament) {
         QMessageBox::critical(this,
                               tr("Error"),
                               tr("The current transation contains only the New Testament."));
@@ -788,7 +789,7 @@ void MainWindow::on_randomVerseButton_clicked()
     uint seed = QTime::currentTime().msec();
     qsrand(seed);
     int bookNumber = qrand() % (max - min) + min;
-    QSqlQuery query(modules[dbIndex].database);
+    QSqlQuery query(modules[index].database);
     QString book = QString::number(bookNumber);
     QString verseText;
     while (verseText.isNull()) {
@@ -824,7 +825,7 @@ void MainWindow::on_randomVerseButton_clicked()
             QString randomResult = query.record().value(0).toString();
             ui->randomVerseTextBrowser->clear();
             verseText = formatResult(randomResult, QRegExp("<RF>.*<Rf>"),
-                                   modules[dbIndex].hasStrong);
+                                   modules[index].hasStrong);
             verseText += "<b><a href='" % book % "," % chapter % "," % verse %
                          "' style='text-decoration:none'>—" %
                          bookNames[bookNumber - 1] + " " %

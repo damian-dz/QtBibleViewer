@@ -449,6 +449,7 @@ void MainWindow::on_actionWord_Frequency_triggered()
 void MainWindow::on_actionBack_triggered()
 {
     auto indices = history[--indexHistory];
+    qDebug() << indexHistory;
     sentByBackForward = true;
     setTabBookChapterVerses(indices);
     sentByBackForward = false;
