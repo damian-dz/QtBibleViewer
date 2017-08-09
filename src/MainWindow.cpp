@@ -317,7 +317,7 @@ void MainWindow::on_tabWidget_currentChanged(int index)
             ui->searchToComboBox->setCurrentIndex(ui->searchToComboBox->count() - 1);
             ui->divisionComboBox->setCurrentIndex(0);
             connect(ui->resultsTextBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
-                this, SLOT(showBasicContextMenu(const QPoint &)));
+                    this, SLOT(showBasicContextMenu(const QPoint &)));
             connect(ui->enterLineEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
                     this, SLOT(showEditContextMenu(const QPoint &)));
         }
@@ -449,7 +449,6 @@ void MainWindow::on_actionWord_Frequency_triggered()
 void MainWindow::on_actionBack_triggered()
 {
     auto indices = history[--indexHistory];
-    qDebug() << indexHistory;
     sentByBackForward = true;
     setTabBookChapterVerses(indices);
     sentByBackForward = false;

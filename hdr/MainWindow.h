@@ -196,10 +196,16 @@ private:
     void populateDivisionList();
     void saveSettings();
     void searchByStrong(const QString &number);
-    void searchWithLIKE(const QList<QRegExp> &wordsRgx, const QStringList &words, QString oprtr);
+    void searchWithLIKE(const QList<QRegExp> &wordsRgx,
+                        const QStringList &words,
+                        const QString oprtr,
+                        bool (&caw)(QString, const QList<QRegExp> &));
     void searchWithLIKE(const QRegExp &text, const QStringList &words);
     void searchWithLIKE(const QString &word, Qt::CaseSensitivity sensitivity);
-    void searchWithLIKE(const QStringList &words, Qt::CaseSensitivity sensitivity, QString oprtr);
+    void searchWithLIKE(const QStringList &words,
+                        Qt::CaseSensitivity sensitivity,
+                        QString oprtr,
+                        bool (&caw)(QString, const QStringList &, Qt::CaseSensitivity));
     void searchWithRegex(const QList<QRegExp> &patterns, int wordCount);
     void searchWithRegex(const QRegExp &pattern);
     void searchWithString(const QString &phrase, Qt::CaseSensitivity sensitivity);

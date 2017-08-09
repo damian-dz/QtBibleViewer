@@ -268,8 +268,8 @@ void MainWindow::searchWithString(const QStringList &words, int wordCount, Qt::C
             QString verse = query.record().value(2).toString();
             verses << query.record().value(3).toString();
             references << "<b><a href = \"" % book % "," % chapter % "," % verse %
-                             "\" style='text-decoration: none'>—" %
-                             bookNames[book.toInt() - 1] % " " % chapter % ":" % verse % "</a></b><br><br>";
+                          "\" style='text-decoration: none'>—" %
+                          bookNames[book.toInt() - 1] % " " % chapter % ":" % verse % "</a></b><br><br>";
             resultCount++;
         }
     }
@@ -422,102 +422,68 @@ bool containsAnyWord(QString text, const QList<QRegExp> &words)
     return hasAny;
 }
 
-void MainWindow::searchWithLIKE(const QStringList &words, Qt::CaseSensitivity sensitivity, QString oprtr)
+void MainWindow::searchWithLIKE(const QStringList &words,
+                                Qt::CaseSensitivity sensitivity,
+                                QString oprtr,
+                                bool (&caw) (QString, const QStringList &, Qt::CaseSensitivity))
 {
     int index = ui->translationComboBox->currentIndex();
     int bookFirst = ui->searchFromComboBox->currentIndex() + 1;
     int bookLast = ui->searchToComboBox->currentIndex() + 1;
     QString queryString = multipleWordsQueryString(words, oprtr) %
-                          " AND Book >= " % QString::number(bookFirst) %
-                          " AND Book <= " % QString::number(bookLast);
+            " AND Book >= " % QString::number(bookFirst) %
+            " AND Book <= " % QString::number(bookLast);
     QSqlQuery query(modules[index].database);
     query.exec(queryString);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
-    if (oprtr == "AND") {
-        while (query.next()) {
-            QSqlRecord record = query.record();
-            QString book = record.value(0).toString();
-            QString chapter = record.value(1).toString();
-            QString verse = record.value(2).toString();
-            QString scripture = record.value(3).toString();
-            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
-            if (containsAllWords(scriptureNoNotes, words, sensitivity)) {
-                verses << scripture;
-                references << QStringLiteral("<b><a href='") % book %
-                              QStringLiteral(",") % chapter %
-                              QStringLiteral(",") % verse %
-                              QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
-                              QStringLiteral(" ") % chapter %
-                              QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
-            }
-        }
-    } else if (oprtr == "OR") {
-        while (query.next()) {
-            QSqlRecord record = query.record();
-            QString book = record.value(0).toString();
-            QString chapter = record.value(1).toString();
-            QString verse = record.value(2).toString();
-            QString scripture = record.value(3).toString();
-            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
-            if (containsAnyWord(scriptureNoNotes, words, sensitivity)) {
-                verses << scripture;
-                references << QStringLiteral("<b><a href='") % book %
-                              QStringLiteral(",") % chapter %
-                              QStringLiteral(",") % verse %
-                              QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
-                              QStringLiteral(" ") % chapter %
-                              QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
-            }
+    while (query.next()) {
+        QSqlRecord record = query.record();
+        QString book = record.value(0).toString();
+        QString chapter = record.value(1).toString();
+        QString verse = record.value(2).toString();
+        QString scripture = record.value(3).toString();
+        QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+        if (caw(scriptureNoNotes, words, sensitivity)) {
+            verses << scripture;
+            references << QStringLiteral("<b><a href='") % book %
+                          QStringLiteral(",") % chapter %
+                          QStringLiteral(",") % verse %
+                          QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                          QStringLiteral(" ") % chapter %
+                          QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
         }
     }
 }
 
-void MainWindow::searchWithLIKE(const QList<QRegExp> &wordsRgx, const QStringList &words, QString oprtr)
+void MainWindow::searchWithLIKE(const QList<QRegExp> &wordsRgx,
+                                const QStringList &words,
+                                const QString oprtr,
+                                bool (&caw) (QString, const QList<QRegExp> &))
 {
     int index = ui->translationComboBox->currentIndex();
     int bookFirst = ui->searchFromComboBox->currentIndex() + 1;
     int bookLast = ui->searchToComboBox->currentIndex() + 1;
     QString queryString = multipleWordsQueryString(words, oprtr) %
-                          " AND Book >= " % QString::number(bookFirst) %
-                          " AND Book <= " % QString::number(bookLast);
+            " AND Book >= " % QString::number(bookFirst) %
+            " AND Book <= " % QString::number(bookLast);
     QSqlQuery query(modules[index].database);
     query.exec(queryString);
     QRegExp rgxMarkupStrongNotes("<..>|<W[HG][0-9]{1,4}>|<RF>.*<Rf>");
-    if (oprtr == "AND") {
-        while (query.next()) {
-            QSqlRecord record = query.record();
-            QString book = record.value(0).toString();
-            QString chapter = record.value(1).toString();
-            QString verse = record.value(2).toString();
-            QString scripture = record.value(3).toString();
-            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
-            if (containsAllWords(scriptureNoNotes, wordsRgx)) {
-                verses << scripture;
-                references << QStringLiteral("<b><a href='") % book %
-                              QStringLiteral(",") % chapter %
-                              QStringLiteral(",") % verse %
-                              QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
-                              QStringLiteral(" ") % chapter %
-                              QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
-            }
-        }
-    } else if (oprtr == "OR") {
-        while (query.next()) {
-            QSqlRecord record = query.record();
-            QString book = record.value(0).toString();
-            QString chapter = record.value(1).toString();
-            QString verse = record.value(2).toString();
-            QString scripture = record.value(3).toString();
-            QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
-            if (containsAnyWord(scriptureNoNotes, wordsRgx)) {
-                verses << scripture;
-                references << QStringLiteral("<b><a href='") % book %
-                              QStringLiteral(",") % chapter %
-                              QStringLiteral(",") % verse %
-                              QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
-                              QStringLiteral(" ") % chapter %
-                              QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
-            }
+    while (query.next()) {
+        QSqlRecord record = query.record();
+        QString book = record.value(0).toString();
+        QString chapter = record.value(1).toString();
+        QString verse = record.value(2).toString();
+        QString scripture = record.value(3).toString();
+        QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
+        if (caw(scriptureNoNotes, wordsRgx)) {
+            verses << scripture;
+            references << QStringLiteral("<b><a href='") % book %
+                          QStringLiteral(",") % chapter %
+                          QStringLiteral(",") % verse %
+                          QStringLiteral("' style='text-decoration:none'>—") % bookNames[book.toInt() - 1] %
+                          QStringLiteral(" ") % chapter %
+                          QStringLiteral(":") % verse % QStringLiteral("</a></b><br><br>");
         }
     }
 }
@@ -626,7 +592,8 @@ void MainWindow::on_searchButton_clicked()
                 }
                 displayRegexString += searchWordList[wordCount - 1] + "\\b";
                 regexList << QRegExp("\\b" + searchWordList[wordCount - 1] + "\\b", sensitivity);
-                searchWithLIKE(regexList, searchWordList, "AND");
+                searchWithLIKE(regexList, searchWordList, "AND", containsAllWords);
+                //searchWithLIKE(regexList, searchWordList, "AND");
                 //searchWithRegex(regexList, wordCount);
                 displayRegex = QRegExp(displayRegexString, sensitivity);
             } else {
@@ -634,7 +601,8 @@ void MainWindow::on_searchButton_clicked()
                 for (int i = 0; i < wordCount - 1; ++i)
                     displayRegexString += searchWordList[i] + "|";
                 displayRegexString += searchWordList[wordCount - 1];
-                searchWithLIKE(searchWordList, sensitivity, "AND");
+                searchWithLIKE(searchWordList, sensitivity, "AND", containsAllWords);
+                //searchWithLIKE(searchWordList, sensitivity, "AND");
                 //searchWithString(searchWordList, wordCount, sensitivity);
                 displayRegex = QRegExp(displayRegexString, sensitivity);
             }
@@ -658,7 +626,8 @@ void MainWindow::on_searchButton_clicked()
                 regexList << QRegExp(searchWordList[wordCount - 1], sensitivity);
             }
             QRegExp regex(regexString, sensitivity);
-            searchWithLIKE(regexList, searchWordList, "OR");
+            searchWithLIKE(regexList, searchWordList, "OR", containsAnyWord);
+            //searchWithLIKE(regexList, searchWordList, "OR");
             //searchWithRegex(regex);
             displayRegex = regex;
         }
