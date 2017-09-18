@@ -123,22 +123,22 @@ private:
         }
     };
     // global variables
-    bool clipboardSet = true;
+    bool clipboardSet;
     bool firstLoadBible;
     bool firstLoadCompare;
-    bool languageChanging = false;
+    bool languageChanging;
     bool loadFirstChapter;
     bool loadWhenBookChanged;
-    bool sentByBackForward = false;
-    bool sentByRandom = false;
+    bool sentByBackForward;
+    bool sentByRandom;
     bool translatorInstalled;
-    int currentTranslationTab = 0;
-    int fontSize = 10;
+    int currentTranslationTab;
+    int fontSize;
     int indexHistory;
     int indexStrong;
-    int maxRecentPassages = 10;
+    int maxRecentPassages;
     int pageNumber;
-    int resultsPerPage = 25;
+    int resultsPerPage;
     QLabel *statusLabel;
     QList<QHBoxLayout *> chapterLayouts;
     QList<QStringList> globalNotes;
@@ -157,7 +157,7 @@ private:
     QString currentPassage;
     QString enteredText;
     QString executionPath;
-    QString fontFamily = "";
+    QString fontFamily;
     QString settingsPath;
     QString timeElapsed;
     QStringList bookNames;
@@ -199,13 +199,13 @@ private:
     void searchWithLIKE(const QList<QRegExp> &wordsRgx,
                         const QStringList &words,
                         const QString oprtr,
-                        bool (&caw)(QString, const QList<QRegExp> &));
+                        bool (&containsAllAny)(const QString, const QList<QRegExp> &));
     void searchWithLIKE(const QRegExp &text, const QStringList &words);
     void searchWithLIKE(const QString &word, Qt::CaseSensitivity sensitivity);
     void searchWithLIKE(const QStringList &words,
                         Qt::CaseSensitivity sensitivity,
                         QString oprtr,
-                        bool (&caw)(QString, const QStringList &, Qt::CaseSensitivity));
+                        bool (&containsAllAny)(const QString, const QStringList &, Qt::CaseSensitivity));
     void searchWithRegex(const QList<QRegExp> &patterns, int wordCount);
     void searchWithRegex(const QRegExp &pattern);
     void searchWithString(const QString &phrase, Qt::CaseSensitivity sensitivity);

@@ -28,7 +28,8 @@ SOURCES += \
     src/Tab3Compare.cpp \
     src/Tab4Favorites.cpp \
     src/Tab5Dictionary.cpp \
-    src/Tab6Topics.cpp
+    src/Tab6Topics.cpp \
+    src/ContextMenus.cpp
 
 
 HEADERS  += \

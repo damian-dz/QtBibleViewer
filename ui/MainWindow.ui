@@ -35,7 +35,7 @@
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <layout class="QVBoxLayout" name="bookVerticlaLayout">
+         <layout class="QVBoxLayout" name="bookVLayout">
           <item>
            <widget class="QLabel" name="bookLabel">
             <property name="text">
@@ -65,7 +65,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="chapterVerticalLayout">
+         <layout class="QVBoxLayout" name="chapterVLayout">
           <item>
            <widget class="QLabel" name="chapterLabel">
             <property name="text">
@@ -92,7 +92,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="verseVerticalLayout">
+         <layout class="QVBoxLayout" name="verseVLayout">
           <item>
            <widget class="QLabel" name="verseLabel">
             <property name="text">
@@ -148,7 +148,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="bookCopyVerticalLayout">
+         <layout class="QVBoxLayout" name="bookCopyVLayout">
           <item>
            <widget class="QTabWidget" name="translationTabWidget">
             <property name="tabPosition">
@@ -163,7 +163,7 @@
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="copyHorizontalLayout">
+           <layout class="QHBoxLayout" name="copyHLayout">
             <item>
              <widget class="QPushButton" name="prevChapterButton">
               <property name="enabled">
@@ -214,11 +214,11 @@
         <item>
          <layout class="QVBoxLayout" name="mainVerticalLayout">
           <item>
-           <layout class="QHBoxLayout" name="mainDetailsHoriziontalLayout">
+           <layout class="QHBoxLayout" name="mainDetailsHLayout">
             <item>
-             <layout class="QVBoxLayout" name="descriptionAbbreviationVerticalLayout">
+             <layout class="QVBoxLayout" name="descriptionAbbreviationVLayout">
               <item>
-               <layout class="QVBoxLayout" name="descriptionVerticalLayout">
+               <layout class="QVBoxLayout" name="descriptionVLayout">
                 <item>
                  <widget class="QLabel" name="descriptionLabel">
                   <property name="text">
@@ -269,7 +269,7 @@
                </layout>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="abbreviationVerticalLayout">
+               <layout class="QVBoxLayout" name="abbreviationVLayout">
                 <item>
                  <widget class="QLabel" name="abbreviationLabel">
                   <property name="text">

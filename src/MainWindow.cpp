@@ -10,9 +10,18 @@
 MainWindow::MainWindow(const QString &appDir, const QString &lang, QTranslator &ts, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
+      clipboardSet(true),
       firstLoadBible(true),
       firstLoadCompare(true),
-      translatorInstalled(false)
+      languageChanging(false),
+      sentByBackForward(false),
+      sentByRandom(false),
+      translatorInstalled(false),
+      currentTranslationTab(0),
+      fontSize(10),
+      maxRecentPassages(10),
+      resultsPerPage(25),
+      fontFamily("")
 {
     ui->setupUi(this);
     translator = &ts;
@@ -410,7 +419,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_actionAbout_triggered()
 {
-
+    QMessageBox::about(this, tr("About Qt Bible Viewer"),
+                       tr("<p><b>Qt Bible Viewer</b> is an open-source project.</p>"
+                          "<p>Visit <a href='https://github.com/damian-dz/QtBibleViewer'>its GitHub page</a> "
+                          "to view the source code.</p>"));
 }
 
 void MainWindow::on_actionCopy_triggered()
@@ -460,124 +472,4 @@ void MainWindow::on_actionForward_triggered()
     sentByBackForward = true;
     setTabBookChapterVerses(indices);
     sentByBackForward = false;
-}
-
-void MainWindow::actionCopy()
-{
-    if (textBrowser)
-        textBrowser->copy();
-    else if (textEdit)
-        textEdit->copy();
-    else if (lineEdit)
-        lineEdit->copy();
-}
-
-void MainWindow::actionCut()
-{
-    if (textEdit)
-        textEdit->cut();
-    else if (lineEdit)
-        lineEdit->cut();
-}
-
-void MainWindow::actionClear()
-{
-    if (textEdit)
-        textEdit->clear();
-    else if (lineEdit)
-        lineEdit->clear();
-}
-
-void MainWindow::actionPaste()
-{
-    if (textEdit)
-        textEdit->paste();
-    else if (lineEdit)
-        lineEdit->paste();
-}
-
-void MainWindow::actionSelectAll()
-{
-    if (textBrowser)
-        textBrowser->selectAll();
-    else if (textEdit)
-        textEdit->selectAll();
-    else if (lineEdit)
-        lineEdit->selectAll();
-}
-
-void MainWindow::showBasicContextMenu(const QPoint &pos)
-{
-    textBrowser = qobject_cast<QTextBrowser *>(QObject::sender());
-    textEdit = nullptr;
-    lineEdit = nullptr;
-    QPoint globalPos = textBrowser->mapToGlobal(pos);
-    QMenu contextMenu(this);
-    contextMenu.addAction(tr("Copy"),
-                          this,
-                          SLOT(actionCopy()),
-                          QKeySequence("Ctrl+C"));
-    contextMenu.addSeparator();
-    contextMenu.addAction(tr("Select All"),
-                          this,
-                          SLOT(actionSelectAll()),
-                          QKeySequence("Ctrl+A"));
-    QList<QAction *> contextActions = contextMenu.actions();
-    QTextCursor cursor = textBrowser->textCursor();
-    contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
-    contextActions[2]->setDisabled(textBrowser->toPlainText().isEmpty());
-    contextMenu.exec(globalPos);
-}
-
-void MainWindow::showEditContextMenu(const QPoint &pos)
-{
-    QMenu contextMenu(this);
-    contextMenu.addAction(tr("Cut"),
-                          this,
-                          SLOT(actionCut()),
-                          QKeySequence("Ctrl+X"));
-    contextMenu.addAction(tr("Copy"),
-                          this,
-                          SLOT(actionCopy()),
-                          QKeySequence("Ctrl+C"));
-    contextMenu.addAction(tr("Paste"),
-                          this,
-                          SLOT(actionPaste()),
-                          QKeySequence("Ctrl+V"));
-    contextMenu.addAction(tr("Clear"),
-                          this,
-                          SLOT(actionClear()));
-    contextMenu.addSeparator();
-    contextMenu.addAction(tr("Select All"),
-                          this,
-                          SLOT(actionSelectAll()),
-                          QKeySequence("Ctrl+A"));
-    QList<QAction *> contextActions = contextMenu.actions();
-    QString senderName = QObject::sender()->metaObject()->className();
-    QPoint globalPos;
-    if (senderName == "QLineEdit") {
-        textEdit = nullptr;
-        textBrowser = nullptr;
-        lineEdit = qobject_cast<QLineEdit *>(QObject::sender());
-        globalPos = lineEdit->mapToGlobal(pos);
-        bool isSelected = (lineEdit->selectedText().length() > 0);
-        contextActions[0]->setEnabled(isSelected);
-        contextActions[1]->setEnabled(isSelected);
-        bool isEmpty = lineEdit->text().isEmpty();
-        contextActions[3]->setDisabled(isEmpty);
-        contextActions[5]->setDisabled(isEmpty);
-    } else if (senderName == "QTextEdit") {
-        lineEdit = nullptr;
-        textBrowser = nullptr;
-        textEdit = qobject_cast<QTextEdit *>(QObject::sender());
-        globalPos = textEdit->mapToGlobal(pos);
-        QTextCursor cursor = textEdit->textCursor();
-        contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
-        contextActions[1]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
-        bool isEmpty = textEdit->toPlainText().isEmpty();
-        contextActions[3]->setDisabled(isEmpty);
-        contextActions[5]->setDisabled(isEmpty);
-    }
-    contextActions[2]->setDisabled(qApp->clipboard()->text().isEmpty());
-    contextMenu.exec(globalPos);
 }

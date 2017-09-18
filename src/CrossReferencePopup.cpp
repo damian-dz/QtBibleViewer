@@ -4,7 +4,6 @@
 #include "hdr/StrongPopup.h"
 
 #include <QStringBuilder>
-#include <QTime>
 
 CrossReferencePopup::CrossReferencePopup(const QPair<QSqlDatabase, const QSqlDatabase &> &dbs,
                                          const QStringList &hrefBookChapter,
@@ -22,10 +21,7 @@ CrossReferencePopup::CrossReferencePopup(const QPair<QSqlDatabase, const QSqlDat
     QString verse = hrefSplit[1];
     QString title = bookName + " " + chapter + ":" + verse;
     QDialog::setWindowTitle(title);
-    QTime t;
-    t.start();
     loadPassages(dbs.first, hrefSplit[2], books);
-    qDebug() << t.elapsed();
     dbDct = &dbs.second;
     this->font = font;
 }

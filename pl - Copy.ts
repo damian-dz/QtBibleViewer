@@ -425,9 +425,9 @@
     <message>
         <location filename="ui/MainWindow.ui" line="199"/>
         <location filename="ui/MainWindow.ui" line="1427"/>
-        <location filename="src/ContextMenus.cpp" line="57"/>
-        <location filename="src/ContextMenus.cpp" line="80"/>
-        <location filename="src/ContextMenus.cpp" line="212"/>
+        <location filename="src/MainWindow.cpp" line="515"/>
+        <location filename="src/MainWindow.cpp" line="538"/>
+        <location filename="src/Tab0Bible.cpp" line="241"/>
         <source>Copy</source>
         <translation>Kopiuj</translation>
     </message>
@@ -853,25 +853,25 @@
     </message>
     <message>
         <location filename="ui/MainWindow.ui" line="1466"/>
-        <location filename="src/ContextMenus.cpp" line="233"/>
+        <location filename="src/Tab0Bible.cpp" line="264"/>
         <source>Back</source>
         <translation>Do Tyłu</translation>
     </message>
     <message>
         <location filename="ui/MainWindow.ui" line="1469"/>
-        <location filename="src/ContextMenus.cpp" line="236"/>
+        <location filename="src/Tab0Bible.cpp" line="267"/>
         <source>Ctrl+Left</source>
         <translation></translation>
     </message>
     <message>
         <location filename="ui/MainWindow.ui" line="1477"/>
-        <location filename="src/ContextMenus.cpp" line="237"/>
+        <location filename="src/Tab0Bible.cpp" line="268"/>
         <source>Forward</source>
         <translation>Do Przodu</translation>
     </message>
     <message>
         <location filename="ui/MainWindow.ui" line="1480"/>
-        <location filename="src/ContextMenus.cpp" line="240"/>
+        <location filename="src/Tab0Bible.cpp" line="271"/>
         <source>Ctrl+Right</source>
         <translation></translation>
     </message>
@@ -1288,35 +1288,35 @@
     </message>
     <message>
         <location filename="src/Tab0Bible.cpp" line="53"/>
-        <location filename="src/Tab0Bible.cpp" line="94"/>
+        <location filename="src/Tab0Bible.cpp" line="90"/>
         <location filename="src/Tab4Favorites.cpp" line="163"/>
         <source>Unavailable in this module.</source>
         <translation>Niedostępne w tym module.</translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="194"/>
-        <location filename="src/Tab0Bible.cpp" line="199"/>
+        <location filename="src/Tab0Bible.cpp" line="187"/>
+        <location filename="src/Tab0Bible.cpp" line="328"/>
         <source>Text copied to clipboard.</source>
         <translation>Tekst skopiowany do schowka.</translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="216"/>
+        <location filename="src/Tab0Bible.cpp" line="245"/>
         <source>Copy with Reference</source>
         <translation>Kopiuj z Odnośnikiem</translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="226"/>
+        <location filename="src/Tab0Bible.cpp" line="256"/>
         <source>Add Verse </source>
         <translation>Dodaj Werset </translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="227"/>
+        <location filename="src/Tab0Bible.cpp" line="258"/>
         <source>Add Verses </source>
         <translation>Dodaj Wersety </translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="226"/>
-        <location filename="src/ContextMenus.cpp" line="228"/>
+        <location filename="src/Tab0Bible.cpp" line="256"/>
+        <location filename="src/Tab0Bible.cpp" line="259"/>
         <source> to Favorites</source>
         <translation> do Ulubionych</translation>
     </message>
@@ -1336,61 +1336,51 @@
         <translation> w sumie); </translation>
     </message>
     <message>
-        <location filename="src/Tab2Search.cpp" line="659"/>
+        <location filename="src/Tab2Search.cpp" line="688"/>
         <source>No matches; </source>
         <translation>Brak wyników; </translation>
     </message>
     <message>
-        <location filename="src/Tab2Search.cpp" line="754"/>
+        <location filename="src/Tab2Search.cpp" line="782"/>
         <location filename="src/Tab4Favorites.cpp" line="67"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="src/Tab2Search.cpp" line="755"/>
+        <location filename="src/Tab2Search.cpp" line="783"/>
         <source>The current transation contains only the New Testament.</source>
         <translation>Wybrane tłumaczenie zawiera tylko Nowy Testament.</translation>
     </message>
     <message>
-        <location filename="src/MainWindow.cpp" line="276"/>
+        <location filename="src/MainWindow.cpp" line="266"/>
         <location filename="src/Tab5Dictionary.cpp" line="8"/>
         <source>Open MYBIBLE Module</source>
         <translation>Moduły MYBIBLE (*.dct.mybible);;Wszystkie Pliki (*.*)</translation>
     </message>
     <message>
-        <location filename="src/MainWindow.cpp" line="278"/>
+        <location filename="src/MainWindow.cpp" line="268"/>
         <source>MYBIBLE Modules (*.bbl.mybible);;All Files (*.*)</source>
         <translation>Moduły MYBIBLE (*.bbl.mybible);;Wszystkie Pliki (*.*)</translation>
     </message>
     <message>
-        <location filename="src/MainWindow.cpp" line="422"/>
-        <source>About Qt Bible Viewer</source>
-        <translation>O Programie Qt Bible Viewer</translation>
-    </message>
-    <message>
-        <location filename="src/MainWindow.cpp" line="423"/>
-        <source>&lt;p&gt;&lt;b&gt;Qt Bible Viewer&lt;/b&gt; is an open-source project.&lt;/p&gt;&lt;p&gt;Visit &lt;a href=&apos;https://github.com/damian-dz/QtBibleViewer&apos;&gt;its GitHub page&lt;/a&gt; to view the source code.&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;&lt;b&gt;Qt Bible Viewer&lt;/b&gt; jest projektem typu otwarte oprogramowanie.&lt;/p&gt;&lt;p&gt;Odwiedź &lt;a href=&apos;https://github.com/damian-dz/QtBibleViewer&apos;&gt;jego stronę na GitHubie&lt;/a&gt;, aby zobaczyć kod źródłowy.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <location filename="src/ContextMenus.cpp" line="62"/>
-        <location filename="src/ContextMenus.cpp" line="92"/>
-        <location filename="src/ContextMenus.cpp" line="219"/>
+        <location filename="src/MainWindow.cpp" line="520"/>
+        <location filename="src/MainWindow.cpp" line="550"/>
+        <location filename="src/Tab0Bible.cpp" line="248"/>
         <source>Select All</source>
         <translation>Zaznacz Wszystko</translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="76"/>
+        <location filename="src/MainWindow.cpp" line="534"/>
         <source>Cut</source>
         <translation>Wytnij</translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="84"/>
+        <location filename="src/MainWindow.cpp" line="542"/>
         <source>Paste</source>
         <translation>Wklej</translation>
     </message>
     <message>
-        <location filename="src/ContextMenus.cpp" line="88"/>
+        <location filename="src/MainWindow.cpp" line="546"/>
         <source>Clear</source>
         <translation>Wyczyść</translation>
     </message>

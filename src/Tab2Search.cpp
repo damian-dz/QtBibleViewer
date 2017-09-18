@@ -267,8 +267,8 @@ void MainWindow::searchWithString(const QStringList &words, int wordCount, Qt::C
             QString chapter = query.record().value(1).toString();
             QString verse = query.record().value(2).toString();
             verses << query.record().value(3).toString();
-            references << "<b><a href = \"" % book % "," % chapter % "," % verse %
-                          "\" style='text-decoration: none'>—" %
+            references << "<b><a href='" % book % "," % chapter % "," % verse %
+                          "' style='text-decoration: none'>—" %
                           bookNames[book.toInt() - 1] % " " % chapter % ":" % verse % "</a></b><br><br>";
             resultCount++;
         }
@@ -340,7 +340,7 @@ QString multipleWordsQueryString(QStringList words, QString oprtr)
     QString queryString = "SELECT * FROM Bible"
                           " WHERE Scripture LIKE '%" % list[0] % "%'";
     for (int i = 1; i < list.count(); ++i)
-        queryString += " " + oprtr + " Scripture LIKE '%" % list[i] % "%'";
+        queryString += " " % oprtr % " Scripture LIKE '%" % list[i] % "%'";
     return queryString;
 }
 
@@ -374,7 +374,7 @@ void MainWindow::searchWithLIKE(const QString &word, Qt::CaseSensitivity sensiti
     }
 }
 
-bool containsAllWords(QString text, const QStringList &words, Qt::CaseSensitivity sensitivity)
+bool containsAllWords(const QString text, const QStringList &words, Qt::CaseSensitivity sensitivity)
 {
     bool hasAll = true;
     for (int i = 0; i < words.count(); ++i) {
@@ -386,7 +386,7 @@ bool containsAllWords(QString text, const QStringList &words, Qt::CaseSensitivit
     return hasAll;
 }
 
-bool containsAllWords(QString text, const QList<QRegExp> &words)
+bool containsAllWords(const QString text, const QList<QRegExp> &words)
 {
     bool hasAll = true;
     for (int i = 0; i < words.count(); ++i) {
@@ -398,7 +398,7 @@ bool containsAllWords(QString text, const QList<QRegExp> &words)
     return hasAll;
 }
 
-bool containsAnyWord(QString text, const QStringList &words, Qt::CaseSensitivity sensitivity)
+bool containsAnyWord(const QString text, const QStringList &words, Qt::CaseSensitivity sensitivity)
 {
     bool hasAny = false;
     for (int i = 0; i < words.count(); ++i) {
@@ -410,7 +410,7 @@ bool containsAnyWord(QString text, const QStringList &words, Qt::CaseSensitivity
     return hasAny;
 }
 
-bool containsAnyWord(QString text, const QList<QRegExp> &words)
+bool containsAnyWord(const QString text, const QList<QRegExp> &words)
 {
     bool hasAny = false;
     for (int i = 0; i < words.count(); ++i) {
@@ -422,10 +422,12 @@ bool containsAnyWord(QString text, const QList<QRegExp> &words)
     return hasAny;
 }
 
+
+
 void MainWindow::searchWithLIKE(const QStringList &words,
                                 Qt::CaseSensitivity sensitivity,
                                 QString oprtr,
-                                bool (&caw) (QString, const QStringList &, Qt::CaseSensitivity))
+                                bool (&containsAllAny) (const QString, const QStringList &, Qt::CaseSensitivity))
 {
     int index = ui->translationComboBox->currentIndex();
     int bookFirst = ui->searchFromComboBox->currentIndex() + 1;
@@ -443,7 +445,7 @@ void MainWindow::searchWithLIKE(const QStringList &words,
         QString verse = record.value(2).toString();
         QString scripture = record.value(3).toString();
         QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
-        if (caw(scriptureNoNotes, words, sensitivity)) {
+        if (containsAllAny(scriptureNoNotes, words, sensitivity)) {
             verses << scripture;
             references << QStringLiteral("<b><a href='") % book %
                           QStringLiteral(",") % chapter %
@@ -458,7 +460,7 @@ void MainWindow::searchWithLIKE(const QStringList &words,
 void MainWindow::searchWithLIKE(const QList<QRegExp> &wordsRgx,
                                 const QStringList &words,
                                 const QString oprtr,
-                                bool (&caw) (QString, const QList<QRegExp> &))
+                                bool (&constainsAllAny) (const QString, const QList<QRegExp> &))
 {
     int index = ui->translationComboBox->currentIndex();
     int bookFirst = ui->searchFromComboBox->currentIndex() + 1;
@@ -476,7 +478,7 @@ void MainWindow::searchWithLIKE(const QList<QRegExp> &wordsRgx,
         QString verse = record.value(2).toString();
         QString scripture = record.value(3).toString();
         QString scriptureNoNotes = scripture.remove(rgxMarkupStrongNotes);
-        if (caw(scriptureNoNotes, wordsRgx)) {
+        if (constainsAllAny(scriptureNoNotes, wordsRgx)) {
             verses << scripture;
             references << QStringLiteral("<b><a href='") % book %
                           QStringLiteral(",") % chapter %
