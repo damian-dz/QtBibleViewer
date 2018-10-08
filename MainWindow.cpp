@@ -31,8 +31,8 @@ void MainWindow::generateMainLayout()
 
     generateMenuBarItems();
 
-    auto mainWidget = new QWidget;
-    auto mainHBoxLayout = new QHBoxLayout;
+    QWidget *mainWidget = new QWidget;
+    QHBoxLayout *mainHBoxLayout = new QHBoxLayout;
     mainWidget->setLayout(mainHBoxLayout);
 
     ui_TabWidget_Main = new QTabWidget;
@@ -129,7 +129,7 @@ void MainWindow::generateBibleTabControls()
 {
     QWidget *tabBibleWidget = ui_TabWidget_Main->widget(0);
 
-    auto tabBibleHorLayout = new QHBoxLayout;
+    QHBoxLayout *tabBibleHorLayout = new QHBoxLayout;
     tabBibleHorLayout->setSpacing(5);
     tabBibleHorLayout->setContentsMargins(10, 10, 10, 10);
     tabBibleWidget->setLayout(tabBibleHorLayout);
@@ -393,11 +393,11 @@ void MainWindow::connectBibleTabSignals()
     QObject::connect(ui_Bib_ComboBox_VerseTo, SIGNAL(currentIndexChanged(int)),
                      this, SLOT(verseToComboBoxCurrentIndexChanged(int)));
     QObject::connect(ui_Bib_Button_Random, SIGNAL(clicked()),
-                     this, SLOT(buttonClicked_BibRandomChapter()));
+                     this, SLOT(on_Bib_ButtonClicked_RandomChapter()));
     QObject::connect(ui_Bib_Button_Prev, SIGNAL(clicked()),
-                     this, SLOT(buttonClicked_BibPreviousChapter()));
+                     this, SLOT(on_Bib_ButtonClicked_PreviousChapter()));
     QObject::connect(ui_Bib_Button_Next, SIGNAL(clicked()),
-                     this, SLOT(buttonClicked_BibNextChapter()));
+                     this, SLOT(on_Bib_ButtonClicked_NextChapter()));
     QObject::connect(ui_Bib_TabBar_Modules, SIGNAL(tabMoved(int, int)),
                      this, SLOT(modulesTabMoved(int, int)));
     QObject::connect(ui_Bib_TabWidget_Modules, SIGNAL(currentChanged(int)),
@@ -543,7 +543,7 @@ void MainWindow::chapterBrowserSelectionChanged()
     ui_ActCopyWithRef->setDisabled(isEmpty);
 }
 
-void MainWindow::searchButtonClicked()
+void MainWindow::on_Sea_ButtonClicked_Search()
 {
     performSearch();
 }
@@ -551,19 +551,19 @@ void MainWindow::searchButtonClicked()
 void MainWindow::connectSearchTabSignals()
 {
     QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(returnPressed()),
-                     this, SLOT(searchLineEditReturnPressed()));
+                     this, SLOT(on_Sea_LineEdit_ReturnPressed_Search()));
     QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(textChanged(QString)),
-                     this, SLOT(searchLineEditTextChanged(QString)));
+                     this, SLOT(on_Sea_LineEdit_TextChanged_Search(QString)));
     QObject::connect(ui_Sea_Button_Search, SIGNAL(clicked()),
-                     this, SLOT(searchButtonClicked()));
+                     this, SLOT(on_Sea_ButtonClicked_Search()));
     QObject::connect(ui_Sea_ComboBox_Section, SIGNAL(currentIndexChanged(int)),
-                     this, SLOT(sectionCurrentIndexChanged(int)));
+                     this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_Section(int)));
     QObject::connect(ui_Sea_Button_Prev, SIGNAL(clicked()),
-                     this, SLOT(previousResultButtonClicked()));
+                     this, SLOT(on_Sea_ButtonClicked_PreviousResult()));
     QObject::connect(ui_Sea_Button_Next, SIGNAL(clicked()),
-                     this, SLOT(nextResultButtonClicked()));
+                     this, SLOT(on_Sea_ButtonClicked_NextResult()));
     QObject::connect(ui_Sea_Button_RandomVerse, SIGNAL(clicked()),
-                     this, SLOT(buttonClicked_SeaRandomVerse()));
+                     this, SLOT(on_Sea_ButtonClicked_RandomVerse()));
 }
 
 void MainWindow::displaySearchResults(int startIdx, int endIdx)
@@ -1377,7 +1377,7 @@ void MainWindow::verseToComboBoxCurrentIndexChanged(int index)
 
 
 
-void MainWindow::previousResultButtonClicked()
+void MainWindow::on_Sea_ButtonClicked_PreviousResult()
 {
     ui_Sea_Button_Next->setEnabled(true);
     m_numResPerPage = ui_Sea_ComboBox_ResPerPage->currentText().toInt();
@@ -1388,7 +1388,7 @@ void MainWindow::previousResultButtonClicked()
     ui_Sea_Button_Prev->setDisabled(startIdx == 0);
 }
 
-void MainWindow::buttonClicked_BibPreviousChapter()
+void MainWindow::on_Bib_ButtonClicked_PreviousChapter()
 {
     if (ui_Bib_ListWidget_Chapter->currentRow() > 0) {
         ui_Bib_ListWidget_Chapter->setCurrentRow(ui_Bib_ListWidget_Chapter->currentRow() - 1);
@@ -1398,7 +1398,16 @@ void MainWindow::buttonClicked_BibPreviousChapter()
     }
 }
 
-void MainWindow::buttonClicked_BibRandomChapter()
+void MainWindow::on_Bib_ButtonClicked_NextChapter()
+{
+    if (ui_Bib_ListWidget_Chapter->currentRow() < ui_Bib_ListWidget_Chapter->count() - 1) {
+        ui_Bib_ListWidget_Chapter->setCurrentRow(ui_Bib_ListWidget_Chapter->currentRow() + 1);
+    } else {
+        ui_Bib_ListWidget_Book->setCurrentRow(ui_Bib_ListWidget_Book->currentRow() + 1);
+    }
+}
+
+void MainWindow::on_Bib_ButtonClicked_RandomChapter()
 {
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
     QSqlQuery query(m_modules[idx].database);
@@ -1418,16 +1427,7 @@ void MainWindow::buttonClicked_BibRandomChapter()
     }
 }
 
-void MainWindow::buttonClicked_BibNextChapter()
-{
-    if (ui_Bib_ListWidget_Chapter->currentRow() < ui_Bib_ListWidget_Chapter->count() - 1) {
-        ui_Bib_ListWidget_Chapter->setCurrentRow(ui_Bib_ListWidget_Chapter->currentRow() + 1);
-    } else {
-        ui_Bib_ListWidget_Book->setCurrentRow(ui_Bib_ListWidget_Book->currentRow() + 1);
-    }
-}
-
-void MainWindow::nextResultButtonClicked()
+void MainWindow::on_Sea_ButtonClicked_NextResult()
 {
     ui_Sea_Button_Prev->setEnabled(true);
     m_numResPerPage = ui_Sea_ComboBox_ResPerPage->currentText().toInt();
@@ -1437,7 +1437,7 @@ void MainWindow::nextResultButtonClicked()
     ui_Sea_Button_Next->setDisabled(endIdx >= m_resVerses.count());
 }
 
-void MainWindow::buttonClicked_SeaRandomVerse()
+void MainWindow::on_Sea_ButtonClicked_RandomVerse()
 {
     int idx = ui_Sea_ComboBox_Translation->currentIndex();
     int min = ui_Sea_ComboBox_SearchFrom->currentIndex() + 1;
@@ -1471,7 +1471,7 @@ void MainWindow::buttonClicked_SeaRandomVerse()
 
 }
 
-void MainWindow::sectionCurrentIndexChanged(int index)
+void MainWindow::on_Sea_ComboBox_CurrentIndexChanged_Section(int index)
 {
     switch (index) {
         case 0:
@@ -1762,12 +1762,12 @@ void MainWindow::actFind()
     }
 }
 
-void MainWindow::searchLineEditTextChanged(const QString &text)
+void MainWindow::on_Sea_LineEdit_TextChanged_Search(const QString &text)
 {
     ui_Sea_Button_Search->setEnabled(text.trimmed().length() > 0);
 }
 
-void MainWindow::searchLineEditReturnPressed()
+void MainWindow::on_Sea_LineEdit_ReturnPressed_Search()
 {
     ui_Sea_Button_Search->click();
 }

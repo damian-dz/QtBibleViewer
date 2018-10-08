@@ -31,14 +31,16 @@ SOURCES += \
     PDialogStrong.cpp \
     PDialogXRef.cpp \
     SearchEngine.cpp \
-    PDialogPreferences.cpp
+    PDialogPreferences.cpp \
+    PWindowHistogram.cpp
 
 
 HEADERS += \
     MainWindow.h \
     PDialogStrong.h \
     PDialogXRef.h \
-    PDialogPreferences.h
+    PDialogPreferences.h \
+    PWindowHistogram.h
 
 RESOURCES += \
     res.qrc

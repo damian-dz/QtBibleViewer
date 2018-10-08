@@ -16,6 +16,7 @@ PDialogPreferences::PDialogPreferences(const QFont &font, QWidget *parent) :
     auto listWidget = new QListWidget;
     listWidget->setFont(QFont("Arial", 10));
     listWidget->setMaximumWidth(180);
+    listWidget->addItem(tr("General"));
     listWidget->addItem(tr("Font Settings"));
     listWidget->addItem(tr("Appearance"));
     listWidget->setCurrentRow(0);
