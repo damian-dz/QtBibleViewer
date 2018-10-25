@@ -45,6 +45,7 @@
 #define SET_PASSAGE "passage"
 #define SET_PATHS "paths"
 #define SET_REMOVED_PATHS "removedPaths"
+#define SET_COM_VERSE "comVerse"
 #define GROUP_FONT_SETTINGS "FontSettings"
 #define SET_FONT_FAMILY "fontFamily"
 #define SET_FONT_SIZE "fontSize"
@@ -71,24 +72,24 @@ public:
     ~MainWindow();
 
 public slots:
-    void actBack();
-    void actChapterBrowserSelectAll();
-    void actFind();
-    void actCopy();
-    void actCopyWithReference();
-    void actEditMenuCopyWithReference();
-    void actForward();
-    void clickedBibButtonClose();
-    void textChangedBibLineEditFind(const QString &text);
-    void bookListWidgetCurrentRowChanged(int currentRow);
-    void chapterBrowserAnchorClicked(const QUrl &arg1);
-    void chapterBrowserCustomContextMenuRequested(const QPoint &pos);
-    void chapterBrowserHighlighted(const QUrl &arg1);
-    void chapterBrowserSelectionChanged();
-    void chapterListWidgetCurrentRowChanged(int currentRow);
+    void actionBack();
+    void actionChapterBrowserSelectAll();
+    void actionFind();
+    void actionCopy();
+    void actionCopyWithReference();
+    void actionEditMenuCopyWithReference();
+    void actionForward();
+    void on_Bib_ButtonClicked_Close();
+    void on_Bib_TextChanged_LineEdit_Find(const QString &text);
+    void on_Bib_CurrentRowChanged_ListWidget_Book(int currentRow);
+    void on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1);
+    void on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &pos);
+    void on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1);
+    void on_Bib_SelectionChanged_ChapterBrowser();
+    void on_Bib_CurrentRowChanged_ListWidget_Chapter(int currentRow);
     void mainTabWidgetCurrentChanged(int index);
     void modulesTabCloseRequested(int index);
-    void modulesTabMoved(int from, int to);
+    void on_Bib_TabMoved_Modules(int from, int to);
     void modulesTabWidgetCurrentChanged(int index);
     void on_Bib_ButtonClicked_NextChapter();
     void on_Bib_ButtonClicked_PreviousChapter();
@@ -100,8 +101,8 @@ public slots:
     void on_Sea_ComboBox_CurrentIndexChanged_Section(int index);
     void on_Sea_LineEdit_ReturnPressed_Search();
     void on_Sea_LineEdit_TextChanged_Search(const QString &text);
-    void verseFromComboBoxCurrentIndexChanged(int index);
-    void verseToComboBoxCurrentIndexChanged(int index);
+    void on_Bib_CurrentIndexChanged_ComboBox_VerseFrom(int index);
+    void on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index);
     void currentRowChangedComListWidgetBook(int currentRow);
     void currentRowChangedComListWidgetChapter(int currentRow);
     void currentRowChangedComListWidgetVerse(int currentRow);
@@ -133,11 +134,11 @@ private:
     };
 
     /* GUI */
-    QAction *ui_ActBack;
-    QAction *ui_ActCopy;
-    QAction *ui_ActCopyWithRef;
+    QAction *ui_Act_Back;
+    QAction *ui_Act_Copy;
+    QAction *ui_Act_CopyWithRef;
     QAction *ui_ActDecreaseFont;
-    QAction *ui_ActForward;
+    QAction *ui_Act_Forward;
     QAction *ui_ActIncreaseFont;
     QLabel *ui_Label_Status;
     QMenu *ui_Menu_Language;
@@ -218,10 +219,12 @@ private:
     int m_psgIdx;
     QFont m_currentFont;
     QList<QStringList> m_globalNotes;
+    QList<QMap<int, int>> m_verseMaps;
     QList<QTextBrowser *> m_chapterBrowsers;
     QList<ModuleData> m_modules;
     QMap<int, QString> m_languages;
-    QPair<int, int> m_range;
+    QPair<int, int> m_blockRange;
+    QPair<int, int> m_verseRange;
     QPixmap m_papyrusBckgrnd;
     QRegExp m_dispRgx;
     QSqlDatabase m_dbCntr;
@@ -237,6 +240,8 @@ private:
     QStringList m_resVerses;
     QStringList m_sectionNames;
     QVector<TabBookChapterVerses> m_history;
+    int m_noteCount;
+    QStringList m_comVerse;
 
     /* Member functions */
     bool loadBibleModule(const QString &path);
@@ -266,6 +271,7 @@ private:
     void displaySearchResults(int startIdx, int endIdx);
     void fillDetailsTab();
     void formatPassage(QString &text, bool hasStrong);
+    void formatScripture(QString &text, int idx, bool hasStrong, const QRegularExpression &noteRgx, const QRegularExpression &strongRgx);
     void generateBibleTabControls();
     void generateBibModuleTabs();
     void generateCompareTabControls(int idx);
@@ -281,6 +287,7 @@ private:
                         Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll);
     void iterateRecords(QSqlQuery &query, const QString &text, bool wholeWords, bool hasStrong);
     void loadBackgroundPixmap();
+    void clearChapterBrowserData(int idx);
     void loadPassage();
     void loadXRefDatabase();
     void performSearch();

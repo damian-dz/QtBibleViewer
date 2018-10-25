@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include <QApplication>
-
+#include <QDebug>
 int main(int argc, char *argv[])
 {
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -11,8 +11,15 @@ int main(int argc, char *argv[])
    // if (QFileInfo(configFilePath).exists()) {
         QSettings settings(configFilePath, QSettings::IniFormat);
         QString setLanguage = settings.value("language").toString();
-        if (setLanguage.isEmpty())
-            setLanguage = "EN";
+        if (setLanguage.isNull() || setLanguage.isEmpty()) {
+            if (QLocale::system().language() == QLocale::Polish) {
+                setLanguage = "PL";
+            } else if (QLocale::system().language() == QLocale::Spanish) {
+                setLanguage = "ES";
+            } else {
+                setLanguage = "EN";
+            }
+        }
         QTranslator translator;
         if (setLanguage != "EN") {
             translator.load(setLanguage.toLower(), appDir + "/translations");
