@@ -30,8 +30,10 @@ void PWindowHistogram::generateMainLayout()
     setLayout(ui_mainVerLayout);
     QHBoxLayout *horLayout = new QHBoxLayout;
     ui_wordLineEdit = new QLineEdit;
+    connect(ui_wordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_wordLineEdit_textChanged(QString)));
     horLayout->addWidget(ui_wordLineEdit);
     ui_visualizeButton = new QPushButton(tr("Visualize"));
+    ui_visualizeButton->setDisabled(true);
     horLayout->addWidget(ui_visualizeButton);
     ui_mainVerLayout->addLayout(horLayout);
     connect(ui_visualizeButton, SIGNAL(clicked()), this, SLOT(on_visualizeButton_clicked()));

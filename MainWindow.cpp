@@ -1,15 +1,18 @@
 #include "MainWindow.h"
 #include "PDialogXRef.h"
 #include "PDialogPreferences.h"
+#include "PDialogStrong.h"
 #include "PWindowHistogram.h"
 
-MainWindow::MainWindow(const QString &appDir, const QString &lang, QWidget *parent)
+
+MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString configPath, QWidget *parent)
     : QMainWindow(parent),
       ui_Bib_LineEdit_Find(nullptr),
-      m_blockHistory(false)
+      m_blockHistory(false),
+      m_executionPath(appDir),
+      m_language(lang),
+      m_settingsPath(configPath)
 {
-    m_executionPath = appDir;
-    m_language = lang;
     generateMainLayout();
     populateLanguageMap(lang);
     TabBookChapterVerses tbcvv = loadSettings();
@@ -19,9 +22,10 @@ MainWindow::MainWindow(const QString &appDir, const QString &lang, QWidget *pare
         setTabBookChapterVerses(tbcvv, true);
     }
     connectBibleTabSignals();
-    if (m_modulesFound) {
+    if (tbcvv.tab == -1 && m_modulesFound) {
          ui_Bib_ListWidget_Book->setCurrentRow(0);
     }
+    QWidget::activateWindow();
 }
 
 MainWindow::~MainWindow()
@@ -226,67 +230,58 @@ void MainWindow::populateLanguageMap(const QString &lang)
 
 MainWindow::TabBookChapterVerses MainWindow::loadSettings()
 {
-    QString settingsDir = m_executionPath + "/config";
-    m_settingsPath = settingsDir + "/settings.ini";
+    qDebug() << m_settingsPath;
     TabBookChapterVerses tbcvv;
-    if (!QDir(settingsDir).exists()) {
-        QDir().mkdir(settingsDir);
-        tbcvv = TabBookChapterVerses{ -1, -1, -1, -1, -1 };
-        QMainWindow::resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    } else if (QFileInfo(m_settingsPath).exists() && QFileInfo(m_settingsPath).isFile()) {
-        QSettings settings(m_settingsPath, QSettings::IniFormat);
-        settings.beginGroup(GROUP_MAIN_WINDOW);
-        const QByteArray geometry = settings.value(SET_GEOMETRY, QByteArray()).toByteArray();
-        if (!geometry.isNull() && !geometry.isEmpty()) {
-            QWidget::restoreGeometry(geometry);
-        } else {
-            QMainWindow::resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        }
-        const QByteArray state = settings.value(SET_STATE, QByteArray()).toByteArray();
-        if (!state.isNull() && !state.isEmpty()) {
-            QMainWindow::restoreState(state);
-        }
-        settings.endGroup();
-        settings.beginGroup(GROUP_MODULE_DATA);
-        const int setIndex = settings.value(SET_INDEX).toInt();
-                qDebug() << setIndex;
-        const QStringList setPassage = settings.value(SET_PASSAGE).toStringList();
-        qDebug() << setPassage.count();
-        if (!setPassage.isEmpty() && setPassage.count() == 4) {
-            tbcvv = TabBookChapterVerses{ setIndex,
-                                          setPassage[0].toInt(),
-                                          setPassage[1].toInt(),
-                                          setPassage[2].toInt(),
-                                          setPassage[3].toInt() };
-        } else {
-            tbcvv = TabBookChapterVerses{ -1, -1, -1, -1, -1 };
-        }
-        m_modulePathsList = settings.value(SET_PATHS).toStringList();
-        if (m_modulePathsList.count() == 1 && m_modulePathsList[0] == "") {
-            m_modulePathsList.clear();
-        }
-
-        m_removedPathsList = settings.value(SET_REMOVED_PATHS).toStringList();
-        if (m_removedPathsList.count() == 1 && m_removedPathsList[0] == "") {
-            m_removedPathsList.clear();
-        }
-        m_comVerse = settings.value(SET_COM_VERSE).toStringList();
-        if (m_comVerse.count() == 1 && m_comVerse[0] == "") {
-            m_comVerse.clear();
-        }
-        settings.endGroup();
-        settings.beginGroup(GROUP_FONT_SETTINGS);
-        const QString setFontFamily = settings.value(SET_FONT_FAMILY).toString();
-        const int setFontSize = settings.value(SET_FONT_SIZE).toInt();
-        if (!setFontFamily.isEmpty() && setFontSize != 0) {
-            m_currentFont = QFont(setFontFamily, setFontSize);
-        } else {
-            m_currentFont = QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE);
-        }
-        settings.endGroup();
-    } else {
+    QSettings settings(m_settingsPath, QSettings::IniFormat);
+    settings.beginGroup(GROUP_MAIN_WINDOW);
+    const QByteArray geometry = settings.value(SET_GEOMETRY, QByteArray()).toByteArray();
+    if (!geometry.isNull() && !geometry.isEmpty()) {
+        QWidget::restoreGeometry(geometry);
+    }
+    else {
         QMainWindow::resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
+    const QByteArray state = settings.value(SET_STATE, QByteArray()).toByteArray();
+    if (!state.isNull() && !state.isEmpty()) {
+        QMainWindow::restoreState(state);
+    }
+    settings.endGroup();
+    settings.beginGroup(GROUP_MODULE_DATA);
+    const int setIndex = settings.value(SET_INDEX).toInt();
+    const QStringList setPassage = settings.value(SET_PASSAGE).toStringList();
+    if (!setPassage.isEmpty() && setPassage.count() == 4) {
+        tbcvv = TabBookChapterVerses{ setIndex,
+            setPassage[0].toInt(),
+            setPassage[1].toInt(),
+            setPassage[2].toInt(),
+            setPassage[3].toInt() };
+    }
+    else {
+        tbcvv = TabBookChapterVerses{ -1, -1, -1, -1, -1 };
+    }
+    m_modulePathsList = settings.value(SET_PATHS).toStringList();
+    if (m_modulePathsList.count() == 1 && m_modulePathsList[0] == "") {
+        m_modulePathsList.clear();
+    }
+
+    m_removedPathsList = settings.value(SET_REMOVED_PATHS).toStringList();
+    if (m_removedPathsList.count() == 1 && m_removedPathsList[0] == "") {
+        m_removedPathsList.clear();
+    }
+    m_comVerse = settings.value(SET_COM_VERSE).toStringList();
+    if (m_comVerse.count() == 1 && m_comVerse[0] == "") {
+        m_comVerse.clear();
+    }
+    settings.endGroup();
+    settings.beginGroup(GROUP_FONT_SETTINGS);
+    const QString setFontFamily = settings.value(SET_FONT_FAMILY).toString();
+    const int setFontSize = settings.value(SET_FONT_SIZE).toInt();
+    if (!setFontFamily.isEmpty() && setFontSize != 0) {
+        m_currentFont = QFont(setFontFamily, setFontSize);
+    } else {
+        m_currentFont = QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE);
+    }
+    settings.endGroup();
     return tbcvv;
 }
 
@@ -1007,13 +1002,20 @@ void MainWindow::generateDictionaryTabControls(int idx)
     numberLineEdit->setMaximumWidth(220);
     numberEntriesVerLayout->addWidget(numberLineEdit);
     numberLineEdit->setFocus();
+    QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
+    QValidator *validator = new QRegExpValidator(regex, this);
+    numberLineEdit->setValidator(validator);
+    QObject::connect(numberLineEdit, SIGNAL(textEdited(QString)),
+                     this, SLOT(on_Dic_TextEdited_LineEdit_Number(QString)));
 
     QLabel *allEntriesLabel = new QLabel(tr("All Entries:"));
     numberEntriesVerLayout->addWidget(allEntriesLabel);
 
-    QListWidget *allEntriessListWidget = new QListWidget;
-    allEntriessListWidget->setMaximumWidth(220);
-    numberEntriesVerLayout->addWidget(allEntriessListWidget);
+    ui_Dic_ListWidget_AllEntries = new QListWidget;
+    ui_Dic_ListWidget_AllEntries->setMaximumWidth(220);
+    numberEntriesVerLayout->addWidget(ui_Dic_ListWidget_AllEntries);
+    QObject::connect(ui_Dic_ListWidget_AllEntries, SIGNAL(currentTextChanged(QString)),
+                     this, SLOT(on_Dic_TextChanged_ListWidget_AllEntries(QString)));
 
     QVBoxLayout *definitionVerLayout = new QVBoxLayout;
     mainHorLayout->addLayout(definitionVerLayout);
@@ -1022,8 +1024,28 @@ void MainWindow::generateDictionaryTabControls(int idx)
     definitionVerLayout->addWidget(definitionLabel);
 
     ui_Dic_TextBrowser_Definition = new QTextBrowser;
+    ui_Dic_TextBrowser_Definition->setFont(m_currentFont);
     definitionVerLayout->addWidget(ui_Dic_TextBrowser_Definition);
     setBrowserBackground(*ui_Dic_TextBrowser_Definition);
+
+    if (!m_dbStrong.isOpen()) {
+        m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
+        m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
+        if (m_dbStrong.open()) {
+
+        } else {
+            QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
+        }
+    }
+    QSqlQuery fillQuery(m_dbStrong);
+    QString queryString = "SELECT word FROM dictionary WHERE relativeorder > 0";
+    QStringList dictEntryList;
+    if (fillQuery.exec(queryString)) {
+        while (fillQuery.next()) {
+            dictEntryList << fillQuery.record().value(0).toString();
+        }
+    }
+    ui_Dic_ListWidget_AllEntries->addItems(dictEntryList);
 }
 
 void MainWindow::generateFavoritesTabControls(int idx)
@@ -1650,23 +1672,24 @@ void MainWindow::modulesTabWidgetCurrentChanged(int index)
     Q_UNUSED(index);
 }
 
+void closeDatabase(QSqlDatabase &db)
+{
+    if (db.isOpen()) {
+        db.close();
+        db = QSqlDatabase();
+        QSqlDatabase::removeDatabase(db.connectionName());
+    }
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     saveSettings();
-
     for (ModuleData md : m_modules) {
-        md.database.close();
-        md.database = QSqlDatabase();
-        QSqlDatabase::removeDatabase(md.database.connectionName());
+        closeDatabase(md.database);
     }
-
-    m_dbCntr.close();
-    m_dbCntr = QSqlDatabase();
-    QSqlDatabase::removeDatabase(m_dbCntr.connectionName());
-    m_dbXRef.close();
-    m_dbXRef = QSqlDatabase();
-    QSqlDatabase::removeDatabase(m_dbXRef.connectionName());
-
+    closeDatabase(m_dbCntr);
+    closeDatabase(m_dbXRef);
+    closeDatabase(m_dbStrong);
     event->accept();
 }
 
@@ -1791,6 +1814,33 @@ void MainWindow::on_Bib_TextChanged_LineEdit_Find(const QString &text)
     if (!text.isNull() && !text.isEmpty()) {
         extra.cursor.clearSelection();
         m_chapterBrowsers[idx]->setTextCursor(extra.cursor);
+    }
+}
+
+void MainWindow::on_Dic_TextEdited_LineEdit_Number(const QString &arg1)
+{
+    if (arg1.isEmpty()) {
+        ui_Dic_ListWidget_AllEntries->setCurrentRow(-1);
+        return;
+    }
+    QList<QListWidgetItem *> matchList;
+    matchList = ui_Dic_ListWidget_AllEntries->findItems(arg1, Qt::MatchContains);
+    if (matchList.count() > 0) {
+        ui_Dic_ListWidget_AllEntries->setCurrentItem(matchList[0]);
+    }
+}
+
+void MainWindow::on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText)
+{
+    QSqlQuery query(m_dbStrong);
+    QString queryString = "SELECT data FROM dictionary WHERE word = '" +  currentText + "'";
+    QString definition = "<center><h2><a class='dict' href='S" + currentText +
+                "' style='text-decoration:none'>" + currentText + "</a></h2></center>";
+    if (query.exec(queryString)) {
+        if (query.next()) {
+            definition += query.record().value(0).toString();
+        }
+        ui_Dic_TextBrowser_Definition->setHtml(definition);
     }
 }
 
@@ -2027,40 +2077,20 @@ void MainWindow::updateFonts()
     }
 }
 
-
-
-
 void MainWindow::on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1)
 {
-//    QString argString = arg1.toString();
-//    QFont font;
-//    if (!fontFamily.isEmpty())
-//       font.setFamily(fontFamily);
-//    font.setPointSize(fontSize);
-//    QChar firstChar = argString[0];
-//    if (firstChar == 'H' || firstChar == 'G') {
-//        StrongPopup strongDialog(dbDct, argString, font, this);
-//        strongDialog.exec();
-//    } else if (firstChar == 'x') {
-//        int dbIndex = currentTranslationTab;
-//        QStringList verseInfo;
-//        verseInfo << argString
-//                  << QString::number(ui->bookListWidget->currentRow())
-//                  << QString::number(ui->chapterListWidget->currentItem()->text().toInt());
-//        CrossReferencePopup xRefDialog(qMakePair(modules[dbIndex].database, dbDct),
-//                                       verseInfo, bookNames, font, this);
-//        xRefDialog.exec();
-//    }
-    //QScopedPointer<QDialogStrong> dlgStrong(new QDialogStrong());
-    //dlgStrong->setAttribute(Qt::WA_DeleteOnClose);
-    //dlgStrong.take()->show();
-
-
     QString argString = arg1.toString();
     QChar firstChar = argString[0];
-   // QMessageBox::information(this, argString, "");
     if (firstChar == 'H' || firstChar == 'G') {
-
+        if (!m_dbStrong.isOpen()) {
+            m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
+            m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
+            if (!m_dbStrong.open()) {
+                QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
+            }
+        }
+        PDialogStrong strongDialog(m_dbStrong, argString, m_currentFont, m_papyrusBckgrnd, this);
+        strongDialog.exec();
     } else if (firstChar == 'x') {
         int idx = ui_Bib_TabWidget_Modules->currentIndex();
         QStringList verseInfo;

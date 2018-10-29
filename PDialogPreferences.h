@@ -12,6 +12,7 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 
+
 class PDialogPreferences : public QDialog
 {
     Q_OBJECT

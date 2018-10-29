@@ -68,32 +68,39 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(const QString &appDir, const QString &lang, QWidget *parent = 0);
+    MainWindow(const QString &appDir, const QString &lang, const QString configPath, QWidget *parent = 0);
     ~MainWindow();
 
 public slots:
     void actionBack();
     void actionChapterBrowserSelectAll();
-    void actionFind();
     void actionCopy();
     void actionCopyWithReference();
     void actionEditMenuCopyWithReference();
+    void actionFind();
     void actionForward();
-    void on_Bib_ButtonClicked_Close();
-    void on_Bib_TextChanged_LineEdit_Find(const QString &text);
-    void on_Bib_CurrentRowChanged_ListWidget_Book(int currentRow);
-    void on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1);
-    void on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &pos);
-    void on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1);
-    void on_Bib_SelectionChanged_ChapterBrowser();
-    void on_Bib_CurrentRowChanged_ListWidget_Chapter(int currentRow);
+    void currentRowChangedComListWidgetBook(int currentRow);
+    void currentRowChangedComListWidgetChapter(int currentRow);
+    void currentRowChangedComListWidgetVerse(int currentRow);
     void mainTabWidgetCurrentChanged(int index);
     void modulesTabCloseRequested(int index);
-    void on_Bib_TabMoved_Modules(int from, int to);
     void modulesTabWidgetCurrentChanged(int index);
+    void on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1);
+    void on_Bib_ButtonClicked_Close();
     void on_Bib_ButtonClicked_NextChapter();
     void on_Bib_ButtonClicked_PreviousChapter();
     void on_Bib_ButtonClicked_RandomChapter();
+    void on_Bib_CurrentIndexChanged_ComboBox_VerseFrom(int index);
+    void on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index);
+    void on_Bib_CurrentRowChanged_ListWidget_Book(int currentRow);
+    void on_Bib_CurrentRowChanged_ListWidget_Chapter(int currentRow);
+    void on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &pos);
+    void on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1);
+    void on_Bib_SelectionChanged_ChapterBrowser();
+    void on_Bib_TabMoved_Modules(int from, int to);
+    void on_Bib_TextChanged_LineEdit_Find(const QString &text);
+    void on_Dic_TextEdited_LineEdit_Number(const QString &arg1);
+    void on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText);
     void on_Sea_ButtonClicked_NextResult();
     void on_Sea_ButtonClicked_PreviousResult();
     void on_Sea_ButtonClicked_RandomVerse();
@@ -101,11 +108,6 @@ public slots:
     void on_Sea_ComboBox_CurrentIndexChanged_Section(int index);
     void on_Sea_LineEdit_ReturnPressed_Search();
     void on_Sea_LineEdit_TextChanged_Search(const QString &text);
-    void on_Bib_CurrentIndexChanged_ComboBox_VerseFrom(int index);
-    void on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index);
-    void currentRowChangedComListWidgetBook(int currentRow);
-    void currentRowChangedComListWidgetChapter(int currentRow);
-    void currentRowChangedComListWidgetVerse(int currentRow);
 
 private:
     /* Auxiliary structures */
@@ -206,6 +208,7 @@ private:
     QTextBrowser *ui_Fav_TextBrowser_Comment;
 
     /* Dictionary Tab */
+    QListWidget *ui_Dic_ListWidget_AllEntries;
     QTextBrowser *ui_Dic_TextBrowser_Definition;
 
     /* Topics Tab */
@@ -229,6 +232,7 @@ private:
     QRegExp m_dispRgx;
     QSqlDatabase m_dbCntr;
     QSqlDatabase m_dbXRef;
+    QSqlDatabase m_dbStrong;
     QString m_elapsedTime;
     QString m_executionPath;
     QString m_language;

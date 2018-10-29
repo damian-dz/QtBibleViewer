@@ -661,6 +661,34 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>Find:</source>
         <translation>Znajdź:</translation>
     </message>
+    <message>
+        <source>Random</source>
+        <translation>Losowy</translation>
+    </message>
+    <message>
+        <source>Go to a random chapter.</source>
+        <translation>Idź do losowego rozdziału.</translation>
+    </message>
+    <message>
+        <source>Go to the previous chapter.</source>
+        <translation>Idź do poprzedniego rozdziału.</translation>
+    </message>
+    <message>
+        <source>Go to the next chapter.</source>
+        <translation>Idź do następnego rozdziału.</translation>
+    </message>
+    <message>
+        <source>Go to the previous verse.</source>
+        <translation>Idź do poprzedniego wersetu.</translation>
+    </message>
+    <message>
+        <source>Go to the next verse.</source>
+        <translation>Idź do następnego wersetu.</translation>
+    </message>
+    <message>
+        <source>Perform a search for the word/phrase.</source>
+        <translation>Przeprowadź wyszukiwanie dla słowa/frazy.</translation>
+    </message>
 </context>
 <context>
     <name>PDialogPreferences</name>
@@ -691,6 +719,301 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <message>
         <source>Preferences</source>
         <translation>Preferencje</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Ogólne</translation>
+    </message>
+</context>
+<context>
+    <name>PWindowHistogram</name>
+    <message>
+        <source>Word Frequency</source>
+        <translation>Częstość Występowania Słowa</translation>
+    </message>
+    <message>
+        <source>Visualize</source>
+        <translation>Wizualizuj</translation>
+    </message>
+    <message>
+        <source>Save as Image</source>
+        <translation>Zapisz jako obraz</translation>
+    </message>
+    <message>
+        <source>PNG Files (*.png);;All Files (*.*)</source>
+        <translation>Pliki PNG (*.png);;Wszystkie pliki (*.*)</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation>Stary Testament</translation>
+    </message>
+    <message>
+        <source>New Testament</source>
+        <translation>Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Gen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Exo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lev</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Num</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jdg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Sa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Sa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Ki</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Ki</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Ch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Ch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ezr</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Neh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Est</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Job</source>
+        <translation type="unfinished">Hioba</translation>
+    </message>
+    <message>
+        <source>Psa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ecc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Isa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eze</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Joe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Amo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Oba</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nah</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Luk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Joh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Act</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Co</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Co</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Col</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Th</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Th</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Ti</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Ti</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Phm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heb</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Pe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Pe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1Jo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2Jo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>3Jo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jud</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rev</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
