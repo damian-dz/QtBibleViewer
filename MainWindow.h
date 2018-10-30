@@ -99,8 +99,11 @@ public slots:
     void on_Bib_SelectionChanged_ChapterBrowser();
     void on_Bib_TabMoved_Modules(int from, int to);
     void on_Bib_TextChanged_LineEdit_Find(const QString &text);
+    void on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1);
     void on_Dic_TextEdited_LineEdit_Number(const QString &arg1);
     void on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText);
+    void on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1);
+    void on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1);
     void on_Sea_ButtonClicked_NextResult();
     void on_Sea_ButtonClicked_PreviousResult();
     void on_Sea_ButtonClicked_RandomVerse();
@@ -287,6 +290,7 @@ private:
     void generateSearchTabControls(int idx);
     void generateTopicsTab(int idx);
     void getVerseRange();
+    void highlightPassage(const TabBookChapterVerses &tbcvv);
     void iterateRecords(QSqlQuery &query, const QStringList &words,
                         Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll);
     void iterateRecords(QSqlQuery &query, const QString &text, bool wholeWords, bool hasStrong);

@@ -497,6 +497,7 @@ void MainWindow::clearChapterBrowserData(int idx)
 #include <QDebug>
 void MainWindow::loadPassage()
 {
+    qDebug() << "loadPassage";
     TabBookChapterVerses tbcvv = getTabBookChapterVerses();
     int idx = tbcvv.tab;
     QString bookStr = QString::number(tbcvv.book);
@@ -711,6 +712,8 @@ void MainWindow::generateCompareTabControls(int idx)
     ui_Com_TextBrowser_Compare->setOpenLinks(false);
     compareVBoxLayout->addWidget(ui_Com_TextBrowser_Compare);
     setBrowserBackground(*ui_Com_TextBrowser_Compare);
+    QObject::connect(ui_Com_TextBrowser_Compare, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Com_AnchorClicked_TextBrowser_Compare(QUrl)));
 
     auto prevNextHLayout = new QHBoxLayout;
     compareVBoxLayout->addLayout(prevNextHLayout);
@@ -733,9 +736,9 @@ void MainWindow::generateCompareTabControls(int idx)
     }
 
     if (!m_comVerse.isEmpty()) {
-    ui_Com_ListWidget_Book->setCurrentRow(m_comVerse[0].toInt() - 1);
-    ui_Com_ListWidget_Chapter->setCurrentRow(m_comVerse[1].toInt() - 1);
-    ui_Com_ListWidget_Verse->setCurrentRow(m_comVerse[2].toInt() - 1);
+        ui_Com_ListWidget_Book->setCurrentRow(m_comVerse[0].toInt() - 1);
+        ui_Com_ListWidget_Chapter->setCurrentRow(m_comVerse[1].toInt() - 1);
+        ui_Com_ListWidget_Verse->setCurrentRow(m_comVerse[2].toInt() - 1);
     } else {
         ui_Com_ListWidget_Book->setCurrentRow(0);
         ui_Com_ListWidget_Chapter->setCurrentRow(0);
@@ -808,6 +811,10 @@ void MainWindow::currentRowChangedComListWidgetVerse(int currentRow)
     }
     text += QStringLiteral("</table>");
     ui_Com_TextBrowser_Compare->setHtml(text);
+    m_comVerse.clear();
+    m_comVerse << QString::number(ui_Com_ListWidget_Book->currentRow() + 1)
+               << QString::number(ui_Com_ListWidget_Chapter->currentRow() + 1)
+               << QString::number(ui_Com_ListWidget_Verse->currentRow() + 1);
 }
 
 QString MainWindow::formatVerses(QString text, bool hasStrong)
@@ -1025,8 +1032,11 @@ void MainWindow::generateDictionaryTabControls(int idx)
 
     ui_Dic_TextBrowser_Definition = new QTextBrowser;
     ui_Dic_TextBrowser_Definition->setFont(m_currentFont);
+    ui_Dic_TextBrowser_Definition->setOpenLinks(false);
     definitionVerLayout->addWidget(ui_Dic_TextBrowser_Definition);
     setBrowserBackground(*ui_Dic_TextBrowser_Definition);
+    QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Dic_AnchorClicked_TextBrowser_Definition(QUrl)));
 
     if (!m_dbStrong.isOpen()) {
         m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
@@ -1047,6 +1057,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     }
     ui_Dic_ListWidget_AllEntries->addItems(dictEntryList);
 }
+
+
 
 void MainWindow::generateFavoritesTabControls(int idx)
 {
@@ -1168,6 +1180,8 @@ void MainWindow::generateSearchTabControls(int idx)
     ui_Sea_TextBrowser_Results->setOpenLinks(false);
     resultsVBoxLayout->addWidget(ui_Sea_TextBrowser_Results);
     setBrowserBackground(*ui_Sea_TextBrowser_Results);
+    QObject::connect(ui_Sea_TextBrowser_Results, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Sea_AnchorClicked_TextBrowser_Results(QUrl)));
 
     auto optionsVBoxLayout = new QVBoxLayout;
     resultsOptionsHBoxLayout->addLayout(optionsVBoxLayout);
@@ -1288,13 +1302,6 @@ void MainWindow::saveSettings()
     settings.setValue(SET_PASSAGE, setPassage);
     settings.setValue(SET_PATHS, m_modulePathsList);
     settings.setValue(SET_REMOVED_PATHS, m_removedPathsList);
-    if (ui_TabWidget_Main->widget(3)->children().count() > 0) {
-        m_comVerse.clear();
-        m_comVerse <<
-        QString::number(ui_Com_ListWidget_Book->currentRow() + 1) <<
-        QString::number(ui_Com_ListWidget_Chapter->currentRow() + 1) <<
-        QString::number(ui_Com_ListWidget_Verse->currentRow() + 1);
-    }
     settings.setValue(SET_COM_VERSE, m_comVerse);
     settings.endGroup();
     settings.beginGroup(GROUP_FONT_SETTINGS);
@@ -1751,6 +1758,35 @@ void MainWindow::getVerseRange()
     m_verseRange = qMakePair(firstVerse, lastVerse);
 }
 
+void MainWindow::highlightPassage(const TabBookChapterVerses &tbcvv)
+{
+    int idx = tbcvv.tab;
+    QSqlQuery query(m_modules[idx].database);
+    if (query.exec("SELECT MAX(Verse) FROM Bible WHERE"
+                   " Book = " + QString::number(tbcvv.book) +
+                   " AND Chapter = " + QString::number(tbcvv.chapter)) ) {
+        if (query.next()) {
+            ui_TabWidget_Main->setCurrentIndex(0);
+            int maxVerse = query.record().value(0).toInt();
+            blockPassageSelectionSignals(true);
+            setTabBookChapterVerses({ idx, tbcvv.book, tbcvv.chapter, 1, maxVerse }, false);
+            blockPassageSelectionSignals(false);
+            QTextCursor cur = m_chapterBrowsers[idx]->textCursor();
+            QTextDocument *doc = m_chapterBrowsers[idx]->document();
+            int firstIdx = m_verseMaps[idx].key(tbcvv.verseFrom);
+            int lastIdx = m_verseMaps[idx].key(tbcvv.verseTo);
+            QTextBlock startBlock = doc->findBlockByNumber(firstIdx);
+            QTextBlock endBlock = doc->findBlockByNumber(lastIdx);
+            int start = startBlock.position();
+            int end = endBlock.position() + endBlock.text().length();
+            cur.setPosition(start, QTextCursor::MoveAnchor);
+            cur.setPosition(end, QTextCursor::KeepAnchor);
+            m_chapterBrowsers[idx]->setTextCursor(cur);
+            m_chapterBrowsers[idx]->setFocus();
+        }
+    }
+}
+
 void MainWindow::actionCopy()
 {
     m_chapterBrowsers[ui_Bib_TabWidget_Modules->currentIndex()]->copy();
@@ -1817,6 +1853,30 @@ void MainWindow::on_Bib_TextChanged_LineEdit_Find(const QString &text)
     }
 }
 
+void MainWindow::on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1)
+{
+    qDebug() << arg1.toString();
+    QString argString = arg1.toString();
+    QChar firstChar = argString[0];
+    if (firstChar == 't') {
+        highlightPassage(TabBookChapterVerses { argString.split(":")[1].toInt(),
+                                                m_comVerse[0].toInt(),
+                                                m_comVerse[1].toInt(),
+                                                m_comVerse[2].toInt(),
+                                                m_comVerse[2].toInt() });
+    } else if (firstChar == 's') {
+        if (!m_dbStrong.isOpen()) {
+            m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
+            m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
+            if (!m_dbStrong.open()) {
+                QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
+            }
+        }
+        PDialogStrong strongDialog(m_dbStrong, argString.split(":")[1], m_currentFont, m_papyrusBckgrnd, this);
+        strongDialog.exec();
+    }
+}
+
 void MainWindow::on_Dic_TextEdited_LineEdit_Number(const QString &arg1)
 {
     if (arg1.isEmpty()) {
@@ -1842,6 +1902,47 @@ void MainWindow::on_Dic_TextChanged_ListWidget_AllEntries(const QString &current
         }
         ui_Dic_TextBrowser_Definition->setHtml(definition);
     }
+}
+
+void MainWindow::on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    qDebug() << argString;
+    QString id = argString.left(2);
+    if (id == "#d" || id == "#s") {
+        QString entry = argString.right(argString.length() - 2);
+        QSqlQuery query(m_dbStrong);
+        QString queryString = "SELECT relativeorder, data "
+                              "FROM dictionary "
+                              "WHERE word = '" +  entry + "'";
+        query.exec(queryString);
+        if (query.next()) {
+            QSqlRecord record = query.record();
+            ui_Dic_TextBrowser_Definition->setHtml(record.value(1).toString());
+            ui_Dic_ListWidget_AllEntries->setCurrentRow(record.value(0).toInt() - 1);
+        }
+    } else if (id == "#b") {
+        int dbIdx = ui_Bib_TabWidget_Modules->currentIndex();
+        QString entry = argString.right(argString.length() - 2);
+        QStringList indices = entry.split(".");
+        highlightPassage(TabBookChapterVerses { dbIdx,
+                                                indices[0].toInt(),
+                                                indices[1].toInt(),
+                                                indices[2].toInt(),
+                                                indices[2].toInt() });
+    }
+}
+
+void MainWindow::on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    int dbIdx = ui_Bib_TabWidget_Modules->currentIndex();
+    QStringList indices = argString.split(",");
+    highlightPassage(TabBookChapterVerses { dbIdx,
+                                            indices[0].toInt(),
+                                            indices[1].toInt(),
+                                            indices[2].toInt(),
+                                            indices[2].toInt() });
 }
 
 void MainWindow::actionFind()
