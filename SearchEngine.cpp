@@ -1,5 +1,7 @@
 #include "MainWindow.h"
 
+#include <QDebug>
+
 QString multipleWordQueryString(const QStringList &wordsLow, const QStringList &wordsUpp, const QString &conj)
 {
     QString queryString = "SELECT * FROM Bible"
@@ -58,19 +60,58 @@ void MainWindow::performSearch()
                           " AND Book <= " + QString::number(bookLast);
     int idx = ui_Sea_ComboBox_Translation->currentIndex();
     QSqlQuery query(m_modules[idx].database);
-    query.exec(queryString);
-    m_resVerses.clear();
-    m_resRefs.clear();
-    if (!ui_Sea_RadioButton_Exact->isChecked()) {
-        iterateRecords(query, words, sensitivity, wholeWords, containsAll);
-    } else {
-        iterateRecords(query, text, wholeWords, m_modules[idx].hasStrong);
+    if (query.exec(queryString)) {
+        m_resVerses.clear();
+        m_resRefs.clear();
+        if (ui_Sea_RadioButton_Exact->isChecked()) {
+            iterateRecords(query, text, sensitivity, wholeWords, m_modules[idx].hasStrong);
+        } else {
+            iterateRecords(query, words, sensitivity, wholeWords, containsAll);
+        }
+        m_elapsedTime = QString::number(watch.elapsed() / 1000.) + " s";
+        m_numResPerPage = ui_Sea_ComboBox_ResPerPage->currentText().toInt();
+        displaySearchResults(0, m_numResPerPage);
+        m_crntStartRes = m_numResPerPage;
+        ui_Sea_Button_Prev->setDisabled(true);
+        ui_Sea_Button_Next->setEnabled(m_resVerses.count() > m_numResPerPage);
     }
-    m_elapsedTime = QString::number(watch.elapsed() / 1000.) + " s";
-    m_numResPerPage = ui_Sea_ComboBox_ResPerPage->currentText().toInt();
-    displaySearchResults(0, m_numResPerPage);
-    m_crntStartRes = m_numResPerPage;
-    ui_Sea_Button_Next->setEnabled(m_resVerses.count() > m_numResPerPage);
+}
+
+void MainWindow::performSearchByStrong()
+{
+    QTime watch;
+    watch.start();
+    QString text = ui_Sea_LineEdit_Search->text().toUpper();
+    m_dispRgx = QRegExp("\\b" + text + "\\b", Qt::CaseSensitive);
+    text = "<W" + text + ">";
+    int bookFirst = ui_Sea_ComboBox_SearchFrom->currentIndex() + 1;
+    int bookLast = ui_Sea_ComboBox_SearchTo->currentIndex() + 1;
+    QString queryString = "SELECT * FROM Bible WHERE Scripture LIKE '%" + text + "%'"
+                          " AND Book >= " + QString::number(bookFirst) +
+                          " AND Book <= " + QString::number(bookLast);
+    int idx = ui_Sea_ComboBox_Translation->currentIndex();
+    QSqlQuery query(m_modules[idx].database);
+    if (query.exec(queryString)) {
+        m_resVerses.clear();
+        m_resRefs.clear();
+        while (query.next()) {
+            QSqlRecord record = query.record();
+            QString book = record.value(0).toString();
+            QString chapter = record.value(1).toString();
+            QString verse = record.value(2).toString();
+            QString scripture = record.value(3).toString();
+            m_resVerses << scripture;
+            m_resRefs << "<b><a href='" + book + "," + chapter + "," + verse +
+                         "' style='text-decoration:none'>—" + m_bookNames[book.toInt() - 1] +
+                         " " + chapter + ":" + verse;
+        }
+        m_elapsedTime = QString::number(watch.elapsed() / 1000.) + " s";
+        m_numResPerPage = ui_Sea_ComboBox_ResPerPage->currentText().toInt();
+        displaySearchResults(0, m_numResPerPage);
+        m_crntStartRes = m_numResPerPage;
+        ui_Sea_Button_Prev->setDisabled(true);
+        ui_Sea_Button_Next->setEnabled(m_resVerses.count() > m_numResPerPage);
+    }
 }
 
 typedef bool (&AllAny)(const QString &text, const QList<QRegExp> &words);
@@ -100,10 +141,11 @@ void MainWindow::iterateRecords(QSqlQuery &query, const QStringList &words,
     m_dispRgx = QRegExp(words.join("|"));
 }
 
-void MainWindow::iterateRecords(QSqlQuery &query, const QString &text, bool wholeWords, bool hasStrong)
+void MainWindow::iterateRecords(QSqlQuery &query, const QString &text,
+                                Qt::CaseSensitivity sensitivity, bool wholeWords, bool hasStrong)
 {
     QString boundary = wholeWords ? "\\b" : "";
-    QRegExp textRgx(boundary + text + boundary);
+    QRegExp textRgx(boundary + text + boundary, sensitivity);
     QString strong = hasStrong ? "|<W[HG][0-9]{1,4}>" : "";
     QRegExp patterns("<..>|<RF>.*<Rf>" + strong);
     while (query.next()) {

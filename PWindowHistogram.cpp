@@ -37,7 +37,7 @@ void PWindowHistogram::generateMainLayout()
     horLayout->addWidget(ui_visualizeButton);
     ui_mainVerLayout->addLayout(horLayout);
     connect(ui_visualizeButton, SIGNAL(clicked()), this, SLOT(on_visualizeButton_clicked()));
-    QWidget::resize(800, 560);
+    QWidget::resize(1000, 560);
 }
 
 void PWindowHistogram::showSaveContextMenu(const QPoint &pos)

@@ -1,5 +1,8 @@
 #include "PDialogPreferences.h"
 
+#include <QApplication>
+
+
 PDialogPreferences::PDialogPreferences(const QFont &font, QWidget *parent) :
     QDialog(parent)
 {
@@ -14,7 +17,7 @@ PDialogPreferences::PDialogPreferences(const QFont &font, QWidget *parent) :
     m_stackedWidget = new QStackedWidget;
 
     auto listWidget = new QListWidget;
-    listWidget->setFont(QFont("Arial", 10));
+    listWidget->setFont(QFont(qApp->font().family(), 10));
     listWidget->setMaximumWidth(180);
     listWidget->addItem(tr("General"));
     listWidget->addItem(tr("Font Settings"));
@@ -82,10 +85,13 @@ void PDialogPreferences::generateFontWidget(const QFont &font)
 
     fontFormLayout->addRow(tr("Preview:"), m_fontAbcTextBrowser);
 
-    m_stackedWidget->addWidget(fontWidget);
-
     auto textBrowser = new QTextBrowser;
     m_stackedWidget->addWidget(textBrowser);
+
+    m_stackedWidget->addWidget(fontWidget);
+
+    auto textBrowser2 = new QTextBrowser;
+    m_stackedWidget->addWidget(textBrowser2);
 
     connect(fontTypeComboBox, SIGNAL(currentFontChanged(QFont)),
             this, SLOT(currentFontTypeChanged(QFont)));

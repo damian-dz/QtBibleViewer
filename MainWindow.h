@@ -31,7 +31,7 @@
 
 #define DEFAULT_WIDTH 920
 #define DEFAULT_HEIGHT 600
-#define DEFAULT_FONT_FAMILY "Arial"
+#define DEFAULT_FONT_FAMILY qApp->font().family()
 #define DEFAULT_FONT_SIZE 10
 #define MAX_RECENT_PASSAGES 100
 #define MAX_WIDGET_HEIGHT 16777215
@@ -72,13 +72,22 @@ public:
     ~MainWindow();
 
 public slots:
+    void action_ChapterBrowser_Copy();
+    void action_ChapterBrowser_CopyWithReference();
+    void action_ChapterBrowser_SelectAll();
+    void action_EditMenu_CopyWithReference();
     void actionBack();
-    void actionChapterBrowserSelectAll();
+    void actionClear();
     void actionCopy();
-    void actionCopyWithReference();
-    void actionEditMenuCopyWithReference();
+    void actionCut();
     void actionFind();
     void actionForward();
+    void actionPaste();
+    void actionSelectAll();
+    void action_ChapterBrowser_InsertIntoFavorites();
+    void actionShowBasicContextMenu(const QPoint &pos);
+    void actionShowEditContextMenu(const QPoint &pos);
+    void actionShowLineContextMenu(const QPoint &pos);
     void currentRowChangedComListWidgetBook(int currentRow);
     void currentRowChangedComListWidgetChapter(int currentRow);
     void currentRowChangedComListWidgetVerse(int currentRow);
@@ -100,17 +109,22 @@ public slots:
     void on_Bib_TabMoved_Modules(int from, int to);
     void on_Bib_TextChanged_LineEdit_Find(const QString &text);
     void on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1);
-    void on_Dic_TextEdited_LineEdit_Number(const QString &arg1);
-    void on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText);
     void on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1);
+    void on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText);
+    void on_Dic_TextEdited_LineEdit_Number(const QString &arg1);
     void on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1);
     void on_Sea_ButtonClicked_NextResult();
     void on_Sea_ButtonClicked_PreviousResult();
     void on_Sea_ButtonClicked_RandomVerse();
     void on_Sea_ButtonClicked_Search();
+    void on_Sea_ButtonToggled_ByStrong(bool checked);
     void on_Sea_ComboBox_CurrentIndexChanged_Section(int index);
+    void on_Sea_ComboBox_CurrentIndexChanged_Translation(int index);
     void on_Sea_LineEdit_ReturnPressed_Search();
     void on_Sea_LineEdit_TextChanged_Search(const QString &text);
+    void on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow);
+    void on_Fav_ButtonClicked_Delete();
+    void on_Fav_ButtonClicked_Save();
 
 private:
     /* Auxiliary structures */
@@ -149,6 +163,9 @@ private:
     QMenu *ui_Menu_Language;
     QStatusBar *ui_StatusBar_Status;
     QTabWidget *ui_TabWidget_Main;
+    QTextBrowser *m_textBrowser;
+    QTextEdit *m_textEdit;
+    QLineEdit *m_lineEdit;
 
     /* Bible Tab */
     QComboBox *ui_Bib_ComboBox_VerseFrom;
@@ -194,6 +211,7 @@ private:
     QRadioButton *ui_Sea_RadioButton_All;
     QRadioButton *ui_Sea_RadioButton_Any;
     QRadioButton *ui_Sea_RadioButton_Exact;
+    QRadioButton *ui_Sea_RadioButton_Strong;
     QTextBrowser *ui_Sea_TextBrowser_RandomVerse;
     QTextBrowser *ui_Sea_TextBrowser_Results;
 
@@ -207,8 +225,11 @@ private:
     QTextBrowser *ui_Com_TextBrowser_Compare;
 
     /* Favorites Tab */
+    QListWidget *ui_Fav_ListWidget_Passages;
+    QPushButton *ui_Fav_Button_Delete;
+    QPushButton *ui_Fav_Button_Save;
     QTextBrowser *ui_Fav_TextBrowser_Passage;
-    QTextBrowser *ui_Fav_TextBrowser_Comment;
+    QTextEdit *ui_Fav_TextEdit_Comment;
 
     /* Dictionary Tab */
     QListWidget *ui_Dic_ListWidget_AllEntries;
@@ -228,6 +249,7 @@ private:
     QList<QMap<int, int>> m_verseMaps;
     QList<QTextBrowser *> m_chapterBrowsers;
     QList<ModuleData> m_modules;
+    QList<TabBookChapterVerses> m_favorites;
     QMap<int, QString> m_languages;
     QPair<int, int> m_blockRange;
     QPair<int, int> m_verseRange;
@@ -236,6 +258,7 @@ private:
     QSqlDatabase m_dbCntr;
     QSqlDatabase m_dbXRef;
     QSqlDatabase m_dbStrong;
+    QSqlDatabase m_dbUsr;
     QString m_elapsedTime;
     QString m_executionPath;
     QString m_language;
@@ -293,19 +316,22 @@ private:
     void highlightPassage(const TabBookChapterVerses &tbcvv);
     void iterateRecords(QSqlQuery &query, const QStringList &words,
                         Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll);
-    void iterateRecords(QSqlQuery &query, const QString &text, bool wholeWords, bool hasStrong);
+    void iterateRecords(QSqlQuery &query, const QString &text,
+                        Qt::CaseSensitivity sensitivity, bool wholeWords, bool hasStrong);
     void loadBackgroundPixmap();
     void clearChapterBrowserData(int idx);
+    void loadFavorites();
     void loadPassage();
     void loadXRefDatabase();
     void performSearch();
+    void performSearchByStrong();
     void populateBookNames();
     void populateChapterListWidget(int chapter);
     void populateLanguageMap(const QString &lang);
     void populateSectionNames();
     void populateVersesComboBoxes(int verseFrom, int verseTo);
     void saveSettings();
-    void setBrowserBackground(QTextBrowser &browser);
+    void setBrowserBackground(QTextEdit &browser);
     void setTabBookChapterVerses(const TabBookChapterVerses &tbcvv, bool firstRun);
     void updateFonts();
     void updateHistory(const TabBookChapterVerses &tbcvv);

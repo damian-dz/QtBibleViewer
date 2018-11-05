@@ -559,7 +559,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
-        <translation>Uwzględniaj wielkość liter</translation>
+        <translation type="vanished">Uwzględniaj wielkość liter</translation>
     </message>
     <message>
         <source>Whole Words Only</source>
@@ -689,6 +689,62 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>Perform a search for the word/phrase.</source>
         <translation>Przeprowadź wyszukiwanie dla słowa/frazy.</translation>
     </message>
+    <message>
+        <source>Cut</source>
+        <translation>Wytnij</translation>
+    </message>
+    <message>
+        <source>Paste</source>
+        <translation>Wklej</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>Wyczyść</translation>
+    </message>
+    <message>
+        <source>Case-Sensitive</source>
+        <translation>Rozróżniaj wielkość liter</translation>
+    </message>
+    <message>
+        <source>Check to make the search case-sensitive.</source>
+        <translation>Zaznacz, aby wyszukiwanie uwzględniało wielkość liter.</translation>
+    </message>
+    <message>
+        <source>Check to ignore word fragments.</source>
+        <translation>Zaznacz, aby pominąć fragmenty słów.</translation>
+    </message>
+    <message>
+        <source>Looks for the exact sequence of characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All of the words must be present.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An entry for this passage already exists.</source>
+        <translation>Wpis dla tego fragmentu już istnieje.</translation>
+    </message>
+    <message>
+        <source>Confirm Deletion</source>
+        <translation>Potwierdź usunięcie</translation>
+    </message>
+    <message>
+        <source>Delete entry </source>
+        <translation>Usunąć wpis </translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Tak</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Nie</translation>
+    </message>
+    <message>
+        <source>Entry updated.</source>
+        <translation>Wpis zaktualizowany.</translation>
+    </message>
 </context>
 <context>
     <name>PDialogPreferences</name>
@@ -753,267 +809,267 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Gen</source>
-        <translation type="unfinished"></translation>
+        <translation>Rdz</translation>
     </message>
     <message>
         <source>Exo</source>
-        <translation type="unfinished"></translation>
+        <translation>Wj</translation>
     </message>
     <message>
         <source>Lev</source>
-        <translation type="unfinished"></translation>
+        <translation>Kpł</translation>
     </message>
     <message>
         <source>Num</source>
-        <translation type="unfinished"></translation>
+        <translation>Lb</translation>
     </message>
     <message>
         <source>Deu</source>
-        <translation type="unfinished"></translation>
+        <translation>Pwt</translation>
     </message>
     <message>
         <source>Jos</source>
-        <translation type="unfinished"></translation>
+        <translation>Joz</translation>
     </message>
     <message>
         <source>Jdg</source>
-        <translation type="unfinished"></translation>
+        <translation>Sdz</translation>
     </message>
     <message>
         <source>Rut</source>
-        <translation type="unfinished"></translation>
+        <translation>Rt</translation>
     </message>
     <message>
         <source>1Sa</source>
-        <translation type="unfinished"></translation>
+        <translation>1Sm</translation>
     </message>
     <message>
         <source>2Sa</source>
-        <translation type="unfinished"></translation>
+        <translation>2Sm</translation>
     </message>
     <message>
         <source>1Ki</source>
-        <translation type="unfinished"></translation>
+        <translation>1Krl</translation>
     </message>
     <message>
         <source>2Ki</source>
-        <translation type="unfinished"></translation>
+        <translation>2Krl</translation>
     </message>
     <message>
         <source>1Ch</source>
-        <translation type="unfinished"></translation>
+        <translation>1Krn</translation>
     </message>
     <message>
         <source>2Ch</source>
-        <translation type="unfinished"></translation>
+        <translation>2Krn</translation>
     </message>
     <message>
         <source>Ezr</source>
-        <translation type="unfinished"></translation>
+        <translation>Ezd</translation>
     </message>
     <message>
         <source>Neh</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne</translation>
     </message>
     <message>
         <source>Est</source>
-        <translation type="unfinished"></translation>
+        <translation>Est</translation>
     </message>
     <message>
         <source>Job</source>
-        <translation type="unfinished">Hioba</translation>
+        <translation>Hi</translation>
     </message>
     <message>
         <source>Psa</source>
-        <translation type="unfinished"></translation>
+        <translation>Ps</translation>
     </message>
     <message>
         <source>Pro</source>
-        <translation type="unfinished"></translation>
+        <translation>Prz</translation>
     </message>
     <message>
         <source>Ecc</source>
-        <translation type="unfinished"></translation>
+        <translation>Koh</translation>
     </message>
     <message>
         <source>Sol</source>
-        <translation type="unfinished"></translation>
+        <translation>Pnp</translation>
     </message>
     <message>
         <source>Isa</source>
-        <translation type="unfinished"></translation>
+        <translation>Iz</translation>
     </message>
     <message>
         <source>Jer</source>
-        <translation type="unfinished"></translation>
+        <translation>Jr</translation>
     </message>
     <message>
         <source>Lam</source>
-        <translation type="unfinished"></translation>
+        <translation>Lm</translation>
     </message>
     <message>
         <source>Eze</source>
-        <translation type="unfinished"></translation>
+        <translation>Ez</translation>
     </message>
     <message>
         <source>Dan</source>
-        <translation type="unfinished"></translation>
+        <translation>Dn</translation>
     </message>
     <message>
         <source>Hos</source>
-        <translation type="unfinished"></translation>
+        <translation>Oz</translation>
     </message>
     <message>
         <source>Joe</source>
-        <translation type="unfinished"></translation>
+        <translation>Jl</translation>
     </message>
     <message>
         <source>Amo</source>
-        <translation type="unfinished"></translation>
+        <translation>Am</translation>
     </message>
     <message>
         <source>Oba</source>
-        <translation type="unfinished"></translation>
+        <translation>Ab</translation>
     </message>
     <message>
         <source>Jon</source>
-        <translation type="unfinished"></translation>
+        <translation>Jon</translation>
     </message>
     <message>
         <source>Mic</source>
-        <translation type="unfinished"></translation>
+        <translation>Mi</translation>
     </message>
     <message>
         <source>Nah</source>
-        <translation type="unfinished"></translation>
+        <translation>Na</translation>
     </message>
     <message>
         <source>Hab</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha</translation>
     </message>
     <message>
         <source>Zep</source>
-        <translation type="unfinished"></translation>
+        <translation>So</translation>
     </message>
     <message>
         <source>Hag</source>
-        <translation type="unfinished"></translation>
+        <translation>Ag</translation>
     </message>
     <message>
         <source>Zec</source>
-        <translation type="unfinished"></translation>
+        <translation>Za</translation>
     </message>
     <message>
         <source>Mal</source>
-        <translation type="unfinished"></translation>
+        <translation>Ml</translation>
     </message>
     <message>
         <source>Mat</source>
-        <translation type="unfinished"></translation>
+        <translation>Mt</translation>
     </message>
     <message>
         <source>Mar</source>
-        <translation type="unfinished"></translation>
+        <translation>Mk</translation>
     </message>
     <message>
         <source>Luk</source>
-        <translation type="unfinished"></translation>
+        <translation>Łk</translation>
     </message>
     <message>
         <source>Joh</source>
-        <translation type="unfinished"></translation>
+        <translation>J</translation>
     </message>
     <message>
         <source>Act</source>
-        <translation type="unfinished"></translation>
+        <translation>Dz</translation>
     </message>
     <message>
         <source>Rom</source>
-        <translation type="unfinished"></translation>
+        <translation>Rz</translation>
     </message>
     <message>
         <source>1Co</source>
-        <translation type="unfinished"></translation>
+        <translation>1Kor</translation>
     </message>
     <message>
         <source>2Co</source>
-        <translation type="unfinished"></translation>
+        <translation>2Kor</translation>
     </message>
     <message>
         <source>Gal</source>
-        <translation type="unfinished"></translation>
+        <translation>Ga</translation>
     </message>
     <message>
         <source>Eph</source>
-        <translation type="unfinished"></translation>
+        <translation>Ef</translation>
     </message>
     <message>
         <source>Phi</source>
-        <translation type="unfinished"></translation>
+        <translation>Flp</translation>
     </message>
     <message>
         <source>Col</source>
-        <translation type="unfinished"></translation>
+        <translation>Kol</translation>
     </message>
     <message>
         <source>1Th</source>
-        <translation type="unfinished"></translation>
+        <translation>1Tes</translation>
     </message>
     <message>
         <source>2Th</source>
-        <translation type="unfinished"></translation>
+        <translation>2Tes</translation>
     </message>
     <message>
         <source>1Ti</source>
-        <translation type="unfinished"></translation>
+        <translation>1Tm</translation>
     </message>
     <message>
         <source>2Ti</source>
-        <translation type="unfinished"></translation>
+        <translation>2Tm</translation>
     </message>
     <message>
         <source>Tit</source>
-        <translation type="unfinished"></translation>
+        <translation>Tt</translation>
     </message>
     <message>
         <source>Phm</source>
-        <translation type="unfinished"></translation>
+        <translation>Flm</translation>
     </message>
     <message>
         <source>Heb</source>
-        <translation type="unfinished"></translation>
+        <translation>Hbr</translation>
     </message>
     <message>
         <source>Jam</source>
-        <translation type="unfinished"></translation>
+        <translation>Jk</translation>
     </message>
     <message>
         <source>1Pe</source>
-        <translation type="unfinished"></translation>
+        <translation>1P</translation>
     </message>
     <message>
         <source>2Pe</source>
-        <translation type="unfinished"></translation>
+        <translation>2P</translation>
     </message>
     <message>
         <source>1Jo</source>
-        <translation type="unfinished"></translation>
+        <translation>1J</translation>
     </message>
     <message>
         <source>2Jo</source>
-        <translation type="unfinished"></translation>
+        <translation>2J</translation>
     </message>
     <message>
         <source>3Jo</source>
-        <translation type="unfinished"></translation>
+        <translation>3J</translation>
     </message>
     <message>
         <source>Jud</source>
-        <translation type="unfinished"></translation>
+        <translation>Jud</translation>
     </message>
     <message>
         <source>Rev</source>
-        <translation type="unfinished"></translation>
+        <translation>Ap</translation>
     </message>
 </context>
 </TS>
