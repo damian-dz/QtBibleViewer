@@ -2085,15 +2085,7 @@ void MainWindow::on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1)
                                                 m_comVerse[2].toInt(),
                                                 m_comVerse[2].toInt() });
     } else if (firstChar == 's') {
-        if (!m_dbStrong.isOpen()) {
-            m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
-            m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
-            if (!m_dbStrong.open()) {
-                QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
-            }
-        }
-        PDialogStrong strongDialog(m_dbStrong, argString.split(":")[1], m_currentFont, m_papyrusBckgrnd, this);
-        strongDialog.exec();
+       openStrongDialog(argString.split(":")[1]);
     }
 }
 
@@ -2156,13 +2148,18 @@ void MainWindow::on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1)
 void MainWindow::on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1)
 {
     QString argString = arg1.toString();
-    int dbIdx = ui_Bib_TabWidget_Modules->currentIndex();
-    QStringList indices = argString.split(",");
-    highlightPassage(TabBookChapterVerses { dbIdx,
-                                            indices[0].toInt(),
-                                            indices[1].toInt(),
-                                            indices[2].toInt(),
-                                            indices[2].toInt() });
+    QChar firstChar = argString[0];
+    if (firstChar == 'H' || firstChar == 'G') {
+        openStrongDialog(argString);
+    } else {
+        int dbIdx = ui_Bib_TabWidget_Modules->currentIndex();
+        QStringList indices = argString.split(",");
+        highlightPassage(TabBookChapterVerses { dbIdx,
+                                                indices[0].toInt(),
+                                                indices[1].toInt(),
+                                                indices[2].toInt(),
+                                                indices[2].toInt() });
+    }
 }
 
 void MainWindow::actionFind()
@@ -2579,6 +2576,19 @@ void MainWindow::loadXRefDatabase()
     }
 }
 
+void MainWindow::openStrongDialog(const QString &number)
+{
+    if (!m_dbStrong.isOpen()) {
+        m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
+        m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
+        if (!m_dbStrong.open()) {
+            QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
+        }
+    }
+    PDialogStrong strongDialog(m_dbStrong, number, m_currentFont, m_papyrusBckgrnd, this);
+    strongDialog.exec();
+}
+
 void MainWindow::updateFonts()
 {
     for (QTextBrowser *tb : m_chapterBrowsers) {
@@ -2609,15 +2619,7 @@ void MainWindow::on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1)
     QString argString = arg1.toString();
     QChar firstChar = argString[0];
     if (firstChar == 'H' || firstChar == 'G') {
-        if (!m_dbStrong.isOpen()) {
-            m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
-            m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
-            if (!m_dbStrong.open()) {
-                QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
-            }
-        }
-        PDialogStrong strongDialog(m_dbStrong, argString, m_currentFont, m_papyrusBckgrnd, this);
-        strongDialog.exec();
+        openStrongDialog(argString);
     } else if (firstChar == 'x') {
         int idx = ui_Bib_TabWidget_Modules->currentIndex();
         QStringList verseInfo;

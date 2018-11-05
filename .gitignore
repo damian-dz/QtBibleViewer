@@ -1,5 +1,5 @@
-img_res/*.dia
-*.qm
-pl0.ts
-papyrus.jpg
-QtBibleViewer.pro.user*
+App/img_res/*.dia
+App/*.qm
+App/pl0.ts
+App/papyrus.jpg
+App/QtBibleViewer.pro.user*

@@ -323,6 +323,7 @@ private:
     void loadFavorites();
     void loadPassage();
     void loadXRefDatabase();
+    void openStrongDialog(const QString &number);
     void performSearch();
     void performSearchByStrong();
     void populateBookNames();
