@@ -30,7 +30,7 @@ namespace QtBibleViewerInstaller
         private List<UIElement> elements4 = new List<UIElement>();
         private string instDir;
         private int totalBufferSize;
-        private const int packedFilesSize = 19100638;
+        private const int packedFilesSize = 19104820;
         private bool createDesktop;
         private bool createStartMenu;
         private bool useAppData;
@@ -65,7 +65,7 @@ namespace QtBibleViewerInstaller
                 Content = langDict["welcome"],
                 FontSize = 16,
                 FontWeight = FontWeights.Bold,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0, 10, 0, 0)
             };
@@ -294,7 +294,7 @@ namespace QtBibleViewerInstaller
             Closed += MainWindow_Closed;
         }
 
-        [DllImport("User32.dll", SetLastError = true)]
+        [DllImport("user32.dll", SetLastError = true)]
         static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -434,6 +434,7 @@ namespace QtBibleViewerInstaller
             UnpackResourceFile("Qt5Svg.dll.gz");
             UnpackResourceFile("Qt5Widgets.dll.gz");
             UnpackResourceFile("QtBibleViewer.exe.gz");
+            UnpackResourceFile("uninstall.exe.gz");
             if (!useAppData)
             {
                 UnpackResourceFile("settings.ini.gz", "config");

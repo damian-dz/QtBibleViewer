@@ -754,12 +754,6 @@ void MainWindow::generateCompareTabControls(int idx)
     QObject::connect(ui_Com_ListWidget_Chapter, SIGNAL(currentRowChanged(int)),
                      this, SLOT(currentRowChangedComListWidgetChapter(int)));
 
-
-
-   // ui_Com_Label_ChapterNumber = new QLabel;
-   // ui_Com_Label_ChapterNumber->setText("-/1189");
-   // chapterVBoxLayout->addWidget(ui_Com_Label_ChapterNumber);
-
     QVBoxLayout *verseVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(verseVBoxLayout);
 
@@ -787,7 +781,7 @@ void MainWindow::generateCompareTabControls(int idx)
     QObject::connect(ui_Com_TextBrowser_Compare, SIGNAL(anchorClicked(QUrl)),
                      this, SLOT(on_Com_AnchorClicked_TextBrowser_Compare(QUrl)));
 
-    auto prevNextHLayout = new QHBoxLayout;
+    QHBoxLayout *prevNextHLayout = new QHBoxLayout;
     compareVBoxLayout->addLayout(prevNextHLayout);
 
     ui_Com_Button_Prev = new QPushButton("<<");
@@ -1632,7 +1626,6 @@ void MainWindow::on_Bib_CurrentIndexChanged_ComboBox_VerseFrom(int index)
         ui_Bib_ComboBox_VerseFrom->blockSignals(false);
     }
     loadPassage();
-    //QMessageBox::information(this, "" , "verseFromComboBoxCurrentIndexChanged");
 }
 
 void MainWindow::on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index)
@@ -1643,7 +1636,6 @@ void MainWindow::on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index)
         ui_Bib_ComboBox_VerseTo->blockSignals(false);
     }
     loadPassage();
-    //QMessageBox::information(this, "" , "verseToComboBoxCurrentIndexChanged");
 }
 
 
@@ -1716,22 +1708,20 @@ void MainWindow::on_Sea_ButtonClicked_RandomVerse()
         QString bookFrom = QString::number(ui_Sea_ComboBox_SearchFrom->currentIndex() + 1);
         QString bookTo = QString::number(ui_Sea_ComboBox_SearchTo->currentIndex() + 1);
         QSqlQuery query(m_modules[idx].database);
-        query.exec("SELECT * FROM Bible"
-                   " WHERE Book >= " + bookFrom + " AND Book <= " + bookTo +
-                   " ORDER BY RANDOM() LIMIT 1");
-//        query.exec("SELECT * FROM table WHERE id IN (SELECT id FROM Bible"
-//                   " WHERE Book >= " + bookFrom + " AND Book <= " + bookTo +
-//                   " ORDER BY RANDOM() LIMIT 1)");
-        if (query.next()) {
-            QSqlRecord record = query.record();
-            QString book = record.value(0).toString();
-            QString chapter = record.value(1).toString();
-            QString verse = record.value(2).toString();
-            QString scripture = record.value(3).toString();
-            QString text = formatResult(scripture, QRegExp("<RF>.*<Rf>"), m_modules[idx].hasStrong);
-            text += QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
-                    .arg(book, chapter, verse, m_bookNames[book.toInt() - 1], chapter, verse);
-            ui_Sea_TextBrowser_RandomVerse->setHtml(text);
+        if (query.exec("SELECT * FROM Bible"
+                       " WHERE Book >= " + bookFrom + " AND Book <= " + bookTo +
+                       " ORDER BY RANDOM() LIMIT 1")) {
+            if (query.next()) {
+                QSqlRecord record = query.record();
+                QString book = record.value(0).toString();
+                QString chapter = record.value(1).toString();
+                QString verse = record.value(2).toString();
+                QString scripture = record.value(3).toString();
+                QString text = formatResult(scripture, QRegExp("<RF>.*<Rf>"), m_modules[idx].hasStrong);
+                text += QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
+                        .arg(book, chapter, verse, m_bookNames[book.toInt() - 1], chapter, verse);
+                ui_Sea_TextBrowser_RandomVerse->setHtml(text);
+            }
         }
     } else {
         QMessageBox::critical(this,

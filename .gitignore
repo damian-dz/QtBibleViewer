@@ -6,3 +6,5 @@ App/QtBibleViewer.pro.user*
 Installer_x64/.vs/*
 Installer_x64/QtBibleViewerInstaller/bin/*
 Installer_x64/QtBibleViewerInstaller/obj/*
+Installer_x64/uninstall/bin/*
+Installer_x64/uninstall/obj/*
