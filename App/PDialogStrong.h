@@ -15,7 +15,10 @@ class PDialogStrong : public QDialog
 public:
     PDialogStrong(const QSqlDatabase &db,
                   const QString &number,
-                  const QFont &font, const QPixmap &background,QWidget *parent = 0);
+                  const QFont &font,
+                  const QPixmap &background,
+                  bool useBckgrnd,
+                  QWidget *parent = 0);
     ~PDialogStrong();
 
 private slots:

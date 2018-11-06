@@ -18,6 +18,7 @@ public:
                 const QStringList &verseInfo,
                 const QStringList &bookNames,
                 const QPixmap &background,
+                bool useBckgrnd,
                 const QFont &font,
                 QWidget *parent = 0);
     ~PDialogXRef();

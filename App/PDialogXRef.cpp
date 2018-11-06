@@ -4,19 +4,22 @@ PDialogXRef::PDialogXRef(const QSqlDatabase &dbBib,
                          const QStringList &verseInfo,
                          const QStringList &bookNames,
                          const QPixmap &background,
+                         bool useBckgrnd,
                          const QFont &font,
                          QWidget *parent) :
     QDialog(parent)
 {
-    this->generateMainLayout(font);
-    this->setBrowserBackground(background);
+    generateMainLayout(font);
+    if (useBckgrnd) {
+        setBrowserBackground(background);
+    }
     QStringList verseInfoSplit = verseInfo[0].split(":");
     QString bookName = bookNames[verseInfo[1].toInt()];
     QString chapter = verseInfo[2];
     QString verse = verseInfoSplit[1];
     QString title = bookName + " " + chapter + ":" + verse;
     QDialog::setWindowTitle(title);
-    this->loadPassages(dbBib, verseInfoSplit[2], bookNames);
+    loadPassages(dbBib, verseInfoSplit[2], bookNames);
 }
 
 PDialogXRef::~PDialogXRef()
@@ -29,7 +32,7 @@ void PDialogXRef::generateMainLayout(const QFont &font)
     QDialog::resize(640, 480);
     ui_TextBrowser_Main = new QTextBrowser;
     ui_TextBrowser_Main->setFont(font);
-    auto mainVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *mainVBoxLayout = new QVBoxLayout;
     mainVBoxLayout->addWidget(ui_TextBrowser_Main);
     QDialog::setLayout(mainVBoxLayout);   
 }

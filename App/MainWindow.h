@@ -40,6 +40,7 @@
 #define GROUP_MAIN_WINDOW "MainWindow"
 #define SET_GEOMETRY "geometry"
 #define SET_STATE "state"
+#define SET_USE_BACKGROUND "useBackground"
 #define GROUP_MODULE_DATA "ModuleData"
 #define SET_INDEX "index"
 #define SET_PASSAGE "passage"
@@ -272,6 +273,7 @@ private:
     QVector<TabBookChapterVerses> m_history;
     int m_noteCount;
     QStringList m_comVerse;
+    bool m_useBackground;
 
     /* Member functions */
     bool loadBibleModule(const QString &path);

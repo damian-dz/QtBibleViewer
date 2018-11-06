@@ -3,20 +3,20 @@
 #include <QApplication>
 
 
-PDialogPreferences::PDialogPreferences(const QFont &font, QWidget *parent) :
+PDialogPreferences::PDialogPreferences(bool useBckgrnd, const QFont &font, QWidget *parent) :
     QDialog(parent)
 {
     QDialog::resize(480, 320);
     QDialog::setWindowTitle(tr("Preferences"));
 
-    auto mainVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *mainVBoxLayout = new QVBoxLayout;
 
-    auto mainHBoxLayout = new QHBoxLayout;
+    QHBoxLayout *mainHBoxLayout = new QHBoxLayout;
     mainVBoxLayout->addLayout(mainHBoxLayout);
 
     m_stackedWidget = new QStackedWidget;
 
-    auto listWidget = new QListWidget;
+    QListWidget *listWidget = new QListWidget;
     listWidget->setFont(QFont(qApp->font().family(), 10));
     listWidget->setMaximumWidth(180);
     listWidget->addItem(tr("General"));
@@ -27,17 +27,18 @@ PDialogPreferences::PDialogPreferences(const QFont &font, QWidget *parent) :
     mainHBoxLayout->addWidget(listWidget);
     mainHBoxLayout->addWidget(m_stackedWidget);
 
-    auto dialogButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    QDialogButtonBox *dialogButtonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    connect(dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    QObject::connect(dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    QObject::connect(dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     mainVBoxLayout->addWidget(dialogButtonBox);
 
+    generateGeneralWidget(useBckgrnd);
     generateFontWidget(font);
 
-    connect(listWidget, SIGNAL(currentRowChanged(int)),
-            this, SLOT(listWidgetCurrentRowChanged(int)));
+    QObject::connect(listWidget, SIGNAL(currentRowChanged(int)),
+                     this, SLOT(listWidgetCurrentRowChanged(int)));
 
     QDialog::setLayout(mainVBoxLayout);
 }
@@ -47,22 +48,37 @@ PDialogPreferences::~PDialogPreferences()
 
 }
 
+void PDialogPreferences::generateGeneralWidget(bool useBackgrnd)
+{
+    QWidget *generalWidget = new QWidget;
+
+    QFormLayout *generalFormLayout = new QFormLayout;
+
+    generalWidget->setLayout(generalFormLayout);
+
+    m_backgroundCheckBox = new QCheckBox(tr("Use background image"));
+    m_backgroundCheckBox->setChecked(useBackgrnd);
+    generalFormLayout->addWidget(m_backgroundCheckBox);
+
+    m_stackedWidget->addWidget(generalWidget);
+}
+
 void PDialogPreferences::generateFontWidget(const QFont &font)
 {
-    auto fontWidget = new QWidget;
+    QWidget *fontWidget = new QWidget;
 
-    auto fontFormLayout = new QFormLayout;
+    QFormLayout *fontFormLayout = new QFormLayout;
 
     fontWidget->setLayout(fontFormLayout);
 
-    auto fontTypeComboBox = new QFontComboBox;
+    QFontComboBox *fontTypeComboBox = new QFontComboBox;
     fontTypeComboBox->setMaximumWidth(200);
     fontTypeComboBox->setFontFilters(QFontComboBox::ScalableFonts);
     fontTypeComboBox->setCurrentFont(font);
 
     fontFormLayout->addRow(tr("Font Type:"), fontTypeComboBox);
 
-    auto fontSizeComboBox = new QComboBox;
+    QComboBox *fontSizeComboBox = new QComboBox;
     QStringList fontSizes;
     const int smallest = 8;
     const int biggest = 20;
@@ -85,18 +101,21 @@ void PDialogPreferences::generateFontWidget(const QFont &font)
 
     fontFormLayout->addRow(tr("Preview:"), m_fontAbcTextBrowser);
 
-    auto textBrowser = new QTextBrowser;
-    m_stackedWidget->addWidget(textBrowser);
 
     m_stackedWidget->addWidget(fontWidget);
 
-    auto textBrowser2 = new QTextBrowser;
+    QTextBrowser *textBrowser2 = new QTextBrowser;
     m_stackedWidget->addWidget(textBrowser2);
 
-    connect(fontTypeComboBox, SIGNAL(currentFontChanged(QFont)),
-            this, SLOT(currentFontTypeChanged(QFont)));
-    connect(fontSizeComboBox, SIGNAL(currentTextChanged(QString)),
-            this, SLOT(currentFontSizeChanged(QString)));
+    QObject::connect(fontTypeComboBox, SIGNAL(currentFontChanged(QFont)),
+                     this, SLOT(currentFontTypeChanged(QFont)));
+    QObject::connect(fontSizeComboBox, SIGNAL(currentTextChanged(QString)),
+                     this, SLOT(currentFontSizeChanged(QString)));
+}
+
+bool PDialogPreferences::getUseBackground()
+{
+    return m_backgroundCheckBox->isChecked();
 }
 
 QString PDialogPreferences::getFontFamily()

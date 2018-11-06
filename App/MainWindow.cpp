@@ -1,11 +1,11 @@
 #include "MainWindow.h"
-#include "PDialogXRef.h"
 #include "PDialogPreferences.h"
 #include "PDialogStrong.h"
+#include "PDialogXRef.h"
 #include "PWindowHistogram.h"
 
 
-void createFavDatabase(QSqlDatabase &db, const QString &fileName)
+inline void createFavDatabase(QSqlDatabase &db, const QString &fileName)
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(fileName);
@@ -15,6 +15,11 @@ void createFavDatabase(QSqlDatabase &db, const QString &fileName)
         query.exec("CREATE UNIQUE INDEX \"fav_key\" ON \"Favorites\" "
                    "(\"Book\" ASC, \"Chapter\" ASC, \"VerseFirst\" ASC, \"VerseLast\" ASC)");
     }
+}
+
+inline void removeBrowserBackground(QTextEdit &browser)
+{
+    browser.viewport()->setPalette(browser.style()->standardPalette());
 }
 
 MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString configPath, QWidget *parent)
@@ -245,21 +250,20 @@ void MainWindow::populateLanguageMap(const QString &lang)
 
 MainWindow::TabBookChapterVerses MainWindow::loadSettings()
 {
-    qDebug() << m_settingsPath;
     TabBookChapterVerses tbcvv;
     QSettings settings(m_settingsPath, QSettings::IniFormat);
     settings.beginGroup(GROUP_MAIN_WINDOW);
     const QByteArray geometry = settings.value(SET_GEOMETRY, QByteArray()).toByteArray();
     if (!geometry.isNull() && !geometry.isEmpty()) {
         QWidget::restoreGeometry(geometry);
-    }
-    else {
+    } else {
         QMainWindow::resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
     const QByteArray state = settings.value(SET_STATE, QByteArray()).toByteArray();
     if (!state.isNull() && !state.isEmpty()) {
         QMainWindow::restoreState(state);
     }
+    m_useBackground = settings.value(SET_USE_BACKGROUND).toBool();
     settings.endGroup();
     settings.beginGroup(GROUP_MODULE_DATA);
     const int setIndex = settings.value(SET_INDEX).toInt();
@@ -1411,6 +1415,7 @@ void MainWindow::saveSettings()
     settings.beginGroup(GROUP_MAIN_WINDOW);
     settings.setValue(SET_GEOMETRY, QWidget::saveGeometry());
     settings.setValue(SET_STATE, QMainWindow::saveState());
+    settings.setValue(SET_USE_BACKGROUND, m_useBackground);
     settings.endGroup();
     settings.beginGroup(GROUP_MODULE_DATA);
     if (m_modulesFound) {
@@ -1855,9 +1860,11 @@ void MainWindow::blockPassageSelectionSignals(bool isBlocked)
 
 void MainWindow::setBrowserBackground(QTextEdit &browser)
 {
-    QPalette palette;
-    palette.setBrush(browser.viewport()->backgroundRole(), QBrush(m_papyrusBckgrnd));
-    browser.viewport()->setPalette(palette);
+    if (m_useBackground) {
+        QPalette palette;
+        palette.setBrush(browser.viewport()->backgroundRole(), QBrush(m_papyrusBckgrnd));
+        browser.viewport()->setPalette(palette);
+    }
 }
 
 void MainWindow::loadBackgroundPixmap()
@@ -2501,16 +2508,18 @@ bool MainWindow::loadBibleModule(const QString &path)
     bool hasOldTestament = false;
     bool hasStrong = false;
     QString queryString = "SELECT Abbreviation, OT, Strong FROM Details";
-    query.exec(queryString);
-    if (query.next()) {
-        QSqlRecord record = query.record();
-        moduleName = record.value(0).toString();
-        hasOldTestament = record.value(1).toBool();
+    if (query.exec(queryString)) {
+        if (query.next()) {
+            QSqlRecord record = query.record();
+            moduleName = record.value(0).toString();
+            hasOldTestament = record.value(1).toBool();
+        }
     }
     queryString = "SELECT Scripture FROM Bible";
-    query.exec(queryString);
-    if (query.next()) {
-        hasStrong = query.record().value(0).toString().contains(QRegExp("<W[HG][0-9]{1,4}>"));
+    if (query.exec(queryString)) {
+        if (query.next()) {
+            hasStrong = query.record().value(0).toString().contains(QRegExp("<W[HG][0-9]{1,4}>"));
+        }
     }
     bool containsModule = false;
     foreach (ModuleData md, m_modules) {
@@ -2575,32 +2584,15 @@ void MainWindow::openStrongDialog(const QString &number)
             QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
         }
     }
-    PDialogStrong strongDialog(m_dbStrong, number, m_currentFont, m_papyrusBckgrnd, this);
+    PDialogStrong strongDialog(m_dbStrong, number, m_currentFont, m_papyrusBckgrnd, m_useBackground, this);
     strongDialog.exec();
 }
 
 void MainWindow::updateFonts()
 {
-    for (QTextBrowser *tb : m_chapterBrowsers) {
-        tb->setFont(m_currentFont);
-    }
-    if (ui_TabWidget_Main->widget(1)->children().count() > 0) {
-        ui_Det_TextBrowser_Description->setFont(m_currentFont);
-        ui_Det_TextBrowser_Comments->setFont(m_currentFont);
-    }
-    if (ui_TabWidget_Main->widget(2)->children().count() > 0) {
-        ui_Sea_TextBrowser_Results->setFont(m_currentFont);
-        ui_Sea_TextBrowser_RandomVerse->setFont(m_currentFont);
-    }
-    if (ui_TabWidget_Main->widget(3)->children().count() > 0) {
-        ui_Com_TextBrowser_Compare->setFont(m_currentFont);
-    }
-    if (ui_TabWidget_Main->widget(4)->children().count() > 0) {
-        ui_Fav_TextBrowser_Passage->setFont(m_currentFont);
-        ui_Fav_TextEdit_Comment->setFont(m_currentFont);
-    }
-    if (ui_TabWidget_Main->widget(5)->children().count() > 0) {
-        ui_Dic_TextBrowser_Definition->setFont(m_currentFont);
+    QList<QTextEdit *> widgets = QMainWindow::centralWidget()->findChildren<QTextEdit *>();
+    for (QTextEdit *te : widgets) {
+        te->setFont(m_currentFont);
     }
 }
 
@@ -2620,6 +2612,7 @@ void MainWindow::on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1)
                             verseInfo,
                             m_bookNames,
                             m_papyrusBckgrnd,
+                            m_useBackground,
                             m_currentFont);
         dlgXRef.exec();
     }
@@ -2689,8 +2682,23 @@ void MainWindow::actionSpanish()
 
 void MainWindow::actionPreferences()
 {
-    PDialogPreferences dlgPreferences(m_currentFont);
+    PDialogPreferences dlgPreferences(m_useBackground, m_currentFont);
     if (dlgPreferences.exec()) {
+        bool newUseBckgrnd = dlgPreferences.getUseBackground();
+        if (newUseBckgrnd != m_useBackground) {
+            m_useBackground = newUseBckgrnd;
+            if (m_useBackground) {
+                QList<QTextEdit *> widgets = QMainWindow::centralWidget()->findChildren<QTextEdit *>();
+                for (QTextEdit *te : widgets) {
+                    setBrowserBackground(*te);
+                }
+            } else {
+                QList<QTextEdit *> widgets = QMainWindow::centralWidget()->findChildren<QTextEdit *>();
+                for (QTextEdit *te : widgets) {
+                    removeBrowserBackground(*te);
+                }
+            }
+        }
         m_currentFont.setFamily(dlgPreferences.getFontFamily());
         m_currentFont.setPointSize(dlgPreferences.getFontSize());
         updateFonts();

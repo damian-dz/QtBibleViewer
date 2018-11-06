@@ -1,8 +1,16 @@
 #include "PDialogStrong.h"
 
-PDialogStrong::PDialogStrong(const QSqlDatabase &db, const QString &number, const QFont &font, const QPixmap &background, QWidget *parent) :
+PDialogStrong::PDialogStrong(const QSqlDatabase &db,
+                             const QString &number,
+                             const QFont &font,
+                             const QPixmap &background,
+                             bool useBckgrnd,
+                             QWidget *parent) :
     QDialog(parent)
 {
+    QWidget::resize(640, 480);
+    QWidget::setMinimumSize(400, 300);
+    QWidget::setWindowTitle(number);
     dbDct = &db;
     QVBoxLayout *mainVerLayout = new QVBoxLayout;
     mainVerLayout->setContentsMargins(5, 5, 5 ,5);
@@ -12,10 +20,9 @@ PDialogStrong::PDialogStrong(const QSqlDatabase &db, const QString &number, cons
                      this, SLOT(on_definitionTextBrowser_anchorClicked(QUrl)));
     mainVerLayout->addWidget(m_defTextBrowser);
     QWidget::setLayout(mainVerLayout);
-    QWidget::resize(640, 480);
-    QWidget::setMinimumSize(400, 300);
-    QWidget::setWindowTitle(number);
-    setBrowserBackground(background);
+    if (useBckgrnd) {
+        setBrowserBackground(background);
+    }
     loadDefinition(number);
 }
 
