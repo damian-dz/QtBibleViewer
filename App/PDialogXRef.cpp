@@ -32,6 +32,7 @@ void PDialogXRef::generateMainLayout(const QFont &font)
     QDialog::resize(640, 480);
     ui_TextBrowser_Main = new QTextBrowser;
     ui_TextBrowser_Main->setFont(font);
+    ui_TextBrowser_Main->setOpenLinks(false);
     QVBoxLayout *mainVBoxLayout = new QVBoxLayout;
     mainVBoxLayout->addWidget(ui_TextBrowser_Main);
     QDialog::setLayout(mainVBoxLayout);   

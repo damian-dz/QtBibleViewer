@@ -7,8 +7,8 @@
 int main(int argc, char *argv[])
 {
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication a(argc, argv);
-    QString appDir = a.applicationDirPath();
+    QApplication app(argc, argv);
+    QString appDir = app.applicationDirPath();
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
     QString configFilePath = appDir + "/config/settings.ini";
     if (!QFileInfo(configFilePath).exists()) {
@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
     QTranslator translator;
     if (setLanguage != "EN") {
         translator.load(setLanguage.toLower(), appDir + "/translations");
-        a.installTranslator(&translator);
+        app.installTranslator(&translator);
     }
-    MainWindow w(appDir, setLanguage.toUpper(), configFilePath);
-    w.show();
-    return a.exec();
+    MainWindow win(appDir, setLanguage.toUpper(), configFilePath);
+    win.show();
+    return app.exec();
 }

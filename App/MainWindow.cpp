@@ -4,6 +4,8 @@
 #include "PDialogXRef.h"
 #include "PWindowHistogram.h"
 
+#include <QDebug>
+#include <QFontInfo>
 
 inline void createFavDatabase(QSqlDatabase &db, const QString &fileName)
 {
@@ -418,7 +420,7 @@ void MainWindow::populateBookNames()
 void MainWindow::connectBibleTabSignals()
 {
     QObject::connect(ui_TabWidget_Main, SIGNAL(currentChanged(int)),
-                     this, SLOT(mainTabWidgetCurrentChanged(int)));
+                     this, SLOT(on_CurrentChanged_TabWidget_Main(int)));
     QObject::connect(ui_Bib_ListWidget_Book, SIGNAL(currentRowChanged(int)),
                      this, SLOT(on_Bib_CurrentRowChanged_ListWidget_Book(int)));
     QObject::connect(ui_Bib_ListWidget_Chapter, SIGNAL(currentRowChanged(int)),
@@ -428,17 +430,19 @@ void MainWindow::connectBibleTabSignals()
     QObject::connect(ui_Bib_ComboBox_VerseTo, SIGNAL(currentIndexChanged(int)),
                      this, SLOT(on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int)));
     QObject::connect(ui_Bib_Button_Random, SIGNAL(clicked()),
-                     this, SLOT(on_Bib_ButtonClicked_RandomChapter()));
+                     this, SLOT(on_Bib_Clicked_PushButton_Random()));
     QObject::connect(ui_Bib_Button_Prev, SIGNAL(clicked()),
-                     this, SLOT(on_Bib_ButtonClicked_PreviousChapter()));
+                     this, SLOT(on_Bib_Clicked_PushButton_Prev()));
     QObject::connect(ui_Bib_Button_Next, SIGNAL(clicked()),
-                     this, SLOT(on_Bib_ButtonClicked_NextChapter()));
+                     this, SLOT(on_Bib_Clicked_PushButton_Next()));
     QObject::connect(ui_Bib_TabBar_Modules, SIGNAL(tabMoved(int, int)),
                      this, SLOT(on_Bib_TabMoved_Modules(int, int)));
+    QObject::connect(ui_Bib_TabBar_Modules, SIGNAL(currentChanged(int)),
+                     this, SLOT(on_Bib_TabCurrentChanged_Modules(int)));
     QObject::connect(ui_Bib_TabWidget_Modules, SIGNAL(currentChanged(int)),
-                     this, SLOT(modulesTabWidgetCurrentChanged(int)));
+                     this, SLOT(on_Bib_CurrentChanged_TabWidget_Modules(int)));
     QObject::connect(ui_Bib_TabWidget_Modules, SIGNAL(tabCloseRequested(int)),
-                     this, SLOT(modulesTabCloseRequested(int)));
+                     this, SLOT(on_Bib_TabCloseRequested_TabWidget_Modules(int)));
 }
 
 void MainWindow::setTabBookChapterVerses(const TabBookChapterVerses &tbcvv, bool firstRun)
@@ -480,8 +484,8 @@ void MainWindow::populateVersesComboBoxes(int verseFrom, int verseTo)
     int dbIdx = ui_Bib_TabWidget_Modules->currentIndex();
     int book = ui_Bib_ListWidget_Book->currentRow() + 1;
     int chapter = ui_Bib_ListWidget_Chapter->currentRow() + 1;
-    QString queryString = "SELECT Verse FROM Bible WHERE Book = " + QString::number(book) +
-                          " AND Chapter = " + QString::number(chapter);
+    QString queryString = "SELECT Verse FROM Bible WHERE Book = " % QString::number(book) %
+                          " AND Chapter = " % QString::number(chapter);
     QSqlQuery query(m_modules[dbIdx].database);
     query.exec(queryString);
     QStringList verseNumbers;
@@ -553,21 +557,22 @@ void MainWindow::loadFavorites()
     }
 }
 
-#include <QDebug>
 void MainWindow::loadPassage()
 {
-    qDebug() << "loadPassage";
     TabBookChapterVerses tbcvv = getTabBookChapterVerses();
     int idx = tbcvv.tab;
     QString bookStr = QString::number(tbcvv.book);
     QString chapterStr = QString::number(tbcvv.chapter);
-    QString queryString = "SELECT Verse, Scripture FROM Bible"
-                          " WHERE Book = " + bookStr +
-                          " AND Chapter = " + chapterStr +
-                          " AND Verse >= " + QString::number(tbcvv.verseFrom) +
-                          " AND Verse <= " + QString::number(tbcvv.verseTo);
+    QString queryString = QStringLiteral("SELECT Verse, Scripture FROM Bible "
+                                         "WHERE Book = %1 "
+                                         "AND Chapter = %2 "
+                                         "AND Verse >= %3 "
+                                         "AND Verse <= %4")
+            .arg(bookStr, chapterStr, QString::number(tbcvv.verseFrom), QString::number(tbcvv.verseTo));
     QSqlQuery query(m_modules[idx].database);
-    query.exec(queryString);
+    if (!query.exec(queryString)) {
+        return;
+    }
     QSqlQuery xRefQuery(m_dbXRef);
     clearChapterBrowserData(idx);
     QTextCursor cursor(m_chapterBrowsers[idx]->document());
@@ -578,22 +583,22 @@ void MainWindow::loadPassage()
         QSqlRecord record = query.record();
         QString verse = record.value(0).toString();
         QString scripture = record.value(1).toString();
-        QString xRefQueryString = "SELECT XRefs FROM CrossReferences WHERE BOOK = " + bookStr +
-                                  " AND Chapter = " + chapterStr +
-                                  " AND Verse = " + verse;
+        QString xRefQueryString = QStringLiteral("SELECT XRefs FROM CrossReferences WHERE BOOK = %1 "
+                                                 "AND Chapter = %2 "
+                                                 "AND Verse = %3").arg(bookStr, chapterStr, verse);
         m_verseMaps[idx][verseCnt] = verse.toInt();
         if (verseCnt > 0) {
             cursor.insertBlock();
         }
         xRefQuery.exec(xRefQueryString);
         if (xRefQuery.next()) {           
-            verse = QString("<a href='x:%1:%2'>[%3]</a>")
+            verse = QStringLiteral("<a href='x:%1:%2'>[%3]</a>")
                     .arg(verse, xRefQuery.record().value(0).toString(), verse);
             formatScripture(scripture, idx, m_modules[idx].hasStrong, noteRgx, strongRgx);
-            cursor.insertHtml("<b>" + verse + "</b> " + scripture);
+            cursor.insertHtml("<b>" % verse % "</b> " % scripture);
         } else {
             formatScripture(scripture, idx, m_modules[idx].hasStrong, noteRgx, strongRgx);
-            cursor.insertHtml("<b>[" + verse + "]</b> " + scripture);
+            cursor.insertHtml("<b>[" % verse % "]</b> " % scripture);
         }
         verseCnt++;
     }
@@ -639,12 +644,12 @@ void MainWindow::on_Bib_SelectionChanged_ChapterBrowser()
     ui_Act_CopyWithRef->setDisabled(isEmpty);
 }
 
-void MainWindow::on_Sea_ButtonClicked_Search()
+void MainWindow::on_Sea_Clicked_PushButton_Search()
 {
     ui_Sea_RadioButton_Strong->isChecked() ? performSearchByStrong() : performSearch();
 }
 
-void MainWindow::on_Sea_ButtonToggled_ByStrong(bool checked)
+void MainWindow::on_Sea_Toggled_RadioButton_Strong(bool checked)
 {
     ui_Sea_CheckBox_Case->setDisabled(checked);
     ui_Sea_CheckBox_WholeWords->setDisabled(checked);
@@ -664,15 +669,15 @@ void MainWindow::connectSearchTabSignals()
     QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(textChanged(QString)),
                      this, SLOT(on_Sea_LineEdit_TextChanged_Search(QString)));
     QObject::connect(ui_Sea_Button_Search, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_ButtonClicked_Search()));
+                     this, SLOT(on_Sea_Clicked_PushButton_Search()));
     QObject::connect(ui_Sea_ComboBox_Section, SIGNAL(currentIndexChanged(int)),
                      this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_Section(int)));
     QObject::connect(ui_Sea_Button_Prev, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_ButtonClicked_PreviousResult()));
+                     this, SLOT(on_Sea_Clicked_PushButton_Prev()));
     QObject::connect(ui_Sea_Button_Next, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_ButtonClicked_NextResult()));
+                     this, SLOT(on_Sea_Clicked_PushButton_Next()));
     QObject::connect(ui_Sea_Button_RandomVerse, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_ButtonClicked_RandomVerse()));
+                     this, SLOT(on_Sea_Clicked_PushButton_RandomVerse()));
 }
 
 void MainWindow::displaySearchResults(int startIdx, int endIdx)
@@ -684,9 +689,8 @@ void MainWindow::displaySearchResults(int startIdx, int endIdx)
     QRegExp regex("<RF>.*<Rf>");
     regex.setMinimal(true);
     while (i < m_resVerses.count() && i < endIdx) {
-        resultString += formatResult(m_resVerses[i], regex, m_modules[index].hasStrong);
-        resultString += m_resRefs[i++];
-        resultString += "</a></b><br><br>";
+        resultString += formatResult(m_resVerses[i], regex, m_modules[index].hasStrong) %
+                m_resRefs[i++] % "</a></b><br><br>";
     }
     ui_Sea_TextBrowser_Results->setHtml(resultString);
 
@@ -712,10 +716,10 @@ void MainWindow::displaySearchResults(int startIdx, int endIdx)
 
     QString statusMessage;
     if (m_resVerses.count() == 1) {
-        statusMessage = tr("Verse 1 (1 in total); Elapsed time: ") + m_elapsedTime;
+        statusMessage = tr("Verse 1 (1 in total); Elapsed time: ") % m_elapsedTime;
     } else {
-        statusMessage = tr("Verses ") + QString::number(startIdx + 1) + "-" + QString::number(i) +
-            " ("  + QString::number(m_resVerses.count()) + tr(" in total);  Elapsed time: ") +
+        statusMessage = tr("Verses ") % QString::number(startIdx + 1) % "-" % QString::number(i) %
+            " ("  % QString::number(m_resVerses.count()) + tr(" in total);  Elapsed time: ") %
             m_elapsedTime;
     }
     ui_Label_Status->setText(statusMessage);
@@ -743,7 +747,7 @@ void MainWindow::generateCompareTabControls(int idx)
     ui_Com_ListWidget_Book->addItems(m_bookNames);
     bookVBoxLayout->addWidget(ui_Com_ListWidget_Book);
     QObject::connect(ui_Com_ListWidget_Book, SIGNAL(currentRowChanged(int)),
-                     this, SLOT(currentRowChangedComListWidgetBook(int)));
+                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Book(int)));
 
     QVBoxLayout *chapterVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(chapterVBoxLayout);
@@ -756,7 +760,7 @@ void MainWindow::generateCompareTabControls(int idx)
     ui_Com_ListWidget_Chapter->setMaximumWidth(60);
     chapterVBoxLayout->addWidget(ui_Com_ListWidget_Chapter);
     QObject::connect(ui_Com_ListWidget_Chapter, SIGNAL(currentRowChanged(int)),
-                     this, SLOT(currentRowChangedComListWidgetChapter(int)));
+                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Chapter(int)));
 
     QVBoxLayout *verseVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(verseVBoxLayout);
@@ -769,7 +773,7 @@ void MainWindow::generateCompareTabControls(int idx)
     ui_Com_ListWidget_Verse->setMaximumWidth(60);
     verseVBoxLayout->addWidget(ui_Com_ListWidget_Verse);
     QObject::connect(ui_Com_ListWidget_Verse, SIGNAL(currentRowChanged(int)),
-                     this, SLOT(currentRowChangedComListWidgetVerse(int)));
+                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Verse(int)));
 
     QVBoxLayout *compareVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(compareVBoxLayout);
@@ -816,7 +820,7 @@ void MainWindow::generateCompareTabControls(int idx)
     }
 }
 
-void MainWindow::currentRowChangedComListWidgetBook(int currentRow)
+void MainWindow::on_Com_CurrentRowChanged_ListWidget_Book(int currentRow)
 {
     QString queryString = "SELECT Chapter FROM Counters WHERE Book = " +
                           QString::number(currentRow + 1);
@@ -834,18 +838,19 @@ void MainWindow::currentRowChangedComListWidgetBook(int currentRow)
     ui_Com_ListWidget_Chapter->setCurrentRow(0);
 }
 
-void MainWindow::currentRowChangedComListWidgetChapter(int currentRow)
+void MainWindow::on_Com_CurrentRowChanged_ListWidget_Chapter(int currentRow)
 {
     int book = ui_Com_ListWidget_Book->currentRow() + 1;
     QString queryString = "SELECT VerseCount, ChapterNumber FROM Counters WHERE Book = " +
                           QString::number(book) + " AND Chapter = " + QString::number(currentRow + 1);
     QSqlQuery query(m_dbCntr);
-    query.exec(queryString);
     int verseCount = 0;
-    if (query.next()) {
-        QSqlRecord record = query.record();
-        verseCount = record.value(0).toInt();
-        ui_Label_Status->setText(tr("Chapter: ") + record.value(1).toString() + "/1189");
+    if (query.exec(queryString)) {
+        if (query.next()) {
+            QSqlRecord record = query.record();
+            verseCount = record.value(0).toInt();
+            ui_Label_Status->setText(tr("Chapter: ") % record.value(1).toString() % "/1189");
+        }
     }
     QStringList verseNumbers;
     for (int i = 1; i <= verseCount; ++i) {
@@ -859,7 +864,7 @@ void MainWindow::currentRowChangedComListWidgetChapter(int currentRow)
     ui_Com_ListWidget_Verse->setCurrentRow(0);
 }
 
-void MainWindow::currentRowChangedComListWidgetVerse(int currentRow)
+void MainWindow::on_Com_CurrentRowChanged_ListWidget_Verse(int currentRow)
 {
     QString book = QString::number(ui_Com_ListWidget_Book->currentRow() + 1);
     QString chapter = QString::number(ui_Com_ListWidget_Chapter->currentRow() + 1);
@@ -870,13 +875,12 @@ void MainWindow::currentRowChangedComListWidgetVerse(int currentRow)
     QString text = "<table border='1' cellpadding='8' width='100%'>";
     for (int i = 0; i < m_modules.count(); ++i) {
         QSqlQuery query(m_modules[i].database);
-        query.exec(queryString);
-        if (query.next()) {
-            text += "<tr><td><b><a href='t:" + QString::number(i) + "'>" +
-                    m_modules[i].name + ":</a></b>";
-            QString scripture = query.record().value(0).toString().trimmed();
-            text += " " + formatVerses(scripture, m_modules[i].hasStrong);
-            text += "</td></tr>";
+        if (query.exec(queryString)) {
+            if (query.next()) {
+                QString scripture = query.record().value(0).toString().trimmed();
+                text += QString("<tr><td><b><a href='t:%1'>%2:</a></b> %3</td></tr>")
+                        .arg(QString::number(i), m_modules[i].name, formatVerse(scripture, m_modules[i].hasStrong));
+            }
         }
     }
     text += QStringLiteral("</table>");
@@ -887,11 +891,13 @@ void MainWindow::currentRowChangedComListWidgetVerse(int currentRow)
                << QString::number(ui_Com_ListWidget_Verse->currentRow() + 1);
 }
 
-QString MainWindow::formatVerses(QString text, bool hasStrong)
+QString MainWindow::formatVerse(QString text, bool hasStrong)
 {
-    text.replace("<FI>", "<i>").replace("<Fi>", "</i>");
-    text.replace("<FR>", "<font color=#C80000>").replace("<Fr>", "</font>");
-    text.remove("<CM>");
+    text.replace(QStringLiteral("<FI>"), QStringLiteral("<i>")).
+            replace(QStringLiteral("<Fi>"), QStringLiteral("</i>"));
+    text.replace(QStringLiteral("<FR>"), QStringLiteral("<font color=#C80000>"))
+            .replace(QStringLiteral("<Fr>"), QStringLiteral("</font>"));
+    text.remove(QStringLiteral("<CM>"));
     QRegExp rgxNotesHeadings("<RF>[^<]*<Rf>|<TS>[^<]*<Ts>");
     text.remove(rgxNotesHeadings);
     if (hasStrong) {
@@ -902,7 +908,7 @@ QString MainWindow::formatVerses(QString text, bool hasStrong)
             if (match.hasMatch()) {
                 QString original = match.captured(0);
                 QString modified = original.mid(2, original.size() - 3);
-                text.replace(original, " <a href='s:" + modified + "'>" + modified + "</a>");
+                text.replace(original, " <a href='s:" % modified % "'>" % modified % "</a>");
             }
         }
     }
@@ -1136,9 +1142,7 @@ void MainWindow::generateDictionaryTabControls(int idx)
     if (!m_dbStrong.isOpen()) {
         m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
         m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
-        if (m_dbStrong.open()) {
-
-        } else {
+        if (!m_dbStrong.open()) {
             QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
         }
     }
@@ -1198,12 +1202,12 @@ void MainWindow::generateFavoritesTabControls(int idx)
 
     ui_Fav_Button_Delete = new QPushButton(tr("Delete"));
     connect(ui_Fav_Button_Delete, SIGNAL(clicked()),
-            this, SLOT(on_Fav_ButtonClicked_Delete()));
+            this, SLOT(on_Fav_Clicked_PushButton_Delete()));
     commentDeleteSaveHBoxLayout->addWidget(ui_Fav_Button_Delete);
 
     ui_Fav_Button_Save = new QPushButton(tr("Save"));
     connect(ui_Fav_Button_Save, SIGNAL(clicked()),
-            this, SLOT(on_Fav_ButtonClicked_Save()));
+            this, SLOT(on_Fav_Clicked_PushButton_Save()));
     commentDeleteSaveHBoxLayout->addWidget(ui_Fav_Button_Save);
 
     ui_Fav_TextEdit_Comment = new QTextEdit;
@@ -1352,7 +1356,7 @@ void MainWindow::generateSearchTabControls(int idx)
         optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Any);
         ui_Sea_RadioButton_Strong = new QRadioButton(tr("By Strong's Number"));
         connect(ui_Sea_RadioButton_Strong, SIGNAL(toggled(bool)),
-                this, SLOT(on_Sea_ButtonToggled_ByStrong(bool)));
+                this, SLOT(on_Sea_Toggled_RadioButton_Strong(bool)));
         ui_Sea_RadioButton_Strong->setEnabled(m_modules[ui_Sea_ComboBox_Translation->currentIndex()].hasStrong);
         optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Strong);
         optionsVBoxLayout->addStretch();
@@ -1479,17 +1483,19 @@ void MainWindow::formatScripture(QString &text,
                                  const QRegularExpression &noteRgx,
                                  const QRegularExpression &strongRgx)
 {
-    text.replace("<CM>", "<br>");
-    text.replace("<FI>", "<i>").replace("<Fi>", "</i>");
-    text.replace("<FR>", "<font color=#C80000>").replace("<Fr>", "</font>");
+    text.replace(QStringLiteral("<CM>"), QStringLiteral("<br>"));
+    text.replace(QStringLiteral("<FI>"), QStringLiteral("<i>"))
+            .replace(QStringLiteral("<Fi>"), QStringLiteral("</i>"));
+    text.replace(QStringLiteral("<FR>"), QStringLiteral("<font color=#C80000>"))
+            .replace(QStringLiteral("<Fr>"), QStringLiteral("</font>"));
     QRegularExpressionMatchIterator iter = noteRgx.globalMatch(text);
     while (iter.hasNext()) {
         QRegularExpressionMatch match = iter.next();
         if (match.hasMatch()) {
             QString original = match.captured(0);
             m_globalNotes[idx] << original;
-            text.replace(original, "<a href='c:" + QString::number(m_noteCount) +
-                         "' style='text-decoration:none'><b>*</b></a> ");
+            text.replace(original, QStringLiteral("<a href='c:") % QString::number(m_noteCount) %
+                         QStringLiteral("' style='text-decoration:none'><b>*</b></a> "));
             m_noteCount++;
         }
     }
@@ -1500,7 +1506,7 @@ void MainWindow::formatScripture(QString &text,
             if (match.hasMatch()) {
                 QString original = match.captured(0);
                 QString modified = original.mid(2, original.size() - 3);
-                text.replace(original, QString(" <a href='%1'>%2</a>").arg(modified, modified));
+                text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
             }
         }
     }
@@ -1509,9 +1515,11 @@ void MainWindow::formatScripture(QString &text,
 QString MainWindow::formatResult(QString &text, const QRegExp &regex, bool hasStrong)
 {
     text.remove(regex);
-    text.replace("<FI>", "<i>").replace("<Fi>", "</i>");
-    text.replace("<FR>", "<font color=#C80000>").replace("<Fr>", "</font>");
-    text.remove("<CM>");
+    text.replace(QStringLiteral("<FI>"), QStringLiteral("<i>"))
+            .replace(QStringLiteral("<Fi>"), QStringLiteral("</i>"));
+    text.replace(QStringLiteral("<FR>"), QStringLiteral("<font color=#C80000>"))
+            .replace(QStringLiteral("<Fr>"), QStringLiteral("</font>"));
+    text.remove(QStringLiteral("<CM>"));
     if (hasStrong) {
         QRegularExpression regex("<W[^<]*>");
         QRegularExpressionMatchIterator iter = regex.globalMatch(text);
@@ -1520,7 +1528,7 @@ QString MainWindow::formatResult(QString &text, const QRegExp &regex, bool hasSt
             if (match.hasMatch()) {
                 QString original = match.captured(0);
                 QString modified = original.mid(2, original.size() - 3);
-                text.replace(original, QString(" <a href='%1'>%2</a>").arg(modified, modified));
+                text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
             }
         }
     }
@@ -1585,7 +1593,7 @@ void MainWindow::on_Bib_CurrentRowChanged_ListWidget_Chapter(int currentRow)
     Q_UNUSED(currentRow);
 }
 
-void MainWindow::mainTabWidgetCurrentChanged(int index)
+void MainWindow::on_CurrentChanged_TabWidget_Main(int index)
 {
     QWidget *wg = ui_TabWidget_Main->widget(index);
     if (wg->children().count() == 0) {
@@ -1645,7 +1653,7 @@ void MainWindow::on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index)
 
 
 
-void MainWindow::on_Sea_ButtonClicked_PreviousResult()
+void MainWindow::on_Sea_Clicked_PushButton_Prev()
 {
     ui_Sea_Button_Next->setEnabled(true);
     m_numResPerPage = ui_Sea_ComboBox_ResPerPage->currentText().toInt();
@@ -1656,7 +1664,7 @@ void MainWindow::on_Sea_ButtonClicked_PreviousResult()
     ui_Sea_Button_Prev->setDisabled(startIdx == 0);
 }
 
-void MainWindow::on_Bib_ButtonClicked_PreviousChapter()
+void MainWindow::on_Bib_Clicked_PushButton_Prev()
 {
     if (ui_Bib_ListWidget_Chapter->currentRow() > 0) {
         ui_Bib_ListWidget_Chapter->setCurrentRow(ui_Bib_ListWidget_Chapter->currentRow() - 1);
@@ -1666,7 +1674,7 @@ void MainWindow::on_Bib_ButtonClicked_PreviousChapter()
     }
 }
 
-void MainWindow::on_Bib_ButtonClicked_NextChapter()
+void MainWindow::on_Bib_Clicked_PushButton_Next()
 {
     if (ui_Bib_ListWidget_Chapter->currentRow() < ui_Bib_ListWidget_Chapter->count() - 1) {
         ui_Bib_ListWidget_Chapter->setCurrentRow(ui_Bib_ListWidget_Chapter->currentRow() + 1);
@@ -1675,27 +1683,28 @@ void MainWindow::on_Bib_ButtonClicked_NextChapter()
     }
 }
 
-void MainWindow::on_Bib_ButtonClicked_RandomChapter()
+void MainWindow::on_Bib_Clicked_PushButton_Random()
 {
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
     QSqlQuery query(m_modules[idx].database);
-    query.exec("SELECT * FROM Bible"
-               " ORDER BY RANDOM() LIMIT 1");
-    if (query.next()) {
-        QString book = query.record().value(0).toString();
-        QString chapter = query.record().value(1).toString();
-        query.exec("SELECT MAX(Verse) FROM Bible WHERE"
-                   " Book = " + book + " AND Chapter = " + chapter);
+    if (query.exec("SELECT * FROM Bible"
+                   " ORDER BY RANDOM() LIMIT 1")) {
         if (query.next()) {
-            int maxVerse = query.record().value(0).toInt();
-            blockPassageSelectionSignals(true);
-            setTabBookChapterVerses({ idx, book.toInt(), chapter.toInt(), 1, maxVerse }, false);
-            blockPassageSelectionSignals(false);
+            QString book = query.record().value(0).toString();
+            QString chapter = query.record().value(1).toString();
+            query.exec("SELECT MAX(Verse) FROM Bible WHERE"
+                       " Book = " + book + " AND Chapter = " + chapter);
+            if (query.next()) {
+                int maxVerse = query.record().value(0).toInt();
+                blockPassageSelectionSignals(true);
+                setTabBookChapterVerses({ idx, book.toInt(), chapter.toInt(), 1, maxVerse }, false);
+                blockPassageSelectionSignals(false);
+            }
         }
     }
 }
 
-void MainWindow::on_Sea_ButtonClicked_NextResult()
+void MainWindow::on_Sea_Clicked_PushButton_Next()
 {
     ui_Sea_Button_Prev->setEnabled(true);
     m_numResPerPage = ui_Sea_ComboBox_ResPerPage->currentText().toInt();
@@ -1705,7 +1714,7 @@ void MainWindow::on_Sea_ButtonClicked_NextResult()
     ui_Sea_Button_Next->setDisabled(endIdx >= m_resVerses.count());
 }
 
-void MainWindow::on_Sea_ButtonClicked_RandomVerse()
+void MainWindow::on_Sea_Clicked_PushButton_RandomVerse()
 {
     int idx = ui_Sea_ComboBox_Translation->currentIndex();
     int min = ui_Sea_ComboBox_SearchFrom->currentIndex() + 1;
@@ -1803,7 +1812,19 @@ void MainWindow::on_Bib_TabMoved_Modules(int from, int to)
     m_verseMaps.swap(from, to);
 }
 
-void MainWindow::modulesTabCloseRequested(int index)
+void MainWindow::on_Bib_TabCurrentChanged_Modules(int index)
+{
+    QWidget *wg = ui_TabWidget_Main->widget(4);
+    if (wg->children().count() > 0) {
+        if (ui_Fav_ListWidget_Passages->count() > 0) {
+            int crntSel = ui_Fav_ListWidget_Passages->currentRow();
+            on_Fav_CurrentRowChanged_ListWidget_Passages(crntSel);
+        }
+    }
+    Q_UNUSED(index);
+}
+
+void MainWindow::on_Bib_TabCloseRequested_TabWidget_Modules(int index)
 {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, tr("Confirm Removal"),
@@ -1821,7 +1842,7 @@ void MainWindow::modulesTabCloseRequested(int index)
     }
 }
 
-void MainWindow::modulesTabWidgetCurrentChanged(int index)
+void MainWindow::on_Bib_CurrentChanged_TabWidget_Modules(int index)
 {
     if (ui_Bib_ComboBox_VerseFrom->count() > 0 && ui_Bib_ComboBox_VerseTo->count() > 0) {
         loadPassage();
@@ -1915,8 +1936,8 @@ void MainWindow::highlightPassage(const TabBookChapterVerses &tbcvv)
     int idx = tbcvv.tab;
     QSqlQuery query(m_modules[idx].database);
     if (query.exec("SELECT MAX(Verse) FROM Bible WHERE"
-                   " Book = " + QString::number(tbcvv.book) +
-                   " AND Chapter = " + QString::number(tbcvv.chapter)) ) {
+                   " Book = " % QString::number(tbcvv.book) %
+                   " AND Chapter = " % QString::number(tbcvv.chapter)) ) {
         if (query.next()) {
             ui_TabWidget_Main->setCurrentIndex(0);
             int maxVerse = query.record().value(0).toInt();
@@ -2043,7 +2064,7 @@ void MainWindow::actionCut()
     }
 }
 
-void MainWindow::on_Bib_ButtonClicked_Close()
+void MainWindow::on_Bib_Clicked_PushButton_Close()
 {
     ui_Bib_Label_Find->hide();
     ui_Bib_LineEdit_Find->hide();
@@ -2072,7 +2093,6 @@ void MainWindow::on_Bib_TextChanged_LineEdit_Find(const QString &text)
 
 void MainWindow::on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1)
 {
-    qDebug() << arg1.toString();
     QString argString = arg1.toString();
     QChar firstChar = argString[0];
     if (firstChar == 't') {
@@ -2178,7 +2198,7 @@ void MainWindow::actionFind()
         ui_Bib_Button_Close->setMaximumSize(QSize(22, 22));
         findHorLayout->addWidget(ui_Bib_Button_Close);
         connect(ui_Bib_Button_Close, SIGNAL(clicked()),
-                this, SLOT(on_Bib_ButtonClicked_Close()));
+                this, SLOT(on_Bib_Clicked_PushButton_Close()));
 
         ui_Bib_VerLayout_Modules->addLayout(findHorLayout);
         ui_Bib_LineEdit_Find->setFocus();
@@ -2245,7 +2265,7 @@ void MainWindow::on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow)
     ui_Fav_Button_Save->setEnabled(true);
 }
 
-void MainWindow::on_Fav_ButtonClicked_Delete()
+void MainWindow::on_Fav_Clicked_PushButton_Delete()
 {
     int index = ui_Fav_ListWidget_Passages->currentRow();
     QString passageId = ui_Fav_ListWidget_Passages->currentItem()->text();
@@ -2284,7 +2304,7 @@ void MainWindow::on_Fav_ButtonClicked_Delete()
     }
 }
 
-void MainWindow::on_Fav_ButtonClicked_Save()
+void MainWindow::on_Fav_Clicked_PushButton_Save()
 {
     int index = ui_Fav_ListWidget_Passages->currentRow();
     QString book = QString::number(m_favorites[index].book);
@@ -2546,7 +2566,7 @@ void MainWindow::on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1)
         if (argSplit[0] == "c") {
             int idx = ui_Bib_TabWidget_Modules->currentIndex();
             QPoint point = m_chapterBrowsers[idx]->mapFromParent(QCursor::pos());
-            double offset = 3.4 * m_currentFont.pointSize();
+            double offset = 3.5 * m_currentFont.pointSize();
             point.setY(point.y() - offset);
             QRect rect;
             int subIdx = argSplit[1].toInt();
@@ -2554,8 +2574,10 @@ void MainWindow::on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1)
             QString plainText = markupText.mid(4, markupText.size() - 8);
             plainText.replace("[i]", "<i>").replace("[/i]", "</i>");
             // plainText.replace("[0A]", "<font color=#00000a>").replace("[0a]", "</font>");
-            QString note = "<p style='white-space:pre'>" + plainText + "</p>";
-            QToolTip::setFont(m_currentFont);
+            QString fntFam = "font-family:" % m_currentFont.family();
+            QString fntSiz = "font-size:" % QString::number(QFontInfo(m_currentFont).pixelSize()) % "px";
+            QString note = QString("<p style='white-space:pre;%1;%2'>%3</p>")
+                    .arg(fntFam, fntSiz, plainText);
             QToolTip::showText(point, note, 0, rect, 2147483647);
         }
     } else {

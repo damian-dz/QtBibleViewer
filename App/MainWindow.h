@@ -21,6 +21,7 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QStatusBar>
+#include <QStringBuilder>
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QTextBrowser>
@@ -75,6 +76,7 @@ public:
 public slots:
     void action_ChapterBrowser_Copy();
     void action_ChapterBrowser_CopyWithReference();
+    void action_ChapterBrowser_InsertIntoFavorites();
     void action_ChapterBrowser_SelectAll();
     void action_EditMenu_CopyWithReference();
     void actionBack();
@@ -85,21 +87,15 @@ public slots:
     void actionForward();
     void actionPaste();
     void actionSelectAll();
-    void action_ChapterBrowser_InsertIntoFavorites();
     void actionShowBasicContextMenu(const QPoint &pos);
     void actionShowEditContextMenu(const QPoint &pos);
     void actionShowLineContextMenu(const QPoint &pos);
-    void currentRowChangedComListWidgetBook(int currentRow);
-    void currentRowChangedComListWidgetChapter(int currentRow);
-    void currentRowChangedComListWidgetVerse(int currentRow);
-    void mainTabWidgetCurrentChanged(int index);
-    void modulesTabCloseRequested(int index);
-    void modulesTabWidgetCurrentChanged(int index);
     void on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1);
-    void on_Bib_ButtonClicked_Close();
-    void on_Bib_ButtonClicked_NextChapter();
-    void on_Bib_ButtonClicked_PreviousChapter();
-    void on_Bib_ButtonClicked_RandomChapter();
+    void on_Bib_Clicked_PushButton_Close();
+    void on_Bib_Clicked_PushButton_Next();
+    void on_Bib_Clicked_PushButton_Prev();
+    void on_Bib_Clicked_PushButton_Random();
+    void on_Bib_CurrentChanged_TabWidget_Modules(int index);
     void on_Bib_CurrentIndexChanged_ComboBox_VerseFrom(int index);
     void on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index);
     void on_Bib_CurrentRowChanged_ListWidget_Book(int currentRow);
@@ -107,25 +103,31 @@ public slots:
     void on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &pos);
     void on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1);
     void on_Bib_SelectionChanged_ChapterBrowser();
+    void on_Bib_TabCloseRequested_TabWidget_Modules(int index);
+    void on_Bib_TabCurrentChanged_Modules(int index);
     void on_Bib_TabMoved_Modules(int from, int to);
     void on_Bib_TextChanged_LineEdit_Find(const QString &text);
     void on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1);
+    void on_Com_CurrentRowChanged_ListWidget_Book(int currentRow);
+    void on_Com_CurrentRowChanged_ListWidget_Chapter(int currentRow);
+    void on_Com_CurrentRowChanged_ListWidget_Verse(int currentRow);
+    void on_CurrentChanged_TabWidget_Main(int index);
     void on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1);
     void on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText);
     void on_Dic_TextEdited_LineEdit_Number(const QString &arg1);
+    void on_Fav_Clicked_PushButton_Delete();
+    void on_Fav_Clicked_PushButton_Save();
+    void on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow);
     void on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1);
-    void on_Sea_ButtonClicked_NextResult();
-    void on_Sea_ButtonClicked_PreviousResult();
-    void on_Sea_ButtonClicked_RandomVerse();
-    void on_Sea_ButtonClicked_Search();
-    void on_Sea_ButtonToggled_ByStrong(bool checked);
+    void on_Sea_Clicked_PushButton_Next();
+    void on_Sea_Clicked_PushButton_Prev();
+    void on_Sea_Clicked_PushButton_RandomVerse();
+    void on_Sea_Clicked_PushButton_Search();
     void on_Sea_ComboBox_CurrentIndexChanged_Section(int index);
     void on_Sea_ComboBox_CurrentIndexChanged_Translation(int index);
     void on_Sea_LineEdit_ReturnPressed_Search();
     void on_Sea_LineEdit_TextChanged_Search(const QString &text);
-    void on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow);
-    void on_Fav_ButtonClicked_Delete();
-    void on_Fav_ButtonClicked_Save();
+    void on_Sea_Toggled_RadioButton_Strong(bool checked);
 
 private:
     /* Auxiliary structures */
@@ -278,7 +280,7 @@ private:
     /* Member functions */
     bool loadBibleModule(const QString &path);
     QString formatResult(QString &text, const QRegExp &regex, bool hasStrong);
-    QString formatVerses(QString text, bool hasStrong);
+    QString formatVerse(QString text, bool hasStrong);
     QStringList getModulePaths(const QString &path);
     TabBookChapterVerses getTabBookChapterVerses();
     TabBookChapterVerses loadSettings();

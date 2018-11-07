@@ -143,8 +143,8 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     chartNT->removeAllSeries();
     QBarSeries *seriesOT = new QBarSeries;
     QBarSeries *seriesNT = new QBarSeries;
-    seriesOT->setUseOpenGL(true);
-    seriesNT->setUseOpenGL(true);
+    seriesOT->setUseOpenGL(false);
+    seriesNT->setUseOpenGL(false);
     seriesOT->setBarWidth(1);
     seriesNT->setBarWidth(1);
     seriesOT->append(setOT);
