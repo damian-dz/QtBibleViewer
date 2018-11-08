@@ -19,9 +19,10 @@ class PDialogPreferences : public QDialog
     Q_OBJECT
 
 public:
-    PDialogPreferences(bool useBckgrnd, const QFont &font, QWidget *parent = 0);
+    PDialogPreferences(const QString &style, bool useBckgrnd, const QFont &font, QWidget *parent = 0);
     ~PDialogPreferences();
 
+    QString getWindowStyle();
     bool getUseBackground();
     QString getFontFamily();
     int getFontSize();
@@ -32,9 +33,10 @@ public slots:
     void currentFontSizeChanged(const QString &text);
 
 private:
-    void generateGeneralWidget(bool useBackgrnd);
+    void generateGeneralWidget(const QString &style, bool useBackgrnd);
     void generateFontWidget(const QFont &font);
 
+    QComboBox *m_styleComboBox;
     QCheckBox *m_backgroundCheckBox;
     QStackedWidget *m_stackedWidget;
     QTextBrowser *m_fontAbcTextBrowser;

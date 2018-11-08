@@ -30,7 +30,7 @@ namespace QtBibleViewerInstaller
         private List<UIElement> elements4 = new List<UIElement>();
         private string instDir;
         private int totalBufferSize;
-        private const int packedFilesSize = 19104820;
+        private const int packedFilesSize = 19637284;
         private bool createDesktop;
         private bool createStartMenu;
         private bool useAppData;
@@ -435,6 +435,7 @@ namespace QtBibleViewerInstaller
             UnpackResourceFile("Qt5Widgets.dll.gz");
             UnpackResourceFile("QtBibleViewer.exe.gz");
             UnpackResourceFile("uninstall.exe.gz");
+            UnpackResourceFile("vcruntime140.dll.gz");
             if (!useAppData)
             {
                 UnpackResourceFile("settings.ini.gz", "config");
@@ -442,14 +443,23 @@ namespace QtBibleViewerInstaller
             UnpackResourceFile("counters.bblv.gz", "data");
             UnpackResourceFile("xref.bblv.gz", "data");
             UnpackResourceFile("strong_lite.dct.mybible.gz", "dictionaries");
+            UnpackResourceFile("qsvgicon.dll.gz", "iconengines");
+            UnpackResourceFile("qgif.dll.gz", "imageformats");
+            UnpackResourceFile("qicns.dll.gz", "imageformats");
+            UnpackResourceFile("qico.dll.gz", "imageformats");
             UnpackResourceFile("qjpeg.dll.gz", "imageformats");
             UnpackResourceFile("qsvg.dll.gz", "imageformats");
+            UnpackResourceFile("qtga.dll.gz", "imageformats");
+            UnpackResourceFile("qtiff.dll.gz", "imageformats");
+            UnpackResourceFile("qwbmp.dll.gz", "imageformats");
+            UnpackResourceFile("qwebp.dll.gz", "imageformats");
             UnpackResourceFile("gpl-3.0.txt.gz", "license");
             UnpackResourceFile("kjv.bbl.mybible.gz", "modules");
             UnpackResourceFile("kjvlite.bbl.mybible.gz", "modules");
             UnpackResourceFile("pubg.bbl.mybible.gz", "modules");
             UnpackResourceFile("qwindows.dll.gz", "platforms");
             UnpackResourceFile("qsqlite.dll.gz", "sqldrivers");
+            UnpackResourceFile("qwindowsvistastyle.dll.gz", "styles");
             UnpackResourceFile("es.qm.gz", "translations");
             UnpackResourceFile("pl.qm.gz", "translations");
             if (createDesktop)

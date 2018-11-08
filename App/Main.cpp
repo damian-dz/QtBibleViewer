@@ -2,7 +2,8 @@
 
 #include <QApplication>
 #include <QStandardPaths>
-
+#include <QStyleFactory>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
         }
     }
     QSettings settings(configFilePath, QSettings::IniFormat);
-    QString setLanguage = settings.value("language").toString();
+    QString setLanguage = settings.value(SET_LANGUAGE).toString();
     if (setLanguage.isNull() || setLanguage.isEmpty()) {
         if (QLocale::system().language() == QLocale::Polish) {
             setLanguage = "PL";
@@ -46,12 +47,14 @@ int main(int argc, char *argv[])
             setLanguage = "EN";
         }
     }
+    QString style = settings.value(SET_STYLE).toString();
+    app.setStyle(QStyleFactory::create(style));
     QTranslator translator;
     if (setLanguage != "EN") {
         translator.load(setLanguage.toLower(), appDir + "/translations");
         app.installTranslator(&translator);
     }
-    MainWindow win(appDir, setLanguage.toUpper(), configFilePath);
+    MainWindow win(appDir, setLanguage.toUpper(), style, configFilePath);
     win.show();
     return app.exec();
 }

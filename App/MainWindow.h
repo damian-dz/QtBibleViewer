@@ -38,6 +38,7 @@
 #define MAX_WIDGET_HEIGHT 16777215
 
 #define SET_LANGUAGE "language"
+#define SET_STYLE "style"
 #define GROUP_MAIN_WINDOW "MainWindow"
 #define SET_GEOMETRY "geometry"
 #define SET_STATE "state"
@@ -70,7 +71,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(const QString &appDir, const QString &lang, const QString configPath, QWidget *parent = 0);
+    MainWindow(const QString &appDir, const QString &lang, const QString &style, const QString configPath, QWidget *parent = 0);
     ~MainWindow();
 
 public slots:
@@ -115,6 +116,7 @@ public slots:
     void on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1);
     void on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText);
     void on_Dic_TextEdited_LineEdit_Number(const QString &arg1);
+    void on_Fav_AnchorClicked_TextBrowser_Passage(const QUrl &arg1);
     void on_Fav_Clicked_PushButton_Delete();
     void on_Fav_Clicked_PushButton_Save();
     void on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow);
@@ -276,6 +278,7 @@ private:
     int m_noteCount;
     QStringList m_comVerse;
     bool m_useBackground;
+    QString m_style;
 
     /* Member functions */
     bool loadBibleModule(const QString &path);
@@ -301,7 +304,11 @@ private:
     void checkFontSizes();
     void checkLanguageAction(int idx, bool firstRun = false);
     void connectBibleTabSignals();
+    void connectCompareTabSignals();
+    void connectDetailsTabSignals();
+    void connectDictionaryTabSignals();
     void connectSearchTabSignals();
+    void connectFavoritesTabSignals();
     void displaySearchResults(int startIdx, int endIdx);
     void fillDetailsTab();
     void formatPassage(QString &text, bool hasStrong);

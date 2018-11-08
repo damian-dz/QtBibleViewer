@@ -148,6 +148,16 @@
     <EmbeddedResource Include="Resources\Program\modules\pubg.bbl.mybible.gz" />
     <EmbeddedResource Include="Resources\Program\dictionaries\strong_lite.dct.mybible.gz" />
     <EmbeddedResource Include="Resources\Program\uninstall.exe.gz" />
+    <EmbeddedResource Include="Resources\Program\vcruntime140.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\styles\qwindowsvistastyle.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\imageformats\qgif.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\imageformats\qicns.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\imageformats\qico.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\imageformats\qtga.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\imageformats\qtiff.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\imageformats\qwbmp.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\imageformats\qwebp.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\iconengines\qsvgicon.dll.gz" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

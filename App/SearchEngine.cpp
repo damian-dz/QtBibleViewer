@@ -136,13 +136,16 @@ void MainWindow::iterateRecords(QSqlQuery &query, const QStringList &words,
                          .arg(book, chapter, verse, m_bookNames[book.toInt() - 1], chapter, verse);
         }
     }
-    m_dispRgx = QRegExp(words.join("|"));
+    QStringList dispWords;
+    for (QString word : words) {
+        dispWords << boundary % word % boundary;
+    }
+    m_dispRgx = QRegExp(dispWords.join("|"), sensitivity);
 }
 
 void MainWindow::iterateRecords(QSqlQuery &query, const QString &text,
                                 Qt::CaseSensitivity sensitivity, bool wholeWords, bool hasStrong)
 {
-    qDebug() << "hi";
     QString boundary = wholeWords ? "\\b" : "";
     QRegExp textRgx(boundary % text % boundary, sensitivity);
     QString strong = hasStrong ? "|<W[HG][0-9]{1,4}>" : "";

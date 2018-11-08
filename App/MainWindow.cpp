@@ -6,6 +6,7 @@
 
 #include <QDebug>
 #include <QFontInfo>
+#include <QStyleFactory>
 
 inline void createFavDatabase(QSqlDatabase &db, const QString &fileName)
 {
@@ -24,7 +25,7 @@ inline void removeBrowserBackground(QTextEdit &browser)
     browser.viewport()->setPalette(browser.style()->standardPalette());
 }
 
-MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString configPath, QWidget *parent)
+MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString &style, const QString configPath, QWidget *parent)
     : QMainWindow(parent),
       m_textBrowser(nullptr),
       m_textEdit(nullptr),
@@ -33,7 +34,8 @@ MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString
       m_blockHistory(false),
       m_executionPath(appDir),
       m_language(lang),
-      m_settingsPath(configPath)
+      m_settingsPath(configPath),
+      m_style(style)
 {
     generateMainLayout();
     populateLanguageMap(lang);
@@ -445,6 +447,92 @@ void MainWindow::connectBibleTabSignals()
                      this, SLOT(on_Bib_TabCloseRequested_TabWidget_Modules(int)));
 }
 
+void MainWindow::connectDetailsTabSignals()
+{
+    QObject::connect(ui_Det_TextBrowser_Description, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+    QObject::connect(ui_Det_LineEdit_Abbreviation, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowLineContextMenu(QPoint)));
+    QObject::connect(ui_Det_TextBrowser_Comments, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+    QObject::connect(ui_Det_LineEdit_Version, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowLineContextMenu(QPoint)));
+    QObject::connect(ui_Det_LineEdit_VersionDate, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowLineContextMenu(QPoint)));
+    QObject::connect(ui_Det_LineEdit_PublishDate, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowLineContextMenu(QPoint)));
+}
+
+void MainWindow::connectSearchTabSignals()
+{
+    QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(returnPressed()),
+                     this, SLOT(on_Sea_LineEdit_ReturnPressed_Search()));
+    QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(textChanged(QString)),
+                     this, SLOT(on_Sea_LineEdit_TextChanged_Search(QString)));
+    QObject::connect(ui_Sea_Button_Search, SIGNAL(clicked()),
+                     this, SLOT(on_Sea_Clicked_PushButton_Search()));
+    QObject::connect(ui_Sea_ComboBox_Section, SIGNAL(currentIndexChanged(int)),
+                     this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_Section(int)));
+    QObject::connect(ui_Sea_Button_Prev, SIGNAL(clicked()),
+                     this, SLOT(on_Sea_Clicked_PushButton_Prev()));
+    QObject::connect(ui_Sea_Button_Next, SIGNAL(clicked()),
+                     this, SLOT(on_Sea_Clicked_PushButton_Next()));
+    QObject::connect(ui_Sea_Button_RandomVerse, SIGNAL(clicked()),
+                     this, SLOT(on_Sea_Clicked_PushButton_RandomVerse()));
+    QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowEditContextMenu(QPoint)));
+    QObject::connect(ui_Sea_TextBrowser_Results, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+    QObject::connect(ui_Sea_TextBrowser_Results, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Sea_AnchorClicked_TextBrowser_Results(QUrl)));
+    QObject::connect(ui_Sea_ComboBox_Translation, SIGNAL(currentIndexChanged(int)),
+                     this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_Translation(int)));
+    QObject::connect(ui_Sea_RadioButton_Strong, SIGNAL(toggled(bool)),
+                     this, SLOT(on_Sea_Toggled_RadioButton_Strong(bool)));
+    QObject::connect(ui_Sea_TextBrowser_RandomVerse, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+}
+
+void MainWindow::connectCompareTabSignals()
+{
+    QObject::connect(ui_Com_ListWidget_Book, SIGNAL(currentRowChanged(int)),
+                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Book(int)));
+    QObject::connect(ui_Com_ListWidget_Chapter, SIGNAL(currentRowChanged(int)),
+                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Chapter(int)));
+    QObject::connect(ui_Com_ListWidget_Verse, SIGNAL(currentRowChanged(int)),
+                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Verse(int)));
+    QObject::connect(ui_Com_TextBrowser_Compare, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+    QObject::connect(ui_Com_TextBrowser_Compare, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Com_AnchorClicked_TextBrowser_Compare(QUrl)));
+}
+
+void MainWindow::connectFavoritesTabSignals()
+{
+    QObject::connect(ui_Fav_ListWidget_Passages, SIGNAL(currentRowChanged(int)),
+                     this, SLOT(on_Fav_CurrentRowChanged_ListWidget_Passages(int)));
+    QObject::connect(ui_Fav_TextBrowser_Passage, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+    QObject::connect(ui_Fav_TextBrowser_Passage, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Fav_AnchorClicked_TextBrowser_Passage(QUrl)));
+    QObject::connect(ui_Fav_Button_Delete, SIGNAL(clicked()),
+                     this, SLOT(on_Fav_Clicked_PushButton_Delete()));
+    QObject::connect(ui_Fav_Button_Save, SIGNAL(clicked()),
+                     this, SLOT(on_Fav_Clicked_PushButton_Save()));
+    QObject::connect(ui_Fav_TextEdit_Comment, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowEditContextMenu(QPoint)));
+}
+
+void MainWindow::connectDictionaryTabSignals()
+{
+    QObject::connect(ui_Dic_ListWidget_AllEntries, SIGNAL(currentTextChanged(QString)),
+                     this, SLOT(on_Dic_TextChanged_ListWidget_AllEntries(QString)));
+    QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(customContextMenuRequested(QPoint)),
+                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+    QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Dic_AnchorClicked_TextBrowser_Definition(QUrl)));
+}
+
 void MainWindow::setTabBookChapterVerses(const TabBookChapterVerses &tbcvv, bool firstRun)
 {
     ui_Bib_TabWidget_Modules->setCurrentIndex(tbcvv.tab);
@@ -662,24 +750,6 @@ void MainWindow::on_Sea_Toggled_RadioButton_Strong(bool checked)
     }
 }
 
-void MainWindow::connectSearchTabSignals()
-{
-    QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(returnPressed()),
-                     this, SLOT(on_Sea_LineEdit_ReturnPressed_Search()));
-    QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(textChanged(QString)),
-                     this, SLOT(on_Sea_LineEdit_TextChanged_Search(QString)));
-    QObject::connect(ui_Sea_Button_Search, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_Clicked_PushButton_Search()));
-    QObject::connect(ui_Sea_ComboBox_Section, SIGNAL(currentIndexChanged(int)),
-                     this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_Section(int)));
-    QObject::connect(ui_Sea_Button_Prev, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_Clicked_PushButton_Prev()));
-    QObject::connect(ui_Sea_Button_Next, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_Clicked_PushButton_Next()));
-    QObject::connect(ui_Sea_Button_RandomVerse, SIGNAL(clicked()),
-                     this, SLOT(on_Sea_Clicked_PushButton_RandomVerse()));
-}
-
 void MainWindow::displaySearchResults(int startIdx, int endIdx)
 {
     ui_Sea_TextBrowser_Results->clear();
@@ -735,10 +805,10 @@ void MainWindow::generateCompareTabControls(int idx)
     mainHBoxLayout->setSpacing(5);
     mainHBoxLayout->setContentsMargins(10, 10, 10, 10);
 
-    auto bookVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *bookVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(bookVBoxLayout);
 
-    auto bookLabel = new QLabel(tr("Book:"));
+    QLabel *bookLabel = new QLabel(tr("Book:"));
     bookVBoxLayout->addWidget(bookLabel);
 
     ui_Com_ListWidget_Book = new QListWidget;
@@ -746,8 +816,6 @@ void MainWindow::generateCompareTabControls(int idx)
     ui_Com_ListWidget_Book->setMaximumWidth(155);
     ui_Com_ListWidget_Book->addItems(m_bookNames);
     bookVBoxLayout->addWidget(ui_Com_ListWidget_Book);
-    QObject::connect(ui_Com_ListWidget_Book, SIGNAL(currentRowChanged(int)),
-                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Book(int)));
 
     QVBoxLayout *chapterVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(chapterVBoxLayout);
@@ -759,8 +827,6 @@ void MainWindow::generateCompareTabControls(int idx)
     ui_Com_ListWidget_Chapter->setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE));
     ui_Com_ListWidget_Chapter->setMaximumWidth(60);
     chapterVBoxLayout->addWidget(ui_Com_ListWidget_Chapter);
-    QObject::connect(ui_Com_ListWidget_Chapter, SIGNAL(currentRowChanged(int)),
-                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Chapter(int)));
 
     QVBoxLayout *verseVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(verseVBoxLayout);
@@ -772,22 +838,17 @@ void MainWindow::generateCompareTabControls(int idx)
     ui_Com_ListWidget_Verse->setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE));
     ui_Com_ListWidget_Verse->setMaximumWidth(60);
     verseVBoxLayout->addWidget(ui_Com_ListWidget_Verse);
-    QObject::connect(ui_Com_ListWidget_Verse, SIGNAL(currentRowChanged(int)),
-                     this, SLOT(on_Com_CurrentRowChanged_ListWidget_Verse(int)));
 
     QVBoxLayout *compareVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(compareVBoxLayout);
 
     ui_Com_TextBrowser_Compare = new QTextBrowser;
     ui_Com_TextBrowser_Compare->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(ui_Com_TextBrowser_Compare, SIGNAL(customContextMenuRequested(QPoint)),
-                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+
     ui_Com_TextBrowser_Compare->setFont(m_currentFont);
     ui_Com_TextBrowser_Compare->setOpenLinks(false);
     compareVBoxLayout->addWidget(ui_Com_TextBrowser_Compare);
     setBrowserBackground(*ui_Com_TextBrowser_Compare);
-    QObject::connect(ui_Com_TextBrowser_Compare, SIGNAL(anchorClicked(QUrl)),
-                     this, SLOT(on_Com_AnchorClicked_TextBrowser_Compare(QUrl)));
 
     QHBoxLayout *prevNextHLayout = new QHBoxLayout;
     compareVBoxLayout->addLayout(prevNextHLayout);
@@ -803,11 +864,11 @@ void MainWindow::generateCompareTabControls(int idx)
 
     m_dbCntr = QSqlDatabase::addDatabase("QSQLITE", "Counters");
     m_dbCntr.setDatabaseName(m_executionPath + "/data/counters.bblv");
-    if (m_dbCntr.open()) {
-
-    } else {
+    if (!m_dbCntr.open()) {
         QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
     }
+
+    connectCompareTabSignals();
 
     if (!m_comVerse.isEmpty()) {
         ui_Com_ListWidget_Book->setCurrentRow(m_comVerse[0].toInt() - 1);
@@ -942,8 +1003,6 @@ void MainWindow::generateDetailsTab(int idx)
     ui_Det_TextBrowser_Description->setContextMenuPolicy(Qt::CustomContextMenu);
     ui_Det_TextBrowser_Description->setFont(m_currentFont);
     ui_Det_TextBrowser_Description->setOpenExternalLinks(false);
-    QObject::connect(ui_Det_TextBrowser_Description, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(actionShowBasicContextMenu(QPoint)));
     descriptionVBoxLayout->addWidget(ui_Det_TextBrowser_Description);
     setBrowserBackground(*ui_Det_TextBrowser_Description);
 
@@ -955,8 +1014,6 @@ void MainWindow::generateDetailsTab(int idx)
 
     ui_Det_LineEdit_Abbreviation = new QLineEdit;
     ui_Det_LineEdit_Abbreviation->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui_Det_LineEdit_Abbreviation, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(actionShowLineContextMenu(QPoint)));
     ui_Det_LineEdit_Abbreviation->setReadOnly(true);
     abbreviationVBoxLayout->addWidget(ui_Det_LineEdit_Abbreviation);
 
@@ -971,8 +1028,7 @@ void MainWindow::generateDetailsTab(int idx)
     ui_Det_TextBrowser_Comments->setFont(m_currentFont);
     ui_Det_TextBrowser_Comments->setOpenExternalLinks(false);
     ui_Det_TextBrowser_Comments->setOpenLinks(false);
-    QObject::connect(ui_Det_TextBrowser_Comments, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(actionShowBasicContextMenu(QPoint)));
+
     commentsVBoxLayout->addWidget(ui_Det_TextBrowser_Comments);
     setBrowserBackground(*ui_Det_TextBrowser_Comments);
 
@@ -987,8 +1043,6 @@ void MainWindow::generateDetailsTab(int idx)
 
     ui_Det_LineEdit_Version = new QLineEdit;
     ui_Det_LineEdit_Version->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui_Det_LineEdit_Version, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(actionShowLineContextMenu(QPoint)));
     ui_Det_LineEdit_Version->setReadOnly(true);
     versionVBoxLayout->addWidget(ui_Det_LineEdit_Version);
 
@@ -1000,21 +1054,18 @@ void MainWindow::generateDetailsTab(int idx)
 
     ui_Det_LineEdit_VersionDate = new QLineEdit;
     ui_Det_LineEdit_VersionDate->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui_Det_LineEdit_VersionDate, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(actionShowLineContextMenu(QPoint)));
     ui_Det_LineEdit_VersionDate->setReadOnly(true);
     versionDateVBoxLayout->addWidget(ui_Det_LineEdit_VersionDate);
 
-    auto publishDateVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *publishDateVBoxLayout = new QVBoxLayout;
     versionPublishDateHBoxLayout->addLayout(publishDateVBoxLayout);
 
-    auto publishDateLabel = new QLabel(tr("Publish Date:"));
+    QLabel *publishDateLabel = new QLabel(tr("Publish Date:"));
     publishDateVBoxLayout->addWidget(publishDateLabel);
 
     ui_Det_LineEdit_PublishDate = new QLineEdit;
     ui_Det_LineEdit_PublishDate->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui_Det_LineEdit_PublishDate, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(actionShowLineContextMenu(QPoint)));
+
     ui_Det_LineEdit_PublishDate->setReadOnly(true);
     publishDateVBoxLayout->addWidget(ui_Det_LineEdit_PublishDate);
 
@@ -1048,6 +1099,7 @@ void MainWindow::generateDetailsTab(int idx)
     detailsHBoxLayout->setStretchFactor(descriptionAbbreviationVBoxLayout, 1);
     detailsHBoxLayout->setStretchFactor(commentsVBoxLayout, 2);
 
+    connectDetailsTabSignals();
     fillDetailsTab();
 }
 
@@ -1119,8 +1171,6 @@ void MainWindow::generateDictionaryTabControls(int idx)
     ui_Dic_ListWidget_AllEntries = new QListWidget;
     ui_Dic_ListWidget_AllEntries->setMaximumWidth(220);
     numberEntriesVerLayout->addWidget(ui_Dic_ListWidget_AllEntries);
-    QObject::connect(ui_Dic_ListWidget_AllEntries, SIGNAL(currentTextChanged(QString)),
-                     this, SLOT(on_Dic_TextChanged_ListWidget_AllEntries(QString)));
 
     QVBoxLayout *definitionVerLayout = new QVBoxLayout;
     mainHorLayout->addLayout(definitionVerLayout);
@@ -1130,14 +1180,12 @@ void MainWindow::generateDictionaryTabControls(int idx)
 
     ui_Dic_TextBrowser_Definition = new QTextBrowser;
     ui_Dic_TextBrowser_Definition->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(customContextMenuRequested(QPoint)),
-                     this, SLOT(actionShowBasicContextMenu(QPoint)));
     ui_Dic_TextBrowser_Definition->setFont(m_currentFont);
     ui_Dic_TextBrowser_Definition->setOpenLinks(false);
     definitionVerLayout->addWidget(ui_Dic_TextBrowser_Definition);
     setBrowserBackground(*ui_Dic_TextBrowser_Definition);
-    QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(anchorClicked(QUrl)),
-                     this, SLOT(on_Dic_AnchorClicked_TextBrowser_Definition(QUrl)));
+
+    connectDictionaryTabSignals();
 
     if (!m_dbStrong.isOpen()) {
         m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
@@ -1177,16 +1225,13 @@ void MainWindow::generateFavoritesTabControls(int idx)
     ui_Fav_ListWidget_Passages->setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE));
     ui_Fav_ListWidget_Passages->setMaximumWidth(220);
     passagesVBoxLayout->addWidget(ui_Fav_ListWidget_Passages);
-    connect(ui_Fav_ListWidget_Passages, SIGNAL(currentRowChanged(int)),
-            this, SLOT(on_Fav_CurrentRowChanged_ListWidget_Passages(int)));
 
     QVBoxLayout *textCommentVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(textCommentVBoxLayout);
 
     ui_Fav_TextBrowser_Passage = new QTextBrowser;
     ui_Fav_TextBrowser_Passage->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(ui_Fav_TextBrowser_Passage, SIGNAL(customContextMenuRequested(QPoint)),
-                     this, SLOT(actionShowBasicContextMenu(QPoint)));
+
     ui_Fav_TextBrowser_Passage->setFont(m_currentFont);
     ui_Fav_TextBrowser_Passage->setOpenLinks(false);
     textCommentVBoxLayout->addWidget(ui_Fav_TextBrowser_Passage);
@@ -1201,23 +1246,18 @@ void MainWindow::generateFavoritesTabControls(int idx)
     commentDeleteSaveHBoxLayout->addStretch();
 
     ui_Fav_Button_Delete = new QPushButton(tr("Delete"));
-    connect(ui_Fav_Button_Delete, SIGNAL(clicked()),
-            this, SLOT(on_Fav_Clicked_PushButton_Delete()));
     commentDeleteSaveHBoxLayout->addWidget(ui_Fav_Button_Delete);
 
-    ui_Fav_Button_Save = new QPushButton(tr("Save"));
-    connect(ui_Fav_Button_Save, SIGNAL(clicked()),
-            this, SLOT(on_Fav_Clicked_PushButton_Save()));
+    ui_Fav_Button_Save = new QPushButton(tr("Save")); 
     commentDeleteSaveHBoxLayout->addWidget(ui_Fav_Button_Save);
 
     ui_Fav_TextEdit_Comment = new QTextEdit;
     ui_Fav_TextEdit_Comment->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(ui_Fav_TextEdit_Comment, SIGNAL(customContextMenuRequested(QPoint)),
-                     this, SLOT(actionShowEditContextMenu(QPoint)));
     ui_Fav_TextEdit_Comment->setFont(m_currentFont);
     textCommentVBoxLayout->addWidget(ui_Fav_TextEdit_Comment);
     setBrowserBackground(*ui_Fav_TextEdit_Comment);
 
+    connectFavoritesTabSignals();
     loadFavorites();
 }
 
@@ -1226,25 +1266,25 @@ void MainWindow::generateSearchTabControls(int idx)
     loadBackgroundPixmap();
 
     QWidget *tabSearchWidget = ui_TabWidget_Main->widget(idx);
-    auto mainVBoxLayout = new QVBoxLayout(tabSearchWidget);
+
+    QVBoxLayout *mainVBoxLayout = new QVBoxLayout(tabSearchWidget);
     mainVBoxLayout->setSpacing(5);
     mainVBoxLayout->setContentsMargins(10, 10, 10, 10);
 
-    auto enterSearchSectionHBoxLayout = new QHBoxLayout;
+    QHBoxLayout *enterSearchSectionHBoxLayout = new QHBoxLayout;
     mainVBoxLayout->addLayout(enterSearchSectionHBoxLayout);
 
-    auto enterSearchVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *enterSearchVBoxLayout = new QVBoxLayout;
     enterSearchSectionHBoxLayout->addLayout(enterSearchVBoxLayout);
 
-    auto enterLabel = new QLabel(tr("Enter a Word or Phrase:"));
+    QLabel *enterLabel = new QLabel(tr("Enter a Word or Phrase:"));
     enterSearchVBoxLayout->addWidget(enterLabel);
 
-    auto enterHBoxLayout = new QHBoxLayout;
+    QHBoxLayout *enterHBoxLayout = new QHBoxLayout;
     enterSearchVBoxLayout->addLayout(enterHBoxLayout);
     ui_Sea_LineEdit_Search = new QLineEdit;
     ui_Sea_LineEdit_Search->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(ui_Sea_LineEdit_Search, SIGNAL(customContextMenuRequested(QPoint)),
-                     this, SLOT(actionShowEditContextMenu(QPoint)));
+
     enterHBoxLayout->addWidget(ui_Sea_LineEdit_Search);
     ui_Sea_LineEdit_Search->setFocus();
     ui_Sea_Button_Search = new QPushButton(tr("Search"));
@@ -1253,7 +1293,7 @@ void MainWindow::generateSearchTabControls(int idx)
     enterHBoxLayout->addWidget(ui_Sea_Button_Search);
     ui_Sea_Button_Search->setDisabled(true);
 
-    auto rangeVerLayout = new QVBoxLayout;
+    QVBoxLayout *rangeVerLayout = new QVBoxLayout;
     enterSearchSectionHBoxLayout->addLayout(rangeVerLayout);
 
     ui_Sea_ComboBox_SearchFrom = new QComboBox;
@@ -1270,121 +1310,127 @@ void MainWindow::generateSearchTabControls(int idx)
     ui_Sea_ComboBox_SearchTo->setStyleSheet(COMBOBOX_STYLE);
     rangeVerLayout->addWidget(ui_Sea_ComboBox_SearchTo);
 
-    auto sectionVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *sectionVBoxLayout = new QVBoxLayout;
     enterSearchSectionHBoxLayout->addLayout(sectionVBoxLayout);
 
-    auto sectionLabel = new QLabel(tr("Bible Section:"));
+    QLabel *sectionLabel = new QLabel(tr("Bible Section:"));
     sectionVBoxLayout->addWidget(sectionLabel);
 
     ui_Sea_ComboBox_Section = new QComboBox;
     ui_Sea_ComboBox_Section->setMaxVisibleItems(12);
-    ui_Sea_ComboBox_Section->setStyleSheet("combobox-popup: 0;");
+    ui_Sea_ComboBox_Section->setStyleSheet(COMBOBOX_STYLE);
     ui_Sea_ComboBox_Section->setMinimumWidth(170);
     sectionVBoxLayout->addWidget(ui_Sea_ComboBox_Section);
 
     populateSectionNames();
 
-    auto resultsOptionsHBoxLayout = new QHBoxLayout;
+    QHBoxLayout *resultsOptionsHBoxLayout = new QHBoxLayout;
     mainVBoxLayout->addLayout(resultsOptionsHBoxLayout);
 
-    auto resultsVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *resultsVBoxLayout = new QVBoxLayout;
     resultsOptionsHBoxLayout->addLayout(resultsVBoxLayout);
 
-    auto resultsLabel = new QLabel(tr("Results:"));
+    QLabel *resultsLabel = new QLabel(tr("Results:"));
     resultsVBoxLayout->addWidget(resultsLabel);
 
     ui_Sea_TextBrowser_Results = new QTextBrowser;
     ui_Sea_TextBrowser_Results->setContextMenuPolicy(Qt::CustomContextMenu);
-    QObject::connect(ui_Sea_TextBrowser_Results, SIGNAL(customContextMenuRequested(QPoint)),
-                     this, SLOT(actionShowBasicContextMenu(QPoint)));
     ui_Sea_TextBrowser_Results->setFont(m_currentFont);
     ui_Sea_TextBrowser_Results->setOpenLinks(false);
     resultsVBoxLayout->addWidget(ui_Sea_TextBrowser_Results);
     setBrowserBackground(*ui_Sea_TextBrowser_Results);
-    QObject::connect(ui_Sea_TextBrowser_Results, SIGNAL(anchorClicked(QUrl)),
-                     this, SLOT(on_Sea_AnchorClicked_TextBrowser_Results(QUrl)));
 
-    auto optionsVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *optionsVBoxLayout = new QVBoxLayout;
     resultsOptionsHBoxLayout->addLayout(optionsVBoxLayout);
 
-        auto optionsLabel = new QLabel(tr("Search Options:"));
-        optionsVBoxLayout->addWidget(optionsLabel);
+    QLabel *optionsLabel = new QLabel(tr("Search Options:"));
+    optionsVBoxLayout->addWidget(optionsLabel);
 
-        auto translationHBoxLayout = new QHBoxLayout;
-        optionsVBoxLayout->addLayout(translationHBoxLayout);
+    QHBoxLayout *translationHBoxLayout = new QHBoxLayout;
+    optionsVBoxLayout->addLayout(translationHBoxLayout);
 
-            auto translationLabel = new QLabel(tr("Translation:"));
-            translationHBoxLayout->addWidget(translationLabel);
+    QLabel *translationLabel = new QLabel(tr("Translation:"));
+    translationHBoxLayout->addWidget(translationLabel);
 
-            QStringList translationNames;
-            for (ModuleData md : m_modules) {
-                translationNames << md.name;
-            }
-            ui_Sea_ComboBox_Translation = new QComboBox;
-            ui_Sea_ComboBox_Translation->addItems(translationNames);
-            ui_Sea_ComboBox_Translation->setCurrentIndex(ui_Bib_TabBar_Modules->currentIndex());
-            ui_Sea_ComboBox_Translation->setStyleSheet(COMBOBOX_STYLE);
-            translationHBoxLayout->addWidget(ui_Sea_ComboBox_Translation);
-            connect(ui_Sea_ComboBox_Translation, SIGNAL(currentIndexChanged(int)),
-                    this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_Translation(int)));
+    QStringList translationNames;
+    for (ModuleData md : m_modules) {
+        translationNames << md.name;
+    }
+    ui_Sea_ComboBox_Translation = new QComboBox;
+    ui_Sea_ComboBox_Translation->addItems(translationNames);
+    ui_Sea_ComboBox_Translation->setCurrentIndex(ui_Bib_TabBar_Modules->currentIndex());
+    ui_Sea_ComboBox_Translation->setStyleSheet(COMBOBOX_STYLE);
+    translationHBoxLayout->addWidget(ui_Sea_ComboBox_Translation);
 
-        auto resPerPageHBoxLayout = new QHBoxLayout;
-        optionsVBoxLayout->addLayout(resPerPageHBoxLayout);
-            auto resPerPageLabel = new QLabel(tr("Results per Page:"));
-            resPerPageHBoxLayout->addWidget(resPerPageLabel);
-            ui_Sea_ComboBox_ResPerPage = new QComboBox;
-            QStringList resPerPageOptions;
-            resPerPageOptions << "10" << "15" << "25" << "30" << "40" << "50" << "75" << "100";
-            ui_Sea_ComboBox_ResPerPage->addItems(resPerPageOptions);
-            ui_Sea_ComboBox_ResPerPage->setMaximumWidth(45);
-            ui_Sea_ComboBox_ResPerPage->setCurrentIndex(2);
-            resPerPageHBoxLayout->addWidget(ui_Sea_ComboBox_ResPerPage);
-        ui_Sea_CheckBox_Case = new QCheckBox(tr("Case-Sensitive"));
-        ui_Sea_CheckBox_Case->setToolTip(tr("Check to make the search case-sensitive."));
-        optionsVBoxLayout->addWidget(ui_Sea_CheckBox_Case);
-        ui_Sea_CheckBox_WholeWords = new QCheckBox(tr("Whole Words Only"));
-        ui_Sea_CheckBox_WholeWords->setToolTip(tr("Check to ignore word fragments."));
-        optionsVBoxLayout->addWidget(ui_Sea_CheckBox_WholeWords);
-        ui_Sea_RadioButton_Exact = new QRadioButton(tr("Exact Phrase"));
-        ui_Sea_RadioButton_Exact->setToolTip(tr("Looks for the exact sequence of characters."));
-        optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Exact);
-        ui_Sea_RadioButton_Exact->setChecked(true);
-        ui_Sea_RadioButton_All = new QRadioButton(tr("All of the Words"));
-        ui_Sea_RadioButton_All->setToolTip(tr("All of the words must be present."));
-        optionsVBoxLayout->addWidget(ui_Sea_RadioButton_All);
-        ui_Sea_RadioButton_Any = new QRadioButton(tr("Any of the Words"));
-        optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Any);
-        ui_Sea_RadioButton_Strong = new QRadioButton(tr("By Strong's Number"));
-        connect(ui_Sea_RadioButton_Strong, SIGNAL(toggled(bool)),
-                this, SLOT(on_Sea_Toggled_RadioButton_Strong(bool)));
-        ui_Sea_RadioButton_Strong->setEnabled(m_modules[ui_Sea_ComboBox_Translation->currentIndex()].hasStrong);
-        optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Strong);
-        optionsVBoxLayout->addStretch();
+    QHBoxLayout *resPerPageHBoxLayout = new QHBoxLayout;
+    optionsVBoxLayout->addLayout(resPerPageHBoxLayout);
 
-    auto randomVerseHBoxLayout = new QHBoxLayout;
+    QLabel *resPerPageLabel = new QLabel(tr("Results per Page:"));
+    resPerPageHBoxLayout->addWidget(resPerPageLabel);
+
+    ui_Sea_ComboBox_ResPerPage = new QComboBox;
+    QStringList resPerPageOptions;
+    resPerPageOptions << "10" << "15" << "25" << "30" << "40" << "50" << "75" << "100";
+    ui_Sea_ComboBox_ResPerPage->addItems(resPerPageOptions);
+    ui_Sea_ComboBox_ResPerPage->setMaximumWidth(45);
+    ui_Sea_ComboBox_ResPerPage->setCurrentIndex(2);
+    ui_Sea_ComboBox_ResPerPage->setStyleSheet(COMBOBOX_STYLE);
+    resPerPageHBoxLayout->addWidget(ui_Sea_ComboBox_ResPerPage);
+
+    ui_Sea_CheckBox_Case = new QCheckBox(tr("Case-Sensitive"));
+    ui_Sea_CheckBox_Case->setToolTip(tr("Check to make the search case-sensitive."));
+    optionsVBoxLayout->addWidget(ui_Sea_CheckBox_Case);
+
+    ui_Sea_CheckBox_WholeWords = new QCheckBox(tr("Whole Words Only"));
+    ui_Sea_CheckBox_WholeWords->setToolTip(tr("Check to ignore word fragments."));
+    optionsVBoxLayout->addWidget(ui_Sea_CheckBox_WholeWords);
+
+    ui_Sea_RadioButton_Exact = new QRadioButton(tr("Exact Phrase"));
+    ui_Sea_RadioButton_Exact->setToolTip(tr("Looks for the exact sequence of characters."));
+    ui_Sea_RadioButton_Exact->setChecked(true);
+    optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Exact);
+
+    ui_Sea_RadioButton_All = new QRadioButton(tr("All of the Words"));
+    ui_Sea_RadioButton_All->setToolTip(tr("All of the words must be present."));
+    optionsVBoxLayout->addWidget(ui_Sea_RadioButton_All);
+
+    ui_Sea_RadioButton_Any = new QRadioButton(tr("Any of the Words"));
+    optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Any);
+
+    ui_Sea_RadioButton_Strong = new QRadioButton(tr("By Strong's Number"));
+    ui_Sea_RadioButton_Strong->setEnabled(m_modules[ui_Sea_ComboBox_Translation->currentIndex()].hasStrong);
+    optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Strong);
+
+    optionsVBoxLayout->addStretch();
+
+    QHBoxLayout *randomVerseHBoxLayout = new QHBoxLayout;
     mainVBoxLayout->addLayout(randomVerseHBoxLayout);
-        auto randomVerseVBoxLayout = new QVBoxLayout;
-        randomVerseHBoxLayout->addLayout(randomVerseVBoxLayout);
-            auto prevNextHBoxLayout = new QHBoxLayout;
-            randomVerseVBoxLayout->addLayout(prevNextHBoxLayout);
-                ui_Sea_Button_Prev = new QPushButton("<<");
-                ui_Sea_Button_Prev->setDisabled(true);
-                prevNextHBoxLayout->addWidget(ui_Sea_Button_Prev);
-                ui_Sea_Button_Next = new QPushButton(">>");
-                ui_Sea_Button_Next->setDisabled(true);
-                prevNextHBoxLayout->addWidget(ui_Sea_Button_Next);
-            ui_Sea_Button_RandomVerse = new QPushButton(tr("Random Verse"));
-            randomVerseVBoxLayout->addWidget(ui_Sea_Button_RandomVerse);
-        ui_Sea_TextBrowser_RandomVerse = new QTextBrowser;
-        ui_Sea_TextBrowser_RandomVerse->setContextMenuPolicy(Qt::CustomContextMenu);
-        QObject::connect(ui_Sea_TextBrowser_RandomVerse, SIGNAL(customContextMenuRequested(QPoint)),
-                         this, SLOT(actionShowBasicContextMenu(QPoint)));
-        ui_Sea_TextBrowser_RandomVerse->setFont(m_currentFont);
-        ui_Sea_TextBrowser_RandomVerse->setMaximumHeight(80);
-        randomVerseHBoxLayout->addWidget(ui_Sea_TextBrowser_RandomVerse);
-        setBrowserBackground(*ui_Sea_TextBrowser_RandomVerse);
 
-        connectSearchTabSignals();
+    QVBoxLayout *randomVerseVBoxLayout = new QVBoxLayout;
+    randomVerseHBoxLayout->addLayout(randomVerseVBoxLayout);
+
+    QHBoxLayout *prevNextHBoxLayout = new QHBoxLayout;
+    randomVerseVBoxLayout->addLayout(prevNextHBoxLayout);
+
+    ui_Sea_Button_Prev = new QPushButton("<<");
+    ui_Sea_Button_Prev->setDisabled(true);
+    prevNextHBoxLayout->addWidget(ui_Sea_Button_Prev);
+
+    ui_Sea_Button_Next = new QPushButton(">>");
+    ui_Sea_Button_Next->setDisabled(true);
+    prevNextHBoxLayout->addWidget(ui_Sea_Button_Next);
+
+    ui_Sea_Button_RandomVerse = new QPushButton(tr("Random Verse"));
+    randomVerseVBoxLayout->addWidget(ui_Sea_Button_RandomVerse);
+
+    ui_Sea_TextBrowser_RandomVerse = new QTextBrowser;
+    ui_Sea_TextBrowser_RandomVerse->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui_Sea_TextBrowser_RandomVerse->setFont(m_currentFont);
+    ui_Sea_TextBrowser_RandomVerse->setMaximumHeight(80);
+    randomVerseHBoxLayout->addWidget(ui_Sea_TextBrowser_RandomVerse);
+    setBrowserBackground(*ui_Sea_TextBrowser_RandomVerse);
+
+    connectSearchTabSignals();
 }
 
 void MainWindow::generateTopicsTab(int idx)
@@ -1416,6 +1462,7 @@ void MainWindow::saveSettings()
 {
     QSettings settings(m_settingsPath, QSettings::IniFormat);
     settings.setValue(SET_LANGUAGE, m_language);
+    settings.setValue(SET_STYLE, m_style);
     settings.beginGroup(GROUP_MAIN_WINDOW);
     settings.setValue(SET_GEOMETRY, QWidget::saveGeometry());
     settings.setValue(SET_STATE, QMainWindow::saveState());
@@ -1902,14 +1949,14 @@ void MainWindow::addModuleLayout(int idx)
     chapterBrowser->setOpenLinks(false);
     chapterBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
     setBrowserBackground(*chapterBrowser);
-    connect(chapterBrowser, SIGNAL(highlighted(QUrl)),
-            this, SLOT(on_Bib_Highlighted_ChapterBrowser(QUrl)));
-    connect(chapterBrowser, SIGNAL(anchorClicked(QUrl)),
-            this, SLOT(on_Bib_AnchorClicked_ChapterBrowser(QUrl)));
-    connect(chapterBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &)));
-    connect(chapterBrowser, SIGNAL(selectionChanged()),
-            this, SLOT(on_Bib_SelectionChanged_ChapterBrowser()));
+    QObject::connect(chapterBrowser, SIGNAL(highlighted(QUrl)),
+                     this, SLOT(on_Bib_Highlighted_ChapterBrowser(QUrl)));
+    QObject::connect(chapterBrowser, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_Bib_AnchorClicked_ChapterBrowser(QUrl)));
+    QObject::connect(chapterBrowser, SIGNAL(customContextMenuRequested(const QPoint &)),
+                     this, SLOT(on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &)));
+    QObject::connect(chapterBrowser, SIGNAL(selectionChanged()),
+                     this, SLOT(on_Bib_SelectionChanged_ChapterBrowser()));
     QHBoxLayout *chapterLayout = new QHBoxLayout(ui_Bib_TabWidget_Modules->widget(idx));
     chapterLayout->setContentsMargins(5, 5, 5, 5);
     chapterLayout->addWidget(chapterBrowser);
@@ -2102,7 +2149,7 @@ void MainWindow::on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1)
                                                 m_comVerse[2].toInt(),
                                                 m_comVerse[2].toInt() });
     } else if (firstChar == 's') {
-       openStrongDialog(argString.split(":")[1]);
+        openStrongDialog(argString.split(":")[1]);
     }
 }
 
@@ -2116,6 +2163,17 @@ void MainWindow::on_Dic_TextEdited_LineEdit_Number(const QString &arg1)
     matchList = ui_Dic_ListWidget_AllEntries->findItems(arg1, Qt::MatchContains);
     if (matchList.count() > 0) {
         ui_Dic_ListWidget_AllEntries->setCurrentItem(matchList[0]);
+    }
+}
+
+void MainWindow::on_Fav_AnchorClicked_TextBrowser_Passage(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    if (!argString.isNull() && !argString.isEmpty()) {
+    QChar firstChar = argString[0];
+    if (firstChar == 'H' || firstChar == 'G') {
+            openStrongDialog(argString);
+       }
     }
 }
 
@@ -2136,7 +2194,6 @@ void MainWindow::on_Dic_TextChanged_ListWidget_AllEntries(const QString &current
 void MainWindow::on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1)
 {
     QString argString = arg1.toString();
-    qDebug() << argString;
     QString id = argString.left(2);
     if (id == "#d" || id == "#s") {
         QString entry = argString.right(argString.length() - 2);
@@ -2704,8 +2761,13 @@ void MainWindow::actionSpanish()
 
 void MainWindow::actionPreferences()
 {
-    PDialogPreferences dlgPreferences(m_useBackground, m_currentFont);
+    PDialogPreferences dlgPreferences(m_style, m_useBackground, m_currentFont);
     if (dlgPreferences.exec()) {
+        QString newStyle = dlgPreferences.getWindowStyle();
+        if (newStyle != m_style) {
+            m_style = newStyle;
+            qApp->setStyle(QStyleFactory::create(m_style));
+        }
         bool newUseBckgrnd = dlgPreferences.getUseBackground();
         if (newUseBckgrnd != m_useBackground) {
             m_useBackground = newUseBckgrnd;

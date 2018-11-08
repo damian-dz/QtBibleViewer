@@ -1,9 +1,9 @@
 #include "PDialogPreferences.h"
 
 #include <QApplication>
+#include <QStyleFactory>
 
-
-PDialogPreferences::PDialogPreferences(bool useBckgrnd, const QFont &font, QWidget *parent) :
+PDialogPreferences::PDialogPreferences(const QString &style, bool useBckgrnd, const QFont &font, QWidget *parent) :
     QDialog(parent)
 {
     QDialog::resize(480, 320);
@@ -34,7 +34,7 @@ PDialogPreferences::PDialogPreferences(bool useBckgrnd, const QFont &font, QWidg
 
     mainVBoxLayout->addWidget(dialogButtonBox);
 
-    generateGeneralWidget(useBckgrnd);
+    generateGeneralWidget(style, useBckgrnd);
     generateFontWidget(font);
 
     QObject::connect(listWidget, SIGNAL(currentRowChanged(int)),
@@ -48,13 +48,19 @@ PDialogPreferences::~PDialogPreferences()
 
 }
 
-void PDialogPreferences::generateGeneralWidget(bool useBackgrnd)
+void PDialogPreferences::generateGeneralWidget(const QString &style, bool useBackgrnd)
 {
     QWidget *generalWidget = new QWidget;
 
     QFormLayout *generalFormLayout = new QFormLayout;
 
     generalWidget->setLayout(generalFormLayout);
+
+    m_styleComboBox = new QComboBox;
+    m_styleComboBox->addItems(QStyleFactory::keys());
+    m_styleComboBox->setCurrentText(style);
+    m_styleComboBox->setStyleSheet("combobox-popup: 0;");
+    generalFormLayout->addRow(tr("Window style:"), m_styleComboBox);
 
     m_backgroundCheckBox = new QCheckBox(tr("Use background image"));
     m_backgroundCheckBox->setChecked(useBackgrnd);
@@ -111,6 +117,11 @@ void PDialogPreferences::generateFontWidget(const QFont &font)
                      this, SLOT(currentFontTypeChanged(QFont)));
     QObject::connect(fontSizeComboBox, SIGNAL(currentTextChanged(QString)),
                      this, SLOT(currentFontSizeChanged(QString)));
+}
+
+QString PDialogPreferences::getWindowStyle()
+{
+    return m_styleComboBox->currentText();
 }
 
 bool PDialogPreferences::getUseBackground()
