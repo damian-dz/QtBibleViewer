@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QString appDir = app.applicationDirPath();
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    QString configFilePath = appDir + "/config/settings.ini";
+    QString configFilePath = appDir + "/App/config/settings.ini";
     if (!QFileInfo(configFilePath).exists()) {
         bool settingsFound = false;
         for (QString location : locations) {
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     app.setStyle(QStyleFactory::create(style));
     QTranslator translator;
     if (setLanguage != "EN") {
-        translator.load(setLanguage.toLower(), appDir + "/translations");
+        translator.load(setLanguage.toLower(), appDir + "/App/lang");
         app.installTranslator(&translator);
     }
     MainWindow win(appDir, setLanguage.toUpper(), style, configFilePath);

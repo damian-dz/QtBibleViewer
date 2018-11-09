@@ -114,6 +114,8 @@ public slots:
     void on_Com_CurrentRowChanged_ListWidget_Verse(int currentRow);
     void on_CurrentChanged_TabWidget_Main(int index);
     void on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1);
+    void on_Dic_Highlighted_TextBrowser_Definition(const QUrl &arg1);
+    void on_Dic_CurrentRowChanged_ListWidget_Dictionaries(int currentRow);
     void on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText);
     void on_Dic_TextEdited_LineEdit_Number(const QString &arg1);
     void on_Fav_AnchorClicked_TextBrowser_Passage(const QUrl &arg1);
@@ -245,40 +247,41 @@ private:
 
     /* Member variables */
     bool m_blockHistory;
-    bool m_modulesFound;
-    int m_crntStartRes;
-    int m_numResPerPage;
-    int m_psgIdx;
-    QFont m_currentFont;
-    QList<QStringList> m_globalNotes;
-    QList<QMap<int, int>> m_verseMaps;
-    QList<QTextBrowser *> m_chapterBrowsers;
-    QList<ModuleData> m_modules;
-    QList<TabBookChapterVerses> m_favorites;
-    QMap<int, QString> m_languages;
     QPair<int, int> m_blockRange;
-    QPair<int, int> m_verseRange;
-    QPixmap m_papyrusBckgrnd;
-    QRegExp m_dispRgx;
+    QStringList m_bookNames;
+    QList<QTextBrowser*> m_chapterBrowsers;
+    QStringList m_comVerse;
+    int m_crntStartRes;
+    QFont m_currentFont;
     QSqlDatabase m_dbCntr;
-    QSqlDatabase m_dbXRef;
-    QSqlDatabase m_dbStrong;
+    QSqlDatabase m_dbDict;
     QSqlDatabase m_dbUsr;
+    QSqlDatabase m_dbXRef;
+    QStringList m_dictPathList;
+    QRegExp m_dispRgx;
     QString m_elapsedTime;
     QString m_executionPath;
+    QList<TabBookChapterVerses> m_favorites;
+    QList<QStringList> m_globalNotes;
+    QVector<TabBookChapterVerses> m_history;
     QString m_language;
-    QString m_settingsPath;
-    QStringList m_bookNames;
+    QMap<int, QString> m_languages;
     QStringList m_modulePathsList;
+    QList<ModuleData> m_modules;
+    bool m_modulesFound;
+    int m_noteCount;
+    int m_numResPerPage;
+    QPixmap m_papyrusBckgrnd;
+    int m_psgIdx;
     QStringList m_removedPathsList;
     QStringList m_resRefs;
     QStringList m_resVerses;
     QStringList m_sectionNames;
-    QVector<TabBookChapterVerses> m_history;
-    int m_noteCount;
-    QStringList m_comVerse;
-    bool m_useBackground;
+    QString m_settingsPath;
     QString m_style;
+    bool m_useBackground;
+    QList<QMap<int, int>> m_verseMaps;
+    QPair<int, int> m_verseRange;
 
     /* Member functions */
     bool loadBibleModule(const QString &path);
@@ -303,12 +306,13 @@ private:
     void blockPassageSelectionSignals(bool isBlocked);
     void checkFontSizes();
     void checkLanguageAction(int idx, bool firstRun = false);
+    void clearChapterBrowserData(int idx);
     void connectBibleTabSignals();
     void connectCompareTabSignals();
     void connectDetailsTabSignals();
     void connectDictionaryTabSignals();
-    void connectSearchTabSignals();
     void connectFavoritesTabSignals();
+    void connectSearchTabSignals();
     void displaySearchResults(int startIdx, int endIdx);
     void fillDetailsTab();
     void formatPassage(QString &text, bool hasStrong);
@@ -325,12 +329,9 @@ private:
     void generateTopicsTab(int idx);
     void getVerseRange();
     void highlightPassage(const TabBookChapterVerses &tbcvv);
-    void iterateRecords(QSqlQuery &query, const QStringList &words,
-                        Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll);
-    void iterateRecords(QSqlQuery &query, const QString &text,
-                        Qt::CaseSensitivity sensitivity, bool wholeWords, bool hasStrong);
+    void iterateRecords(QSqlQuery &query, const QString &text, Qt::CaseSensitivity sensitivity, bool wholeWords, bool hasStrong);
+    void iterateRecords(QSqlQuery &query, const QStringList &words, Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll);
     void loadBackgroundPixmap();
-    void clearChapterBrowserData(int idx);
     void loadFavorites();
     void loadPassage();
     void loadXRefDatabase();
@@ -348,7 +349,7 @@ private:
     void updateFonts();
     void updateHistory(const TabBookChapterVerses &tbcvv);
 
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

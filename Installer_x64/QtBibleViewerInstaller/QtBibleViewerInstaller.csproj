@@ -132,21 +132,12 @@
     <EmbeddedResource Include="Resources\Program\Qt5Svg.dll.gz" />
     <EmbeddedResource Include="Resources\Program\Qt5Widgets.dll.gz" />
     <EmbeddedResource Include="Resources\Program\platforms\qwindows.dll.gz" />
-    <EmbeddedResource Include="Resources\Program\data\counters.bblv.gz" />
-    <EmbeddedResource Include="Resources\Program\data\xref.bblv.gz" />
     <EmbeddedResource Include="Resources\Program\Qt5Charts.dll.gz" />
     <EmbeddedResource Include="Resources\Program\license\gpl-3.0.txt.gz" />
-    <EmbeddedResource Include="Resources\Program\modules\kjv.bbl.mybible.gz" />
-    <EmbeddedResource Include="Resources\Program\modules\kjvlite.bbl.mybible.gz" />
-    <EmbeddedResource Include="Resources\Program\translations\es.qm.gz" />
-    <EmbeddedResource Include="Resources\Program\translations\pl.qm.gz" />
     <EmbeddedResource Include="Resources\Program\sqldrivers\qsqlite.dll.gz" />
     <EmbeddedResource Include="Resources\Program\imageformats\qjpeg.dll.gz" />
     <EmbeddedResource Include="Resources\Program\imageformats\qsvg.dll.gz" />
     <EmbeddedResource Include="Resources\Program\QtBibleViewer.exe.gz" />
-    <EmbeddedResource Include="Resources\Program\config\settings.ini.gz" />
-    <EmbeddedResource Include="Resources\Program\modules\pubg.bbl.mybible.gz" />
-    <EmbeddedResource Include="Resources\Program\dictionaries\strong_lite.dct.mybible.gz" />
     <EmbeddedResource Include="Resources\Program\uninstall.exe.gz" />
     <EmbeddedResource Include="Resources\Program\vcruntime140.dll.gz" />
     <EmbeddedResource Include="Resources\Program\styles\qwindowsvistastyle.dll.gz" />
@@ -158,6 +149,15 @@
     <EmbeddedResource Include="Resources\Program\imageformats\qwbmp.dll.gz" />
     <EmbeddedResource Include="Resources\Program\imageformats\qwebp.dll.gz" />
     <EmbeddedResource Include="Resources\Program\iconengines\qsvgicon.dll.gz" />
+    <EmbeddedResource Include="Resources\Program\App\config\settings.ini.gz" />
+    <EmbeddedResource Include="Resources\Program\App\data\counters.bblv.gz" />
+    <EmbeddedResource Include="Resources\Program\App\data\xref.bblv.gz" />
+    <EmbeddedResource Include="Resources\Program\App\dictionaries\strong_lite.dct.mybible.gz" />
+    <EmbeddedResource Include="Resources\Program\App\lang\es.qm.gz" />
+    <EmbeddedResource Include="Resources\Program\App\lang\pl.qm.gz" />
+    <EmbeddedResource Include="Resources\Program\App\modules\kjv.bbl.mybible.gz" />
+    <EmbeddedResource Include="Resources\Program\App\modules\kjvlite.bbl.mybible.gz" />
+    <EmbeddedResource Include="Resources\Program\App\modules\pubg.bbl.mybible.gz" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

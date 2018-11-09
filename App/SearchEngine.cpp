@@ -118,6 +118,7 @@ typedef bool (&AllAny)(const QString &text, const QList<QRegExp> &words);
 void MainWindow::iterateRecords(QSqlQuery &query, const QStringList &words,
                                 Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll)
 {
+    qDebug() << "hi";
     AllAny containsFunc = containsAll ? containsAllWords : containsAnyWord;
     QString boundary = wholeWords ? "\\b" : "";
     QList<QRegExp> wordsRgx;
@@ -149,7 +150,7 @@ void MainWindow::iterateRecords(QSqlQuery &query, const QString &text,
     QString boundary = wholeWords ? "\\b" : "";
     QRegExp textRgx(boundary % text % boundary, sensitivity);
     QString strong = hasStrong ? "|<W[HG][0-9]{1,4}>" : "";
-    QRegExp patterns("<..>|<RF>.*<Rf>" + strong);
+    QRegExp patterns("<.{2,3}>|<RF>.*<Rf>" + strong);
     while (query.next()) {
         QSqlRecord record = query.record();
         QString rawText = record.value(3).toString();

@@ -28,18 +28,18 @@ QMAKE_LFLAGS += -no-pie
 SOURCES += \
     Main.cpp \
     MainWindow.cpp \
+    PDialogPreferences.cpp \
     PDialogStrong.cpp \
     PDialogXRef.cpp \
-    SearchEngine.cpp \
-    PDialogPreferences.cpp \
-    PWindowHistogram.cpp
+    PWindowHistogram.cpp \
+    SearchEngine.cpp
 
 
 HEADERS += \
     MainWindow.h \
+    PDialogPreferences.h \
     PDialogStrong.h \
     PDialogXRef.h \
-    PDialogPreferences.h \
     PWindowHistogram.h
 
 RESOURCES += \

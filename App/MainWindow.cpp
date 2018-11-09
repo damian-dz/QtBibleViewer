@@ -20,6 +20,27 @@ inline void createFavDatabase(QSqlDatabase &db, const QString &fileName)
     }
 }
 
+inline bool isBetween(int numb, int frst, int scnd)
+{
+    return numb >= frst && numb <= scnd;
+}
+
+inline bool isContainedInSelections(const QTextEdit::ExtraSelection &sel,
+                             const QList<QTextEdit::ExtraSelection> &extraSelections)
+{
+    bool res = false;
+    for (int i = 0; i < extraSelections.count(); ++i) {
+        if (isBetween(sel.cursor.position(),
+                      extraSelections[i].cursor.position() -
+                      extraSelections[i].cursor.selectedText().length(),
+                      extraSelections[i].cursor.position())) {
+            res = true;
+            break;
+        }
+    }
+    return res;
+}
+
 inline void removeBrowserBackground(QTextEdit &browser)
 {
     browser.viewport()->setPalette(browser.style()->standardPalette());
@@ -149,6 +170,7 @@ void MainWindow::generateMenuBarItems()
 
 void MainWindow::addMainTabs()
 {
+
     ui_TabWidget_Main->addTab(new QWidget, tr("Bible"));
     ui_TabWidget_Main->addTab(new QWidget, tr("Details"));
     ui_TabWidget_Main->addTab(new QWidget, tr("Search"));
@@ -156,6 +178,13 @@ void MainWindow::addMainTabs()
     ui_TabWidget_Main->addTab(new QWidget, tr("Favorites"));
     ui_TabWidget_Main->addTab(new QWidget, tr("Dictionary"));
     ui_TabWidget_Main->addTab(new QWidget, tr("Topics"));
+
+    QTabBar *mainTabBar = ui_TabWidget_Main->tabBar();
+    mainTabBar->setTabToolTip(0, tr("Read different translations of the Bible."));
+    mainTabBar->setTabToolTip(1, tr("View the details of the currently active module."));
+    mainTabBar->setTabToolTip(2, tr("Perform a custom search on one of the available modules."));
+    mainTabBar->setTabToolTip(3, tr("Compare verses from the currently available modules."));
+    mainTabBar->setTabToolTip(4, tr("Manage your favorite passages and add comments to them."));
 }
 
 void MainWindow::generateBibleTabControls()
@@ -310,7 +339,7 @@ MainWindow::TabBookChapterVerses MainWindow::loadSettings()
 
 void MainWindow::generateBibModuleTabs()
 {
-    const QString moduleDirName = m_executionPath + "/modules";
+    const QString moduleDirName = m_executionPath + "/App/modules";
     QString noModule = tr("No module found");
     if (!QDir(moduleDirName).exists()) {
         QDir().mkdir(moduleDirName);
@@ -527,6 +556,8 @@ void MainWindow::connectDictionaryTabSignals()
 {
     QObject::connect(ui_Dic_ListWidget_AllEntries, SIGNAL(currentTextChanged(QString)),
                      this, SLOT(on_Dic_TextChanged_ListWidget_AllEntries(QString)));
+    QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(highlighted(QUrl)),
+                     this, SLOT(on_Dic_Highlighted_TextBrowser_Definition(QUrl)));
     QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(customContextMenuRequested(QPoint)),
                      this, SLOT(actionShowBasicContextMenu(QPoint)));
     QObject::connect(ui_Dic_TextBrowser_Definition, SIGNAL(anchorClicked(QUrl)),
@@ -607,7 +638,7 @@ void MainWindow::clearChapterBrowserData(int idx)
 
 void MainWindow::loadFavorites()
 {
-    QString dirName = m_executionPath + "/user";
+    QString dirName = m_executionPath + "/App/user";
     QString fileName = dirName + "/fav.bblv";
     if (!QDir(dirName).exists()) {
         QDir().mkdir(dirName);
@@ -753,33 +784,35 @@ void MainWindow::on_Sea_Toggled_RadioButton_Strong(bool checked)
 void MainWindow::displaySearchResults(int startIdx, int endIdx)
 {
     ui_Sea_TextBrowser_Results->clear();
-    int index = ui_Sea_ComboBox_Translation->currentIndex();
+    int idx = ui_Sea_ComboBox_Translation->currentIndex();
     int i = startIdx;
     QString resultString;
     QRegExp regex("<RF>.*<Rf>");
     regex.setMinimal(true);
     while (i < m_resVerses.count() && i < endIdx) {
-        resultString += formatResult(m_resVerses[i], regex, m_modules[index].hasStrong) %
+        resultString += formatResult(m_resVerses[i], regex, m_modules[idx].hasStrong) %
                 m_resRefs[i++] % "</a></b><br><br>";
     }
     ui_Sea_TextBrowser_Results->setHtml(resultString);
 
+    QRegExp refRgx("—([1-3](\\w+\\s){1,3}|(\\w+\\s){1,3})\\d{1,3}:\\d{1,3}");
+    QList<QTextEdit::ExtraSelection> refExtraSelections;
+    while (ui_Sea_TextBrowser_Results->find(refRgx)) {
+        QTextEdit::ExtraSelection extra;
+        extra.cursor = ui_Sea_TextBrowser_Results->textCursor();
+        refExtraSelections.append(extra);
+    }
+
     QList<QTextEdit::ExtraSelection> extraSelections;
     QColor color(Qt::yellow);
-    while (ui_Sea_TextBrowser_Results->find(m_dispRgx)) {
+    while (ui_Sea_TextBrowser_Results->find(m_dispRgx, QTextDocument::FindBackward)) {
         QTextEdit::ExtraSelection extra;
         extra.format.setBackground(color);
         extra.cursor = ui_Sea_TextBrowser_Results->textCursor();
-        extraSelections.append(extra);
-    }
-    ui_Sea_TextBrowser_Results->setExtraSelections(extraSelections);
-    regex = QRegExp("—(\\p{L}+|[1-3] \\p{L}+|\\p{L}+ \\p{L}+ \\p{L}+) \\d{1,3}:\\d{1,3}");
-    color = Qt::transparent;
-    while (ui_Sea_TextBrowser_Results->find(regex, QTextDocument::FindBackward)) {
-        QTextEdit::ExtraSelection extra;
-        extra.format.setBackground(color);
-        extra.cursor = ui_Sea_TextBrowser_Results->textCursor();
-        extraSelections.append(extra);
+        if (!isContainedInSelections(extra, refExtraSelections)) {
+
+            extraSelections.append(extra);
+        }
     }
     ui_Sea_TextBrowser_Results->setExtraSelections(extraSelections);
     ui_Sea_TextBrowser_Results->moveCursor(QTextCursor::Start);
@@ -789,8 +822,8 @@ void MainWindow::displaySearchResults(int startIdx, int endIdx)
         statusMessage = tr("Verse 1 (1 in total); Elapsed time: ") % m_elapsedTime;
     } else {
         statusMessage = tr("Verses ") % QString::number(startIdx + 1) % "-" % QString::number(i) %
-            " ("  % QString::number(m_resVerses.count()) + tr(" in total);  Elapsed time: ") %
-            m_elapsedTime;
+                " ("  % QString::number(m_resVerses.count()) + tr(" in total);  Elapsed time: ") %
+                m_elapsedTime;
     }
     ui_Label_Status->setText(statusMessage);
 }
@@ -863,7 +896,7 @@ void MainWindow::generateCompareTabControls(int idx)
     prevNextHLayout->addStretch();
 
     m_dbCntr = QSqlDatabase::addDatabase("QSQLITE", "Counters");
-    m_dbCntr.setDatabaseName(m_executionPath + "/data/counters.bblv");
+    m_dbCntr.setDatabaseName(m_executionPath + "/App/data/counters.bblv");
     if (!m_dbCntr.open()) {
         QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
     }
@@ -1146,6 +1179,22 @@ void MainWindow::generateDictionaryTabControls(int idx)
     mainHorLayout->setSpacing(5);
     mainHorLayout->setContentsMargins(10, 10, 10, 10);
 
+    QVBoxLayout *dictionariesVerLayout = new QVBoxLayout;
+    mainHorLayout->addLayout(dictionariesVerLayout);
+
+    QLabel *dictionariesLabel = new QLabel(tr("Available Dictionaries:"));
+    dictionariesVerLayout->addWidget(dictionariesLabel);
+
+    QListWidget *dictionariesListWidget = new QListWidget;
+    dictionariesListWidget->setMaximumWidth(200);
+    dictionariesListWidget->setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE));
+    dictionariesVerLayout->addWidget(dictionariesListWidget);
+    connect(dictionariesListWidget, SIGNAL(currentRowChanged(int)),
+            this, SLOT(on_Dic_CurrentRowChanged_ListWidget_Dictionaries(int)));
+
+    //connect(dictionariesListWidget, &QListWidget::currentRowChanged,this,
+    //        [this]{ on_Dic_CurrentRowChanged_ListWidget_Dictionaries(1); });
+
     QVBoxLayout *numberEntriesVerLayout = new QVBoxLayout;
     mainHorLayout->addLayout(numberEntriesVerLayout);
 
@@ -1156,7 +1205,7 @@ void MainWindow::generateDictionaryTabControls(int idx)
     numberLineEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(numberLineEdit, SIGNAL(customContextMenuRequested(QPoint)),
                      this, SLOT(actionShowEditContextMenu(QPoint)));
-    numberLineEdit->setMaximumWidth(220);
+    numberLineEdit->setMaximumWidth(180);
     numberEntriesVerLayout->addWidget(numberLineEdit);
     numberLineEdit->setFocus();
     QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
@@ -1169,7 +1218,7 @@ void MainWindow::generateDictionaryTabControls(int idx)
     numberEntriesVerLayout->addWidget(allEntriesLabel);
 
     ui_Dic_ListWidget_AllEntries = new QListWidget;
-    ui_Dic_ListWidget_AllEntries->setMaximumWidth(220);
+    ui_Dic_ListWidget_AllEntries->setMaximumWidth(180);
     numberEntriesVerLayout->addWidget(ui_Dic_ListWidget_AllEntries);
 
     QVBoxLayout *definitionVerLayout = new QVBoxLayout;
@@ -1187,22 +1236,20 @@ void MainWindow::generateDictionaryTabControls(int idx)
 
     connectDictionaryTabSignals();
 
-    if (!m_dbStrong.isOpen()) {
-        m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
-        m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
-        if (!m_dbStrong.open()) {
-            QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
-        }
+    QDir dir(m_executionPath + "/App/dictionaries/");
+    QStringList filters;
+    filters << "*.dct.mybible";
+    dir.setNameFilters(filters);
+    QFileInfoList dictList = dir.entryInfoList();
+    QStringList dictNameList;
+    foreach (QFileInfo file, dictList) {
+        dictNameList << file.fileName();
+        m_dictPathList << file.absoluteFilePath();
     }
-    QSqlQuery fillQuery(m_dbStrong);
-    QString queryString = "SELECT word FROM dictionary WHERE relativeorder > 0";
-    QStringList dictEntryList;
-    if (fillQuery.exec(queryString)) {
-        while (fillQuery.next()) {
-            dictEntryList << fillQuery.record().value(0).toString();
-        }
-    }
-    ui_Dic_ListWidget_AllEntries->addItems(dictEntryList);
+
+    dictionariesListWidget->addItems(dictNameList);
+
+
 }
 
 void MainWindow::generateFavoritesTabControls(int idx)
@@ -1320,6 +1367,7 @@ void MainWindow::generateSearchTabControls(int idx)
     ui_Sea_ComboBox_Section->setMaxVisibleItems(12);
     ui_Sea_ComboBox_Section->setStyleSheet(COMBOBOX_STYLE);
     ui_Sea_ComboBox_Section->setMinimumWidth(170);
+    ui_Sea_ComboBox_Section->setToolTip(tr("Limit the search to a specific Bible section."));
     sectionVBoxLayout->addWidget(ui_Sea_ComboBox_Section);
 
     populateSectionNames();
@@ -1378,26 +1426,28 @@ void MainWindow::generateSearchTabControls(int idx)
     resPerPageHBoxLayout->addWidget(ui_Sea_ComboBox_ResPerPage);
 
     ui_Sea_CheckBox_Case = new QCheckBox(tr("Case-Sensitive"));
-    ui_Sea_CheckBox_Case->setToolTip(tr("Check to make the search case-sensitive."));
+    ui_Sea_CheckBox_Case->setToolTip(tr("Make the search case-sensitive."));
     optionsVBoxLayout->addWidget(ui_Sea_CheckBox_Case);
 
     ui_Sea_CheckBox_WholeWords = new QCheckBox(tr("Whole Words Only"));
-    ui_Sea_CheckBox_WholeWords->setToolTip(tr("Check to ignore word fragments."));
+    ui_Sea_CheckBox_WholeWords->setToolTip(tr("Ignore word fragments."));
     optionsVBoxLayout->addWidget(ui_Sea_CheckBox_WholeWords);
 
     ui_Sea_RadioButton_Exact = new QRadioButton(tr("Exact Phrase"));
-    ui_Sea_RadioButton_Exact->setToolTip(tr("Looks for the exact sequence of characters."));
+    ui_Sea_RadioButton_Exact->setToolTip(tr("Look for verses that contain the exact sequence of characters."));
     ui_Sea_RadioButton_Exact->setChecked(true);
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Exact);
 
     ui_Sea_RadioButton_All = new QRadioButton(tr("All of the Words"));
-    ui_Sea_RadioButton_All->setToolTip(tr("All of the words must be present."));
+    ui_Sea_RadioButton_All->setToolTip(tr("Look for verses that contain all of the words (in any order)."));
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_All);
 
     ui_Sea_RadioButton_Any = new QRadioButton(tr("Any of the Words"));
+    ui_Sea_RadioButton_Any->setToolTip(tr("Look for verses that contain at least one of the words."));
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Any);
 
     ui_Sea_RadioButton_Strong = new QRadioButton(tr("By Strong's Number"));
+    ui_Sea_RadioButton_Strong->setToolTip(tr("Look for verses containing the specified Strong's Number (if available)."));
     ui_Sea_RadioButton_Strong->setEnabled(m_modules[ui_Sea_ComboBox_Translation->currentIndex()].hasStrong);
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Strong);
 
@@ -1436,23 +1486,29 @@ void MainWindow::generateSearchTabControls(int idx)
 void MainWindow::generateTopicsTab(int idx)
 {
     loadBackgroundPixmap();
+
     QWidget *tabDictionaryWidget = ui_TabWidget_Main->widget(idx);
-    auto mainHBoxLayout = new QHBoxLayout(tabDictionaryWidget);
+
+    QHBoxLayout *mainHBoxLayout = new QHBoxLayout(tabDictionaryWidget);
     mainHBoxLayout->setSpacing(5);
     mainHBoxLayout->setContentsMargins(10, 10, 10, 10);
 
-    auto topicsVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *topicsVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(topicsVBoxLayout);
-    auto topicsLabel = new QLabel(tr("Topics:"));
+
+    QLabel *topicsLabel = new QLabel(tr("Topics:"));
     topicsVBoxLayout->addWidget(topicsLabel);
-    auto topicsListWidget = new QListWidget;
+
+    QListWidget *topicsListWidget = new QListWidget;
     topicsListWidget->setMaximumWidth(220);
     topicsVBoxLayout->addWidget(topicsListWidget);
 
-    auto versesVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *versesVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(versesVBoxLayout);
-    auto versesLabel = new QLabel(tr("Verses:"));
+
+    QLabel *versesLabel = new QLabel(tr("Verses:"));
     versesVBoxLayout->addWidget(versesLabel);
+
     ui_Top_TextBrowser_Verses = new QTextBrowser;
     versesVBoxLayout->addWidget(ui_Top_TextBrowser_Verses);
     setBrowserBackground(*ui_Top_TextBrowser_Verses);
@@ -1857,6 +1913,19 @@ void MainWindow::on_Bib_TabMoved_Modules(int from, int to)
     m_chapterBrowsers.swap(from, to);
     m_globalNotes.swap(from, to);
     m_verseMaps.swap(from, to);
+    if (ui_TabWidget_Main->widget(2)->children().count() > 0 && ui_Sea_ComboBox_Translation->count() > 1) {
+        QStringList list;
+        for (int i = 0; i < ui_Sea_ComboBox_Translation->count(); ++i) {
+            list << ui_Sea_ComboBox_Translation->itemText(i);
+        }
+        QString text = ui_Sea_ComboBox_Translation->currentText();
+        ui_Sea_ComboBox_Translation->blockSignals(true);
+        list.swap(from, to);
+        ui_Sea_ComboBox_Translation->clear();
+        ui_Sea_ComboBox_Translation->addItems(list);
+        ui_Sea_ComboBox_Translation->setCurrentText(text);
+        ui_Sea_ComboBox_Translation->blockSignals(false);
+    }
 }
 
 void MainWindow::on_Bib_TabCurrentChanged_Modules(int index)
@@ -1914,7 +1983,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
     closeDatabase(m_dbCntr);
     closeDatabase(m_dbXRef);
-    closeDatabase(m_dbStrong);
+    closeDatabase(m_dbDict);
     event->accept();
 }
 
@@ -2179,7 +2248,7 @@ void MainWindow::on_Fav_AnchorClicked_TextBrowser_Passage(const QUrl &arg1)
 
 void MainWindow::on_Dic_TextChanged_ListWidget_AllEntries(const QString &currentText)
 {
-    QSqlQuery query(m_dbStrong);
+    QSqlQuery query(m_dbDict);
     QString queryString = "SELECT data FROM dictionary WHERE word = '" +  currentText + "'";
     QString definition = "<center><h2><a class='dict' href='S" + currentText +
                 "' style='text-decoration:none'>" + currentText + "</a></h2></center>";
@@ -2197,7 +2266,7 @@ void MainWindow::on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1)
     QString id = argString.left(2);
     if (id == "#d" || id == "#s") {
         QString entry = argString.right(argString.length() - 2);
-        QSqlQuery query(m_dbStrong);
+        QSqlQuery query(m_dbDict);
         QString queryString = "SELECT relativeorder, data "
                               "FROM dictionary "
                               "WHERE word = '" +  entry + "'";
@@ -2219,6 +2288,64 @@ void MainWindow::on_Dic_AnchorClicked_TextBrowser_Definition(const QUrl &arg1)
     }
 }
 
+void MainWindow::on_Dic_Highlighted_TextBrowser_Definition(const QUrl &arg1)
+{
+    QString argString = arg1.toString();
+    if (!argString.isNull() && !argString.isEmpty()) {
+        QString id = argString.left(2);
+        if (id == "#b") {
+            int idx = ui_Bib_TabWidget_Modules->currentIndex();
+            QString entry = argString.right(argString.length() - 2);
+            QStringList indices = entry.split(".");
+            QString queryString = QStringLiteral("SELECT Scripture FROM Bible "
+                                                 "WHERE Book = %1 "
+                                                 "AND Chapter = %2 "
+                                                 "AND Verse = %3").arg(indices[0], indices[1], indices[2]);
+            QSqlQuery query(m_modules[idx].database);
+            if (query.exec(queryString)) {
+                if (query.next()) {
+                    QString verse = query.record().value(0).toString();
+                    QRegExp rgx("<RF>.*<Rf>");
+                    rgx.setMinimal(true);
+                    verse = formatResult(verse, rgx, m_modules[idx].hasStrong).trimmed();
+                    QString fntFam = "font-family:" % m_currentFont.family();
+                    QString fntSiz = "font-size:" % QString::number(QFontInfo(m_currentFont).pixelSize()) % "px";
+                    QString note = QString("<p style='%1;%2'>%3</p>")
+                            .arg(fntFam, fntSiz, verse);
+                    QToolTip::showText(QCursor::pos(), note, 0, QRect(), 2147483647);
+                }
+            }
+        }
+    } else {
+        QToolTip::hideText();
+    }
+}
+
+void MainWindow::on_Dic_CurrentRowChanged_ListWidget_Dictionaries(int currentRow)
+{
+    closeDatabase(m_dbDict);
+    m_dbDict = QSqlDatabase::addDatabase("QSQLITE", m_dictPathList[currentRow]);
+    m_dbDict.setDatabaseName(m_dictPathList[currentRow]);
+    if (!m_dbDict.open()) {
+        QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
+    }
+    QSqlQuery fillQuery(m_dbDict);
+    QString queryString = "SELECT word FROM dictionary WHERE relativeorder > 0";
+    QStringList dictEntryList;
+    if (fillQuery.exec(queryString)) {
+        while (fillQuery.next()) {
+            dictEntryList << fillQuery.record().value(0).toString();
+        }
+    }
+    ui_Dic_ListWidget_AllEntries->blockSignals(true);
+    ui_Dic_ListWidget_AllEntries->clear();
+    ui_Dic_ListWidget_AllEntries->addItems(dictEntryList);
+    if (ui_Dic_ListWidget_AllEntries->count() > 0) {
+        ui_Dic_ListWidget_AllEntries->scrollToTop();
+    }
+    ui_Dic_ListWidget_AllEntries->blockSignals(false);
+}
+
 void MainWindow::on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1)
 {
     QString argString = arg1.toString();
@@ -2226,7 +2353,7 @@ void MainWindow::on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1)
     if (firstChar == 'H' || firstChar == 'G') {
         openStrongDialog(argString);
     } else {
-        int dbIdx = ui_Bib_TabWidget_Modules->currentIndex();
+        int dbIdx = ui_Sea_ComboBox_Translation->currentIndex();
         QStringList indices = argString.split(",");
         highlightPassage(TabBookChapterVerses { dbIdx,
                                                 indices[0].toInt(),
@@ -2286,8 +2413,10 @@ void MainWindow::on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow)
     QSqlQuery query(m_dbUsr);
     if (!query.exec(queryString))
         return;
-    if (query.next())
-        ui_Fav_TextEdit_Comment->setText(query.record().value(0).toString());
+    if (query.next()) {
+        ui_Fav_TextEdit_Comment->setPlainText(query.record().value(0).toString());
+        qDebug() << ui_Fav_TextEdit_Comment->toHtml();
+    }
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
     query = QSqlQuery(m_modules[idx].database);
     queryString = "SELECT Verse, Scripture FROM Bible WHERE Book = " + book +
@@ -2618,14 +2747,10 @@ bool MainWindow::loadBibleModule(const QString &path)
 void MainWindow::on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1)
 {
     QString argString = arg1.toString();
-    if (!argString.isNull()) {
+    if (!argString.isNull() && !argString.isEmpty()) {
         QStringList argSplit = argString.split(":");
         if (argSplit[0] == "c") {
             int idx = ui_Bib_TabWidget_Modules->currentIndex();
-            QPoint point = m_chapterBrowsers[idx]->mapFromParent(QCursor::pos());
-            double offset = 3.5 * m_currentFont.pointSize();
-            point.setY(point.y() - offset);
-            QRect rect;
             int subIdx = argSplit[1].toInt();
             QString markupText = m_globalNotes[idx][subIdx];
             QString plainText = markupText.mid(4, markupText.size() - 8);
@@ -2635,7 +2760,7 @@ void MainWindow::on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1)
             QString fntSiz = "font-size:" % QString::number(QFontInfo(m_currentFont).pixelSize()) % "px";
             QString note = QString("<p style='white-space:pre;%1;%2'>%3</p>")
                     .arg(fntFam, fntSiz, plainText);
-            QToolTip::showText(point, note, 0, rect, 2147483647);
+            QToolTip::showText(QCursor::pos(), note, 0, QRect(), 2147483647);
         }
     } else {
         QToolTip::hideText();
@@ -2644,7 +2769,7 @@ void MainWindow::on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1)
 
 void MainWindow::loadXRefDatabase()
 {
-    QString path = m_executionPath + "/data/xref.bblv";
+    QString path = m_executionPath + "/App/data/xref.bblv";
     if (QFileInfo(path).exists()) {
         if (!m_dbXRef.isOpen()) {
             m_dbXRef = QSqlDatabase::addDatabase("QSQLITE", "CrossReferences");
@@ -2656,14 +2781,14 @@ void MainWindow::loadXRefDatabase()
 
 void MainWindow::openStrongDialog(const QString &number)
 {
-    if (!m_dbStrong.isOpen()) {
-        m_dbStrong = QSqlDatabase::addDatabase("QSQLITE", "Strong");
-        m_dbStrong.setDatabaseName(m_executionPath + "/dictionaries/strong_lite.dct.mybible");
-        if (!m_dbStrong.open()) {
+    if (!m_dbDict.isOpen()) {
+        m_dbDict = QSqlDatabase::addDatabase("QSQLITE", "Strong");
+        m_dbDict.setDatabaseName(m_executionPath + "/App/dictionaries/bdb.dct.mybible");
+        if (!m_dbDict.open()) {
             QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
         }
     }
-    PDialogStrong strongDialog(m_dbStrong, number, m_currentFont, m_papyrusBckgrnd, m_useBackground, this);
+    PDialogStrong strongDialog(m_dbDict, number, m_currentFont, m_papyrusBckgrnd, m_useBackground, this);
     strongDialog.exec();
 }
 

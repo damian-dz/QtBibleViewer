@@ -292,6 +292,11 @@ namespace QtBibleViewerInstaller
             InitializeComponent();
             DrawFirstWindow();
             Closed += MainWindow_Closed;
+            string[] result = crntAssembly.GetManifestResourceNames();
+            foreach (var r in result)
+            {
+                Debug.WriteLine(r);
+            }
         }
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -375,7 +380,7 @@ namespace QtBibleViewerInstaller
         private void UnpackResourceFile(string resName, string subFolder = "")
         {
             string subPrefix = subFolder == "" ? "." : "." + subFolder + ".";
-            var stream = crntAssembly.GetManifestResourceStream(resPrefix + subPrefix + resName);
+            var stream = crntAssembly.GetManifestResourceStream(resPrefix + subPrefix.Replace('\\', '.') + resName);
             string[] splitName = resName.Split('.');
             string saveName = splitName[0] + "." + splitName[1];
             if (splitName.Length > 3)
@@ -438,11 +443,16 @@ namespace QtBibleViewerInstaller
             UnpackResourceFile("vcruntime140.dll.gz");
             if (!useAppData)
             {
-                UnpackResourceFile("settings.ini.gz", "config");
+                UnpackResourceFile("settings.ini.gz", @"App\config");
             }
-            UnpackResourceFile("counters.bblv.gz", "data");
-            UnpackResourceFile("xref.bblv.gz", "data");
-            UnpackResourceFile("strong_lite.dct.mybible.gz", "dictionaries");
+            UnpackResourceFile("counters.bblv.gz", @"App\data");
+            UnpackResourceFile("xref.bblv.gz", @"App\data");
+            UnpackResourceFile("strong_lite.dct.mybible.gz", @"App\dictionaries");
+            UnpackResourceFile("es.qm.gz", @"App\lang");
+            UnpackResourceFile("pl.qm.gz", @"App\lang");
+            UnpackResourceFile("kjv.bbl.mybible.gz", @"App\modules");
+            UnpackResourceFile("kjvlite.bbl.mybible.gz", @"App\modules");
+            UnpackResourceFile("pubg.bbl.mybible.gz", @"App\modules");
             UnpackResourceFile("qsvgicon.dll.gz", "iconengines");
             UnpackResourceFile("qgif.dll.gz", "imageformats");
             UnpackResourceFile("qicns.dll.gz", "imageformats");
@@ -454,14 +464,9 @@ namespace QtBibleViewerInstaller
             UnpackResourceFile("qwbmp.dll.gz", "imageformats");
             UnpackResourceFile("qwebp.dll.gz", "imageformats");
             UnpackResourceFile("gpl-3.0.txt.gz", "license");
-            UnpackResourceFile("kjv.bbl.mybible.gz", "modules");
-            UnpackResourceFile("kjvlite.bbl.mybible.gz", "modules");
-            UnpackResourceFile("pubg.bbl.mybible.gz", "modules");
             UnpackResourceFile("qwindows.dll.gz", "platforms");
             UnpackResourceFile("qsqlite.dll.gz", "sqldrivers");
             UnpackResourceFile("qwindowsvistastyle.dll.gz", "styles");
-            UnpackResourceFile("es.qm.gz", "translations");
-            UnpackResourceFile("pl.qm.gz", "translations");
             if (createDesktop)
             {
                 CreateShortcut("dsktShort", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
