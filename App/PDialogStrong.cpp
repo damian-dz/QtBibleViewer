@@ -16,6 +16,7 @@ PDialogStrong::PDialogStrong(const QSqlDatabase &db,
     mainVerLayout->setContentsMargins(5, 5, 5 ,5);
     m_defTextBrowser = new QTextBrowser;
     m_defTextBrowser->setFont(font);
+    m_defTextBrowser->setOpenLinks(false);
     QObject::connect(m_defTextBrowser, SIGNAL(anchorClicked(QUrl)),
                      this, SLOT(on_definitionTextBrowser_anchorClicked(QUrl)));
     mainVerLayout->addWidget(m_defTextBrowser);
@@ -30,13 +31,18 @@ PDialogStrong::~PDialogStrong()
 {
 
 }
-
+#include <QDebug>
 void PDialogStrong::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
 {
     QString argString = arg1.toString();
-    QString number = argString.mid(2, argString.size() - 1);
-    QDialog::setWindowTitle(number);
-    loadDefinition(number);
+    QChar scndChar = argString[1];
+    qDebug() <<argString;
+    if (scndChar != 'b') {
+
+        QString number = argString.mid(2, argString.size() - 1);
+        QDialog::setWindowTitle(number);
+        loadDefinition(number);
+   }
 }
 
 void PDialogStrong::loadDefinition(const QString &number)

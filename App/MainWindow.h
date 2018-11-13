@@ -34,24 +34,27 @@
 #define DEFAULT_HEIGHT 600
 #define DEFAULT_FONT_FAMILY qApp->font().family()
 #define DEFAULT_FONT_SIZE 10
-#define MAX_RECENT_PASSAGES 100
 #define MAX_WIDGET_HEIGHT 16777215
 
 #define SET_LANGUAGE "language"
-#define SET_STYLE "style"
+#define SET_MAX_RECENT_PASSAGES "maxRecent"
 #define GROUP_MAIN_WINDOW "MainWindow"
 #define SET_GEOMETRY "geometry"
 #define SET_STATE "state"
-#define SET_USE_BACKGROUND "useBackground"
 #define GROUP_MODULE_DATA "ModuleData"
 #define SET_INDEX "index"
 #define SET_PASSAGE "passage"
 #define SET_PATHS "paths"
 #define SET_REMOVED_PATHS "removedPaths"
 #define SET_COM_VERSE "comVerse"
-#define GROUP_FONT_SETTINGS "FontSettings"
-#define SET_FONT_FAMILY "fontFamily"
-#define SET_FONT_SIZE "fontSize"
+#define GROUP_FONT "Font"
+#define SET_FONT_FAMILY "family"
+#define SET_FONT_SIZE "size"
+#define GROUP_APPEARANCE "Appearance"
+#define SET_STYLE "style"
+#define SET_USE_BACKGROUND "useBackground"
+#define SET_HIGHLIGHT_COLOR "highlightColor"
+#define SET_TAB_POSITION "tabPosition"
 
 #define ICON_ARROW_LEFT ":/img/img_res/arrleft.svg"
 #define ICON_ARROW_RIGHT ":/img/img_res/arrright.svg"
@@ -59,12 +62,13 @@
 #define ICON_COPY ":/img/img_res/copy.svg"
 #define ICON_COPY_PLUS ":/img/img_res/copyplus.svg"
 #define ICON_EXIT ":/img/img_res/exit.svg"
+#define ICON_FIND ":/img/img_res/find.svg"
 #define ICON_FOLDER ":/img/img_res/folder.svg"
 #define ICON_HEART ":/img/img_res/heart.svg"
 #define ICON_MAGNIFY ":/img/img_res/magnify.svg"
 #define ICON_MINIFY ":/img/img_res/minify.svg"
 
-#define COMBOBOX_STYLE "combobox-popup: 0;"
+#define COMBOBOX_STYLE "combobox-popup: 0"
 
 class MainWindow : public QMainWindow
 {
@@ -101,11 +105,11 @@ public slots:
     void on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index);
     void on_Bib_CurrentRowChanged_ListWidget_Book(int currentRow);
     void on_Bib_CurrentRowChanged_ListWidget_Chapter(int currentRow);
+    void on_Bib_CursorPositionChanged_chapterBrowser();
     void on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &pos);
     void on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1);
     void on_Bib_SelectionChanged_ChapterBrowser();
     void on_Bib_TabCloseRequested_TabWidget_Modules(int index);
-    void on_Bib_TabCurrentChanged_Modules(int index);
     void on_Bib_TabMoved_Modules(int from, int to);
     void on_Bib_TextChanged_LineEdit_Find(const QString &text);
     void on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1);
@@ -134,6 +138,7 @@ public slots:
     void on_Sea_Toggled_RadioButton_Strong(bool checked);
 
 private:
+    int cursorCnt = 0;
     /* Auxiliary structures */
     struct ModuleData
     {
@@ -150,12 +155,52 @@ private:
         int chapter;
         int verseFrom;
         int verseTo;
-        friend bool operator == (const TabBookChapterVerses &x, const TabBookChapterVerses &y) {
-            return (x.tab == y.tab &&
-                    x.book == y.book &&
-                    x.chapter == y.chapter &&
-                    x.verseFrom == y.verseFrom &&
-                    x.verseTo == y.verseTo);
+
+        TabBookChapterVerses() :
+            tab(-1), book(-1), chapter(-1), verseFrom(-1), verseTo(-1) { }
+
+        TabBookChapterVerses(int tab, int book, int chapter, int verseFrom, int verseTo) :
+            tab(tab), book(book), chapter(chapter), verseFrom(verseFrom), verseTo(verseTo) { }
+
+        TabBookChapterVerses(const TabBookChapterVerses &tbcvv) :
+            tab(tbcvv.tab),
+            book(tbcvv.book),
+            chapter(tbcvv.chapter),
+            verseFrom(tbcvv.verseFrom),
+            verseTo(tbcvv.verseTo) { }
+
+        bool isPassageEqual(const TabBookChapterVerses &tbcvv)
+        {
+            return (book == tbcvv.book &&
+                    chapter == tbcvv.chapter &&
+                    verseFrom == tbcvv.verseFrom &&
+                    verseTo == tbcvv.verseTo);
+        }
+
+        bool isSameAs(const TabBookChapterVerses &tbcvv)
+        {
+            return (tab == tbcvv.tab &&
+                    book == tbcvv.book &&
+                    chapter == tbcvv.chapter &&
+                    verseFrom == tbcvv.verseFrom &&
+                    verseTo == tbcvv.verseTo);
+        }
+
+        TabBookChapterVerses operator=(const TabBookChapterVerses &tbcvv) {
+            tab = tbcvv.tab;
+            book = tbcvv.book;
+            chapter = tbcvv.chapter;
+            verseFrom = tbcvv.verseFrom;
+            verseTo = tbcvv.verseTo;
+            return *this;
+        }
+
+        bool operator==(const TabBookChapterVerses &tbcvv) {
+            return this->isSameAs(tbcvv);
+        }
+
+        bool operator!=(const TabBookChapterVerses &tbcvv) {
+            return !this->isSameAs(tbcvv);
         }
     };
 
@@ -261,11 +306,16 @@ private:
     QRegExp m_dispRgx;
     QString m_elapsedTime;
     QString m_executionPath;
+    bool m_firstLoadCompare;
     QList<TabBookChapterVerses> m_favorites;
     QList<QStringList> m_globalNotes;
+    QColor m_highlightColor;
     QVector<TabBookChapterVerses> m_history;
     QString m_language;
     QMap<int, QString> m_languages;
+    QList<QTextCursor> m_lastCursors;
+    QList<bool> m_loadedFlags;
+    int m_maxRecentPassages;
     QStringList m_modulePathsList;
     QList<ModuleData> m_modules;
     bool m_modulesFound;
@@ -279,6 +329,7 @@ private:
     QStringList m_sectionNames;
     QString m_settingsPath;
     QString m_style;
+    int m_tabPos;
     bool m_useBackground;
     QList<QMap<int, int>> m_verseMaps;
     QPair<int, int> m_verseRange;
@@ -343,9 +394,11 @@ private:
     void populateLanguageMap(const QString &lang);
     void populateSectionNames();
     void populateVersesComboBoxes(int verseFrom, int verseTo);
+    void removeTabFromHistory(int idx);
     void saveSettings();
     void setBrowserBackground(QTextEdit &browser);
     void setTabBookChapterVerses(const TabBookChapterVerses &tbcvv, bool firstRun);
+    void swapTabHistory(int from, int to);
     void updateFonts();
     void updateHistory(const TabBookChapterVerses &tbcvv);
 

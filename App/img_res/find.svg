@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd">
+<svg width="3cm" height="3cm" viewBox="-2 188 44 44" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <ellipse style="fill: none; fill-opacity:0; stroke-width: 2.8; stroke: #000000" cx="14" cy="204" rx="14" ry="14"/>
+  <line style="fill: none; fill-opacity:0; stroke-width: 2.8; stroke: #000000" x1="40" y1="230" x2="23.8994" y2="213.9"/>
+  <text font-size="12.8" style="fill: #000000;text-anchor:start;font-family:sans-serif;font-style:normal;font-weight:normal" x="-10" y="190">
+    <tspan x="-10" y="190"></tspan>
+  </text>
+</svg>

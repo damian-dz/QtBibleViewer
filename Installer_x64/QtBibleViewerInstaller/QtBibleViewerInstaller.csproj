@@ -158,6 +158,8 @@
     <EmbeddedResource Include="Resources\Program\App\modules\kjv.bbl.mybible.gz" />
     <EmbeddedResource Include="Resources\Program\App\modules\kjvlite.bbl.mybible.gz" />
     <EmbeddedResource Include="Resources\Program\App\modules\pubg.bbl.mybible.gz" />
+    <EmbeddedResource Include="Resources\Program\App\lang\qt_es.qm.gz" />
+    <EmbeddedResource Include="Resources\Program\App\lang\qt_pl.qm.gz" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

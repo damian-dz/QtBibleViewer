@@ -47,12 +47,17 @@ int main(int argc, char *argv[])
             setLanguage = "EN";
         }
     }
-    QString style = settings.value(SET_STYLE).toString();
+    settings.beginGroup(GROUP_APPEARANCE);
+    const QString style = settings.value(SET_STYLE).toString();
+    settings.endGroup();
     app.setStyle(QStyleFactory::create(style));
-    QTranslator translator;
+    QTranslator appTranslator;
+    QTranslator qtTranslator;
     if (setLanguage != "EN") {
-        translator.load(setLanguage.toLower(), appDir + "/App/lang");
-        app.installTranslator(&translator);
+        appTranslator.load(setLanguage.toLower(), appDir + "/App/lang");
+        app.installTranslator(&appTranslator);
+        qtTranslator.load("qt_" + setLanguage.toLower(), appDir + "/App/lang");
+        app.installTranslator(&qtTranslator);
     }
     MainWindow win(appDir, setLanguage.toUpper(), style, configFilePath);
     win.show();

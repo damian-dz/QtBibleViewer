@@ -4,13 +4,13 @@
     <system:String x:Key="title">QtBibleViewer Installer</system:String>
     <system:String x:Key="welcome">Welcome to the QtBibleViewer installer.</system:String>
     <system:String x:Key="instruction">Siga las instrucciones mostradas para instalar el programa.</system:String>
-    <system:String x:Key="next">Next ></system:String>
+    <system:String x:Key="next">Siguiente ></system:String>
     <system:String x:Key="license">GNU General Public License, versión 3</system:String>
     <system:String x:Key="accept">Acepto los términos de licencia</system:String>
     <system:String x:Key="dirLbl">Choose installation directory:</system:String>
     <system:String x:Key="chngBtn">Cambiar...</system:String>
-    <system:String x:Key="dsktChk">Create desktop shortcut</system:String>
-    <system:String x:Key="strtChk">Create Start Menu shortcut</system:String>
+    <system:String x:Key="dsktChk">Crear acceso directo del escritorio</system:String>
+    <system:String x:Key="strtChk">Crear acceso directo del Menú Inicio</system:String>
     <system:String x:Key="apdtChk">Store settings in AppData</system:String>
     <system:String x:Key="install">Instalar</system:String>
     <system:String x:Key="close">Close</system:String>

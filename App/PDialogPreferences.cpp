@@ -1,10 +1,19 @@
 #include "PDialogPreferences.h"
 
 #include <QApplication>
+#include <QColorDialog>
+#include <QPushButton>
 #include <QStyleFactory>
 
-PDialogPreferences::PDialogPreferences(const QString &style, bool useBckgrnd, const QFont &font, QWidget *parent) :
-    QDialog(parent)
+PDialogPreferences::PDialogPreferences(int maxPassages,
+                                       const QString &style,
+                                       bool useBckgrnd,
+                                       const QColor &highClr,
+                                       const QFont &font,
+                                       int tabPos,
+                                       QWidget *parent) :
+    QDialog(parent),
+    m_highlightColor(highClr)
 {
     QDialog::resize(480, 320);
     QDialog::setWindowTitle(tr("Preferences"));
@@ -34,8 +43,9 @@ PDialogPreferences::PDialogPreferences(const QString &style, bool useBckgrnd, co
 
     mainVBoxLayout->addWidget(dialogButtonBox);
 
-    generateGeneralWidget(style, useBckgrnd);
+    generateGeneralWidget(maxPassages);
     generateFontWidget(font);
+    generateAppearanceWidget(style, useBckgrnd, tabPos);
 
     QObject::connect(listWidget, SIGNAL(currentRowChanged(int)),
                      this, SLOT(listWidgetCurrentRowChanged(int)));
@@ -48,7 +58,7 @@ PDialogPreferences::~PDialogPreferences()
 
 }
 
-void PDialogPreferences::generateGeneralWidget(const QString &style, bool useBackgrnd)
+void PDialogPreferences::generateGeneralWidget(int maxPassages)
 {
     QWidget *generalWidget = new QWidget;
 
@@ -56,15 +66,12 @@ void PDialogPreferences::generateGeneralWidget(const QString &style, bool useBac
 
     generalWidget->setLayout(generalFormLayout);
 
-    m_styleComboBox = new QComboBox;
-    m_styleComboBox->addItems(QStyleFactory::keys());
-    m_styleComboBox->setCurrentText(style);
-    m_styleComboBox->setStyleSheet("combobox-popup: 0;");
-    generalFormLayout->addRow(tr("Window style:"), m_styleComboBox);
-
-    m_backgroundCheckBox = new QCheckBox(tr("Use background image"));
-    m_backgroundCheckBox->setChecked(useBackgrnd);
-    generalFormLayout->addWidget(m_backgroundCheckBox);
+    m_maxRecentSpinBox = new QSpinBox;
+    m_maxRecentSpinBox->setMinimum(2);
+    m_maxRecentSpinBox->setMaximum(100);
+    m_maxRecentSpinBox->setMaximumWidth(60);
+    m_maxRecentSpinBox->setValue(maxPassages);
+    generalFormLayout->addRow(tr("Max. Recent Passages:"), m_maxRecentSpinBox);
 
     m_stackedWidget->addWidget(generalWidget);
 }
@@ -95,7 +102,7 @@ void PDialogPreferences::generateFontWidget(const QFont &font)
     fontSizeComboBox->setCurrentText(QString::number(font.pointSize()));
     fontSizeComboBox->setMaxVisibleItems(biggest - smallest + 1);
     fontSizeComboBox->setMaximumWidth(60);
-    fontSizeComboBox->setStyleSheet("combobox-popup: 0;");
+    fontSizeComboBox->setStyleSheet("combobox-popup: 0");
 
     fontFormLayout->addRow(tr("Font Size:"), fontSizeComboBox);
 
@@ -107,16 +114,47 @@ void PDialogPreferences::generateFontWidget(const QFont &font)
 
     fontFormLayout->addRow(tr("Preview:"), m_fontAbcTextBrowser);
 
-
     m_stackedWidget->addWidget(fontWidget);
-
-    QTextBrowser *textBrowser2 = new QTextBrowser;
-    m_stackedWidget->addWidget(textBrowser2);
 
     QObject::connect(fontTypeComboBox, SIGNAL(currentFontChanged(QFont)),
                      this, SLOT(currentFontTypeChanged(QFont)));
     QObject::connect(fontSizeComboBox, SIGNAL(currentTextChanged(QString)),
                      this, SLOT(currentFontSizeChanged(QString)));
+}
+
+
+void PDialogPreferences::generateAppearanceWidget(const QString &style, bool useBackgrnd, int tabPos)
+{
+    QWidget *appearanceWidget = new QWidget;
+
+    QFormLayout *appearanceFormLayout = new QFormLayout;
+
+    appearanceWidget->setLayout(appearanceFormLayout);
+
+    m_styleComboBox = new QComboBox;
+    m_styleComboBox->addItems(QStyleFactory::keys());
+    m_styleComboBox->setCurrentText(style);
+    m_styleComboBox->setStyleSheet("combobox-popup: 0");
+    appearanceFormLayout->addRow(tr("Window Style:"), m_styleComboBox);
+
+    m_backgroundCheckBox = new QCheckBox(tr("Use background image"));
+    m_backgroundCheckBox->setChecked(useBackgrnd);
+    appearanceFormLayout->addWidget(m_backgroundCheckBox);
+
+    QPushButton *colorButton = new QPushButton("Change...");
+    colorButton->setStyleSheet("QPushButton { background-color:" + m_highlightColor.name() + " }");
+    appearanceFormLayout->addRow(tr("Verse Highlight Color:"), colorButton);
+    QObject::connect(colorButton, SIGNAL(clicked()), this, SLOT(colorPushButtonClicked()));
+
+    m_tabPosComboBox = new QComboBox;
+    QStringList positions;
+    positions << tr("Top") << tr("Bottom") << tr("Left") << tr("Right");
+    m_tabPosComboBox->addItems(positions);
+    m_tabPosComboBox->setCurrentIndex(tabPos);
+    m_tabPosComboBox->setStyleSheet("combobox-popup: 0");
+    appearanceFormLayout->addRow(tr("Bible Tabs Position:"), m_tabPosComboBox);
+
+    m_stackedWidget->addWidget(appearanceWidget);
 }
 
 QString PDialogPreferences::getWindowStyle()
@@ -139,6 +177,21 @@ int PDialogPreferences::getFontSize()
     return m_fontAbcTextBrowser->font().pointSize();
 }
 
+QColor PDialogPreferences::getHighlightColor()
+{
+    return m_highlightColor;
+}
+
+int PDialogPreferences::getMaxRecentPassages()
+{
+    return m_maxRecentSpinBox->value();
+}
+
+int PDialogPreferences::getTabPosition()
+{
+    return m_tabPosComboBox->currentIndex();
+}
+
 void PDialogPreferences::listWidgetCurrentRowChanged(int currentRow)
 {
     m_stackedWidget->setCurrentIndex(currentRow);
@@ -155,4 +208,13 @@ void PDialogPreferences::currentFontSizeChanged(const QString &text)
     QString fontType = m_fontAbcTextBrowser->font().family();
     m_fontAbcTextBrowser->setFont(QFont(fontType, text.toInt()));
 }
+
+void PDialogPreferences::colorPushButtonClicked()
+{
+    QColorDialog colorDlg(Qt::white, this);
+    colorDlg.setOptions(QColorDialog::ShowAlphaChannel);
+
+    m_highlightColor = QColorDialog::getColor(m_highlightColor, this, QString(), QColorDialog::ShowAlphaChannel);
+}
+
 

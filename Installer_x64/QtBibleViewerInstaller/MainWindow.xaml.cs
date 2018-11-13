@@ -30,7 +30,7 @@ namespace QtBibleViewerInstaller
         private List<UIElement> elements4 = new List<UIElement>();
         private string instDir;
         private int totalBufferSize;
-        private const int packedFilesSize = 19637284;
+        private const int packedFilesSize = 19731580;
         private bool createDesktop;
         private bool createStartMenu;
         private bool useAppData;
@@ -292,11 +292,6 @@ namespace QtBibleViewerInstaller
             InitializeComponent();
             DrawFirstWindow();
             Closed += MainWindow_Closed;
-            string[] result = crntAssembly.GetManifestResourceNames();
-            foreach (var r in result)
-            {
-                Debug.WriteLine(r);
-            }
         }
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -450,6 +445,8 @@ namespace QtBibleViewerInstaller
             UnpackResourceFile("strong_lite.dct.mybible.gz", @"App\dictionaries");
             UnpackResourceFile("es.qm.gz", @"App\lang");
             UnpackResourceFile("pl.qm.gz", @"App\lang");
+            UnpackResourceFile("qt_es.qm.gz", @"App\lang");
+            UnpackResourceFile("qt_pl.qm.gz", @"App\lang");
             UnpackResourceFile("kjv.bbl.mybible.gz", @"App\modules");
             UnpackResourceFile("kjvlite.bbl.mybible.gz", @"App\modules");
             UnpackResourceFile("pubg.bbl.mybible.gz", @"App\modules");
@@ -473,7 +470,13 @@ namespace QtBibleViewerInstaller
             }
             if (createStartMenu)
             {
-                CreateShortcut("strtShort", Environment.GetFolderPath(Environment.SpecialFolder.StartMenu));
+                string mainFolder = Environment.GetFolderPath(Environment.SpecialFolder.StartMenu) + @"\Programs";
+                string subFolder = Path.Combine(mainFolder, "QtBibleViewer");
+                if (!Directory.Exists(subFolder))
+                {
+                    Directory.CreateDirectory(subFolder);
+                }
+                CreateShortcut("strtShort", subFolder);
             }
             RegisterUninstaller();
             Dispatcher.Invoke(() =>
@@ -483,6 +486,7 @@ namespace QtBibleViewerInstaller
                 nextButton.Click -= InstallButton_Click;
                 nextButton.Click += NextButton3_Click;
             });
+            GC.Collect();
         }
 
         private void CreateShortcut(string id, string shortcutDir)

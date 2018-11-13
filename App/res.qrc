@@ -11,5 +11,6 @@
         <file>img_res/magnify.svg</file>
         <file>img_res/minify.svg</file>
         <file>img_res/close.svg</file>
+        <file>img_res/find.svg</file>
     </qresource>
 </RCC>
