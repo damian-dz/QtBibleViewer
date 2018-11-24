@@ -131,6 +131,8 @@ public slots:
     void on_Sea_Clicked_PushButton_Prev();
     void on_Sea_Clicked_PushButton_RandomVerse();
     void on_Sea_Clicked_PushButton_Search();
+    void on_Sea_ComboBox_CurrentIndexChanged_SearchFrom(int index);
+    void on_Sea_ComboBox_CurrentIndexChanged_SearchTo(int index);
     void on_Sea_ComboBox_CurrentIndexChanged_Section(int index);
     void on_Sea_ComboBox_CurrentIndexChanged_Translation(int index);
     void on_Sea_LineEdit_ReturnPressed_Search();
@@ -186,7 +188,7 @@ private:
                     verseTo == tbcvv.verseTo);
         }
 
-        TabBookChapterVerses operator=(const TabBookChapterVerses &tbcvv) {
+        TabBookChapterVerses operator =(const TabBookChapterVerses &tbcvv) {
             tab = tbcvv.tab;
             book = tbcvv.book;
             chapter = tbcvv.chapter;
@@ -195,11 +197,11 @@ private:
             return *this;
         }
 
-        bool operator==(const TabBookChapterVerses &tbcvv) {
+        bool operator ==(const TabBookChapterVerses &tbcvv) {
             return this->isSameAs(tbcvv);
         }
 
-        bool operator!=(const TabBookChapterVerses &tbcvv) {
+        bool operator !=(const TabBookChapterVerses &tbcvv) {
             return !this->isSameAs(tbcvv);
         }
     };

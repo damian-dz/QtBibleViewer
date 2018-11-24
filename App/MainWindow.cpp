@@ -64,11 +64,11 @@ MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString
     populateLanguageMap(lang);
     generateBibModuleTabs();
     populateBookNames();
-    if (tbcvv.tab != -1) {
+    if (tbcvv != TabBookChapterVerses()) {
         setTabBookChapterVerses(tbcvv, true);
     }
     connectBibleTabSignals();
-    if (tbcvv.tab == -1 && m_modulesFound) {
+    if (tbcvv == TabBookChapterVerses() && m_modulesFound) {
          ui_Bib_ListWidget_Book->setCurrentRow(0);
     }
     QWidget::activateWindow();
@@ -508,6 +508,10 @@ void MainWindow::connectSearchTabSignals()
                      this, SLOT(on_Sea_LineEdit_TextChanged_Search(QString)));
     QObject::connect(ui_Sea_Button_Search, SIGNAL(clicked()),
                      this, SLOT(on_Sea_Clicked_PushButton_Search()));
+    QObject::connect(ui_Sea_ComboBox_SearchFrom, SIGNAL(currentIndexChanged(int)),
+                     this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_SearchFrom(int)));
+    QObject::connect(ui_Sea_ComboBox_SearchTo, SIGNAL(currentIndexChanged(int)),
+                     this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_SearchTo(int)));
     QObject::connect(ui_Sea_ComboBox_Section, SIGNAL(currentIndexChanged(int)),
                      this, SLOT(on_Sea_ComboBox_CurrentIndexChanged_Section(int)));
     QObject::connect(ui_Sea_Button_Prev, SIGNAL(clicked()),
@@ -662,7 +666,6 @@ void MainWindow::removeTabFromHistory(int idx)
     }
 }
 
-
 void MainWindow::clearChapterBrowserData(int idx)
 {
     m_chapterBrowsers[idx]->clear();
@@ -808,6 +811,24 @@ void MainWindow::on_Sea_Clicked_PushButton_Search()
     ui_Sea_RadioButton_Strong->isChecked() ? performSearchByStrong() : performSearch();
 }
 
+void MainWindow::on_Sea_ComboBox_CurrentIndexChanged_SearchFrom(int index)
+{
+    if (index > ui_Sea_ComboBox_SearchTo->currentIndex()) {
+        ui_Sea_ComboBox_SearchTo->blockSignals(true);
+        ui_Sea_ComboBox_SearchTo->setCurrentIndex(index);
+        ui_Sea_ComboBox_SearchTo->blockSignals(false);
+    }
+}
+
+void MainWindow::on_Sea_ComboBox_CurrentIndexChanged_SearchTo(int index)
+{
+    if (index < ui_Sea_ComboBox_SearchFrom->currentIndex()) {
+        ui_Sea_ComboBox_SearchFrom->blockSignals(true);
+        ui_Sea_ComboBox_SearchFrom->setCurrentIndex(index);
+        ui_Sea_ComboBox_SearchFrom->blockSignals(false);
+    }
+}
+
 void MainWindow::on_Sea_Toggled_RadioButton_Strong(bool checked)
 {
     ui_Sea_CheckBox_Case->setDisabled(checked);
@@ -831,7 +852,8 @@ void MainWindow::displaySearchResults(int startIdx, int endIdx)
     regex.setMinimal(true);
     while (i < m_resVerses.count() && i < endIdx) {
         resultString += formatResult(m_resVerses[i], regex, m_modules[idx].hasStrong) %
-                m_resRefs[i++] % "</a></b><br><br>";
+                m_resRefs[i] % "</a></b><br><br>";
+        i++;
     }
     ui_Sea_TextBrowser_Results->setHtml(resultString);
 
@@ -1446,7 +1468,7 @@ void MainWindow::generateSearchTabControls(int idx)
     translationHBoxLayout->addWidget(translationLabel);
 
     QStringList translationNames;
-    for (ModuleData md : m_modules) {
+    for (const ModuleData md : m_modules) {
         translationNames << md.name;
     }
     ui_Sea_ComboBox_Translation = new QComboBox;
@@ -1805,6 +1827,9 @@ void MainWindow::on_Bib_CurrentIndexChanged_ComboBox_VerseFrom(int index)
         ui_Bib_ComboBox_VerseFrom->blockSignals(false);
     }
     loadPassage();
+    for (int i = 0; i < m_loadedFlags.size(); ++i) {
+        m_loadedFlags[i] = false;
+    }
 }
 
 void MainWindow::on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index)
@@ -1815,9 +1840,10 @@ void MainWindow::on_Bib_CurrentIndexChanged_ComboBox_VerseTo(int index)
         ui_Bib_ComboBox_VerseTo->blockSignals(false);
     }
     loadPassage();
+    for (int i = 0; i < m_loadedFlags.size(); ++i) {
+        m_loadedFlags[i] = false;
+    }
 }
-
-
 
 void MainWindow::on_Sea_Clicked_PushButton_Prev()
 {
@@ -2548,7 +2574,6 @@ void MainWindow::on_Fav_Clicked_PushButton_Delete()
             if (index > 0) {
                 on_Fav_CurrentRowChanged_ListWidget_Passages(index - 1);
             } else if (index == 0 && ui_Fav_ListWidget_Passages->count() > 0) {
-                qDebug() << "hi";
                 on_Fav_CurrentRowChanged_ListWidget_Passages(0);
             }
             ui_Fav_ListWidget_Passages->blockSignals(false);
