@@ -21,7 +21,7 @@ class PWindowHistogram : public QWidget
     Q_OBJECT
 
 public:
-    explicit PWindowHistogram(const QSqlDatabase &db, QWidget *parent = 0);
+    explicit PWindowHistogram(const QSqlDatabase &m_db, QWidget *parent = 0);
     ~PWindowHistogram();
 
 protected:
@@ -43,14 +43,14 @@ private:
     QVBoxLayout *ui_mainVerLayout;
     QLineEdit *ui_wordLineEdit;
     QPushButton *ui_visualizeButton;
-    bool isBeingOpened;
-    QChart *chartOT;
-    QChart *chartNT;
-    QChartView *chartViewOT;
-    QChartView *chartViewNT;
-    QChartView *chartView;
-    const QSqlDatabase *db;
-    QStringList abbreviations;
+    bool m_isBeingOpened;
+    QChart *m_chartOT;
+    QChart *m_chartNT;
+    QChartView *m_chartView;
+    QChartView *m_chartViewOT;
+    QChartView *m_chartViewNT;
+    const QSqlDatabase *m_db;
+    QStringList m_abbreviations;
     void loadBookAbbreviations();
     void searchAndPlot(const QString &word);
     void setUpChartsAndValidator();

@@ -4,7 +4,8 @@
     <system:String x:Key="title">Instalator programu QtBibleViewer</system:String>
     <system:String x:Key="welcome">Witaj w instalatorze programu QtBibleViewer</system:String>
     <system:String x:Key="instruction">Postępuj zgodnie z wyświetlanymi instrukcjami, aby zainstalować program.</system:String>
-    <system:String x:Key="next">Dalej ></system:String>
+    <system:String x:Key="next">Dalej &gt;</system:String>
+    <system:String x:Key="back">&lt; Wstecz</system:String>
     <system:String x:Key="license">GNU General Public License, wersja 3</system:String>
     <system:String x:Key="accept">Akceptuję warunki licencji</system:String>
     <system:String x:Key="dirLbl">Wybież ścieżkę instalacji:</system:String>

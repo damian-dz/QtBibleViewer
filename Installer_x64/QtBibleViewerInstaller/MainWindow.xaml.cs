@@ -30,7 +30,7 @@ namespace QtBibleViewerInstaller
         private List<UIElement> elements4 = new List<UIElement>();
         private string instDir;
         private int totalBufferSize;
-        private const int packedFilesSize = 19731580;
+        private const int packedFilesSize = 19736195;
         private bool createDesktop;
         private bool createStartMenu;
         private bool useAppData;
@@ -139,6 +139,16 @@ namespace QtBibleViewerInstaller
             licenseCheckBox.Checked += LicenseCheckBox_Changed;
             licenseCheckBox.Unchecked += LicenseCheckBox_Changed;
             elements2.Add(licenseCheckBox);
+            var backButton = new WPFCtrls.Button
+            {
+                Content = langDict["back"],
+                Margin = new Thickness(0, 0, 230, 10),
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Width = 100,
+                Height = 23
+            };
+            elements2.Add(backButton);
             var nextButton = mainGrid.Children[0] as WPFCtrls.Button;
             nextButton.Click -= NextButton1_Click;
             nextButton.Click += NextButton2_Click;
@@ -280,7 +290,7 @@ namespace QtBibleViewerInstaller
         private string LoadLicenseText()
         {
             var stream = crntAssembly.GetManifestResourceStream(resPrefix + ".license.gpl-3.0.txt.gz");
-            byte[] buffer = new byte[stream.Length];
+            var buffer = new byte[stream.Length];
             stream.Read(buffer, 0, buffer.Length);
             byte[] unpackedData = Decompress(buffer);
             return Encoding.Default.GetString(unpackedData);

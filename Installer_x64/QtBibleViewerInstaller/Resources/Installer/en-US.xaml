@@ -4,7 +4,9 @@
     <system:String x:Key="title">QtBibleViewer Installer</system:String>
     <system:String x:Key="welcome">Welcome to the QtBibleViewer installer.</system:String>
     <system:String x:Key="instruction">Follow the displayed instructions to install the program.</system:String>
-    <system:String x:Key="next">Next ></system:String>
+    <system:String x:Key="next">Next &gt;</system:String>
+    <system:String x:Key="close">Close</system:String>
+    <system:String x:Key="back">&lt; Back</system:String>
     <system:String x:Key="license">GNU General Public License, version 3</system:String>
     <system:String x:Key="accept">I accept the license terms</system:String>
     <system:String x:Key="dirLbl">Choose installation directory:</system:String>
@@ -13,7 +15,6 @@
     <system:String x:Key="strtChk">Create Start Menu shortcut</system:String>
     <system:String x:Key="apdtChk">Store settings in AppData</system:String>
     <system:String x:Key="install">Install</system:String>
-    <system:String x:Key="close">Close</system:String>
     <system:String x:Key="unpacking">Unpacking</system:String>
     <system:String x:Key="to">to</system:String>
     <system:String x:Key="dsktShort">Creating desktop shortcut</system:String>

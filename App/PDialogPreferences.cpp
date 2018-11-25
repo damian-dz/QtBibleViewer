@@ -211,10 +211,10 @@ void PDialogPreferences::currentFontSizeChanged(const QString &text)
 
 void PDialogPreferences::colorPushButtonClicked()
 {
-    QColorDialog colorDlg(Qt::white, this);
-    colorDlg.setOptions(QColorDialog::ShowAlphaChannel);
-
-    m_highlightColor = QColorDialog::getColor(m_highlightColor, this, QString(), QColorDialog::ShowAlphaChannel);
+    QColor highlightColor = QColorDialog::getColor(m_highlightColor, this, QString(), QColorDialog::ShowAlphaChannel);
+    if (highlightColor.isValid()) {
+        m_highlightColor = highlightColor;
+    }
 }
 
 

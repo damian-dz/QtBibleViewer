@@ -20,13 +20,13 @@ inline void createFavDatabase(QSqlDatabase &db, const QString &fileName)
     }
 }
 
-inline bool isBetween(int numb, int frst, int scnd)
+inline bool isBetween(int nmbr, int frst, int scnd)
 {
-    return numb >= frst && numb <= scnd;
+    return nmbr >= frst && nmbr <= scnd;
 }
 
 inline bool isContainedInSelections(const QTextEdit::ExtraSelection &sel,
-                             const QList<QTextEdit::ExtraSelection> &extraSelections)
+                                    const QList<QTextEdit::ExtraSelection> &extraSelections)
 {
     bool res = false;
     for (int i = 0; i < extraSelections.count(); ++i) {
@@ -197,10 +197,10 @@ void MainWindow::generateBibleTabControls()
     tabBibleHorLayout->setContentsMargins(10, 10, 10, 10);
     tabBibleWidget->setLayout(tabBibleHorLayout);
 
-    auto bookVBoxLayout = new QVBoxLayout;
+    QVBoxLayout *bookVBoxLayout = new QVBoxLayout;
     tabBibleHorLayout->addLayout(bookVBoxLayout);
 
-    auto bookLabel = new QLabel;
+    QLabel *bookLabel = new QLabel;
     bookLabel->setText(tr("Book:"));
     bookVBoxLayout->addWidget(bookLabel);
 
@@ -390,71 +390,71 @@ void MainWindow::populateBookNames()
         m_bookNames.clear();
     }
     m_bookNames << tr("Genesis")
-              << tr("Exodus")
-              << tr("Leviticus")
-              << tr("Numbers")
-              << tr("Deuteronomy")
-              << tr("Joshua")
-              << tr("Judges")
-              << tr("Ruth")
-              << tr("1 Samuel")
-              << tr("2 Samuel")
-              << tr("1 Kings")
-              << tr("2 Kings")
-              << tr("1 Chronicles")
-              << tr("2 Chronicles")
-              << tr("Ezra")
-              << tr("Nehemiah")
-              << tr("Esther")
-              << tr("Job")
-              << tr("Psalms")
-              << tr("Proverbs")
-              << tr("Ecclesiastes")
-              << tr("Song of Solomon")
-              << tr("Isaiah")
-              << tr("Jeremiah")
-              << tr("Lamentations")
-              << tr("Ezekiel")
-              << tr("Daniel")
-              << tr("Hosea")
-              << tr("Joel")
-              << tr("Amos")
-              << tr("Obadiah")
-              << tr("Jonah")
-              << tr("Micah")
-              << tr("Nahum")
-              << tr("Habakkuk")
-              << tr("Zephaniah")
-              << tr("Haggai")
-              << tr("Zechariah")
-              << tr("Malachi")
-              << tr("Matthew")
-              << tr("Mark")
-              << tr("Luke")
-              << tr("John")
-              << tr("Acts")
-              << tr("Romans")
-              << tr("1 Corinthians")
-              << tr("2 Corinthians")
-              << tr("Galatians")
-              << tr("Ephesians")
-              << tr("Philippians")
-              << tr("Colossians")
-              << tr("1 Thessalonians")
-              << tr("2 Thessalonians")
-              << tr("1 Timothy")
-              << tr("2 Timothy")
-              << tr("Titus")
-              << tr("Philemon")
-              << tr("Hebrews")
-              << tr("James")
-              << tr("1 Peter")
-              << tr("2 Peter")
-              << tr("1 John")
-              << tr("2 John")
-              << tr("3 John")
-              << tr("Jude")
-              << tr("Revelation");
+                << tr("Exodus")
+                << tr("Leviticus")
+                << tr("Numbers")
+                << tr("Deuteronomy")
+                << tr("Joshua")
+                << tr("Judges")
+                << tr("Ruth")
+                << tr("1 Samuel")
+                << tr("2 Samuel")
+                << tr("1 Kings")
+                << tr("2 Kings")
+                << tr("1 Chronicles")
+                << tr("2 Chronicles")
+                << tr("Ezra")
+                << tr("Nehemiah")
+                << tr("Esther")
+                << tr("Job")
+                << tr("Psalms")
+                << tr("Proverbs")
+                << tr("Ecclesiastes")
+                << tr("Song of Solomon")
+                << tr("Isaiah")
+                << tr("Jeremiah")
+                << tr("Lamentations")
+                << tr("Ezekiel")
+                << tr("Daniel")
+                << tr("Hosea")
+                << tr("Joel")
+                << tr("Amos")
+                << tr("Obadiah")
+                << tr("Jonah")
+                << tr("Micah")
+                << tr("Nahum")
+                << tr("Habakkuk")
+                << tr("Zephaniah")
+                << tr("Haggai")
+                << tr("Zechariah")
+                << tr("Malachi")
+                << tr("Matthew")
+                << tr("Mark")
+                << tr("Luke")
+                << tr("John")
+                << tr("Acts")
+                << tr("Romans")
+                << tr("1 Corinthians")
+                << tr("2 Corinthians")
+                << tr("Galatians")
+                << tr("Ephesians")
+                << tr("Philippians")
+                << tr("Colossians")
+                << tr("1 Thessalonians")
+                << tr("2 Thessalonians")
+                << tr("1 Timothy")
+                << tr("2 Timothy")
+                << tr("Titus")
+                << tr("Philemon")
+                << tr("Hebrews")
+                << tr("James")
+                << tr("1 Peter")
+                << tr("2 Peter")
+                << tr("1 John")
+                << tr("2 John")
+                << tr("3 John")
+                << tr("Jude")
+                << tr("Revelation");
     ui_Bib_ListWidget_Book->addItems(m_bookNames);
 }
 
@@ -1256,11 +1256,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     dictionariesListWidget->setMaximumWidth(200);
     dictionariesListWidget->setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE));
     dictionariesVerLayout->addWidget(dictionariesListWidget);
-    connect(dictionariesListWidget, SIGNAL(currentRowChanged(int)),
-            this, SLOT(on_Dic_CurrentRowChanged_ListWidget_Dictionaries(int)));
-
-    //connect(dictionariesListWidget, &QListWidget::currentRowChanged,this,
-    //        [this]{ on_Dic_CurrentRowChanged_ListWidget_Dictionaries(1); });
+    QObject::connect(dictionariesListWidget, SIGNAL(currentRowChanged(int)),
+                     this, SLOT(on_Dic_CurrentRowChanged_ListWidget_Dictionaries(int)));
 
     QVBoxLayout *numberEntriesVerLayout = new QVBoxLayout;
     mainHorLayout->addLayout(numberEntriesVerLayout);
@@ -1309,14 +1306,11 @@ void MainWindow::generateDictionaryTabControls(int idx)
     dir.setNameFilters(filters);
     QFileInfoList dictList = dir.entryInfoList();
     QStringList dictNameList;
-    foreach (QFileInfo file, dictList) {
+    for (const QFileInfo &file : dictList) {
         dictNameList << file.fileName();
         m_dictPathList << file.absoluteFilePath();
     }
-
     dictionariesListWidget->addItems(dictNameList);
-
-
 }
 
 void MainWindow::generateFavoritesTabControls(int idx)
@@ -1468,7 +1462,7 @@ void MainWindow::generateSearchTabControls(int idx)
     translationHBoxLayout->addWidget(translationLabel);
 
     QStringList translationNames;
-    for (const ModuleData md : m_modules) {
+    for (const ModuleData &md : m_modules) {
         translationNames << md.name;
     }
     ui_Sea_ComboBox_Translation = new QComboBox;
@@ -2072,7 +2066,7 @@ void closeDatabase(QSqlDatabase &db)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     saveSettings();
-    for (ModuleData md : m_modules) {
+    for (ModuleData &md : m_modules) {
         closeDatabase(md.database);
     }
     closeDatabase(m_dbCntr);
@@ -2732,7 +2726,6 @@ void MainWindow::on_Bib_CustomContextMenuRequested_ChapterBrowser(const QPoint &
     QList<QAction *> contextActions = contextMenu.actions();
     QTextCursor cursor = m_chapterBrowsers[idx]->textCursor();
     contextActions[0]->setDisabled(cursor.selectionStart() == cursor.selectionEnd());
-    contextActions[1]->setEnabled(contextActions[0]->isEnabled());
     contextActions[4]->setDisabled(m_verseRange.first == 0 && m_verseRange.second == 0);
     contextActions[6]->setEnabled(ui_Act_Back->isEnabled());
     contextActions[7]->setEnabled(ui_Act_Forward->isEnabled());
@@ -2747,7 +2740,7 @@ QStringList MainWindow::getModulePaths(const QString &path)
     dir.setNameFilters(filters);
     QFileInfoList moduleList = dir.entryInfoList();
     QStringList modulePathList;
-    foreach (QFileInfo file, moduleList) {
+    for (const QFileInfo &file : moduleList) {
         modulePathList << file.absoluteFilePath();
     }
     return modulePathList;
