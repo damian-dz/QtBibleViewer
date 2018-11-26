@@ -17,6 +17,8 @@
     <system:String x:Key="close">Zamknij</system:String>
     <system:String x:Key="unpacking">Rozpakowywanie</system:String>
     <system:String x:Key="to">do</system:String>
+    <system:String x:Key="deleting">Usuwanie</system:String>
+    <system:String x:Key="cancelled">Operacja przerwana przez Użytkownika</system:String>
     <system:String x:Key="dsktShort">Tworzenie skrótu na pulpicie</system:String>
     <system:String x:Key="strtShort">Tworzenie skrótu w Menu Start</system:String>
     <system:String x:Key="regEntry">Tworzenie wpisu w rejestrze</system:String>

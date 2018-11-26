@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -22,7 +23,7 @@ namespace QtBibleViewerInstaller
     public partial class MainWindow : Window
     {
         private ResourceDictionary langDict;
-        private readonly string resPrefix = "QtBibleViewerInstaller.Resources.Program";
+        private const string resPrefix = "QtBibleViewerInstaller.Resources.Program";
         private Assembly crntAssembly = Assembly.GetExecutingAssembly();
         private List<UIElement> elements1 = new List<UIElement>();
         private List<UIElement> elements2 = new List<UIElement>();
@@ -35,6 +36,17 @@ namespace QtBibleViewerInstaller
         private bool createStartMenu;
         private bool useAppData;
         private bool startAppWhenClosed = false;
+        
+        private WPFCtrls.Button frstButton;
+        private WPFCtrls.Button scndButton;
+        private WPFCtrls.Button thrdButton;
+
+        private BackgroundWorker worker;
+        private List<string> installedFiles = new List<string>();
+        private List<string> createdDirs = new List<string>();
+
+        private bool instDirExisted = true;
+        private bool appDirExisted = true;
 
         private void SetLanguageDictionary()
         {
@@ -58,101 +70,139 @@ namespace QtBibleViewerInstaller
             Resources.MergedDictionaries.Add(langDict);
         }
 
-        private void DrawFirstWindow()
+        private void DrawFirstWindow(bool forward)
         {
-            var welcomeLabel = new WPFCtrls.Label
+            if (!forward)
             {
-                Content = langDict["welcome"],
-                FontSize = 16,
-                FontWeight = FontWeights.Bold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 10, 0, 0)
-            };
-            elements1.Add(welcomeLabel);
-            var instructionBlock = new WPFCtrls.TextBlock
+                mainGrid.Children.Remove(frstButton);
+                scndButton.Click -= NextButton2_Click;
+                scndButton.Click += NextButton1_Click;
+                scndButton.IsEnabled = true;
+            }
+
+            if (elements1.Count == 0)
             {
-                Text = (string)langDict["instruction"],
-                FontSize = 12,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Thickness(0, 100, 0, 0),
-                TextWrapping = TextWrapping.WrapWithOverflow,
-                VerticalAlignment = VerticalAlignment.Top
-            };
-            elements1.Add(instructionBlock);
-            var nextButton = new WPFCtrls.Button
+                var welcomeLabel = new WPFCtrls.Label
+                {
+                    Content = langDict["welcome"],
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(0, 10, 0, 0)
+                };
+                elements1.Add(welcomeLabel);
+
+                var instructionBlock = new WPFCtrls.TextBlock
+                {
+                    Text = langDict["instruction"].ToString(),
+                    FontSize = 12,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 100, 0, 0),
+                    TextWrapping = TextWrapping.WrapWithOverflow,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+                elements1.Add(instructionBlock);
+
+                scndButton = new WPFCtrls.Button
+                {
+                    Content = langDict["next"],
+                    Margin = new Thickness(0, 0, 120, 10),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Width = 100,
+                    Height = 23
+                };
+                scndButton.Click += NextButton1_Click;
+
+                thrdButton = new WPFCtrls.Button
+                {
+                    Content = langDict["close"],
+                    Margin = new Thickness(0, 0, 10, 10),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Width = 100,
+                    Height = 23,
+                };
+                thrdButton.Click += CloseButton_Click;
+            }
+
+            if (forward)
             {
-                Content = langDict["next"],
-                Margin = new Thickness(0, 0, 120, 10),
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Width = 100,
-                Height = 23
-            };
-            nextButton.Click += NextButton1_Click;         
-            var closeButton = new WPFCtrls.Button
-            {
-                Content = langDict["close"],
-                Margin = new Thickness(0, 0, 10, 10),
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Width = 100,
-                Height = 23
-            };
-            closeButton.Click += CloseButton_Click;
+                mainGrid.Children.Add(scndButton);
+                mainGrid.Children.Add(thrdButton);
+            }
             foreach (UIElement elem in elements1)
             {
                 mainGrid.Children.Add(elem);
             }
-            mainGrid.Children.Add(nextButton);
-            mainGrid.Children.Add(closeButton);
         }
 
-        private void DrawSecondWindow()
+        private void DrawSecondWindow(bool forward)
         {
-            var licenseLabel = new WPFCtrls.Label
+            if (!forward)
             {
-                Content = langDict["license"],
-                FontSize = 16,
-                FontWeight = FontWeights.Bold,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(0, 10, 0, 0)
-            };
-            elements2.Add(licenseLabel);
-            var licenseTextBox = new WPFCtrls.TextBox
+                frstButton.Click -= BackButton3_Click;
+                frstButton.Click += BackButton2_Click;
+                scndButton.Content = langDict["next"];
+                scndButton.Click -= InstallButton_Click;
+                scndButton.Click += NextButton2_Click;
+            }
+
+            if (elements2.Count == 0)
             {
-                AcceptsReturn = true,
-                Margin = new Thickness(10, 50, 10, 60),
-                VerticalScrollBarVisibility = WPFCtrls.ScrollBarVisibility.Auto,
-                VerticalAlignment = VerticalAlignment.Top,
-                IsReadOnly = true,
-                Text = LoadLicenseText()
-            };
-            elements2.Add(licenseTextBox);
-            var licenseCheckBox = new WPFCtrls.CheckBox
+                var licenseLabel = new WPFCtrls.Label
+                {
+                    Content = langDict["license"],
+                    FontSize = 16,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(0, 10, 0, 0)
+                };
+                elements2.Add(licenseLabel);
+
+                var licenseTextBox = new WPFCtrls.TextBox
+                {
+                    AcceptsReturn = true,
+                    Margin = new Thickness(10, 50, 10, 60),
+                    VerticalScrollBarVisibility = WPFCtrls.ScrollBarVisibility.Auto,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    IsReadOnly = true,
+                    Text = LoadLicenseText()
+                };
+                elements2.Add(licenseTextBox);
+
+                var licenseCheckBox = new WPFCtrls.CheckBox
+                {
+                    Content = langDict["accept"],
+                    Margin = new Thickness(10, 50, 10, 40),
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                };
+                licenseCheckBox.Checked += LicenseCheckBox_Changed;
+                licenseCheckBox.Unchecked += LicenseCheckBox_Changed;
+                elements2.Add(licenseCheckBox);
+
+                frstButton = new WPFCtrls.Button
+                {
+                    Content = langDict["back"],
+                    Margin = new Thickness(0, 0, 230, 10),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Width = 100,
+                    Height = 23
+                };
+                frstButton.Click += BackButton2_Click;
+            }
+
+            if (forward)
             {
-                Content = langDict["accept"],
-                Margin = new Thickness(10, 50, 10, 40),
-                VerticalAlignment = VerticalAlignment.Bottom,
-            };
-            licenseCheckBox.Checked += LicenseCheckBox_Changed;
-            licenseCheckBox.Unchecked += LicenseCheckBox_Changed;
-            elements2.Add(licenseCheckBox);
-            var backButton = new WPFCtrls.Button
-            {
-                Content = langDict["back"],
-                Margin = new Thickness(0, 0, 230, 10),
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Width = 100,
-                Height = 23
-            };
-            elements2.Add(backButton);
-            var nextButton = mainGrid.Children[0] as WPFCtrls.Button;
-            nextButton.Click -= NextButton1_Click;
-            nextButton.Click += NextButton2_Click;
-            nextButton.IsEnabled = false;
+                scndButton.Click -= NextButton1_Click;
+                scndButton.Click += NextButton2_Click;
+                scndButton.IsEnabled = (bool)(elements2[2] as WPFCtrls.CheckBox).IsChecked;
+                mainGrid.Children.Add(frstButton);
+            }
+
             foreach (UIElement elem in elements2)
             {
                 mainGrid.Children.Add(elem);
@@ -167,79 +217,93 @@ namespace QtBibleViewerInstaller
 
         private void DrawThirdWindow()
         {
-            var dirLabel = new WPFCtrls.Label
+            if (elements3.Count == 0)
             {
-                Content = langDict["dirLbl"],
-                FontSize = 12,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = new Thickness(10, 10, 0, 0),
-                Padding = new Thickness(0, 0, 0, 0)
-            };
-            elements3.Add(dirLabel);
-            var dirTextBox = new WPFCtrls.TextBox
-            {
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(10, 35, 120, 0),
-                Height = 23,
-                VerticalAlignment = VerticalAlignment.Top,
-                Text = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + @"\QtBibleViewer"
-            };
-            elements3.Add(dirTextBox);
-            var changeButton = new WPFCtrls.Button
-            {
-                Content = langDict["chngBtn"],
-                Margin = new Thickness(0, 35, 10, 10),
-                HorizontalAlignment = HorizontalAlignment.Right,
-                VerticalAlignment = VerticalAlignment.Top,
-                Width = 100,
-                Height = 23
-            };
-            changeButton.Click += ChangeButton_Click;
-            elements3.Add(changeButton);
-            var dsktCheckBox = new WPFCtrls.CheckBox
-            {
-                Content = langDict["dsktChk"],
-                Margin = new Thickness(10, 65, 10, 0),
-                VerticalAlignment = VerticalAlignment.Top,
-                IsChecked = true
-            };
-            elements3.Add(dsktCheckBox);
-            var strtCheckBox = new WPFCtrls.CheckBox
-            {
-                Content = langDict["strtChk"],
-                Margin = new Thickness(10, 85, 10, 0),
-                VerticalAlignment = VerticalAlignment.Top,
-                IsChecked = true
-            };
-            elements3.Add(strtCheckBox);
-            var apdtCheckBox = new WPFCtrls.CheckBox
-            {
-                Content = langDict["apdtChk"],
-                Margin = new Thickness(250, 65, 10, 0),
-                VerticalAlignment = VerticalAlignment.Top,
-            };
-            elements3.Add(apdtCheckBox);
-            var progressTextBox = new WPFCtrls.TextBox
-            {
-                AcceptsReturn = true,
-                Margin = new Thickness(10, 105, 10, 65),
-                VerticalScrollBarVisibility = WPFCtrls.ScrollBarVisibility.Auto,
-                IsReadOnly = true,
-            };
-            elements3.Add(progressTextBox);
-            var progressBar = new WPFCtrls.ProgressBar
-            {
-                Margin = new Thickness(10, 70, 10, 40),
-                VerticalAlignment = VerticalAlignment.Bottom,
-                Height = 20,
-                Maximum = packedFilesSize
-            };
-            elements3.Add(progressBar);
-            var installButton = mainGrid.Children[0] as WPFCtrls.Button;
-            installButton.Content = langDict["install"];
-            installButton.Click -= NextButton2_Click;
-            installButton.Click += InstallButton_Click;
+                var dirLabel = new WPFCtrls.Label
+                {
+                    Content = langDict["dirLbl"],
+                    FontSize = 12,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(10, 10, 0, 0),
+                    Padding = new Thickness(0, 0, 0, 0)
+                };
+                elements3.Add(dirLabel);
+
+                var dirTextBox = new WPFCtrls.TextBox
+                {
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Margin = new Thickness(10, 35, 120, 0),
+                    Height = 23,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Text = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + @"\QtBibleViewer"
+                };
+                elements3.Add(dirTextBox);
+
+                var changeButton = new WPFCtrls.Button
+                {
+                    Content = langDict["chngBtn"],
+                    Margin = new Thickness(0, 35, 10, 10),
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Width = 100,
+                    Height = 23
+                };
+                changeButton.Click += ChangeButton_Click;
+                elements3.Add(changeButton);
+
+                var dsktCheckBox = new WPFCtrls.CheckBox
+                {
+                    Content = langDict["dsktChk"],
+                    Margin = new Thickness(10, 65, 10, 0),
+                    VerticalAlignment = VerticalAlignment.Top,
+                    IsChecked = true
+                };
+                elements3.Add(dsktCheckBox);
+
+                var strtCheckBox = new WPFCtrls.CheckBox
+                {
+                    Content = langDict["strtChk"],
+                    Margin = new Thickness(10, 85, 10, 0),
+                    VerticalAlignment = VerticalAlignment.Top,
+                    IsChecked = true
+                };
+                elements3.Add(strtCheckBox);
+
+                var apdtCheckBox = new WPFCtrls.CheckBox
+                {
+                    Content = langDict["apdtChk"],
+                    Margin = new Thickness(250, 65, 10, 0),
+                    VerticalAlignment = VerticalAlignment.Top,
+                };
+                elements3.Add(apdtCheckBox);
+
+                var progressTextBox = new WPFCtrls.TextBox
+                {
+                    AcceptsReturn = true,
+                    Margin = new Thickness(10, 105, 10, 65),
+                    VerticalScrollBarVisibility = WPFCtrls.ScrollBarVisibility.Auto,
+                    IsReadOnly = true,
+                };
+                elements3.Add(progressTextBox);
+
+                var progressBar = new WPFCtrls.ProgressBar
+                {
+                    Margin = new Thickness(10, 70, 10, 40),
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Height = 20,
+                    Maximum = packedFilesSize
+                };
+                elements3.Add(progressBar);
+            }
+
+            scndButton.Content = langDict["install"];
+            scndButton.Click -= NextButton2_Click;
+            scndButton.Click += InstallButton_Click;
+
+            frstButton.Click -= BackButton2_Click;
+            frstButton.Click += BackButton3_Click;
+
             foreach (UIElement elem in elements3)
             {
                 mainGrid.Children.Add(elem);
@@ -248,6 +312,8 @@ namespace QtBibleViewerInstaller
 
         private void DrawFourthWindow()
         {
+            mainGrid.Children.Remove(frstButton);
+
             var successLabel = new WPFCtrls.Label
             {
                 Content = langDict["success"],
@@ -258,6 +324,7 @@ namespace QtBibleViewerInstaller
                 Margin = new Thickness(0, 10, 0, 0)
             };
             elements4.Add(successLabel);
+
             var youMayBlock = new WPFCtrls.TextBlock
             {
                 Text = langDict["youMay"].ToString(),
@@ -268,6 +335,7 @@ namespace QtBibleViewerInstaller
                 VerticalAlignment = VerticalAlignment.Top
             };
             elements4.Add(youMayBlock);
+
             var runCheckBox = new WPFCtrls.CheckBox
             {
                 Content = langDict["runQBV"],
@@ -277,10 +345,12 @@ namespace QtBibleViewerInstaller
                 IsChecked = true
             };
             elements4.Add(runCheckBox);
+
             var finishButton = mainGrid.Children[0] as WPFCtrls.Button;
             finishButton.Content = langDict["finish"];
             finishButton.Click -= NextButton3_Click;
             finishButton.Click += FinishButton_Click;
+
             foreach (UIElement elem in elements4)
             {
                 mainGrid.Children.Add(elem);
@@ -300,7 +370,7 @@ namespace QtBibleViewerInstaller
         {
             SetLanguageDictionary();
             InitializeComponent();
-            DrawFirstWindow();
+            DrawFirstWindow(true);
             Closed += MainWindow_Closed;
         }
 
@@ -339,7 +409,16 @@ namespace QtBibleViewerInstaller
             {
                 mainGrid.Children.Remove(child);
             }
-            DrawSecondWindow();
+            DrawSecondWindow(true);
+        }
+
+        private void BackButton2_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (UIElement child in elements2)
+            {
+                mainGrid.Children.Remove(child);
+            }
+            DrawFirstWindow(false);
         }
 
         private void NextButton2_Click(object sender, RoutedEventArgs e)
@@ -349,6 +428,16 @@ namespace QtBibleViewerInstaller
                 mainGrid.Children.Remove(child);
             }
             DrawThirdWindow();
+        }
+
+        private void BackButton3_Click(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine("BackButton3_Click");
+            foreach (UIElement child in elements3)
+            {
+                mainGrid.Children.Remove(child);
+            }
+            DrawSecondWindow(false);
         }
 
         private void NextButton3_Click(object sender, RoutedEventArgs e)
@@ -368,7 +457,14 @@ namespace QtBibleViewerInstaller
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            if (worker.IsBusy)
+            {
+                worker.CancelAsync();
+            }
+            else
+            {
+                Application.Current.Shutdown();
+            }         
         }
 
         private byte[] Decompress(byte[] data)
@@ -382,7 +478,7 @@ namespace QtBibleViewerInstaller
             }
         }
 
-        private void UnpackResourceFile(string resName, string subFolder = "")
+        private string UnpackResourceFile(string resName, string subFolder = "")
         {
             string subPrefix = subFolder == "" ? "." : "." + subFolder + ".";
             var stream = crntAssembly.GetManifestResourceStream(resPrefix + subPrefix.Replace('\\', '.') + resName);
@@ -401,7 +497,7 @@ namespace QtBibleViewerInstaller
                 progressBox.AppendText(textToAppend + Environment.NewLine);
                 progressBox.ScrollToEnd();
             });
-            byte[] buffer = new byte[stream.Length];
+            var buffer = new byte[stream.Length];
             stream.Read(buffer, 0, buffer.Length);
             totalBufferSize += buffer.Length;                
             byte[] unpackedData = Decompress(buffer);
@@ -413,21 +509,29 @@ namespace QtBibleViewerInstaller
             if (subFolder != "" && !Directory.Exists(Path.Combine(instDir, subFolder)))
             {
                 Directory.CreateDirectory(Path.Combine(instDir, subFolder));
+                createdDirs.Add(Path.Combine(instDir, subFolder));
             }
-            System.IO.File.WriteAllBytes(instDir + saveSubPath, unpackedData);
+            string outputFilename = instDir + saveSubPath;
+            System.IO.File.WriteAllBytes(outputFilename, unpackedData);
+            return outputFilename;
         }
+
 
         private void InstallButton_Click(object sender, RoutedEventArgs e)
         {
+            frstButton.IsEnabled = false;
+            scndButton.IsEnabled = false;
             instDir = (elements3[1] as WPFCtrls.TextBox).Text;
             createDesktop = (bool)(elements3[3] as WPFCtrls.CheckBox).IsChecked;
             createStartMenu = (bool)(elements3[4] as WPFCtrls.CheckBox).IsChecked;
             useAppData = (bool)(elements3[5] as WPFCtrls.CheckBox).IsChecked;
-            var worker = new BackgroundWorker
+            worker = new BackgroundWorker
             {
                 WorkerSupportsCancellation = true
             };
             worker.DoWork += UnpackAllResourceFiles;
+            worker.RunWorkerCompleted += WorkCompleted;
+
             worker.RunWorkerAsync();
         }
 
@@ -436,44 +540,127 @@ namespace QtBibleViewerInstaller
             if (!Directory.Exists(instDir))
             {
                 Directory.CreateDirectory(instDir);
+                appDirExisted = false;
             }
-            UnpackResourceFile("Qt5Charts.dll.gz");
-            UnpackResourceFile("Qt5Core.dll.gz");
-            UnpackResourceFile("Qt5Gui.dll.gz");
-            UnpackResourceFile("Qt5Sql.dll.gz");
-            UnpackResourceFile("Qt5Svg.dll.gz");
-            UnpackResourceFile("Qt5Widgets.dll.gz");
-            UnpackResourceFile("QtBibleViewer.exe.gz");
-            UnpackResourceFile("uninstall.exe.gz");
-            UnpackResourceFile("vcruntime140.dll.gz");
+            else
+            {
+                if (!Directory.Exists(Path.Combine(instDir, "App")))
+                {
+                    appDirExisted = false;
+                }
+            }
+
+            var paths = new Dictionary<string, string[]>
+            {
+                { "",
+                    new string[]
+                    {
+                        "Qt5Charts.dll.gz",
+                        "Qt5Core.dll.gz",
+                        "Qt5Gui.dll.gz",
+                        "Qt5Sql.dll.gz",
+                        "Qt5Svg.dll.gz",
+                        "Qt5Widgets.dll.gz",
+                        "QtBibleViewer.exe.gz",
+                        "uninstall.exe.gz",
+                        "vcruntime140.dll.gz"
+                    }
+                },
+                { @"App\data",
+                    new string[]
+                    {
+                        "counters.bblv.gz",
+                        "xref.bblv.gz"
+                    }
+                },
+                { @"App\dictionaries",
+                    new string[]
+                    {
+                        "strong_lite.dct.mybible.gz"
+                    }
+                },
+                { @"App\lang",
+                    new string[]
+                    {
+                        "es.qm.gz",
+                        "pl.qm.gz",
+                        "qt_es.qm.gz",
+                        "qt_pl.qm.gz"
+                    }
+                },
+                { @"App\modules",
+                    new string[]
+                    {
+                        "kjv.bbl.mybible.gz",
+                        "kjvlite.bbl.mybible.gz",
+                        "pubg.bbl.mybible.gz"
+                    }
+                },
+                { "iconengines",
+                    new string[]
+                    {
+                        "qsvgicon.dll.gz"
+                    }
+                },
+                { "imageformats",
+                    new string[]
+                    {
+                        "qgif.dll.gz",
+                        "qicns.dll.gz",
+                        "qico.dll.gz",
+                        "qjpeg.dll.gz",
+                        "qsvg.dll.gz",
+                        "qtga.dll.gz",
+                        "qtiff.dll.gz",
+                        "qwbmp.dll.gz",
+                        "qwebp.dll.gz"
+                    }
+                },
+                { "license",
+                    new string[]
+                    {
+                        "gpl-3.0.txt.gz"
+                    }
+                },
+                { "platforms",
+                    new string[]
+                    {
+                        "qwindows.dll.gz"
+                    }    
+                },
+                { "sqldrivers",
+                    new string[]
+                    {
+                        "qsqlite.dll.gz"
+                    }
+                },
+                { "styles",
+                    new string[]
+                    {
+                        "qwindowsvistastyle.dll.gz"
+                    }
+                }
+            };
+
+            for (int i = 0; i < paths.Count; i++)
+            {
+                string folder = paths.ElementAt(i).Key;
+                string[] files = paths.ElementAt(i).Value;
+                for (int j = 0; j < files.Length; j++)
+                {
+                    if (worker.CancellationPending)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                    installedFiles.Add(UnpackResourceFile(files[j], folder));
+                }
+            }
             if (!useAppData)
             {
-                UnpackResourceFile("settings.ini.gz", @"App\config");
+                installedFiles.Add(UnpackResourceFile("settings.ini.gz", @"App\config"));
             }
-            UnpackResourceFile("counters.bblv.gz", @"App\data");
-            UnpackResourceFile("xref.bblv.gz", @"App\data");
-            UnpackResourceFile("strong_lite.dct.mybible.gz", @"App\dictionaries");
-            UnpackResourceFile("es.qm.gz", @"App\lang");
-            UnpackResourceFile("pl.qm.gz", @"App\lang");
-            UnpackResourceFile("qt_es.qm.gz", @"App\lang");
-            UnpackResourceFile("qt_pl.qm.gz", @"App\lang");
-            UnpackResourceFile("kjv.bbl.mybible.gz", @"App\modules");
-            UnpackResourceFile("kjvlite.bbl.mybible.gz", @"App\modules");
-            UnpackResourceFile("pubg.bbl.mybible.gz", @"App\modules");
-            UnpackResourceFile("qsvgicon.dll.gz", "iconengines");
-            UnpackResourceFile("qgif.dll.gz", "imageformats");
-            UnpackResourceFile("qicns.dll.gz", "imageformats");
-            UnpackResourceFile("qico.dll.gz", "imageformats");
-            UnpackResourceFile("qjpeg.dll.gz", "imageformats");
-            UnpackResourceFile("qsvg.dll.gz", "imageformats");
-            UnpackResourceFile("qtga.dll.gz", "imageformats");
-            UnpackResourceFile("qtiff.dll.gz", "imageformats");
-            UnpackResourceFile("qwbmp.dll.gz", "imageformats");
-            UnpackResourceFile("qwebp.dll.gz", "imageformats");
-            UnpackResourceFile("gpl-3.0.txt.gz", "license");
-            UnpackResourceFile("qwindows.dll.gz", "platforms");
-            UnpackResourceFile("qsqlite.dll.gz", "sqldrivers");
-            UnpackResourceFile("qwindowsvistastyle.dll.gz", "styles");
+
             if (createDesktop)
             {
                 CreateShortcut("dsktShort", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
@@ -488,15 +675,61 @@ namespace QtBibleViewerInstaller
                 }
                 CreateShortcut("strtShort", subFolder);
             }
+
             RegisterUninstaller();
-            Dispatcher.Invoke(() =>
-            {
-                var nextButton = mainGrid.Children[0] as WPFCtrls.Button;
-                nextButton.Content = langDict["next"];
-                nextButton.Click -= InstallButton_Click;
-                nextButton.Click += NextButton3_Click;
-            });
+
             GC.Collect();
+        }
+
+
+        private void WorkCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled)
+            {
+                MessageBox.Show(langDict["cancelled"].ToString());
+                var progressBox = (elements3[6] as WPFCtrls.TextBox);
+                for (int i = 0; i < installedFiles.Count; i++)
+                {
+                    progressBox.AppendText(langDict["deleting"] + " " + installedFiles[i]);
+                    if (i < installedFiles.Count - 1 || createdDirs.Count > 0)
+                    {
+                        progressBox.AppendText(Environment.NewLine);
+                    }
+                    progressBox.ScrollToEnd();
+                    System.IO.File.Delete(installedFiles[i]);
+                }
+                for (int i = 0; i < createdDirs.Count; i++)
+                {
+                    progressBox.AppendText(langDict["deleting"] + " " + createdDirs[i]);
+                    if (i < createdDirs.Count - 1 || !appDirExisted)
+                    {
+                        progressBox.AppendText(Environment.NewLine);
+                    }
+                    progressBox.ScrollToEnd();
+                    Directory.Delete(createdDirs[i]);
+                }
+                if (!appDirExisted && Directory.Exists(Path.Combine(instDir, "App")))
+                {
+                    progressBox.AppendText(langDict["deleting"] + " " + Path.Combine(instDir, "App"));
+                    if (!instDirExisted)
+                    {
+                        progressBox.AppendText(Environment.NewLine);
+                    }
+                    Directory.Delete(Path.Combine(instDir, "App"));
+                }
+                if (!instDirExisted)
+                {
+                    progressBox.AppendText(langDict["deleting"] + " " + instDir);
+                    Directory.Delete(instDir);
+                }
+            }
+            else
+            {
+                scndButton.Content = langDict["next"];
+                scndButton.Click -= InstallButton_Click;
+                scndButton.Click += NextButton3_Click;
+                scndButton.IsEnabled = true;
+            }
         }
 
         private void CreateShortcut(string id, string shortcutDir)

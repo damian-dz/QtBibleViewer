@@ -8,10 +8,10 @@
 #include <QFontInfo>
 #include <QStyleFactory>
 
-inline void createFavDatabase(QSqlDatabase &db, const QString &fileName)
+inline void createFavDatabase(QSqlDatabase &db, const QString &filename)
 {
     db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(fileName);
+    db.setDatabaseName(filename);
     if (db.open()) {
         QSqlQuery query(db);
         query.exec("CREATE TABLE Favorites (Book INT, Chapter INT, VerseFirst INT, VerseLast INT, Comment TEXT)");
@@ -63,7 +63,8 @@ MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString
     generateMainLayout();
     populateLanguageMap(lang);
     generateBibModuleTabs();
-    populateBookNames();
+    populateBookNames();   
+    loadDictPaths();
     if (tbcvv != TabBookChapterVerses()) {
         setTabBookChapterVerses(tbcvv, true);
     }
@@ -677,15 +678,15 @@ void MainWindow::clearChapterBrowserData(int idx)
 void MainWindow::loadFavorites()
 {
     QString dirName = m_executionPath + "/App/user";
-    QString fileName = dirName + "/fav.bblv";
+    QString filename = dirName + "/fav.bblv";
     if (!QDir(dirName).exists()) {
         QDir().mkdir(dirName);
-        createFavDatabase(m_dbUsr, fileName);
-    } else if (!QDir().exists(fileName)) {
-        createFavDatabase(m_dbUsr, fileName);
+        createFavDatabase(m_dbUsr, filename);
+    } else if (!QDir().exists(filename)) {
+        createFavDatabase(m_dbUsr, filename);
     } else {
         m_dbUsr = QSqlDatabase::addDatabase("QSQLITE");
-        m_dbUsr.setDatabaseName(fileName);
+        m_dbUsr.setDatabaseName(filename);
         m_dbUsr.open();
         QSqlQuery query(m_dbUsr);
         query.exec("SELECT * FROM Favorites");
@@ -862,7 +863,7 @@ void MainWindow::displaySearchResults(int startIdx, int endIdx)
     while (ui_Sea_TextBrowser_Results->find(refRgx)) {
         QTextEdit::ExtraSelection extra;
         extra.cursor = ui_Sea_TextBrowser_Results->textCursor();
-        refExtraSelections.append(extra);
+        refExtraSelections << extra;
     }
 
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -872,8 +873,7 @@ void MainWindow::displaySearchResults(int startIdx, int endIdx)
         extra.format.setBackground(color);
         extra.cursor = ui_Sea_TextBrowser_Results->textCursor();
         if (!isContainedInSelections(extra, refExtraSelections)) {
-
-            extraSelections.append(extra);
+            extraSelections << extra;
         }
     }
     ui_Sea_TextBrowser_Results->setExtraSelections(extraSelections);
@@ -1300,15 +1300,9 @@ void MainWindow::generateDictionaryTabControls(int idx)
 
     connectDictionaryTabSignals();
 
-    QDir dir(m_executionPath + "/App/dictionaries/");
-    QStringList filters;
-    filters << "*.dct.mybible";
-    dir.setNameFilters(filters);
-    QFileInfoList dictList = dir.entryInfoList();
     QStringList dictNameList;
-    for (const QFileInfo &file : dictList) {
-        dictNameList << file.fileName();
-        m_dictPathList << file.absoluteFilePath();
+    for (const QString &path : m_dictPathList) {
+        dictNameList << QFileInfo(path).fileName();
     }
     dictionariesListWidget->addItems(dictNameList);
 }
@@ -2099,6 +2093,18 @@ void MainWindow::loadBackgroundPixmap()
     }
 }
 
+void MainWindow::loadDictPaths()
+{
+    QDir dir(m_executionPath + "/App/dictionaries/");
+    QStringList filters;
+    filters << "*.dct.mybible";
+    dir.setNameFilters(filters);
+    QFileInfoList dictList = dir.entryInfoList();
+    for (const QFileInfo &file : dictList) {
+        m_dictPathList << file.absoluteFilePath();
+    }
+}
+
 void MainWindow::addModuleLayout(int idx)
 {
     QTextBrowser *chapterBrowser = new QTextBrowser(ui_Bib_TabWidget_Modules->widget(idx));
@@ -2288,7 +2294,7 @@ void MainWindow::on_Bib_TextChanged_LineEdit_Find(const QString &text)
     while (m_chapterBrowsers[idx]->find(text)) {
         extra.format.setBackground(color);
         extra.cursor = m_chapterBrowsers[idx]->textCursor();
-        extraSelections.append(extra);
+        extraSelections << extra;
     }
     m_chapterBrowsers[idx]->setExtraSelections(extraSelections);
     if (!text.isNull() && !text.isEmpty()) {
@@ -2769,19 +2775,19 @@ void MainWindow::populateSectionNames()
 
 void MainWindow::actionOpenBibleModule()
 {
-    QString fileName = QFileDialog::getOpenFileName(
+    QString filename = QFileDialog::getOpenFileName(
                 this, tr("Open MYBIBLE Module"), "/",
                 tr("MYBIBLE Modules (*.bbl.mybible);;All Files (*.*)"));
-    if (!fileName.isNull() && !fileName.isEmpty()) {
+    if (!filename.isNull() && !filename.isEmpty()) {
         if (ui_Bib_TabWidget_Modules->tabText(0) == "No module found") {
             ui_Bib_TabWidget_Modules->removeTab(0);
         }
-        if (!m_modulePathsList.contains(fileName)) {
-            if (loadBibleModule(fileName)) {
-                m_modulePathsList << fileName;
+        if (!m_modulePathsList.contains(filename)) {
+            if (loadBibleModule(filename)) {
+                m_modulePathsList << filename;
                 ui_Bib_TabWidget_Modules->setCurrentIndex(ui_Bib_TabWidget_Modules->count() - 1);
-                if (m_removedPathsList.contains(fileName)) {
-                    m_removedPathsList.removeAt(m_removedPathsList.indexOf(fileName));
+                if (m_removedPathsList.contains(filename)) {
+                    m_removedPathsList.removeAt(m_removedPathsList.indexOf(filename));
                 }
             }
         } else {
@@ -2814,7 +2820,7 @@ bool MainWindow::loadBibleModule(const QString &path)
         }
     }
     bool containsModule = false;
-    foreach (ModuleData md, m_modules) {
+    for (const ModuleData &md : m_modules) {
         if (moduleName == md.name) {
             containsModule = true;
             QMessageBox::critical(this, tr("Error"), tr("A module with this name is already open."));
@@ -2868,10 +2874,12 @@ void MainWindow::loadXRefDatabase()
 void MainWindow::openStrongDialog(const QString &number)
 {
     if (!m_dbDict.isOpen()) {
-        m_dbDict = QSqlDatabase::addDatabase("QSQLITE", "Strong");
-        m_dbDict.setDatabaseName(m_executionPath + "/App/dictionaries/bdb.dct.mybible");
-        if (!m_dbDict.open()) {
-            QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
+        if (m_dictPathList.count() > 0) {
+            m_dbDict = QSqlDatabase::addDatabase("QSQLITE", "Strong");
+            m_dbDict.setDatabaseName(m_dictPathList[0]);
+            if (!m_dbDict.open()) {
+                QMessageBox::critical(this, tr("Error"), tr("Could not open the database."));
+            }
         }
     }
     PDialogStrong strongDialog(m_dbDict, number, m_currentFont, m_papyrusBckgrnd, m_useBackground, this);

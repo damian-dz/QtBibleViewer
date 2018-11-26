@@ -17,6 +17,8 @@
     <system:String x:Key="install">Install</system:String>
     <system:String x:Key="unpacking">Unpacking</system:String>
     <system:String x:Key="to">to</system:String>
+    <system:String x:Key="deleting">Deleting</system:String>
+    <system:String x:Key="cancelled">Operation cancelled by the User</system:String>
     <system:String x:Key="dsktShort">Creating desktop shortcut</system:String>
     <system:String x:Key="strtShort">Creating Start Menu shortcut</system:String>
     <system:String x:Key="regEntry">Creating registry entry</system:String>

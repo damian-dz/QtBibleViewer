@@ -385,6 +385,7 @@ private:
     void iterateRecords(QSqlQuery &query, const QString &text, Qt::CaseSensitivity sensitivity, bool wholeWords, bool hasStrong);
     void iterateRecords(QSqlQuery &query, const QStringList &words, Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll);
     void loadBackgroundPixmap();
+    void loadDictPaths();
     void loadFavorites();
     void loadPassage();
     void loadXRefDatabase();
