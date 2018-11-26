@@ -12,7 +12,7 @@
     <system:String x:Key="dirLbl">Choose installation directory:</system:String>
     <system:String x:Key="chngBtn">Change...</system:String>
     <system:String x:Key="dsktChk">Create desktop shortcut</system:String>
-    <system:String x:Key="strtChk">Create Start Menu shortcut</system:String>
+    <system:String x:Key="strtChk">Create Start Menu folder</system:String>
     <system:String x:Key="apdtChk">Store settings in AppData</system:String>
     <system:String x:Key="install">Install</system:String>
     <system:String x:Key="unpacking">Unpacking</system:String>

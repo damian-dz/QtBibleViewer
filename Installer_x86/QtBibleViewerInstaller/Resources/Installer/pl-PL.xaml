@@ -8,10 +8,10 @@
     <system:String x:Key="back">&lt; Wstecz</system:String>
     <system:String x:Key="license">GNU General Public License, wersja 3</system:String>
     <system:String x:Key="accept">Akceptuję warunki licencji</system:String>
-    <system:String x:Key="dirLbl">Wybież ścieżkę instalacji:</system:String>
+    <system:String x:Key="dirLbl">Wybierz ścieżkę instalacji:</system:String>
     <system:String x:Key="chngBtn">Zmień...</system:String>
     <system:String x:Key="dsktChk">Utwórz skrót na pulpicie</system:String>
-    <system:String x:Key="strtChk">Utwórz skrót w Menu Start</system:String>
+    <system:String x:Key="strtChk">Utwórz folder w Menu Start</system:String>
     <system:String x:Key="apdtChk">Przechowuj ustawienia w AppData</system:String>
     <system:String x:Key="install">Instaluj</system:String>
     <system:String x:Key="close">Zamknij</system:String>

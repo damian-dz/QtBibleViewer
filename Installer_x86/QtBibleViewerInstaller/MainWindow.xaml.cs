@@ -17,9 +17,6 @@ using WPFCtrls = System.Windows.Controls;
 
 namespace QtBibleViewerInstaller
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private ResourceDictionary langDict;
@@ -36,7 +33,7 @@ namespace QtBibleViewerInstaller
         private bool createStartMenu;
         private bool useAppData;
         private bool startAppWhenClosed = false;
-        
+
         private WPFCtrls.Button frstButton;
         private WPFCtrls.Button scndButton;
         private WPFCtrls.Button thrdButton;
@@ -47,6 +44,8 @@ namespace QtBibleViewerInstaller
 
         private bool instDirExisted = true;
         private bool appDirExisted = true;
+
+        private DateTime creationDate = new DateTime(2018, 11, 26);
 
         private void SetLanguageDictionary()
         {
@@ -464,7 +463,7 @@ namespace QtBibleViewerInstaller
             else
             {
                 Application.Current.Shutdown();
-            }         
+            }
         }
 
         private byte[] Decompress(byte[] data)
@@ -478,7 +477,7 @@ namespace QtBibleViewerInstaller
             }
         }
 
-        private string UnpackResourceFile(string resName, string subFolder = "")
+        private void UnpackResourceFile(string resName, string subFolder = "")
         {
             string subPrefix = subFolder == "" ? "." : "." + subFolder + ".";
             var stream = crntAssembly.GetManifestResourceStream(resPrefix + subPrefix.Replace('\\', '.') + resName);
@@ -503,21 +502,28 @@ namespace QtBibleViewerInstaller
             });
             var buffer = new byte[stream.Length];
             stream.Read(buffer, 0, buffer.Length);
-            totalBufferSize += buffer.Length;                
+            totalBufferSize += buffer.Length;
             byte[] unpackedData = Decompress(buffer);
             Dispatcher.Invoke(() =>
             {
                 var progressBar = (elements3[7] as WPFCtrls.ProgressBar);
                 progressBar.Value = totalBufferSize;
             });
-            if (subFolder != "" && !Directory.Exists(Path.Combine(instDir, subFolder)))
+            string subDir = Path.Combine(instDir, subFolder);
+            if (subFolder != "" && !Directory.Exists(subDir))
             {
-                Directory.CreateDirectory(Path.Combine(instDir, subFolder));
-                createdDirs.Add(Path.Combine(instDir, subFolder));
+                Directory.CreateDirectory(subDir);
+                createdDirs.Add(subDir);
+                Directory.SetCreationTime(subDir, creationDate);
+                Directory.SetLastAccessTime(subDir, creationDate);
+                Directory.SetLastWriteTime(subDir, creationDate);
             }
-            string outputFilename = instDir + saveSubPath;
-            System.IO.File.WriteAllBytes(outputFilename, unpackedData);
-            return outputFilename;
+            string filename = instDir + saveSubPath;
+            System.IO.File.WriteAllBytes(filename, unpackedData);
+            System.IO.File.SetCreationTime(filename, creationDate);
+            System.IO.File.SetLastAccessTime(filename, creationDate);
+            System.IO.File.SetLastWriteTime(filename, creationDate);
+            installedFiles.Add(filename);
         }
 
         private void InstallButton_Click(object sender, RoutedEventArgs e)
@@ -542,6 +548,9 @@ namespace QtBibleViewerInstaller
             if (!Directory.Exists(instDir))
             {
                 Directory.CreateDirectory(instDir);
+                Directory.SetCreationTime(instDir, creationDate);
+                Directory.SetLastAccessTime(instDir, creationDate);
+                Directory.SetLastWriteTime(instDir, creationDate);
                 appDirExisted = false;
             }
             else
@@ -630,7 +639,7 @@ namespace QtBibleViewerInstaller
                     new string[]
                     {
                         "qwindows.dll.gz"
-                    }    
+                    }
                 },
                 { "sqldrivers",
                     new string[]
@@ -657,12 +666,12 @@ namespace QtBibleViewerInstaller
                         e.Cancel = true;
                         return;
                     }
-                    installedFiles.Add(UnpackResourceFile(files[j], folder));
+                    UnpackResourceFile(files[j], folder);
                 }
             }
             if (!useAppData)
             {
-                installedFiles.Add(UnpackResourceFile("settings.ini.gz", @"App\config"));
+                UnpackResourceFile("settings.ini.gz", @"App\config");
             }
 
             if (createDesktop)
@@ -733,6 +742,13 @@ namespace QtBibleViewerInstaller
                 scndButton.Click -= InstallButton_Click;
                 scndButton.Click += NextButton3_Click;
                 scndButton.IsEnabled = true;
+                if (!appDirExisted)
+                {
+                    string appDir = Path.Combine(instDir, "App");
+                    Directory.SetCreationTime(appDir, creationDate);
+                    Directory.SetLastAccessTime(appDir, creationDate);
+                    Directory.SetLastWriteTime(appDir, creationDate);
+                }
             }
         }
 
