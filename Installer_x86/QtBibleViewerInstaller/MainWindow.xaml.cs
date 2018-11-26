@@ -31,7 +31,7 @@ namespace QtBibleViewerInstaller
         private List<UIElement> elements4 = new List<UIElement>();
         private string instDir;
         private int totalBufferSize;
-        private const int packedFilesSize = 19736195;
+        private const int packedFilesSize = 21056030;
         private bool createDesktop;
         private bool createStartMenu;
         private bool useAppData;
@@ -520,7 +520,6 @@ namespace QtBibleViewerInstaller
             return outputFilename;
         }
 
-
         private void InstallButton_Click(object sender, RoutedEventArgs e)
         {
             frstButton.IsEnabled = false;
@@ -535,7 +534,6 @@ namespace QtBibleViewerInstaller
             };
             worker.DoWork += UnpackAllResourceFiles;
             worker.RunWorkerCompleted += WorkCompleted;
-
             worker.RunWorkerAsync();
         }
 
@@ -559,6 +557,9 @@ namespace QtBibleViewerInstaller
                 { "",
                     new string[]
                     {
+                        "libgcc_s_dw2-1.dll.gz",
+                        "libstdc++-6.dll.gz",
+                        "libwinpthread-1.dll.gz",
                         "Qt5Charts.dll.gz",
                         "Qt5Core.dll.gz",
                         "Qt5Gui.dll.gz",
@@ -567,7 +568,6 @@ namespace QtBibleViewerInstaller
                         "Qt5Widgets.dll.gz",
                         "QtBibleViewer.exe.gz",
                         "uninstall.exe.gz",
-                        "vcruntime140.dll.gz"
                     }
                 },
                 { @"App\data",
