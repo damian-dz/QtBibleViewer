@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="title">Dezinstalator programu QtBibleViewer</system:String>
+    <system:String x:Key="welcome">Witaj w dezinstalatorze programu QtBibleViewer</system:String>
+    <system:String x:Key="instruction">Postępuj zgodnie z wyświetlanymi instrukcjami, aby odinstalować program.</system:String>
+    <system:String x:Key="next">Dalej &gt;</system:String>
+    <system:String x:Key="back">&lt; Wstecz</system:String>
+    <system:String x:Key="license">GNU General Public License, wersja 3</system:String>
+    <system:String x:Key="accept">Akceptuję warunki licencji</system:String>
+    <system:String x:Key="optnLbl">Opcje dezinstalacji:</system:String>
+    <system:String x:Key="chngBtn">Zmień...</system:String>
+    <system:String x:Key="leaveFiles">Zachowaj moduły, słowniki i ulubione</system:String>
+    <system:String x:Key="strtChk">Utwórz folder w Menu Start</system:String>
+    <system:String x:Key="apdtChk">Przechowuj ustawienia w AppData</system:String>
+    <system:String x:Key="uninstall">Odinstaluj</system:String>
+    <system:String x:Key="close">Zamknij</system:String>
+    <system:String x:Key="unpacking">Rozpakowywanie</system:String>
+    <system:String x:Key="to">do</system:String>
+    <system:String x:Key="deleting">Usuwanie</system:String>
+    <system:String x:Key="cancelled">Operacja przerwana przez Użytkownika</system:String>
+    <system:String x:Key="eraseAll">Usuń folder instalacyjny wraz z zawartością</system:String>
+    <system:String x:Key="strtShort">Tworzenie skrótu w Menu Start</system:String>
+    <system:String x:Key="regEntry">Tworzenie wpisu w rejestrze</system:String>
+    <system:String x:Key="success">QtBibleViewer został zainstalowany pomyślnie.</system:String>
+    <system:String x:Key="youMay">Możesz teraz uruchomić program lub wyjść z instalatora.</system:String>
+    <system:String x:Key="runQBV">Uruchom QtBibleViewer</system:String>
+    <system:String x:Key="finish">Zakończ</system:String>
+</ResourceDictionary>

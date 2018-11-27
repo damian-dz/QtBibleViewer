@@ -28,7 +28,7 @@ namespace QtBibleViewerInstaller
         private List<UIElement> elements4 = new List<UIElement>();
         private string instDir;
         private int totalBufferSize;
-        private const int packedFilesSize = 19736195;
+        private const int packedFilesSize = 19740916;
         private bool createDesktop;
         private bool createStartMenu;
         private bool useAppData;
@@ -358,7 +358,7 @@ namespace QtBibleViewerInstaller
 
         private string LoadLicenseText()
         {
-            var stream = crntAssembly.GetManifestResourceStream(resPrefix + ".license.gpl-3.0.txt.gz");
+            Stream stream = crntAssembly.GetManifestResourceStream(resPrefix + ".license.gpl-3.0.txt.gz");
             var buffer = new byte[stream.Length];
             stream.Read(buffer, 0, buffer.Length);
             byte[] unpackedData = Decompress(buffer);
@@ -450,8 +450,8 @@ namespace QtBibleViewerInstaller
 
         private void FinishButton_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
             startAppWhenClosed = (bool)(elements4[2] as WPFCtrls.CheckBox).IsChecked;
+            Application.Current.Shutdown();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
