@@ -40,7 +40,8 @@ HEADERS += \
     PDialogPreferences.h \
     PDialogStrong.h \
     PDialogXRef.h \
-    PWindowHistogram.h
+    PWindowHistogram.h \
+
 
 RESOURCES += \
     res.qrc

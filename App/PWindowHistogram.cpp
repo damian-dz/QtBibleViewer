@@ -1,17 +1,15 @@
 #include "PWindowHistogram.h"
 
-//#include "AuxiliaryMethods.h"
-
-
 #include <QFileDialog>
 #include <QMenu>
+
 
 PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, QWidget *parent)
     : QWidget(parent),
       m_isBeingOpened(true)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    this->m_db = &db;
+    m_db = &db;
     loadBookAbbreviations();
     generateMainLayout();
     setUpChartsAndValidator();

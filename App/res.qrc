@@ -2,11 +2,11 @@
     <qresource prefix="/img">
         <file>img_res/papyrus.jpg</file>
         <file>img_res/folder.svg</file>
-        <file>img_res/arrleft.svg</file>
-        <file>img_res/arrright.svg</file>
+        <file>img_res/arrow_left.svg</file>
+        <file>img_res/arrow_right.svg</file>
         <file>img_res/copy.svg</file>
         <file>img_res/heart.svg</file>
-        <file>img_res/copyplus.svg</file>
+        <file>img_res/copy_plus.svg</file>
         <file>img_res/exit.svg</file>
         <file>img_res/magnify.svg</file>
         <file>img_res/minify.svg</file>
