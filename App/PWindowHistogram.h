@@ -21,7 +21,7 @@ class PWindowHistogram : public QWidget
     Q_OBJECT
 
 public:
-    explicit PWindowHistogram(const QSqlDatabase &m_db, QWidget *parent = 0);
+    explicit PWindowHistogram(const QSqlDatabase &m_db, QWidget *parent = nullptr);
     ~PWindowHistogram();
 
 protected:
@@ -37,7 +37,6 @@ private slots:
     void showSaveContextMenu(const QPoint &pos);
     void chartView_actionSave();
     void connectSignalsToSlots();
-
 
 private:
     QVBoxLayout *ui_mainVerLayout;

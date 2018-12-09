@@ -5,15 +5,16 @@
 #include <QPushButton>
 #include <QStyleFactory>
 
-PDialogPreferences::PDialogPreferences(int maxPassages,
+PDialogPreferences::PDialogPreferences(int langIdx,
+                                       int maxPassages,
                                        const QString &style,
                                        bool useBckgrnd,
-                                       const QColor &highClr,
+                                       const QColor &hghlhtClr,
                                        const QFont &font,
                                        int tabPos,
                                        QWidget *parent) :
     QDialog(parent),
-    m_highlightColor(highClr)
+    m_highlightColor(hghlhtClr)
 {
     QDialog::resize(480, 320);
     QDialog::setWindowTitle(tr("Preferences"));
@@ -43,7 +44,7 @@ PDialogPreferences::PDialogPreferences(int maxPassages,
 
     mainVBoxLayout->addWidget(dialogButtonBox);
 
-    generateGeneralWidget(maxPassages);
+    generateGeneralWidget(langIdx, maxPassages);
     generateFontWidget(font);
     generateAppearanceWidget(style, useBckgrnd, tabPos);
 
@@ -58,13 +59,19 @@ PDialogPreferences::~PDialogPreferences()
 
 }
 
-void PDialogPreferences::generateGeneralWidget(int maxPassages)
+void PDialogPreferences::generateGeneralWidget(int langIdx, int maxPassages)
 {
     QWidget *generalWidget = new QWidget;
 
     QFormLayout *generalFormLayout = new QFormLayout;
 
-    generalWidget->setLayout(generalFormLayout);
+    m_langComboBox = new QComboBox;
+    m_langComboBox->addItem("English");
+    m_langComboBox->addItem("español");
+    m_langComboBox->addItem("polski");
+    m_langComboBox->setCurrentIndex(langIdx);
+    m_langComboBox->setStyleSheet("combobox-popup: 0");
+    generalFormLayout->addRow(tr("Language:"), m_langComboBox);
 
     m_maxRecentSpinBox = new QSpinBox;
     m_maxRecentSpinBox->setMinimum(2);
@@ -72,6 +79,8 @@ void PDialogPreferences::generateGeneralWidget(int maxPassages)
     m_maxRecentSpinBox->setMaximumWidth(60);
     m_maxRecentSpinBox->setValue(maxPassages);
     generalFormLayout->addRow(tr("Max. Recent Passages:"), m_maxRecentSpinBox);
+
+    generalWidget->setLayout(generalFormLayout);
 
     m_stackedWidget->addWidget(generalWidget);
 }
@@ -141,8 +150,8 @@ void PDialogPreferences::generateAppearanceWidget(const QString &style, bool use
     m_backgroundCheckBox->setChecked(useBackgrnd);
     appearanceFormLayout->addWidget(m_backgroundCheckBox);
 
-    QPushButton *colorButton = new QPushButton("Change...");
-    colorButton->setStyleSheet("QPushButton { background-color:" + m_highlightColor.name() + " }");
+    QPushButton *colorButton = new QPushButton(tr("Change..."));
+    colorButton->setStyleSheet("background-color:" + m_highlightColor.name());
     appearanceFormLayout->addRow(tr("Verse Highlight Color:"), colorButton);
     QObject::connect(colorButton, SIGNAL(clicked()), this, SLOT(colorPushButtonClicked()));
 
@@ -190,6 +199,11 @@ int PDialogPreferences::getMaxRecentPassages()
 int PDialogPreferences::getTabPosition()
 {
     return m_tabPosComboBox->currentIndex();
+}
+
+int PDialogPreferences::getLanguageIndex()
+{
+    return m_langComboBox->currentIndex();
 }
 
 void PDialogPreferences::listWidgetCurrentRowChanged(int currentRow)

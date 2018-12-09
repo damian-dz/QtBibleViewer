@@ -558,10 +558,6 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation>Wyników na stronę:</translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation type="vanished">Uwzględniaj wielkość liter</translation>
-    </message>
-    <message>
         <source>Whole Words Only</source>
         <translation>Tylko całe słowa</translation>
     </message>
@@ -667,23 +663,23 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Go to a random chapter.</source>
-        <translation>Idź do losowego rozdziału.</translation>
+        <translation>Przejdź do losowego rozdziału.</translation>
     </message>
     <message>
         <source>Go to the previous chapter.</source>
-        <translation>Idź do poprzedniego rozdziału.</translation>
+        <translation>Przejdź do poprzedniego rozdziału.</translation>
     </message>
     <message>
         <source>Go to the next chapter.</source>
-        <translation>Idź do następnego rozdziału.</translation>
+        <translation>Przejdź do następnego rozdziału.</translation>
     </message>
     <message>
         <source>Go to the previous verse.</source>
-        <translation>Idź do poprzedniego wersetu.</translation>
+        <translation>Przejdź do poprzedniego wersetu.</translation>
     </message>
     <message>
         <source>Go to the next verse.</source>
-        <translation>Idź do następnego wersetu.</translation>
+        <translation>Przejdź do następnego wersetu.</translation>
     </message>
     <message>
         <source>Perform a search for the word/phrase.</source>
@@ -704,22 +700,6 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <message>
         <source>Case-Sensitive</source>
         <translation>Rozróżniaj wielkość liter</translation>
-    </message>
-    <message>
-        <source>Check to make the search case-sensitive.</source>
-        <translation>Zaznacz, aby wyszukiwanie uwzględniało wielkość liter.</translation>
-    </message>
-    <message>
-        <source>Check to ignore word fragments.</source>
-        <translation>Zaznacz, aby pominąć fragmenty słów.</translation>
-    </message>
-    <message>
-        <source>Looks for the exact sequence of characters.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>All of the words must be present.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>An entry for this passage already exists.</source>
@@ -745,6 +725,66 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>Entry updated.</source>
         <translation>Wpis zaktualizowany.</translation>
     </message>
+    <message>
+        <source>Read different translations of the Bible.</source>
+        <translation>Czytaj różne tłumaczenia Biblii.</translation>
+    </message>
+    <message>
+        <source>View the details of the currently active module.</source>
+        <translation>Zobacz szczegóły obecnie aktywnego modułu.</translation>
+    </message>
+    <message>
+        <source>Perform a custom search on one of the available modules.</source>
+        <translation>Przeprowadź dopasowane wyszukiwanie na jednym z dostępnych modułów.</translation>
+    </message>
+    <message>
+        <source>Compare verses from the currently available modules.</source>
+        <translation>Porównuj wersety z obecnie dostępnych modułów.</translation>
+    </message>
+    <message>
+        <source>Available Dictionaries:</source>
+        <translation>Dostępne słowniki:</translation>
+    </message>
+    <message>
+        <source>Limit the search to a specific Bible section.</source>
+        <translation>Ogranicz wyszukiwanie do określonej części Biblii.</translation>
+    </message>
+    <message>
+        <source>Make the search case-sensitive.</source>
+        <translation>Ignoruj wielkość liter przy wyszukiwaniu.</translation>
+    </message>
+    <message>
+        <source>Ignore word fragments.</source>
+        <translation>Pomiń fragmenty słów.</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain the exact sequence of characters.</source>
+        <translation>Szukaj wersetów zawierających dokładny ciąg znaków.</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain all of the words (in any order).</source>
+        <translation>Szukaj wersetów zawierających wszystkie ze słów (w dowolnej kojenosci).</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain at least one of the words.</source>
+        <translation>Szukaj wersetów zawierających co najmniej jedno ze słów.</translation>
+    </message>
+    <message>
+        <source>Look for verses containing the specified Strong&apos;s Number (if available).</source>
+        <translation>Szukaj wersetów zawierających określony numer Stronga (jeśli są dostępne).</translation>
+    </message>
+    <message>
+        <source>Manage your favorite passages and add comments.</source>
+        <translation>Zarządzaj swoimi ulubionymi fragmentami i dodawaj komentarze.</translation>
+    </message>
+    <message>
+        <source>About Qt Bible Viewer</source>
+        <translation>O Programie Qt Bible Viewer</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;&lt;b&gt;Qt Bible Viewer&lt;/b&gt; is an open-source application currently developed by Damian Dzienniak. The GitHub repositiory for the project can be found at &lt;a href=&apos;https://github.com/damian-dz/QtBibleViewer&apos;&gt; github.com/damian-dz/QtBibleViewer&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;Qt Bible Viewer&lt;/b&gt; jest otwartoźródłową aplikacją rozwijaną obecnie przez Damiana Dzienniaka. Repozytorium GitHub projektu można znaleźć na &lt;a href=&apos;https://github.com/damian-dz/QtBibleViewer&apos;&gt; github.com/damian-dz/QtBibleViewer&lt;/a&gt;.&lt;/p&gt;</translation>
+    </message>
 </context>
 <context>
     <name>PDialogPreferences</name>
@@ -769,16 +809,60 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation>Podgląd:</translation>
     </message>
     <message>
-        <source>ABCabc123</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Preferences</source>
         <translation>Preferencje</translation>
     </message>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
+    </message>
+    <message>
+        <source>Window Style:</source>
+        <translation>Styl okien:</translation>
+    </message>
+    <message>
+        <source>Use background image</source>
+        <translation>Użyj obrazu tła</translation>
+    </message>
+    <message>
+        <source>Verse Highlight Color:</source>
+        <translation>Kolor podświetlenia wersetów:</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Góra</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Dół</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Lewo</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Prawo</translation>
+    </message>
+    <message>
+        <source>Change...</source>
+        <translation>Zmień...</translation>
+    </message>
+    <message>
+        <source>Language:</source>
+        <translation>Język:</translation>
+    </message>
+    <message>
+        <source>Max. Recent Passages:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ABCabc123</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bible Tabs Position:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

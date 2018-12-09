@@ -15,3 +15,5 @@ Installer_x86/QtBibleViewerInstaller/bin/*
 Installer_x86/QtBibleViewerInstaller/obj/*
 Installer_x86/uninstall/bin/*
 Installer_x86/uninstall/obj/*
+Release_x64/*
+Release_x86/*

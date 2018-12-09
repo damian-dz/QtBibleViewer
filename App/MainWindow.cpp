@@ -46,18 +46,27 @@ inline void removeBrowserBackground(QTextEdit &browser)
     browser.viewport()->setPalette(browser.style()->standardPalette());
 }
 
-MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString &style, const QString configPath, QWidget *parent)
+MainWindow::MainWindow(const QString &appDir,
+                       const QString &lang,
+                       QTranslator &appTs,
+                       QTranslator &qtTs,
+                       const QString &style,
+                       const QString configPath,
+                       QWidget *parent)
     : QMainWindow(parent),
       m_textBrowser(nullptr),
       m_textEdit(nullptr),
       m_lineEdit(nullptr),
+      m_labels(QVector<QLabel *>(26)),
       ui_Bib_LineEdit_Find(nullptr),
       m_blockHistory(false),
       m_executionPath(appDir),
       m_firstLoadCompare(true),
       m_language(lang),
       m_settingsPath(configPath),
-      m_style(style)
+      m_style(style),
+      m_tsApp(&appTs),
+      m_tsQt(&qtTs)
 {
     TabBookChapterVerses tbcvv = loadSettings();
     generateMainLayout();
@@ -65,11 +74,11 @@ MainWindow::MainWindow(const QString &appDir, const QString &lang, const QString
     generateBibModuleTabs();
     populateBookNames();   
     loadDictPaths();
-    if (tbcvv != TabBookChapterVerses()) {
+    if (tbcvv.isPassageValid()) {
         setTabBookChapterVerses(tbcvv, true);
     }
     connectBibleTabSignals();
-    if (tbcvv == TabBookChapterVerses() && m_modulesFound) {
+    if (!tbcvv.isPassageValid() && m_modulesFound) {
          ui_Bib_ListWidget_Book->setCurrentRow(0);
     }
     QWidget::activateWindow();
@@ -102,42 +111,52 @@ void MainWindow::generateMainLayout()
 
 void MainWindow::generateMenuBarItems()
 {
-    QMenu *fileMenu = menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(QIcon(ICON_FOLDER), tr("Open Bible Module"), this,
+    QMenu *fileMenu = menuBar()->addMenu(QString());
+    m_menus << fileMenu;
+    m_actions << fileMenu->addAction(QIcon(ICON_FOLDER), QString(), this,
                 &MainWindow::actionOpenBibleModule, QKeySequence::Open);
+
     fileMenu->addSeparator();
-    fileMenu->addAction(QIcon(ICON_EXIT), tr("Exit"), this,
+
+    m_actions << fileMenu->addAction(QIcon(ICON_EXIT), QString(), this,
                 &MainWindow::actionExit, QKeySequence("Ctrl+Q"));
 
-    QMenu *editMenu = menuBar()->addMenu(tr("Edit"));
+    QMenu *editMenu = menuBar()->addMenu(QString());
+    m_menus << editMenu;
+
     ui_Act_Back = editMenu->addAction(QIcon(ICON_ARROW_LEFT),
-                tr("Back"), this, &MainWindow::actionBack);
+                QString(), this, &MainWindow::actionBack);
     ui_Act_Back->setDisabled(true);
+
     ui_Act_Forward = editMenu->addAction(QIcon(ICON_ARROW_RIGHT),
-                tr("Forward"), this, &MainWindow::actionForward);
+                QString(), this, &MainWindow::actionForward);
     ui_Act_Forward->setDisabled(true);
+
     editMenu->addSeparator();
+
     ui_Act_Copy = editMenu->addAction(QIcon(ICON_COPY),
-                tr("Copy"), this, &MainWindow::action_ChapterBrowser_Copy, QKeySequence::Copy);
+                QString(), this, &MainWindow::action_ChapterBrowser_Copy, QKeySequence::Copy);
     ui_Act_Copy->setDisabled(true);
     ui_Act_CopyWithRef = editMenu->addAction(QIcon(ICON_COPY_PLUS),
-                tr("Copy with Reference"), this, &MainWindow::action_EditMenu_CopyWithReference);
+                QString(), this, &MainWindow::action_EditMenu_CopyWithReference);
     ui_Act_CopyWithRef->setDisabled(true);
+
     editMenu->addSeparator();
-    editMenu->addAction(tr("Select All"), this, &MainWindow::action_ChapterBrowser_SelectAll,
+
+    m_actions << editMenu->addAction(QString(), this, &MainWindow::action_ChapterBrowser_SelectAll,
                         QKeySequence("Ctrl+A"));
-    editMenu->addAction(QIcon(ICON_FIND),
-                        tr("Find"), this, &MainWindow::actionFind, QKeySequence("Ctrl+F"));
+    m_actions << editMenu->addAction(QIcon(ICON_FIND),
+                        QString(), this, &MainWindow::actionFind, QKeySequence("Ctrl+F"));
 
-    QMenu *statisticsMenu = menuBar()->addMenu(tr("Statistics"));
-    statisticsMenu->addAction(
-                tr("Word Frequency"), this, &MainWindow::actionWordFrequency);
+    QMenu *statisticsMenu = menuBar()->addMenu(QString());
+    m_menus << statisticsMenu;
+    m_actions << statisticsMenu->addAction(QString(), this, &MainWindow::actionWordFrequency);
 
-    QMenu *optionsMenu = menuBar()->addMenu(tr("Options"));
-    optionsMenu->addAction(
-                tr("Preferences"), this, &MainWindow::actionPreferences);
+    QMenu *optionsMenu = menuBar()->addMenu(QString());
+    m_menus << optionsMenu;
+    m_actions << optionsMenu->addAction(QString(), this, &MainWindow::actionPreferences);
 
-    ui_Menu_Language = optionsMenu->addMenu(tr("Language"));
+    ui_Menu_Language = optionsMenu->addMenu(QString());
     QAction *englishAct = ui_Menu_Language->addAction(
                "English", this, &MainWindow::actionEnglish);
     englishAct->setCheckable(true);
@@ -148,21 +167,20 @@ void MainWindow::generateMenuBarItems()
                "polski", this, &MainWindow::actionPolish);
     polishAct->setCheckable(true);
 
-    QMenu *viewMenu = menuBar()->addMenu(tr("View"));
-    ui_ActIncreaseFont = viewMenu->addAction(QIcon(ICON_MAGNIFY),
-                tr("Increase Font Size"), this,
+    QMenu *viewMenu = menuBar()->addMenu(QString());
+    m_menus << viewMenu;
+    ui_ActIncreaseFont = viewMenu->addAction(QIcon(ICON_MAGNIFY), QString(), this,
                 &MainWindow::actionIncreaseFontSize, QKeySequence::ZoomIn);
-    ui_ActDecreaseFont = viewMenu->addAction(QIcon(ICON_MINIFY),
-                tr("Decrease Font Size"), this,
+    ui_ActDecreaseFont = viewMenu->addAction(QIcon(ICON_MINIFY), QString(), this,
                 &MainWindow::actionDecreaseFontSize, QKeySequence::ZoomOut);
 
-    QMenu *helpMenu = menuBar()->addMenu(tr("Help"));
-    helpMenu->addAction(
-                tr("Show Help"), this, &MainWindow::actionIncreaseFontSize);
-    helpMenu->addAction(
-                tr("About"), this, &MainWindow::actionIncreaseFontSize);
-    helpMenu->addAction(
-                tr("About Qt"), this, &MainWindow::actionAboutQt);
+    QMenu *helpMenu = menuBar()->addMenu(QString());
+    m_menus << helpMenu;
+    m_actions << helpMenu->addAction(QString(), this, &MainWindow::actionIncreaseFontSize);
+    m_actions << helpMenu->addAction(QString(), this, &MainWindow::actionAbout);
+    m_actions << helpMenu->addAction(QString(), this, &MainWindow::actionAboutQt);
+
+    setMenuTexts();
 
     ui_StatusBar_Status = new QStatusBar;
     ui_Label_Status = new QLabel;
@@ -172,21 +190,165 @@ void MainWindow::generateMenuBarItems()
 
 void MainWindow::addMainTabs()
 {
+    ui_TabWidget_Main->addTab(new QWidget, QString());
+    ui_TabWidget_Main->addTab(new QWidget, QString());
+    ui_TabWidget_Main->addTab(new QWidget, QString());
+    ui_TabWidget_Main->addTab(new QWidget, QString());
+    ui_TabWidget_Main->addTab(new QWidget, QString());
+    ui_TabWidget_Main->addTab(new QWidget, QString());
+    ui_TabWidget_Main->addTab(new QWidget, QString());
+    setMainTabNames();
 
-    ui_TabWidget_Main->addTab(new QWidget, tr("Bible"));
-    ui_TabWidget_Main->addTab(new QWidget, tr("Details"));
-    ui_TabWidget_Main->addTab(new QWidget, tr("Search"));
-    ui_TabWidget_Main->addTab(new QWidget, tr("Compare"));
-    ui_TabWidget_Main->addTab(new QWidget, tr("Favorites"));
-    ui_TabWidget_Main->addTab(new QWidget, tr("Dictionary"));
-    ui_TabWidget_Main->addTab(new QWidget, tr("Topics"));
+    ui_TabBar_Main = ui_TabWidget_Main->tabBar();
+    setMainTabToolTips();
+}
 
-    QTabBar *mainTabBar = ui_TabWidget_Main->tabBar();
-    mainTabBar->setTabToolTip(0, tr("Read different translations of the Bible."));
-    mainTabBar->setTabToolTip(1, tr("View the details of the currently active module."));
-    mainTabBar->setTabToolTip(2, tr("Perform a custom search on one of the available modules."));
-    mainTabBar->setTabToolTip(3, tr("Compare verses from the currently available modules."));
-    mainTabBar->setTabToolTip(4, tr("Manage your favorite passages and add comments to them."));
+void MainWindow::setMenuTexts()
+{
+    m_menus[0]->setTitle(tr("File"));
+    m_actions[0]->setText(tr("Open Bible Module"));
+    m_actions[1]->setText(tr("Exit"));
+    m_menus[1]->setTitle(tr("Edit"));
+    ui_Act_Back->setText(tr("Back"));
+    ui_Act_Forward->setText(tr("Forward"));
+    ui_Act_Copy->setText(tr("Copy"));
+    ui_Act_CopyWithRef->setText(tr("Copy with Reference"));
+    m_actions[2]->setText(tr("Select All"));
+    m_actions[3]->setText(tr("Find"));
+    m_menus[2]->setTitle(tr("Statistics"));
+    m_actions[4]->setText(tr("Word Frequency"));
+    m_menus[3]->setTitle(tr("Options"));
+    ui_Menu_Language->setTitle(tr("Language"));
+    m_actions[5]->setText(tr("Preferences"));
+    m_menus[4]->setTitle(tr("View"));
+    ui_ActIncreaseFont->setText(tr("Increase Font Size"));
+    ui_ActDecreaseFont->setText(tr("Decrease Font Size"));
+    m_menus[5]->setTitle(tr("Help"));
+    m_actions[6]->setText(tr("Show Help"));
+    m_actions[7]->setText(tr("About"));
+    m_actions[8]->setText(tr("About Qt"));
+}
+
+void MainWindow::setMainTabNames()
+{
+    ui_TabWidget_Main->setTabText(0, tr("Bible"));
+    ui_TabWidget_Main->setTabText(1, tr("Details"));
+    ui_TabWidget_Main->setTabText(2, tr("Search"));
+    ui_TabWidget_Main->setTabText(3, tr("Compare"));
+    ui_TabWidget_Main->setTabText(4, tr("Favorites"));
+    ui_TabWidget_Main->setTabText(5, tr("Dictionary"));
+    ui_TabWidget_Main->setTabText(6, tr("Topics"));
+}
+
+void MainWindow::setLabelTexts(int idx)
+{
+    if (idx == -1 || idx == 0) {
+        m_labels[0]->setText(tr("Book:"));
+        m_labels[1]->setText(tr("Chapter:"));
+        m_labels[2]->setText(tr("Verses:"));
+    }
+    if (idx == -1 || idx == 1) {
+        if (ui_TabWidget_Main->widget(1)->children().count() > 0) {
+            m_labels[3]->setText(tr("Description:"));
+            m_labels[4]->setText(tr("Abbreviation:"));
+            m_labels[5]->setText(tr("Comments:"));
+            m_labels[6]->setText(tr("Version:"));
+            m_labels[7]->setText(tr("Version Date:"));
+            m_labels[8]->setText(tr("Publish Date:"));
+        }
+    }
+    if (idx == -1 || idx == 2) {
+        if (ui_TabWidget_Main->widget(2)->children().count() > 0) {
+            m_labels[9]->setText(tr("Enter a Word or Phrase:"));
+            m_labels[10]->setText(tr("Bible Section:"));
+            m_labels[11]->setText(tr("Results:"));
+            m_labels[12]->setText(tr("Search Options:"));
+            m_labels[13]->setText(tr("Translation:"));
+            m_labels[14]->setText(tr("Results per Page:"));
+        }
+    }
+    if (idx == -1 || idx == 3) {
+        if (ui_TabWidget_Main->widget(3)->children().count() > 0) {
+            m_labels[15]->setText(tr("Book:"));
+            m_labels[16]->setText(tr("Chapter:"));
+            m_labels[17]->setText(tr("Verse:"));
+        }
+    }
+    if (idx == -1 || idx == 4) {
+        if (ui_TabWidget_Main->widget(4)->children().count() > 0) {
+            m_labels[18]->setText(tr("Favorite Passages:"));
+            m_labels[19]->setText(tr("Comment:"));
+        }
+    }
+    if (idx == -1 || idx == 5) {
+        if (ui_TabWidget_Main->widget(5)->children().count() > 0) {
+            m_labels[20]->setText(tr("Available Dictionaries:"));
+            m_labels[21]->setText(tr("Number:"));
+            m_labels[22]->setText(tr("All Entries:"));
+            m_labels[23]->setText(tr("Definition:"));
+        }
+    }
+}
+
+void MainWindow::setButtonTexts(int idx)
+{
+    if (idx == -1 || idx == 0) {
+        ui_Bib_Button_Random->setText(tr("Random"));
+        ui_Bib_Button_Random->setToolTip(tr("Go to a random chapter."));
+        ui_Bib_Button_Prev->setToolTip(tr("Go to the previous chapter."));
+        ui_Bib_Button_Next->setToolTip(tr("Go to the next chapter."));
+    }
+    if (idx == -1 || idx == 2) {
+        if (ui_TabWidget_Main->widget(2)->children().count() > 0) {
+            ui_Sea_Button_Search->setText(tr("Search"));
+            ui_Sea_Button_Search->setToolTip(tr("Perform a search for the word/phrase."));
+            ui_Sea_RadioButton_Exact->setText(tr("Exact Phrase"));
+            ui_Sea_RadioButton_Exact->setToolTip(tr("Look for verses that contain the exact sequence of characters."));
+            ui_Sea_RadioButton_All->setText(tr("All of the Words"));
+            ui_Sea_RadioButton_All->setToolTip(tr("Look for verses that contain all of the words (in any order)."));
+            ui_Sea_RadioButton_Any->setText(tr("Any of the Words"));
+            ui_Sea_RadioButton_Any->setToolTip(tr("Look for verses that contain at least one of the words."));
+            ui_Sea_RadioButton_Strong->setText(tr("By Strong's Number"));
+            ui_Sea_RadioButton_Strong->setToolTip(tr("Look for verses containing the specified Strong's Number (if available)."));
+            ui_Sea_Button_RandomVerse->setText(tr("Random Verse"));
+        }
+    }
+    if (idx == -1 || idx == 4) {
+        if (ui_TabWidget_Main->widget(4)->children().count() > 0) {
+            ui_Fav_Button_Delete->setText(tr("Delete"));
+            ui_Fav_Button_Save->setText(tr("Save"));
+        }
+    }
+}
+
+void MainWindow::setCheckBoxTexts(int idx)
+{
+    if (idx == -1 || idx == 1) {
+        if (ui_TabWidget_Main->widget(1)->children().count() > 0) {
+            ui_Det_CheckBox_RightToLeft->setText(tr("Right to Left"));
+            ui_Det_CheckBox_OldTestament->setText(tr("Old Testament"));
+            ui_Det_CheckBox_NewTestament->setText(tr("New Testament"));
+            ui_Det_CheckBox_StrongsNumbers->setText(tr("Strong's Numbers"));
+        }
+    }
+    if (idx == -1 || idx == 2) {
+        if (ui_TabWidget_Main->widget(2)->children().count() > 0) {
+            ui_Sea_ComboBox_Section->setToolTip(tr("Limit the search to a specific Bible section."));
+            ui_Sea_CheckBox_Case->setText(tr("Case-Sensitive"));
+            ui_Sea_CheckBox_Case->setToolTip(tr("Make the search case-sensitive."));
+            ui_Sea_CheckBox_WholeWords->setText(tr("Whole Words Only"));
+            ui_Sea_CheckBox_WholeWords->setToolTip(tr("Ignore word fragments."));
+        }
+    }
+}
+
+void MainWindow::setMainTabToolTips()
+{
+    ui_TabBar_Main->setTabToolTip(0, tr("Read different translations of the Bible."));
+    ui_TabBar_Main->setTabToolTip(1, tr("View the details of the currently active module."));
+    ui_TabBar_Main->setTabToolTip(2, tr("Perform a custom search on one of the available modules."));
+    ui_TabBar_Main->setTabToolTip(3, tr("Compare verses from the currently available modules."));
+    ui_TabBar_Main->setTabToolTip(4, tr("Manage your favorite passages and add comments."));
 }
 
 void MainWindow::generateBibleTabControls()
@@ -202,7 +364,7 @@ void MainWindow::generateBibleTabControls()
     tabBibleHorLayout->addLayout(bookVBoxLayout);
 
     QLabel *bookLabel = new QLabel;
-    bookLabel->setText(tr("Book:"));
+    m_labels[0] = bookLabel;
     bookVBoxLayout->addWidget(bookLabel);
 
     ui_Bib_ListWidget_Book = new QListWidget;
@@ -214,7 +376,7 @@ void MainWindow::generateBibleTabControls()
     tabBibleHorLayout->addLayout(chapterVBoxLayout);
 
     QLabel *chapterLabel = new QLabel;
-    chapterLabel->setText(tr("Chapter:"));
+    m_labels[1] = chapterLabel;
     chapterVBoxLayout->addWidget(chapterLabel);
 
     ui_Bib_ListWidget_Chapter = new QListWidget;
@@ -226,7 +388,7 @@ void MainWindow::generateBibleTabControls()
     tabBibleHorLayout->addLayout(versesVBoxLayout);
 
     QLabel *versesLabel = new QLabel;
-    versesLabel->setText(tr("Verses:"));
+    m_labels[2] = versesLabel;
     versesVBoxLayout->addWidget(versesLabel);
 
     ui_Bib_ComboBox_VerseFrom = new QComboBox;
@@ -234,7 +396,7 @@ void MainWindow::generateBibleTabControls()
     ui_Bib_ComboBox_VerseFrom->setMinimumSize(QSize(55, 20));
     ui_Bib_ComboBox_VerseFrom->setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE));
     ui_Bib_ComboBox_VerseFrom->setMaxVisibleItems(30);
-    ui_Bib_ComboBox_VerseFrom->setStyleSheet("combobox-popup: 0;");
+    ui_Bib_ComboBox_VerseFrom->setStyleSheet(COMBOBOX_STYLE);
     versesVBoxLayout->addWidget(ui_Bib_ComboBox_VerseFrom);
 
     ui_Bib_ComboBox_VerseTo = new QComboBox;
@@ -242,13 +404,12 @@ void MainWindow::generateBibleTabControls()
     ui_Bib_ComboBox_VerseTo->setMinimumSize(QSize(55, 20));
     ui_Bib_ComboBox_VerseTo->setFont(QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE));
     ui_Bib_ComboBox_VerseTo->setMaxVisibleItems(30);
-    ui_Bib_ComboBox_VerseTo->setStyleSheet("combobox-popup: 0;");
+    ui_Bib_ComboBox_VerseTo->setStyleSheet(COMBOBOX_STYLE);
     versesVBoxLayout->addWidget(ui_Bib_ComboBox_VerseTo);
     versesVBoxLayout->addStretch();
 
-    ui_Bib_Button_Random = new QPushButton(tr("Random"));
+    ui_Bib_Button_Random = new QPushButton;
     ui_Bib_Button_Random->setMaximumSize(QSize(55, 30));
-    ui_Bib_Button_Random->setToolTip(tr("Go to a random chapter."));
     versesVBoxLayout->addWidget(ui_Bib_Button_Random);
 
     QHBoxLayout *prevNextHorLayout = new QHBoxLayout;
@@ -256,12 +417,10 @@ void MainWindow::generateBibleTabControls()
 
     ui_Bib_Button_Prev = new QPushButton("<<");
     ui_Bib_Button_Prev->setMaximumWidth(25);
-    ui_Bib_Button_Prev->setToolTip(tr("Go to the previous chapter."));
     prevNextHorLayout->addWidget(ui_Bib_Button_Prev);
 
     ui_Bib_Button_Next = new QPushButton(">>");
     ui_Bib_Button_Next->setMaximumWidth(25);
-    ui_Bib_Button_Next->setToolTip(tr("Go to the next chapter."));
     prevNextHorLayout->addWidget(ui_Bib_Button_Next);
 
     ui_Bib_VerLayout_Modules = new QVBoxLayout;
@@ -274,6 +433,9 @@ void MainWindow::generateBibleTabControls()
     ui_Bib_VerLayout_Modules->addWidget(ui_Bib_TabWidget_Modules);
 
     ui_Bib_TabBar_Modules = ui_Bib_TabWidget_Modules->tabBar();
+
+    setLabelTexts(0);
+    setButtonTexts(0);
 }
 
 void MainWindow::populateLanguageMap(const QString &lang)
@@ -281,7 +443,7 @@ void MainWindow::populateLanguageMap(const QString &lang)
     m_languages.insert(0, "EN");
     m_languages.insert(1, "ES");
     m_languages.insert(2, "PL");
-    checkLanguageAction(m_languages.key(lang), true);
+    actionCheckLanguage(m_languages.key(lang), true);
 }
 
 MainWindow::TabBookChapterVerses MainWindow::loadSettings()
@@ -318,7 +480,6 @@ MainWindow::TabBookChapterVerses MainWindow::loadSettings()
     if (m_modulePathsList.count() == 1 && m_modulePathsList[0] == "") {
         m_modulePathsList.clear();
     }
-
     m_removedPathsList = settings.value(SET_REMOVED_PATHS).toStringList();
     if (m_removedPathsList.count() == 1 && m_removedPathsList[0] == "") {
         m_removedPathsList.clear();
@@ -359,7 +520,7 @@ void MainWindow::generateBibModuleTabs()
         m_modulesFound = false;
     } else {
         QStringList localModules = getModulePaths(moduleDirName);
-        foreach (QString path, localModules) {
+        for (const QString &path : localModules) {
             if (!m_modulePathsList.contains(path)
                     && !m_removedPathsList.contains(path)
                     && QFileInfo(path).exists()) {
@@ -456,6 +617,7 @@ void MainWindow::populateBookNames()
                 << tr("3 John")
                 << tr("Jude")
                 << tr("Revelation");
+    ui_Bib_ListWidget_Book->clear();
     ui_Bib_ListWidget_Book->addItems(m_bookNames);
 }
 
@@ -622,7 +784,7 @@ void MainWindow::populateChapterListWidget(int chapter)
         ui_Bib_ListWidget_Chapter->setCurrentRow(chapter - 1);
     } else {
         m_chapterBrowsers[idx]->setHtml(
-                    "<center><h2>" + tr("Unavailable in this module.") + "</center></h2>");
+                    "<center><h2>" % tr("Unavailable in this module.") % "</center></h2>");
     }
 }
 
@@ -798,6 +960,48 @@ void MainWindow::updateHistory(const TabBookChapterVerses &tbcvv)
     ui_Act_Forward->setDisabled(true);
 }
 
+
+void MainWindow::translateTexts()
+{
+    setMenuTexts();
+    setMainTabNames();
+    setMainTabToolTips();
+
+    setLabelTexts(-1);
+    setButtonTexts(-1);
+    setCheckBoxTexts(-1);
+
+    ui_Bib_ListWidget_Book->blockSignals(true);
+    int idx = ui_Bib_ListWidget_Book->currentRow();
+    populateBookNames();
+    ui_Bib_ListWidget_Book->setCurrentRow(idx);
+    ui_Bib_ListWidget_Book->blockSignals(false);
+
+    if (ui_TabWidget_Main->widget(2)->children().count() > 0) {
+        ui_Sea_ComboBox_SearchFrom->blockSignals(true);
+        idx = ui_Sea_ComboBox_SearchFrom->currentIndex();
+        ui_Sea_ComboBox_SearchFrom->clear();
+        ui_Sea_ComboBox_SearchFrom->addItems(m_bookNames);
+        ui_Sea_ComboBox_SearchFrom->setCurrentIndex(idx);
+        ui_Sea_ComboBox_SearchFrom->blockSignals(false);
+        ui_Sea_ComboBox_SearchTo->blockSignals(true);
+        idx = ui_Sea_ComboBox_SearchTo->currentIndex();
+        ui_Sea_ComboBox_SearchTo->clear();
+        ui_Sea_ComboBox_SearchTo->addItems(m_bookNames);
+        ui_Sea_ComboBox_SearchTo->setCurrentIndex(idx);
+        ui_Sea_ComboBox_SearchTo->blockSignals(false);
+    }
+
+    if (ui_TabWidget_Main->widget(3)->children().count() > 0) {
+        ui_Com_ListWidget_Book->blockSignals(true);
+        idx = ui_Com_ListWidget_Book->currentRow();
+        ui_Com_ListWidget_Book->clear();
+        ui_Com_ListWidget_Book->addItems(m_bookNames);
+        ui_Com_ListWidget_Book->setCurrentRow(idx);
+        ui_Com_ListWidget_Book->blockSignals(false);
+    }
+}
+
 void MainWindow::on_Bib_SelectionChanged_ChapterBrowser()
 {
     int idx = ui_Bib_TabBar_Modules->currentIndex();
@@ -903,7 +1107,8 @@ void MainWindow::generateCompareTabControls(int idx)
     QVBoxLayout *bookVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(bookVBoxLayout);
 
-    QLabel *bookLabel = new QLabel(tr("Book:"));
+    QLabel *bookLabel = new QLabel;
+    m_labels[15] = bookLabel;
     bookVBoxLayout->addWidget(bookLabel);
 
     ui_Com_ListWidget_Book = new QListWidget;
@@ -915,7 +1120,8 @@ void MainWindow::generateCompareTabControls(int idx)
     QVBoxLayout *chapterVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(chapterVBoxLayout);
 
-    QLabel *chapterLabel = new QLabel(tr("Chapter:"));
+    QLabel *chapterLabel = new QLabel;
+    m_labels[16] = chapterLabel;
     chapterVBoxLayout->addWidget(chapterLabel);
 
     ui_Com_ListWidget_Chapter = new QListWidget;
@@ -926,7 +1132,8 @@ void MainWindow::generateCompareTabControls(int idx)
     QVBoxLayout *verseVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(verseVBoxLayout);
 
-    QLabel *verseLabel = new QLabel(tr("Verse:"));
+    QLabel *verseLabel = new QLabel;
+    m_labels[17] = verseLabel;
     verseVBoxLayout->addWidget(verseLabel);
 
     ui_Com_ListWidget_Verse = new QListWidget;
@@ -965,6 +1172,8 @@ void MainWindow::generateCompareTabControls(int idx)
 
     connectCompareTabSignals();
 
+    setLabelTexts(3);
+
     if (!m_comVerse.isEmpty()) {
         ui_Com_ListWidget_Book->setCurrentRow(m_comVerse[0].toInt() - 1);
         ui_Com_ListWidget_Chapter->setCurrentRow(m_comVerse[1].toInt() - 1);
@@ -974,9 +1183,8 @@ void MainWindow::generateCompareTabControls(int idx)
         ui_Com_ListWidget_Chapter->setCurrentRow(0);
         ui_Com_ListWidget_Verse->setCurrentRow(0);
     }
-
-
 }
+
 
 void MainWindow::on_Com_CurrentRowChanged_ListWidget_Book(int currentRow)
 {
@@ -1096,7 +1304,8 @@ void MainWindow::generateDetailsTab(int idx)
     QVBoxLayout *descriptionVBoxLayout = new QVBoxLayout;
     descriptionAbbreviationVBoxLayout->addLayout(descriptionVBoxLayout);
 
-    QLabel *descriptionLabel = new QLabel(tr("Description:"));
+    QLabel *descriptionLabel = new QLabel;
+    m_labels[3] = descriptionLabel;
     descriptionVBoxLayout->addWidget(descriptionLabel);
 
     ui_Det_TextBrowser_Description = new QTextBrowser;
@@ -1109,7 +1318,8 @@ void MainWindow::generateDetailsTab(int idx)
     QVBoxLayout *abbreviationVBoxLayout = new QVBoxLayout;
     descriptionAbbreviationVBoxLayout->addLayout(abbreviationVBoxLayout);
 
-    QLabel *abbreviationLabel = new QLabel(tr("Abbreviation:"));
+    QLabel *abbreviationLabel = new QLabel;
+    m_labels[4] = abbreviationLabel;
     abbreviationVBoxLayout->addWidget(abbreviationLabel);
 
     ui_Det_LineEdit_Abbreviation = new QLineEdit;
@@ -1120,7 +1330,8 @@ void MainWindow::generateDetailsTab(int idx)
     QVBoxLayout *commentsVBoxLayout = new QVBoxLayout;
     detailsHBoxLayout->addLayout(commentsVBoxLayout);
 
-    QLabel *commentsLabel = new QLabel(tr("Comments:"));
+    QLabel *commentsLabel = new QLabel;
+    m_labels[5] = commentsLabel;
     commentsVBoxLayout->addWidget(commentsLabel);
 
     ui_Det_TextBrowser_Comments = new QTextBrowser;
@@ -1138,7 +1349,8 @@ void MainWindow::generateDetailsTab(int idx)
     QVBoxLayout *versionVBoxLayout = new QVBoxLayout;
     versionPublishDateHBoxLayout->addLayout(versionVBoxLayout);
 
-    QLabel *versionLabel = new QLabel(tr("Version:"));
+    QLabel *versionLabel = new QLabel;
+    m_labels[6] = versionLabel;
     versionVBoxLayout->addWidget(versionLabel);
 
     ui_Det_LineEdit_Version = new QLineEdit;
@@ -1149,7 +1361,8 @@ void MainWindow::generateDetailsTab(int idx)
     QVBoxLayout *versionDateVBoxLayout = new QVBoxLayout;
     versionPublishDateHBoxLayout->addLayout(versionDateVBoxLayout);
 
-    QLabel *versionDateLabel = new QLabel(tr("Version Date:"));
+    QLabel *versionDateLabel = new QLabel;
+    m_labels[7] = versionDateLabel;
     versionDateVBoxLayout->addWidget(versionDateLabel);
 
     ui_Det_LineEdit_VersionDate = new QLineEdit;
@@ -1160,7 +1373,8 @@ void MainWindow::generateDetailsTab(int idx)
     QVBoxLayout *publishDateVBoxLayout = new QVBoxLayout;
     versionPublishDateHBoxLayout->addLayout(publishDateVBoxLayout);
 
-    QLabel *publishDateLabel = new QLabel(tr("Publish Date:"));
+    QLabel *publishDateLabel = new QLabel;
+    m_labels[8] = publishDateLabel;
     publishDateVBoxLayout->addWidget(publishDateLabel);
 
     ui_Det_LineEdit_PublishDate = new QLineEdit;
@@ -1172,25 +1386,25 @@ void MainWindow::generateDetailsTab(int idx)
     QHBoxLayout *rightOldNewStrongHBoxLayout = new QHBoxLayout;
     mainVBoxLayout->addLayout(rightOldNewStrongHBoxLayout);
 
-    ui_Det_CheckBox_RightToLeft = new QCheckBox(tr("Right to Left"));
+    ui_Det_CheckBox_RightToLeft = new QCheckBox;
     ui_Det_CheckBox_RightToLeft->setLayoutDirection(Qt::RightToLeft);
     ui_Det_CheckBox_RightToLeft->setAttribute(Qt::WA_TransparentForMouseEvents);
     ui_Det_CheckBox_RightToLeft->setFocusPolicy(Qt::NoFocus);
     rightOldNewStrongHBoxLayout->addWidget(ui_Det_CheckBox_RightToLeft);
 
-    ui_Det_CheckBox_OldTestament = new QCheckBox(tr("Old Testament"));
+    ui_Det_CheckBox_OldTestament = new QCheckBox;
     ui_Det_CheckBox_OldTestament->setLayoutDirection(Qt::RightToLeft);
     ui_Det_CheckBox_OldTestament->setAttribute(Qt::WA_TransparentForMouseEvents);
     ui_Det_CheckBox_OldTestament->setFocusPolicy(Qt::NoFocus);
     rightOldNewStrongHBoxLayout->addWidget(ui_Det_CheckBox_OldTestament);
 
-    ui_Det_CheckBox_NewTestament = new QCheckBox(tr("New Testament"));
+    ui_Det_CheckBox_NewTestament = new QCheckBox;
     ui_Det_CheckBox_NewTestament->setLayoutDirection(Qt::RightToLeft);
     ui_Det_CheckBox_NewTestament->setAttribute(Qt::WA_TransparentForMouseEvents);
     ui_Det_CheckBox_NewTestament->setFocusPolicy(Qt::NoFocus);
     rightOldNewStrongHBoxLayout->addWidget(ui_Det_CheckBox_NewTestament);
 
-    ui_Det_CheckBox_StrongsNumbers = new QCheckBox(tr("Strong's Numbers"));
+    ui_Det_CheckBox_StrongsNumbers = new QCheckBox;
     ui_Det_CheckBox_StrongsNumbers->setLayoutDirection(Qt::RightToLeft);
     ui_Det_CheckBox_StrongsNumbers->setAttribute(Qt::WA_TransparentForMouseEvents);
     ui_Det_CheckBox_StrongsNumbers->setFocusPolicy(Qt::NoFocus);
@@ -1201,6 +1415,9 @@ void MainWindow::generateDetailsTab(int idx)
 
     connectDetailsTabSignals();
     fillDetailsTab();
+
+    setLabelTexts(1);
+    setCheckBoxTexts(1);
 }
 
 void MainWindow::fillDetailsTab()
@@ -1249,7 +1466,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     QVBoxLayout *dictionariesVerLayout = new QVBoxLayout;
     mainHorLayout->addLayout(dictionariesVerLayout);
 
-    QLabel *dictionariesLabel = new QLabel(tr("Available Dictionaries:"));
+    QLabel *dictionariesLabel = new QLabel;
+    m_labels[20] = dictionariesLabel;
     dictionariesVerLayout->addWidget(dictionariesLabel);
 
     QListWidget *dictionariesListWidget = new QListWidget;
@@ -1262,7 +1480,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     QVBoxLayout *numberEntriesVerLayout = new QVBoxLayout;
     mainHorLayout->addLayout(numberEntriesVerLayout);
 
-    QLabel *numberLabel = new QLabel(tr("Number:"));
+    QLabel *numberLabel = new QLabel;
+    m_labels[21] = numberLabel;
     numberEntriesVerLayout->addWidget(numberLabel);
 
     QLineEdit *numberLineEdit = new QLineEdit;
@@ -1278,7 +1497,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     QObject::connect(numberLineEdit, SIGNAL(textEdited(QString)),
                      this, SLOT(on_Dic_TextEdited_LineEdit_Number(QString)));
 
-    QLabel *allEntriesLabel = new QLabel(tr("All Entries:"));
+    QLabel *allEntriesLabel = new QLabel;
+    m_labels[22] = allEntriesLabel;
     numberEntriesVerLayout->addWidget(allEntriesLabel);
 
     ui_Dic_ListWidget_AllEntries = new QListWidget;
@@ -1288,7 +1508,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     QVBoxLayout *definitionVerLayout = new QVBoxLayout;
     mainHorLayout->addLayout(definitionVerLayout);
 
-    QLabel *definitionLabel = new QLabel(tr("Definition:"));
+    QLabel *definitionLabel = new QLabel;
+    m_labels[23] = definitionLabel;
     definitionVerLayout->addWidget(definitionLabel);
 
     ui_Dic_TextBrowser_Definition = new QTextBrowser;
@@ -1298,6 +1519,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     definitionVerLayout->addWidget(ui_Dic_TextBrowser_Definition);
     setBrowserBackground(*ui_Dic_TextBrowser_Definition);
 
+    setLabelTexts(idx);
+
     connectDictionaryTabSignals();
 
     QStringList dictNameList;
@@ -1306,6 +1529,8 @@ void MainWindow::generateDictionaryTabControls(int idx)
     }
     dictionariesListWidget->addItems(dictNameList);
 }
+
+
 
 void MainWindow::generateFavoritesTabControls(int idx)
 {
@@ -1320,7 +1545,8 @@ void MainWindow::generateFavoritesTabControls(int idx)
     QVBoxLayout *passagesVBoxLayout = new QVBoxLayout;
     mainHBoxLayout->addLayout(passagesVBoxLayout);
 
-    QLabel *passagesLabel = new QLabel(tr("Favorite Passages:"));
+    QLabel *passagesLabel = new QLabel;
+    m_labels[18] = passagesLabel;
     passagesVBoxLayout->addWidget(passagesLabel);
 
     ui_Fav_ListWidget_Passages = new QListWidget;
@@ -1342,15 +1568,16 @@ void MainWindow::generateFavoritesTabControls(int idx)
     QHBoxLayout *commentDeleteSaveHBoxLayout = new QHBoxLayout;
     textCommentVBoxLayout->addLayout(commentDeleteSaveHBoxLayout);
 
-    QLabel *commentLabel = new QLabel(tr("Comment:"));
+    QLabel *commentLabel = new QLabel;
+    m_labels[19] = commentLabel;
     commentDeleteSaveHBoxLayout->addWidget(commentLabel);
 
     commentDeleteSaveHBoxLayout->addStretch();
 
-    ui_Fav_Button_Delete = new QPushButton(tr("Delete"));
+    ui_Fav_Button_Delete = new QPushButton;
     commentDeleteSaveHBoxLayout->addWidget(ui_Fav_Button_Delete);
 
-    ui_Fav_Button_Save = new QPushButton(tr("Save")); 
+    ui_Fav_Button_Save = new QPushButton;
     commentDeleteSaveHBoxLayout->addWidget(ui_Fav_Button_Save);
 
     ui_Fav_TextEdit_Comment = new QTextEdit;
@@ -1359,7 +1586,11 @@ void MainWindow::generateFavoritesTabControls(int idx)
     textCommentVBoxLayout->addWidget(ui_Fav_TextEdit_Comment);
     setBrowserBackground(*ui_Fav_TextEdit_Comment);
 
+    setLabelTexts(idx);
+    setButtonTexts(idx);
+
     connectFavoritesTabSignals();
+
     loadFavorites();
 }
 
@@ -1379,7 +1610,8 @@ void MainWindow::generateSearchTabControls(int idx)
     QVBoxLayout *enterSearchVBoxLayout = new QVBoxLayout;
     enterSearchSectionHBoxLayout->addLayout(enterSearchVBoxLayout);
 
-    QLabel *enterLabel = new QLabel(tr("Enter a Word or Phrase:"));
+    QLabel *enterLabel = new QLabel;
+    m_labels[9] = enterLabel;
     enterSearchVBoxLayout->addWidget(enterLabel);
 
     QHBoxLayout *enterHBoxLayout = new QHBoxLayout;
@@ -1389,9 +1621,7 @@ void MainWindow::generateSearchTabControls(int idx)
 
     enterHBoxLayout->addWidget(ui_Sea_LineEdit_Search);
     ui_Sea_LineEdit_Search->setFocus();
-    ui_Sea_Button_Search = new QPushButton(tr("Search"));
-    ui_Sea_Button_Search->setToolTip(tr("Perform a search for the word/phrase."));
-
+    ui_Sea_Button_Search = new QPushButton;
     enterHBoxLayout->addWidget(ui_Sea_Button_Search);
     ui_Sea_Button_Search->setDisabled(true);
 
@@ -1415,14 +1645,14 @@ void MainWindow::generateSearchTabControls(int idx)
     QVBoxLayout *sectionVBoxLayout = new QVBoxLayout;
     enterSearchSectionHBoxLayout->addLayout(sectionVBoxLayout);
 
-    QLabel *sectionLabel = new QLabel(tr("Bible Section:"));
+    QLabel *sectionLabel = new QLabel;
+    m_labels[10] = sectionLabel;
     sectionVBoxLayout->addWidget(sectionLabel);
 
     ui_Sea_ComboBox_Section = new QComboBox;
     ui_Sea_ComboBox_Section->setMaxVisibleItems(12);
     ui_Sea_ComboBox_Section->setStyleSheet(COMBOBOX_STYLE);
     ui_Sea_ComboBox_Section->setMinimumWidth(170);
-    ui_Sea_ComboBox_Section->setToolTip(tr("Limit the search to a specific Bible section."));
     sectionVBoxLayout->addWidget(ui_Sea_ComboBox_Section);
 
     populateSectionNames();
@@ -1433,7 +1663,8 @@ void MainWindow::generateSearchTabControls(int idx)
     QVBoxLayout *resultsVBoxLayout = new QVBoxLayout;
     resultsOptionsHBoxLayout->addLayout(resultsVBoxLayout);
 
-    QLabel *resultsLabel = new QLabel(tr("Results:"));
+    QLabel *resultsLabel = new QLabel;
+    m_labels[11] = resultsLabel;
     resultsVBoxLayout->addWidget(resultsLabel);
 
     ui_Sea_TextBrowser_Results = new QTextBrowser;
@@ -1446,13 +1677,15 @@ void MainWindow::generateSearchTabControls(int idx)
     QVBoxLayout *optionsVBoxLayout = new QVBoxLayout;
     resultsOptionsHBoxLayout->addLayout(optionsVBoxLayout);
 
-    QLabel *optionsLabel = new QLabel(tr("Search Options:"));
+    QLabel *optionsLabel = new QLabel;
+    m_labels[12] = optionsLabel;
     optionsVBoxLayout->addWidget(optionsLabel);
 
     QHBoxLayout *translationHBoxLayout = new QHBoxLayout;
     optionsVBoxLayout->addLayout(translationHBoxLayout);
 
-    QLabel *translationLabel = new QLabel(tr("Translation:"));
+    QLabel *translationLabel = new QLabel;
+    m_labels[13] = translationLabel;
     translationHBoxLayout->addWidget(translationLabel);
 
     QStringList translationNames;
@@ -1468,7 +1701,8 @@ void MainWindow::generateSearchTabControls(int idx)
     QHBoxLayout *resPerPageHBoxLayout = new QHBoxLayout;
     optionsVBoxLayout->addLayout(resPerPageHBoxLayout);
 
-    QLabel *resPerPageLabel = new QLabel(tr("Results per Page:"));
+    QLabel *resPerPageLabel = new QLabel;
+    m_labels[14] = resPerPageLabel;
     resPerPageHBoxLayout->addWidget(resPerPageLabel);
 
     ui_Sea_ComboBox_ResPerPage = new QComboBox;
@@ -1480,29 +1714,23 @@ void MainWindow::generateSearchTabControls(int idx)
     ui_Sea_ComboBox_ResPerPage->setStyleSheet(COMBOBOX_STYLE);
     resPerPageHBoxLayout->addWidget(ui_Sea_ComboBox_ResPerPage);
 
-    ui_Sea_CheckBox_Case = new QCheckBox(tr("Case-Sensitive"));
-    ui_Sea_CheckBox_Case->setToolTip(tr("Make the search case-sensitive."));
+    ui_Sea_CheckBox_Case = new QCheckBox;
     optionsVBoxLayout->addWidget(ui_Sea_CheckBox_Case);
 
-    ui_Sea_CheckBox_WholeWords = new QCheckBox(tr("Whole Words Only"));
-    ui_Sea_CheckBox_WholeWords->setToolTip(tr("Ignore word fragments."));
+    ui_Sea_CheckBox_WholeWords = new QCheckBox;
     optionsVBoxLayout->addWidget(ui_Sea_CheckBox_WholeWords);
 
-    ui_Sea_RadioButton_Exact = new QRadioButton(tr("Exact Phrase"));
-    ui_Sea_RadioButton_Exact->setToolTip(tr("Look for verses that contain the exact sequence of characters."));
+    ui_Sea_RadioButton_Exact = new QRadioButton;
     ui_Sea_RadioButton_Exact->setChecked(true);
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Exact);
 
-    ui_Sea_RadioButton_All = new QRadioButton(tr("All of the Words"));
-    ui_Sea_RadioButton_All->setToolTip(tr("Look for verses that contain all of the words (in any order)."));
+    ui_Sea_RadioButton_All = new QRadioButton;
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_All);
 
-    ui_Sea_RadioButton_Any = new QRadioButton(tr("Any of the Words"));
-    ui_Sea_RadioButton_Any->setToolTip(tr("Look for verses that contain at least one of the words."));
+    ui_Sea_RadioButton_Any = new QRadioButton;
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Any);
 
-    ui_Sea_RadioButton_Strong = new QRadioButton(tr("By Strong's Number"));
-    ui_Sea_RadioButton_Strong->setToolTip(tr("Look for verses containing the specified Strong's Number (if available)."));
+    ui_Sea_RadioButton_Strong = new QRadioButton;
     ui_Sea_RadioButton_Strong->setEnabled(m_modules[ui_Sea_ComboBox_Translation->currentIndex()].hasStrong);
     optionsVBoxLayout->addWidget(ui_Sea_RadioButton_Strong);
 
@@ -1525,7 +1753,7 @@ void MainWindow::generateSearchTabControls(int idx)
     ui_Sea_Button_Next->setDisabled(true);
     prevNextHBoxLayout->addWidget(ui_Sea_Button_Next);
 
-    ui_Sea_Button_RandomVerse = new QPushButton(tr("Random Verse"));
+    ui_Sea_Button_RandomVerse = new QPushButton;
     randomVerseVBoxLayout->addWidget(ui_Sea_Button_RandomVerse);
 
     ui_Sea_TextBrowser_RandomVerse = new QTextBrowser;
@@ -1536,7 +1764,13 @@ void MainWindow::generateSearchTabControls(int idx)
     setBrowserBackground(*ui_Sea_TextBrowser_RandomVerse);
 
     connectSearchTabSignals();
+
+    setLabelTexts(2);
+    setButtonTexts(2);
+    setCheckBoxTexts(2);
 }
+
+
 
 void MainWindow::generateTopicsTab(int idx)
 {
@@ -1718,6 +1952,7 @@ void MainWindow::actHistory(bool goBack)
     ui_Act_Back->setEnabled(m_psgIdx > 0);
     ui_Act_Forward->setEnabled(m_psgIdx < m_history.count() - 1);
 }
+
 
 void MainWindow::actionBack()
 {
@@ -1972,6 +2207,7 @@ void MainWindow::on_Sea_ComboBox_CurrentIndexChanged_Section(int index)
         case 10:
             ui_Sea_ComboBox_SearchFrom->setCurrentIndex(58);
             ui_Sea_ComboBox_SearchTo->setCurrentIndex(ui_Sea_ComboBox_SearchTo->count() - 1);
+            break;
         default:
             break;
     }
@@ -2013,7 +2249,7 @@ void MainWindow::on_Bib_TabCloseRequested_TabWidget_Modules(int index)
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, tr("Confirm Removal"),
                                   tr("Are you sure you want to remove this module?\n"
-                                  "It will not be visible unless you re-add it manually."),
+                                     "It will not be visible unless you re-add it manually."),
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         m_removedPathsList << m_modulePathsList[index];
@@ -2089,7 +2325,7 @@ void MainWindow::setBrowserBackground(QTextEdit &browser)
 void MainWindow::loadBackgroundPixmap()
 {
     if (m_papyrusBckgrnd.isNull()) {
-        m_papyrusBckgrnd = QPixmap(":/img/img_res/papyrus.jpg");
+        m_papyrusBckgrnd = QPixmap(IMG_BACKGROUND);
     }
 }
 
@@ -2408,7 +2644,7 @@ void MainWindow::on_Dic_Highlighted_TextBrowser_Definition(const QUrl &arg1)
                     QString fntSiz = "font-size:" % QString::number(QFontInfo(m_currentFont).pixelSize()) % "px";
                     QString note = QString("<p style='%1;%2'>%3</p>")
                             .arg(fntFam, fntSiz, verse);
-                    QToolTip::showText(QCursor::pos(), note, 0, QRect(), 2147483647);
+                    QToolTip::showText(QCursor::pos(), note, nullptr, QRect(), 2147483647);
                 }
             }
         }
@@ -2852,7 +3088,7 @@ void MainWindow::on_Bib_Highlighted_ChapterBrowser(const QUrl &arg1)
             QString fntSiz = "font-size:" % QString::number(QFontInfo(m_currentFont).pixelSize()) % "px";
             QString note = QString("<p style='white-space:pre;%1;%2'>%3</p>")
                     .arg(fntFam, fntSiz, plainText);
-            QToolTip::showText(QCursor::pos(), note, 0, QRect(), 2147483647);
+            QToolTip::showText(QCursor::pos(), note, nullptr, QRect(), 2147483647);
         }
     } else {
         QToolTip::hideText();
@@ -2949,7 +3185,7 @@ void MainWindow::actionDecreaseFontSize()
     checkFontSizes();
 }
 
-void MainWindow::checkLanguageAction(int idx, bool firstRun)
+void MainWindow::actionCheckLanguage(int idx, bool firstRun)
 {
     QList<QAction *> languageActions = ui_Menu_Language->actions();
     for (int i = 0; i < languageActions.count(); ++i) {
@@ -2957,36 +3193,48 @@ void MainWindow::checkLanguageAction(int idx, bool firstRun)
     }
     m_language = m_languages.value(idx);
     if (!firstRun) {
-        QMessageBox::information(this,
-                                 tr("Language Change"),
-                                 tr("The change will take effect after restarting the program."));
+        if (m_language != "EN") {
+            m_tsApp->load(m_language.toLower(), m_executionPath + "/App/lang");
+            qApp->installTranslator(m_tsApp);
+            m_tsQt->load("qt_" + m_language.toLower(), m_executionPath + "/App/lang");
+            qApp->installTranslator(m_tsQt);
+        } else {
+            qApp->removeTranslator(m_tsApp);
+            qApp->removeTranslator(m_tsQt);
+        }
+        translateTexts();
     }
 }
 
 void MainWindow::actionEnglish()
 {
-    checkLanguageAction(0);
+    actionCheckLanguage(0);
 }
 
 void MainWindow::actionPolish()
 {
-    checkLanguageAction(2);
+    actionCheckLanguage(2);
 }
 
 void MainWindow::actionSpanish()
 {
-    checkLanguageAction(1);
+    actionCheckLanguage(1);
 }
 
 void MainWindow::actionPreferences()
 {
-    PDialogPreferences dlgPreferences(m_maxRecentPassages,
+    PDialogPreferences dlgPreferences(m_languages.key(m_language),
+                                      m_maxRecentPassages,
                                       m_style,
                                       m_useBackground,
                                       m_highlightColor,
                                       m_currentFont,
                                       m_tabPos);
     if (dlgPreferences.exec()) {
+        int langIdx = dlgPreferences.getLanguageIndex();
+        if (m_language != m_languages[langIdx]) {
+            actionCheckLanguage(langIdx);
+        }
         QString newStyle = dlgPreferences.getWindowStyle();
         if (newStyle != m_style) {
             m_style = newStyle;
@@ -3017,7 +3265,17 @@ void MainWindow::actionPreferences()
     }
 }
 
+void MainWindow::actionAbout()
+{
+    QMessageBox::about(this, tr("About Qt Bible Viewer"),
+                tr("<p><b>Qt Bible Viewer</b> is an open-source application "
+                   "currently developed by Damian Dzienniak. "
+                   "The GitHub repositiory for the project can be found at "
+                   "<a href='https://github.com/damian-dz/QtBibleViewer'> "
+                   "github.com/damian-dz/QtBibleViewer</a>.</p>"));
+}
+
 void MainWindow::actionAboutQt()
 {
-    QMessageBox::aboutQt(this, "About Qt");
+    QMessageBox::aboutQt(this, tr("About Qt"));
 }

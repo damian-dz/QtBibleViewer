@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         qtTranslator.load("qt_" + setLanguage.toLower(), appDir + "/App/lang");
         app.installTranslator(&qtTranslator);
     }
-    MainWindow win(appDir, setLanguage.toUpper(), style, configFilePath);
+    MainWindow win(appDir, setLanguage.toUpper(), appTranslator, qtTranslator,  style, configFilePath);
     win.show();
     return app.exec();
 }

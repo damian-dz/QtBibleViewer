@@ -20,7 +20,7 @@ public:
                 const QPixmap &background,
                 bool useBckgrnd,
                 const QFont &font,
-                QWidget *parent = 0);
+                QWidget *parent = nullptr);
     ~PDialogXRef();
 
 private:

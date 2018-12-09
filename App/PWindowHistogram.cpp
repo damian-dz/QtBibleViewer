@@ -1,17 +1,15 @@
 #include "PWindowHistogram.h"
 
-//#include "AuxiliaryMethods.h"
-
-
 #include <QFileDialog>
 #include <QMenu>
+
 
 PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, QWidget *parent)
     : QWidget(parent),
       m_isBeingOpened(true)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    this->m_db = &db;
+    m_db = &db;
     loadBookAbbreviations();
     generateMainLayout();
     setUpChartsAndValidator();
@@ -99,7 +97,7 @@ void PWindowHistogram::searchAndPlot(const QString &word)
         while (query.next()) {
             QSqlRecord record = query.record();
             QString verseNoNotes = record.value(1).toString().remove(rgxMarkupNotes);
-            uchar bookNumber = record.value(0).toInt();
+            uchar bookNumber = uchar(record.value(0).toInt());
             if (verseNoNotes.contains(word, Qt::CaseInsensitive)) {
                 if (bookNumber < 40) {
                     if (hashOT.contains(bookNumber)) {
@@ -121,7 +119,7 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     QBarSet *setOT = new QBarSet(tr("Old Testament"));
     QStringList categoriesOT;
     int maxOT = 0;
-    for (int i = 1; i < 40; ++i) {
+    for (uchar i = 1; i < 40; ++i) {
         if (hashOT.contains(i)) {
             setOT->append(hashOT[i]);
             categoriesOT << m_abbreviations[i - 1];
@@ -134,7 +132,7 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     QBarSet *setNT = new QBarSet(tr("New Testament"));
     QStringList categoriesNT;
     int maxNT = 0;
-    for (int i = 40; i <= 66; ++i) {
+    for (uchar i = 40; i <= 66; ++i) {
         if (hashNT.contains(i)) {
             setNT->append(hashNT[i]);
             categoriesNT << m_abbreviations[i - 1];

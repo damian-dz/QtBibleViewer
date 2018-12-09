@@ -18,7 +18,7 @@ public:
                   const QFont &font,
                   const QPixmap &background,
                   bool useBckgrnd,
-                  QWidget *parent = 0);
+                  QWidget *parent = nullptr);
     ~PDialogStrong();
 
 private slots:

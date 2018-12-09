@@ -82,13 +82,13 @@ void MainWindow::performSearchByStrong()
     QTime watch;
     watch.start();
     QString text = ui_Sea_LineEdit_Search->text().toUpper();
-    m_dispRgx = QRegExp("\\b" + text + "\\b", Qt::CaseSensitive);
-    text = "<W" + text + ">";
+    m_dispRgx = QRegExp("\\b" % text % "\\b", Qt::CaseSensitive);
+    text = "<W" % text % ">";
     int bookFirst = ui_Sea_ComboBox_SearchFrom->currentIndex() + 1;
     int bookLast = ui_Sea_ComboBox_SearchTo->currentIndex() + 1;
-    QString queryString = "SELECT * FROM Bible WHERE Scripture LIKE '%" + text + "%'"
-                          " AND Book >= " + QString::number(bookFirst) +
-                          " AND Book <= " + QString::number(bookLast);
+    QString queryString = "SELECT * FROM Bible WHERE Scripture LIKE '%" % text % "%'"
+                          " AND Book >= " % QString::number(bookFirst) +
+                          " AND Book <= " % QString::number(bookLast);
     int idx = ui_Sea_ComboBox_Translation->currentIndex();
     QSqlQuery query(m_modules[idx].database);
     if (query.exec(queryString)) {
@@ -118,7 +118,6 @@ typedef bool (&AllAny)(const QString &text, const QList<QRegExp> &words);
 void MainWindow::iterateRecords(QSqlQuery &query, const QStringList &words,
                                 Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll)
 {
-    qDebug() << "hi";
     AllAny containsFunc = containsAll ? containsAllWords : containsAnyWord;
     QString boundary = wholeWords ? "\\b" : "";
     QList<QRegExp> wordsRgx;

@@ -56,11 +56,13 @@
 #define SET_HIGHLIGHT_COLOR "highlightColor"
 #define SET_TAB_POSITION "tabPosition"
 
-#define ICON_ARROW_LEFT ":/img/img_res/arrleft.svg"
-#define ICON_ARROW_RIGHT ":/img/img_res/arrright.svg"
+#define IMG_BACKGROUND ":/img/img_res/papyrus.jpg"
+
+#define ICON_ARROW_LEFT ":/img/img_res/arrow_left.svg"
+#define ICON_ARROW_RIGHT ":/img/img_res/arrow_right.svg"
 #define ICON_CLOSE ":/img/img_res/close.svg"
 #define ICON_COPY ":/img/img_res/copy.svg"
-#define ICON_COPY_PLUS ":/img/img_res/copyplus.svg"
+#define ICON_COPY_PLUS ":/img/img_res/copy_plus.svg"
 #define ICON_EXIT ":/img/img_res/exit.svg"
 #define ICON_FIND ":/img/img_res/find.svg"
 #define ICON_FOLDER ":/img/img_res/folder.svg"
@@ -75,8 +77,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(const QString &appDir, const QString &lang, const QString &style, const QString configPath, QWidget *parent = 0);
-    ~MainWindow();
+    MainWindow(const QString &appDir,
+               const QString &lang,
+               QTranslator &appTs,
+               QTranslator &qtTs,
+               const QString &style,
+               const QString configPath,
+               QWidget *parent = nullptr);
+    ~MainWindow() override;
 
 public slots:
     void action_ChapterBrowser_Copy();
@@ -159,17 +167,34 @@ private:
         int verseTo;
 
         TabBookChapterVerses() :
-            tab(-1), book(-1), chapter(-1), verseFrom(-1), verseTo(-1) { }
+            tab(-1),
+            book(-1),
+            chapter(-1),
+            verseFrom(-1),
+            verseTo(-1)
+        {
+
+        }
 
         TabBookChapterVerses(int tab, int book, int chapter, int verseFrom, int verseTo) :
-            tab(tab), book(book), chapter(chapter), verseFrom(verseFrom), verseTo(verseTo) { }
+            tab(tab),
+            book(book),
+            chapter(chapter),
+            verseFrom(verseFrom),
+            verseTo(verseTo)
+        {
+
+        }
 
         TabBookChapterVerses(const TabBookChapterVerses &tbcvv) :
             tab(tbcvv.tab),
             book(tbcvv.book),
             chapter(tbcvv.chapter),
             verseFrom(tbcvv.verseFrom),
-            verseTo(tbcvv.verseTo) { }
+            verseTo(tbcvv.verseTo)
+        {
+
+        }
 
         bool isPassageEqual(const TabBookChapterVerses &tbcvv)
         {
@@ -177,6 +202,11 @@ private:
                     chapter == tbcvv.chapter &&
                     verseFrom == tbcvv.verseFrom &&
                     verseTo == tbcvv.verseTo);
+        }
+
+        bool isPassageValid()
+        {
+            return (book > 0 && chapter > 0 && verseFrom > 0 && verseTo > 0);
         }
 
         bool isSameAs(const TabBookChapterVerses &tbcvv)
@@ -188,7 +218,8 @@ private:
                     verseTo == tbcvv.verseTo);
         }
 
-        TabBookChapterVerses operator =(const TabBookChapterVerses &tbcvv) {
+        TabBookChapterVerses operator =(const TabBookChapterVerses &tbcvv)
+        {
             tab = tbcvv.tab;
             book = tbcvv.book;
             chapter = tbcvv.chapter;
@@ -197,11 +228,13 @@ private:
             return *this;
         }
 
-        bool operator ==(const TabBookChapterVerses &tbcvv) {
+        bool operator ==(const TabBookChapterVerses &tbcvv)
+        {
             return this->isSameAs(tbcvv);
         }
 
-        bool operator !=(const TabBookChapterVerses &tbcvv) {
+        bool operator !=(const TabBookChapterVerses &tbcvv)
+        {
             return !this->isSameAs(tbcvv);
         }
     };
@@ -217,9 +250,18 @@ private:
     QMenu *ui_Menu_Language;
     QStatusBar *ui_StatusBar_Status;
     QTabWidget *ui_TabWidget_Main;
+
     QTextBrowser *m_textBrowser;
     QTextEdit *m_textEdit;
     QLineEdit *m_lineEdit;
+
+    QTabBar *ui_TabBar_Main;
+
+    QVector<QLabel *> m_labels;
+    QVector<QPushButton *> m_buttons;
+
+    QList<QMenu *> m_menus;
+    QList<QAction *> m_actions;
 
     /* Bible Tab */
     QComboBox *ui_Bib_ComboBox_VerseFrom;
@@ -332,6 +374,8 @@ private:
     QString m_settingsPath;
     QString m_style;
     int m_tabPos;
+    QTranslator *m_tsApp;
+    QTranslator *m_tsQt;
     bool m_useBackground;
     QList<QMap<int, int>> m_verseMaps;
     QPair<int, int> m_verseRange;
@@ -344,6 +388,7 @@ private:
     TabBookChapterVerses getTabBookChapterVerses();
     TabBookChapterVerses loadSettings();
     void actHistory(bool goBack);
+    void actionAbout();
     void actionAboutQt();
     void actionDecreaseFontSize();
     void actionEnglish();
@@ -358,7 +403,7 @@ private:
     void addModuleLayout(int index);
     void blockPassageSelectionSignals(bool isBlocked);
     void checkFontSizes();
-    void checkLanguageAction(int idx, bool firstRun = false);
+    void actionCheckLanguage(int idx, bool firstRun = false);
     void clearChapterBrowserData(int idx);
     void connectBibleTabSignals();
     void connectCompareTabSignals();
@@ -402,8 +447,15 @@ private:
     void setBrowserBackground(QTextEdit &browser);
     void setTabBookChapterVerses(const TabBookChapterVerses &tbcvv, bool firstRun);
     void swapTabHistory(int from, int to);
+    void translateTexts();
     void updateFonts();
     void updateHistory(const TabBookChapterVerses &tbcvv);
+    void setButtonTexts(int idx);
+    void setCheckBoxTexts(int idx);
+    void setLabelTexts(int idx);
+    void setMainTabNames();
+    void setMainTabToolTips();
+    void setMenuTexts();
 
     void closeEvent(QCloseEvent *event) override;
 };
