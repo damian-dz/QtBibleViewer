@@ -9,5 +9,10 @@
     <polygon points="16,200 34.6,200 40.8,206.2 40.8,231 16,231" stroke="black" stroke-width="2" fill="none"/>
     <polyline points="34.6,200 34.6,206.2 40.8,206.2 40.8,206.2" stroke="black" stroke-width="2" fill="none"/>
   </g>
+<<<<<<< HEAD
   <text font-size="22" x="22" y="224">+</text>
 </svg>
+=======
+  <text font-size="22" x="20" y="224">+</text>
+</svg>
+>>>>>>> 55648d8f6531dd9d9b4d93e2ece62416b3d95771

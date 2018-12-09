@@ -56,8 +56,11 @@
 #define SET_HIGHLIGHT_COLOR "highlightColor"
 #define SET_TAB_POSITION "tabPosition"
 
+<<<<<<< HEAD
 #define IMG_BACKGROUND ":/img/img_res/papyrus.jpg"
 
+=======
+>>>>>>> 55648d8f6531dd9d9b4d93e2ece62416b3d95771
 #define ICON_ARROW_LEFT ":/img/img_res/arrow_left.svg"
 #define ICON_ARROW_RIGHT ":/img/img_res/arrow_right.svg"
 #define ICON_CLOSE ":/img/img_res/close.svg"
