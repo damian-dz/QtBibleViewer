@@ -1,18 +1,7 @@
 #ifndef PWINDOWHISTOGRAM_H
 #define PWINDOWHISTOGRAM_H
 
-#include <QWidget>
-#include <QHBoxLayout>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QtCharts/QBarCategoryAxis>
-#include <QtCharts/QBarSeries>
-#include <QtCharts/QBarSet>
-#include <QtCharts/QChartView>
-#include <QtCharts/QLegend>
-#include <QtCharts/QValueAxis>
-#include <QtSql>
-#include <QVBoxLayout>
+#include "precomp.h"
 
 using namespace QtCharts;
 

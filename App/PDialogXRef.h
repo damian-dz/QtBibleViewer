@@ -1,13 +1,7 @@
 #ifndef PDIALOGXREF_H
 #define PDIALOGXREF_H
 
-#include <QDialog>
-#include <QTextBrowser>
-#include <QVBoxLayout>
-#include <QRegularExpression>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlRecord>
+#include "precomp.h"
 
 class PDialogXRef : public QDialog
 {

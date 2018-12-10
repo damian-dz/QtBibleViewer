@@ -1,18 +1,7 @@
 #ifndef PDIALOGPREFERENCES_H
 #define PDIALOGPREFERENCES_H
 
-#include <QCheckBox>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QFontComboBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QListWidget>
-#include <QStackedWidget>
-#include <QTextBrowser>
-#include <QVBoxLayout>
-#include <QFormLayout>
-#include <QSpinBox>
+#include "precomp.h"
 
 class PDialogPreferences : public QDialog
 {

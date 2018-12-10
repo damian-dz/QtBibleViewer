@@ -854,15 +854,15 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Max. Recent Passages:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maks. liczba ostatnich fragmentów:</translation>
     </message>
     <message>
         <source>ABCabc123</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Bible Tabs Position:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pozycja kart Biblii:</translation>
     </message>
 </context>
 <context>

@@ -1,34 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QApplication>
-#include <QCheckBox>
-#include <QClipboard>
-#include <QComboBox>
-#include <QFileDialog>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QListWidget>
-#include <QMainWindow>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QSettings>
-#include <QSpacerItem>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QStatusBar>
-#include <QStringBuilder>
-#include <QTabWidget>
-#include <QTextBlock>
-#include <QTextBrowser>
-#include <QTime>
-#include <QToolTip>
-#include <QTranslator>
-#include <QWidget>
+#include "precomp.h"
 
 #define DEFAULT_WIDTH 920
 #define DEFAULT_HEIGHT 600
@@ -56,11 +29,8 @@
 #define SET_HIGHLIGHT_COLOR "highlightColor"
 #define SET_TAB_POSITION "tabPosition"
 
-<<<<<<< HEAD
 #define IMG_BACKGROUND ":/img/img_res/papyrus.jpg"
 
-=======
->>>>>>> 55648d8f6531dd9d9b4d93e2ece62416b3d95771
 #define ICON_ARROW_LEFT ":/img/img_res/arrow_left.svg"
 #define ICON_ARROW_RIGHT ":/img/img_res/arrow_right.svg"
 #define ICON_CLOSE ":/img/img_res/close.svg"
@@ -396,6 +366,7 @@ private:
     void actionDecreaseFontSize();
     void actionEnglish();
     void actionExit();
+    void actionHelp();
     void actionIncreaseFontSize();
     void actionOpenBibleModule();
     void actionPolish();

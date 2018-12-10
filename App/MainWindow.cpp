@@ -176,7 +176,7 @@ void MainWindow::generateMenuBarItems()
 
     QMenu *helpMenu = menuBar()->addMenu(QString());
     m_menus << helpMenu;
-    m_actions << helpMenu->addAction(QString(), this, &MainWindow::actionIncreaseFontSize);
+    m_actions << helpMenu->addAction(QString(), this, &MainWindow::actionHelp, QKeySequence::HelpContents);
     m_actions << helpMenu->addAction(QString(), this, &MainWindow::actionAbout);
     m_actions << helpMenu->addAction(QString(), this, &MainWindow::actionAboutQt);
 
@@ -1833,6 +1833,7 @@ void MainWindow::saveSettings()
     settings.setValue(SET_FONT_SIZE, m_currentFont.pointSize());
     settings.endGroup();
     settings.beginGroup(GROUP_APPEARANCE);
+    settings.setValue(SET_STYLE, m_style);
     settings.setValue(SET_USE_BACKGROUND, m_useBackground);
     settings.setValue(SET_HIGHLIGHT_COLOR, m_highlightColor);
     settings.setValue(SET_TAB_POSITION, m_tabPos);
@@ -3156,6 +3157,11 @@ void MainWindow::actionExit()
 {
     QMainWindow::close();
     QApplication::quit();
+}
+
+void MainWindow::actionHelp()
+{
+
 }
 
 void MainWindow::actionWordFrequency()

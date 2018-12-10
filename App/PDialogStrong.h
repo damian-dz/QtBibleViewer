@@ -1,12 +1,7 @@
 #ifndef PDIALOGSTRONG_H
 #define PDIALOGSTRONG_H
 
-#include <QDialog>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlRecord>
-#include <QTextBrowser>
-#include <QVBoxLayout>
+#include "precomp.h"
 
 class PDialogStrong : public QDialog
 {

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql charts
+QT += core gui sql charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 QMAKE_LFLAGS += -no-pie
 
+PRECOMPILED_HEADER = precomp.h
 
 SOURCES += \
     Main.cpp \
@@ -33,7 +34,6 @@ SOURCES += \
     PDialogXRef.cpp \
     PWindowHistogram.cpp \
     SearchEngine.cpp
-
 
 HEADERS += \
     MainWindow.h \
