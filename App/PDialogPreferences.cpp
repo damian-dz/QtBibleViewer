@@ -1,10 +1,5 @@
 #include "PDialogPreferences.h"
 
-#include <QApplication>
-#include <QColorDialog>
-#include <QPushButton>
-#include <QStyleFactory>
-
 PDialogPreferences::PDialogPreferences(int langIdx,
                                        int maxPassages,
                                        const QString &style,

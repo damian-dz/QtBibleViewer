@@ -1,9 +1,5 @@
 #include "PWindowHistogram.h"
 
-#include <QFileDialog>
-#include <QMenu>
-
-
 PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, QWidget *parent)
     : QWidget(parent),
       m_isBeingOpened(true)

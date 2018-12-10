@@ -4,10 +4,6 @@
 #include "PDialogXRef.h"
 #include "PWindowHistogram.h"
 
-#include <QDebug>
-#include <QFontInfo>
-#include <QStyleFactory>
-
 inline void createFavDatabase(QSqlDatabase &db, const QString &filename)
 {
     db = QSqlDatabase::addDatabase("QSQLITE");

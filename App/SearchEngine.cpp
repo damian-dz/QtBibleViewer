@@ -1,7 +1,5 @@
 #include "MainWindow.h"
 
-#include <QDebug>
-
 QString multipleWordQueryString(const QStringList &wordsLow, const QStringList &wordsUpp, const QString &conj)
 {
     QString queryString = "SELECT * FROM Bible"

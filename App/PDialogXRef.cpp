@@ -1,10 +1,5 @@
 #include "PDialogXRef.h"
 
-#include <QTime>
-#include <QDebug>
-
-#include <QStringBuilder>
-
 PDialogXRef::PDialogXRef(const QSqlDatabase &dbBib,
                          const QStringList &verseInfo,
                          const QStringList &bookNames,
@@ -27,7 +22,6 @@ PDialogXRef::PDialogXRef(const QSqlDatabase &dbBib,
     QTime t;
     t.start();
     loadPassages(dbBib, verseInfoSplit[2], bookNames);
-    qDebug() << t.elapsed();
 }
 
 PDialogXRef::~PDialogXRef()
