@@ -3,6 +3,7 @@ project/QtBibleViewer.pro.user*
 Installer_x64/.vs/*
 Installer_x64/QtBibleViewerInstaller/bin/*
 Installer_x64/QtBibleViewerInstaller/obj/*
+Installer_x64/QtBibleViewerInstaller/QtBibleViewerInstaller.csproj.user
 Installer_x64/uninstall/bin/*
 Installer_x64/uninstall/obj/*
 Installer_x64/uninstallDeleter/bin/*
@@ -10,6 +11,7 @@ Installer_x64/uninstallDeleter/obj/*
 Installer_x86/.vs/*
 Installer_x86/QtBibleViewerInstaller/bin/*
 Installer_x86/QtBibleViewerInstaller/obj/*
+Installer_x86/QtBibleViewerInstaller/QtBibleViewerInstaller.csproj.user
 Installer_x86/uninstall/bin/*
 Installer_x86/uninstall/obj/*
 Release_x64*/*
