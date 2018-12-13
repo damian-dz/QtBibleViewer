@@ -1,8 +1,5 @@
-App/img_res/*.dia
-App/*.qm
-App/pl0.ts
-App/papyrus.jpg
-App/QtBibleViewer.pro.user*
+project/*.qm
+project/QtBibleViewer.pro.user*
 Installer_x64/.vs/*
 Installer_x64/QtBibleViewerInstaller/bin/*
 Installer_x64/QtBibleViewerInstaller/obj/*
