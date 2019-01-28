@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Verses </source>
-        <translation type="unfinished"></translation>
+        <translation>Versículos </translation>
     </message>
     <message>
         <source> in total);  Elapsed time: </source>
@@ -73,7 +73,7 @@
     </message>
     <message>
         <source>Abbreviation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Abreviatura:</translation>
     </message>
     <message>
         <source>Comments:</source>
@@ -85,15 +85,15 @@
     </message>
     <message>
         <source>Version Date:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fecha de la Versión:</translation>
     </message>
     <message>
         <source>Publish Date:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fecha de Publicacíon:</translation>
     </message>
     <message>
         <source>Right to Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Derecha a Izquierda</translation>
     </message>
     <message>
         <source>Old Testament</source>
@@ -105,15 +105,15 @@
     </message>
     <message>
         <source>Strong&apos;s Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Números de Strong</translation>
     </message>
     <message>
         <source>Number:</source>
-        <translation>Numero:</translation>
+        <translation>Número:</translation>
     </message>
     <message>
         <source>All Entries:</source>
-        <translation type="unfinished"></translation>
+        <translation>Todas Entradas:</translation>
     </message>
     <message>
         <source>Definition:</source>
@@ -121,7 +121,7 @@
     </message>
     <message>
         <source>Favorite Passages:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasajes Favoritos:</translation>
     </message>
     <message>
         <source>Comment:</source>
@@ -129,19 +129,19 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrar</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar</translation>
     </message>
     <message>
         <source>Enter a Word or Phrase:</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrar una palabra o un frase:</translation>
     </message>
     <message>
         <source>Bible Section:</source>
-        <translation type="unfinished"></translation>
+        <translation>Sección de la Biblia:</translation>
     </message>
     <message>
         <source>Results:</source>
@@ -157,7 +157,7 @@
     </message>
     <message>
         <source>Results per Page:</source>
-        <translation type="unfinished"></translation>
+        <translation>Resultados por página:</translation>
     </message>
     <message>
         <source>Whole Words Only</source>
@@ -165,11 +165,11 @@
     </message>
     <message>
         <source>Exact Phrase</source>
-        <translation type="unfinished"></translation>
+        <translation>Frase  exacto</translation>
     </message>
     <message>
         <source>All of the Words</source>
-        <translation type="unfinished"></translation>
+        <translation>Todas de las palabras</translation>
     </message>
     <message>
         <source>Any of the Words</source>
@@ -177,7 +177,7 @@
     </message>
     <message>
         <source>By Strong&apos;s Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Por Números de Strong</translation>
     </message>
     <message>
         <source>Random Verse</source>
@@ -219,7 +219,7 @@ No será visible a menos que lo vuelva a agregar manualmente.</translation>
     </message>
     <message>
         <source>Copy with Reference</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar con Referencia</translation>
     </message>
     <message>
         <source>Select All</source>
@@ -227,15 +227,15 @@ No será visible a menos que lo vuelva a agregar manualmente.</translation>
     </message>
     <message>
         <source>Add Verse </source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir Versículo </translation>
     </message>
     <message>
         <source> to Favorites</source>
-        <translation type="unfinished"></translation>
+        <translation> a Favoritos</translation>
     </message>
     <message>
         <source>Add Verses </source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir Versículos </translation>
     </message>
     <message>
         <source>Back</source>
@@ -267,11 +267,11 @@ No será visible a menos que lo vuelva a agregar manualmente.</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar</translation>
     </message>
     <message>
         <source>Statistics</source>
@@ -295,15 +295,15 @@ No será visible a menos que lo vuelva a agregar manualmente.</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Vista</translation>
     </message>
     <message>
         <source>Increase Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Aumentar el tamaño de la fuente</translation>
     </message>
     <message>
         <source>Decrease Font Size</source>
-        <translation type="unfinished"></translation>
+        <translation>Disminuir el tamaño de la fuente</translation>
     </message>
     <message>
         <source>Help</source>
@@ -311,7 +311,7 @@ No será visible a menos que lo vuelva a agregar manualmente.</translation>
     </message>
     <message>
         <source>Show Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar Ayuda</translation>
     </message>
     <message>
         <source>About</source>
@@ -323,15 +323,15 @@ No será visible a menos que lo vuelva a agregar manualmente.</translation>
     </message>
     <message>
         <source>Available Dictionaries:</source>
-        <translation type="unfinished"></translation>
+        <translation>Diccionarios Disponibles</translation>
     </message>
     <message>
         <source>Random</source>
-        <translation type="unfinished"></translation>
+        <translation>Aleatorio</translation>
     </message>
     <message>
         <source>Go to a random chapter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ir a un capítulo aleatorio.</translation>
     </message>
     <message>
         <source>Go to the previous chapter.</source>
@@ -687,39 +687,39 @@ No será visible a menos que lo vuelva a agregar manualmente.</translation>
     </message>
     <message>
         <source>Find:</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar:</translation>
     </message>
     <message>
         <source>Confirm Deletion</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmar eliminación</translation>
     </message>
     <message>
         <source>Delete entry </source>
-        <translation type="unfinished"></translation>
+        <translation>Borrar entrada </translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Sí</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>No</translation>
     </message>
     <message>
         <source>Entry updated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada actualizada.</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Cortar</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Pegar</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>Quitar</translation>
     </message>
     <message>
         <source>Entire Bible</source>

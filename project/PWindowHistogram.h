@@ -10,7 +10,7 @@ class PWindowHistogram : public QWidget
     Q_OBJECT
 
 public:
-    explicit PWindowHistogram(const QSqlDatabase &m_db, QWidget *parent = nullptr);
+    explicit PWindowHistogram(const QSqlDatabase &m_db, const QStringList &fullNames, QWidget *parent = nullptr);
     ~PWindowHistogram();
 
 protected:
@@ -26,6 +26,8 @@ private slots:
     void showSaveContextMenu(const QPoint &pos);
     void chartView_actionSave();
     void connectSignalsToSlots();
+    void barSetHoveredOT(bool status, int index);
+    void barSetHoveredNT(bool status, int index);
 
 private:
     QVBoxLayout *ui_mainVerLayout;
@@ -34,14 +36,21 @@ private:
     bool m_isBeingOpened;
     QChart *m_chartOT;
     QChart *m_chartNT;
+    QBarSet *m_setOT;
+    QBarSet *m_setNT;
     QChartView *m_chartView;
     QChartView *m_chartViewOT;
+    QLabel *m_currentLabel;
     QChartView *m_chartViewNT;
     const QSqlDatabase *m_db;
+    const QStringList *m_fullNames;
+    QStringList m_categoriesLongOT;
+    QStringList m_categoriesLongNT;
     QStringList m_abbreviations;
     void loadBookAbbreviations();
     void searchAndPlot(const QString &word);
     void setUpChartsAndValidator();
+    QString getDeclinedForm(double count);
 };
 
 #endif // PWINDOWHISTOGRAM_H

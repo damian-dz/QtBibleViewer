@@ -3163,7 +3163,7 @@ void MainWindow::actionHelp()
 void MainWindow::actionWordFrequency()
 {
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
-    PWindowHistogram *histogramWindow = new PWindowHistogram(m_modules[idx].database);
+    PWindowHistogram *histogramWindow = new PWindowHistogram(m_modules[idx].database, m_bookNames);
     histogramWindow->show();
 }
 

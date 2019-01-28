@@ -1,11 +1,12 @@
 #include "PWindowHistogram.h"
 
-PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, QWidget *parent)
+PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, const QStringList &fullNames, QWidget *parent)
     : QWidget(parent),
-      m_isBeingOpened(true)
+      m_isBeingOpened(true),
+      m_db(&db),
+      m_fullNames(&fullNames)
 {
     setAttribute(Qt::WA_DeleteOnClose);
-    m_db = &db;
     loadBookAbbreviations();
     generateMainLayout();
     setUpChartsAndValidator();
@@ -19,8 +20,8 @@ PWindowHistogram::~PWindowHistogram()
 
 void PWindowHistogram::generateMainLayout()
 {
-    QWidget::resize(1000, 560);
     QWidget::setWindowTitle(tr("Word Frequency"));
+    QWidget::resize(1000, 560);
 
     ui_mainVerLayout = new QVBoxLayout;
     QWidget::setLayout(ui_mainVerLayout);
@@ -28,14 +29,37 @@ void PWindowHistogram::generateMainLayout()
     QHBoxLayout *horLayout = new QHBoxLayout;
     ui_wordLineEdit = new QLineEdit;
     horLayout->addWidget(ui_wordLineEdit);
-    QObject::connect(ui_wordLineEdit, SIGNAL(textChanged(QString)), this, SLOT(on_wordLineEdit_textChanged(QString)));
 
     ui_visualizeButton = new QPushButton(tr("Visualize"));
     ui_visualizeButton->setDisabled(true);
     horLayout->addWidget(ui_visualizeButton);
-    QObject::connect(ui_visualizeButton, SIGNAL(clicked()), this, SLOT(on_visualizeButton_clicked()));
 
     ui_mainVerLayout->addLayout(horLayout);
+}
+
+void PWindowHistogram::setUpChartsAndValidator()
+{
+    m_chartOT = new QChart;
+    m_chartOT->setAnimationOptions(QChart::SeriesAnimations);
+    m_chartOT->setAcceptHoverEvents(true);
+    m_chartViewOT = new QChartView(m_chartOT, this);
+    m_chartViewOT->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui_mainVerLayout->addWidget(m_chartViewOT);
+
+    m_currentLabel = new QLabel;
+    m_currentLabel->setAlignment(Qt::AlignHCenter);
+    ui_mainVerLayout->addWidget(m_currentLabel);
+
+    m_chartNT = new QChart;
+    m_chartNT->setAnimationOptions(QChart::SeriesAnimations);
+    m_chartNT->setAcceptHoverEvents(true);
+    m_chartViewNT = new QChartView(m_chartNT, this);
+    m_chartViewNT->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui_mainVerLayout->addWidget(m_chartViewNT);
+
+    QRegExp rgx("([^\\s]+)");
+    QValidator *validator = new QRegExpValidator(rgx, this);
+    ui_wordLineEdit->setValidator(validator);
 }
 
 void PWindowHistogram::showSaveContextMenu(const QPoint &pos)
@@ -62,11 +86,43 @@ void PWindowHistogram::chartView_actionSave()
 }
 void PWindowHistogram::connectSignalsToSlots()
 {
+    QObject::connect(ui_wordLineEdit, SIGNAL(textChanged(QString)),
+                     this, SLOT(on_wordLineEdit_textChanged(QString)));
+    QObject::connect(ui_visualizeButton, SIGNAL(clicked()),
+                     this, SLOT(on_visualizeButton_clicked()));
     QObject::connect(m_chartViewOT, SIGNAL(customContextMenuRequested(const QPoint &)),
                      this, SLOT(showSaveContextMenu(const QPoint &)));
     QObject::connect(m_chartViewNT, SIGNAL(customContextMenuRequested(const QPoint &)),
                      this, SLOT(showSaveContextMenu(const QPoint &)));
 }
+
+QString PWindowHistogram::getDeclinedForm(double count)
+{
+    return count > 1.0 ? tr(" times") : count == 0.0 ? tr(" times") : tr(" time");
+}
+
+void PWindowHistogram::barSetHoveredOT(bool status, int index)
+{
+    if (status) {
+        m_currentLabel->setText(m_categoriesLongOT[index] + ": " +
+                                QString::number(m_setOT->at(index)) +
+                                getDeclinedForm(m_setOT->at(index)));
+    } else {
+        m_currentLabel->clear();
+    }
+}
+
+void PWindowHistogram::barSetHoveredNT(bool status, int index)
+{
+    if (status) {
+        m_currentLabel->setText(tr("New Testament") + ", " + m_categoriesLongNT[index] + ": " +
+                                QString::number(m_setNT->at(index)) +
+                                getDeclinedForm(m_setNT->at(index)));
+    } else {
+        m_currentLabel->clear();
+    }
+}
+
 void PWindowHistogram::resizeEvent(QResizeEvent *event)
 {
     if (!m_isBeingOpened) {
@@ -85,65 +141,77 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     QHash<uchar, int> hashOT;
     QHash<uchar, int> hashNT;
     QString queryString = "SELECT Book, Scripture FROM Bible"
-                          " WHERE (LOWER(Scripture) LIKE '%" + word.toLower() + "%'"
-                          " OR UPPER(Scripture) LIKE '%" + word.toUpper() + "%')";
+                          " WHERE (LOWER(Scripture) LIKE '%" % word.toLower() % "%'"
+                          " OR UPPER(Scripture) LIKE '%" % word.toUpper() % "%')";
     QRegExp rgxMarkupNotes("<..>|<RF>.*<Rf>");
     QSqlQuery query(*m_db);
+    int countOT = 0;
+    int countNT = 0;
     if (query.exec(queryString)) {
         while (query.next()) {
             QSqlRecord record = query.record();
             QString verseNoNotes = record.value(1).toString().remove(rgxMarkupNotes);
             uchar bookNumber = uchar(record.value(0).toInt());
-            if (verseNoNotes.contains(word, Qt::CaseInsensitive)) {
+            QRegExp wordRgx("\\b" + word + "\\b", Qt::CaseInsensitive);
+            if (verseNoNotes.contains(wordRgx)) {
                 if (bookNumber < 40) {
                     if (hashOT.contains(bookNumber)) {
-                        hashOT[bookNumber]++;
+                        ++hashOT[bookNumber];
                     } else {
                         hashOT.insert(bookNumber, 1);
                     }
+                    ++countOT;
                 } else {
                     if (hashNT.contains(bookNumber)) {
-                        hashNT[bookNumber]++;
+                        ++hashNT[bookNumber];
                     } else {
                         hashNT.insert(bookNumber, 1);
                     }
+                    ++countNT;
                 }
             }
         }
     }
 
-    QBarSet *setOT = new QBarSet(tr("Old Testament"));
-    QStringList categoriesOT;
+    m_setOT = new QBarSet(tr("Old Testament"));
+    QStringList categoriesShortOT;
     int maxOT = 0;
+    m_categoriesLongOT.clear();
     for (uchar i = 1; i < 40; ++i) {
         if (hashOT.contains(i)) {
-            setOT->append(hashOT[i]);
-            categoriesOT << m_abbreviations[i - 1];
+            m_setOT->append(hashOT[i]);
+            categoriesShortOT << m_abbreviations[i - 1];
+            m_categoriesLongOT << m_fullNames->at(i - 1);
             if (hashOT[i] > maxOT) {
                 maxOT = hashOT[i];
             }
         }
     }
-
-    QBarSet *setNT = new QBarSet(tr("New Testament"));
+    QObject::connect(m_setOT, SIGNAL(hovered(bool, int)), this, SLOT(barSetHoveredOT(bool, int)));
+    m_setNT = new QBarSet(tr("New Testament"));
     QStringList categoriesNT;
     int maxNT = 0;
+    m_categoriesLongNT.clear();
     for (uchar i = 40; i <= 66; ++i) {
         if (hashNT.contains(i)) {
-            setNT->append(hashNT[i]);
+            m_setNT->append(hashNT[i]);
             categoriesNT << m_abbreviations[i - 1];
+            m_categoriesLongNT << m_fullNames->at(i - 1);
             if (hashNT[i] > maxNT) {
                 maxNT = hashNT[i];
             }
         }
     }
+    QObject::connect(m_setNT, SIGNAL(hovered(bool, int)), this, SLOT(barSetHoveredNT(bool, int)));
     maxOT = (maxOT + 3) & ~3;
     maxNT = (maxNT + 3) & ~3;
-    if (maxOT == 0)
+    if (maxOT == 0) {
         maxOT = 4;
-    if (maxNT == 0)
+    }
+    if (maxNT == 0) {
         maxNT = 4;
-    setOT->setBrush(QBrush(Qt::darkGreen));
+    }
+    m_setOT->setBrush(QBrush(Qt::darkGreen));
     m_chartOT->removeAllSeries();
     m_chartNT->removeAllSeries();
     QBarSeries *seriesOT = new QBarSeries;
@@ -152,15 +220,17 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     seriesNT->setUseOpenGL(false);
     seriesOT->setBarWidth(1);
     seriesNT->setBarWidth(1);
-    seriesOT->append(setOT);
-    seriesNT->append(setNT);
+    seriesOT->append(m_setOT);
+    seriesNT->append(m_setNT);
     m_chartOT->addSeries(seriesOT);
+    m_chartOT->setTitle(tr("Old Testament") + ": " + QString::number(countOT) + getDeclinedForm(countOT));
     m_chartNT->addSeries(seriesNT);
+    m_chartNT->setTitle(tr("New Testament") + ": " + QString::number(countNT) + getDeclinedForm(countNT));
     QBarCategoryAxis *axisOT = new QBarCategoryAxis;
     QBarCategoryAxis *axisNT = new QBarCategoryAxis;
     axisOT->setLabelsAngle(-90);
     axisNT->setLabelsAngle(-90);
-    axisOT->append(categoriesOT);
+    axisOT->append(categoriesShortOT);
     axisNT->append(categoriesNT);
     m_chartOT->createDefaultAxes();
     m_chartOT->setAxisX(axisOT, seriesOT);
@@ -181,31 +251,12 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     QTimer::singleShot(1400, this, SLOT(enableButtonAndSignals()));
 }
 
-void PWindowHistogram::setUpChartsAndValidator()
-{
-    m_chartOT = new QChart;
-    m_chartOT->setAnimationOptions(QChart::SeriesAnimations);
-    m_chartViewOT = new QChartView(m_chartOT, this);
-    m_chartViewOT->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui_mainVerLayout->addWidget(m_chartViewOT);
-
-    m_chartNT = new QChart;
-    m_chartNT->setAnimationOptions(QChart::SeriesAnimations);
-    m_chartViewNT = new QChartView(m_chartNT, this);
-    m_chartViewNT->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui_mainVerLayout->addWidget(m_chartViewNT);
-
-    QRegExp rgx("([^\\s]+)");
-    QValidator *validator = new QRegExpValidator(rgx, this);
-    ui_wordLineEdit->setValidator(validator);
-}
-
 void PWindowHistogram::on_visualizeButton_clicked()
 {
     QString text = ui_wordLineEdit->text();
     QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
     if (regex.exactMatch(text)) {
-        text = "<W" + text + ">";
+        text = "<W" % text % ">";
     }
     searchAndPlot(text);
 }
