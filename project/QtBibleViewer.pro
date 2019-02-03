@@ -33,7 +33,8 @@ SOURCES += \
     PDialogStrong.cpp \
     PDialogXRef.cpp \
     PWindowHistogram.cpp \
-    SearchEngine.cpp
+    SearchEngine.cpp \
+    PWindowCommonWords.cpp
 
 HEADERS += \
     MainWindow.h \
@@ -41,6 +42,7 @@ HEADERS += \
     PDialogStrong.h \
     PDialogXRef.h \
     PWindowHistogram.h \
+    PWindowCommonWords.h
 
 
 RESOURCES += \

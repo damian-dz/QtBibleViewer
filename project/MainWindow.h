@@ -373,6 +373,7 @@ private:
     void actionPreferences();
     void actionSpanish();
     void actionWordFrequency();
+    void actionCommonWords();
     void addMainTabs();
     void addModuleLayout(int index);
     void blockPassageSelectionSignals(bool isBlocked);

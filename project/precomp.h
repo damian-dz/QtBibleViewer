@@ -19,11 +19,13 @@
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPair>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSettings>
 #include <QSpacerItem>
 #include <QSpinBox>
+#include <QSplitter>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlRecord>
@@ -45,6 +47,7 @@
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QChartView>
+#include <QtCharts/QHorizontalBarSeries>
 #include <QtCharts/QLegend>
 #include <QtCharts/QValueAxis>
 

@@ -2,6 +2,7 @@
 #include "PDialogPreferences.h"
 #include "PDialogStrong.h"
 #include "PDialogXRef.h"
+#include "PWindowCommonWords.h"
 #include "PWindowHistogram.h"
 
 inline void createFavDatabase(QSqlDatabase &db, const QString &filename)
@@ -11,8 +12,8 @@ inline void createFavDatabase(QSqlDatabase &db, const QString &filename)
     if (db.open()) {
         QSqlQuery query(db);
         query.exec("CREATE TABLE Favorites (Book INT, Chapter INT, VerseFirst INT, VerseLast INT, Comment TEXT)");
-        query.exec("CREATE UNIQUE INDEX \"fav_key\" ON \"Favorites\" "
-                   "(\"Book\" ASC, \"Chapter\" ASC, \"VerseFirst\" ASC, \"VerseLast\" ASC)");
+        query.exec("CREATE UNIQUE INDEX `fav_key` ON `Favorites` "
+                   "(`Book` ASC, `Chapter` ASC, `VerseFirst` ASC, `VerseLast` ASC)");
     }
 }
 
@@ -147,6 +148,7 @@ void MainWindow::generateMenuBarItems()
     QMenu *statisticsMenu = menuBar()->addMenu(QString());
     m_menus << statisticsMenu;
     m_actions << statisticsMenu->addAction(QString(), this, &MainWindow::actionWordFrequency);
+    m_actions << statisticsMenu->addAction(QString(), this, &MainWindow::actionCommonWords);
 
     QMenu *optionsMenu = menuBar()->addMenu(QString());
     m_menus << optionsMenu;
@@ -213,16 +215,17 @@ void MainWindow::setMenuTexts()
     m_actions[3]->setText(tr("Find"));
     m_menus[2]->setTitle(tr("Statistics"));
     m_actions[4]->setText(tr("Word Frequency"));
+    m_actions[5]->setText(tr("Common Words"));
     m_menus[3]->setTitle(tr("Options"));
     ui_Menu_Language->setTitle(tr("Language"));
-    m_actions[5]->setText(tr("Preferences"));
+    m_actions[6]->setText(tr("Preferences"));
     m_menus[4]->setTitle(tr("View"));
     ui_ActIncreaseFont->setText(tr("Increase Font Size"));
     ui_ActDecreaseFont->setText(tr("Decrease Font Size"));
     m_menus[5]->setTitle(tr("Help"));
-    m_actions[6]->setText(tr("Show Help"));
-    m_actions[7]->setText(tr("About"));
-    m_actions[8]->setText(tr("About Qt"));
+    m_actions[7]->setText(tr("Show Help"));
+    m_actions[8]->setText(tr("About"));
+    m_actions[9]->setText(tr("About Qt"));
 }
 
 void MainWindow::setMainTabNames()
@@ -913,12 +916,13 @@ void MainWindow::loadPassage()
             verse = QStringLiteral("<a href='x:%1:%2'>[%3]</a>")
                     .arg(verse, xRefQuery.record().value(0).toString(), verse);
             formatScripture(scripture, idx, m_modules[idx].hasStrong, noteRgx, strongRgx);
+            // scripture += "<b>💬</b>";
             cursor.insertHtml("<b>" % verse % "</b> " % scripture);
         } else {
             formatScripture(scripture, idx, m_modules[idx].hasStrong, noteRgx, strongRgx);
             cursor.insertHtml("<b>[" % verse % "]</b> " % scripture);
         }
-        verseCnt++;
+        ++verseCnt;
     }
     cursor.setPosition(0);
     m_chapterBrowsers[idx]->setTextCursor(cursor);
@@ -1054,7 +1058,7 @@ void MainWindow::displaySearchResults(int startIdx, int endIdx)
     while (i < m_resVerses.count() && i < endIdx) {
         resultString += formatResult(m_resVerses[i], regex, m_modules[idx].hasStrong) %
                 m_resRefs[i] % "</a></b><br><br>";
-        i++;
+        ++i;
     }
     ui_Sea_TextBrowser_Results->setHtml(resultString);
 
@@ -1526,8 +1530,6 @@ void MainWindow::generateDictionaryTabControls(int idx)
     dictionariesListWidget->addItems(dictNameList);
 }
 
-
-
 void MainWindow::generateFavoritesTabControls(int idx)
 {
     loadBackgroundPixmap();
@@ -1853,7 +1855,7 @@ void MainWindow::formatPassage(QString &text, bool hasStrong)
             m_globalNotes[dbIdx] << original;
             text.replace(original, "<a href='c:" + QString::number(noteCount) +
                          "' style='text-decoration:none'><b>*</b></a> ");
-            noteCount++;
+            ++noteCount;
         }
     }
     if (hasStrong) {
@@ -1889,7 +1891,7 @@ void MainWindow::formatScripture(QString &text,
             m_globalNotes[idx] << original;
             text.replace(original, QStringLiteral("<a href='c:") % QString::number(m_noteCount) %
                          QStringLiteral("' style='text-decoration:none'><b>*</b></a> "));
-            m_noteCount++;
+            ++m_noteCount;
         }
     }
     if (hasStrong) {
@@ -1937,9 +1939,9 @@ void MainWindow::on_Bib_CurrentRowChanged_ListWidget_Book(int currentRow)
 void MainWindow::actHistory(bool goBack)
 {
     if (goBack) {
-        m_psgIdx--;
+        --m_psgIdx;
     } else {
-        m_psgIdx++;
+        ++m_psgIdx;
     }
     m_blockHistory = true;
     blockPassageSelectionSignals(true);
@@ -3165,6 +3167,13 @@ void MainWindow::actionWordFrequency()
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
     PWindowHistogram *histogramWindow = new PWindowHistogram(m_modules[idx].database, m_bookNames);
     histogramWindow->show();
+}
+
+void MainWindow::actionCommonWords()
+{
+    int idx = ui_Bib_TabWidget_Modules->currentIndex();
+    PWindowCommonWords *commonWordsWindow = new PWindowCommonWords(m_modules[idx].database);
+    commonWordsWindow->show();
 }
 
 void MainWindow::checkFontSizes()

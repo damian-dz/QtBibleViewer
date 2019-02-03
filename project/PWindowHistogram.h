@@ -8,7 +8,6 @@ using namespace QtCharts;
 class PWindowHistogram : public QWidget
 {
     Q_OBJECT
-
 public:
     explicit PWindowHistogram(const QSqlDatabase &m_db, const QStringList &fullNames, QWidget *parent = nullptr);
     ~PWindowHistogram();
@@ -17,7 +16,6 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private slots:
-    void generateMainLayout();
     void enableButtonAndSignals();
     void enableVisualizeButton();
     void on_visualizeButton_clicked();
@@ -47,6 +45,7 @@ private:
     QStringList m_categoriesLongOT;
     QStringList m_categoriesLongNT;
     QStringList m_abbreviations;
+    void generateMainLayout();
     void loadBookAbbreviations();
     void searchAndPlot(const QString &word);
     void setUpChartsAndValidator();

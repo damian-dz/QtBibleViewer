@@ -6,7 +6,7 @@ PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, const QStringList &fu
       m_db(&db),
       m_fullNames(&fullNames)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
+    QWidget::setAttribute(Qt::WA_DeleteOnClose);
     loadBookAbbreviations();
     generateMainLayout();
     setUpChartsAndValidator();
@@ -24,7 +24,6 @@ void PWindowHistogram::generateMainLayout()
     QWidget::resize(1000, 560);
 
     ui_mainVerLayout = new QVBoxLayout;
-    QWidget::setLayout(ui_mainVerLayout);
 
     QHBoxLayout *horLayout = new QHBoxLayout;
     ui_wordLineEdit = new QLineEdit;
@@ -35,12 +34,14 @@ void PWindowHistogram::generateMainLayout()
     horLayout->addWidget(ui_visualizeButton);
 
     ui_mainVerLayout->addLayout(horLayout);
+    QWidget::setLayout(ui_mainVerLayout);
 }
 
 void PWindowHistogram::setUpChartsAndValidator()
 {
     m_chartOT = new QChart;
-    m_chartOT->setAnimationOptions(QChart::SeriesAnimations);
+    m_chartOT->setAnimationOptions(QChart::AllAnimations);
+    m_chartOT->setTheme(QChart::ChartThemeBlueIcy);
     m_chartOT->setAcceptHoverEvents(true);
     m_chartViewOT = new QChartView(m_chartOT, this);
     m_chartViewOT->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -51,7 +52,8 @@ void PWindowHistogram::setUpChartsAndValidator()
     ui_mainVerLayout->addWidget(m_currentLabel);
 
     m_chartNT = new QChart;
-    m_chartNT->setAnimationOptions(QChart::SeriesAnimations);
+    m_chartNT->setAnimationOptions(QChart::AllAnimations);
+    m_chartNT->setTheme(QChart::ChartThemeBlueIcy);
     m_chartNT->setAcceptHoverEvents(true);
     m_chartViewNT = new QChartView(m_chartNT, this);
     m_chartViewNT->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -88,6 +90,8 @@ void PWindowHistogram::connectSignalsToSlots()
 {
     QObject::connect(ui_wordLineEdit, SIGNAL(textChanged(QString)),
                      this, SLOT(on_wordLineEdit_textChanged(QString)));
+    QObject::connect(ui_wordLineEdit, SIGNAL(returnPressed()),
+                     this, SLOT(on_wordLineEdit_returnPressed()));
     QObject::connect(ui_visualizeButton, SIGNAL(clicked()),
                      this, SLOT(on_visualizeButton_clicked()));
     QObject::connect(m_chartViewOT, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -127,7 +131,7 @@ void PWindowHistogram::resizeEvent(QResizeEvent *event)
 {
     if (!m_isBeingOpened) {
         ui_visualizeButton->setDisabled(true);
-        QTimer::singleShot(1400, this, SLOT(enableVisualizeButton()));
+        QTimer::singleShot(2000, this, SLOT(enableVisualizeButton()));
     } else {
         m_isBeingOpened = false;
     }
@@ -142,17 +146,17 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     QHash<uchar, int> hashNT;
     QString queryString = "SELECT Book, Scripture FROM Bible"
                           " WHERE (LOWER(Scripture) LIKE '%" % word.toLower() % "%'"
-                          " OR UPPER(Scripture) LIKE '%" % word.toUpper() % "%')";
+                          " OR UPPER(Scripture) LIKE '%" % word.toUpper() % "%')";   
     QRegExp rgxMarkupNotes("<..>|<RF>.*<Rf>");
+    QRegExp wordRgx("\\b" + word + "\\b", Qt::CaseInsensitive);
     QSqlQuery query(*m_db);
     int countOT = 0;
     int countNT = 0;
     if (query.exec(queryString)) {
         while (query.next()) {
             QSqlRecord record = query.record();
-            QString verseNoNotes = record.value(1).toString().remove(rgxMarkupNotes);
             uchar bookNumber = uchar(record.value(0).toInt());
-            QRegExp wordRgx("\\b" + word + "\\b", Qt::CaseInsensitive);
+            QString verseNoNotes = record.value(1).toString().remove(rgxMarkupNotes);
             if (verseNoNotes.contains(wordRgx)) {
                 if (bookNumber < 40) {
                     if (hashOT.contains(bookNumber)) {
@@ -248,7 +252,7 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     m_chartNT->setAxisX(axisNT, seriesNT);
     m_chartNT->setAxisY(axisYNT, seriesNT);
     m_chartNT->legend()->setVisible(false);
-    QTimer::singleShot(1400, this, SLOT(enableButtonAndSignals()));
+    QTimer::singleShot(2000, this, SLOT(enableButtonAndSignals()));
 }
 
 void PWindowHistogram::on_visualizeButton_clicked()
