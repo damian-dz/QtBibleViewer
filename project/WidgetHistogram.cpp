@@ -1,6 +1,6 @@
-#include "PWindowHistogram.h"
+#include "WidgetHistogram.h"
 
-PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, const QStringList &fullNames, QWidget *parent)
+WidgetHistogram::WidgetHistogram(const QSqlDatabase &db, const QStringList &fullNames, QWidget *parent)
     : QWidget(parent),
       m_isBeingOpened(true),
       m_db(&db),
@@ -13,12 +13,12 @@ PWindowHistogram::PWindowHistogram(const QSqlDatabase &db, const QStringList &fu
     connectSignalsToSlots();
 }
 
-PWindowHistogram::~PWindowHistogram()
+WidgetHistogram::~WidgetHistogram()
 {
 
 }
 
-void PWindowHistogram::generateMainLayout()
+void WidgetHistogram::generateMainLayout()
 {
     QWidget::setWindowTitle(tr("Word Frequency"));
     QWidget::resize(1000, 560);
@@ -37,9 +37,10 @@ void PWindowHistogram::generateMainLayout()
     QWidget::setLayout(ui_mainVerLayout);
 }
 
-void PWindowHistogram::setUpChartsAndValidator()
+void WidgetHistogram::setUpChartsAndValidator()
 {
     m_chartOT = new QChart;
+    m_chartOT->layout()->setContentsMargins(2, 2, 2, 2);
     m_chartOT->setAnimationOptions(QChart::AllAnimations);
     m_chartOT->setTheme(QChart::ChartThemeBlueIcy);
     m_chartOT->setAcceptHoverEvents(true);
@@ -52,6 +53,7 @@ void PWindowHistogram::setUpChartsAndValidator()
     ui_mainVerLayout->addWidget(m_currentLabel);
 
     m_chartNT = new QChart;
+    m_chartNT->layout()->setContentsMargins(2, 2, 2, 2);
     m_chartNT->setAnimationOptions(QChart::AllAnimations);
     m_chartNT->setTheme(QChart::ChartThemeBlueIcy);
     m_chartNT->setAcceptHoverEvents(true);
@@ -63,8 +65,8 @@ void PWindowHistogram::setUpChartsAndValidator()
     QValidator *validator = new QRegExpValidator(rgx, this);
     ui_wordLineEdit->setValidator(validator);
 }
-
-void PWindowHistogram::showSaveContextMenu(const QPoint &pos)
+#include <QDebug>
+void WidgetHistogram::showSaveContextMenu(const QPoint &pos)
 {
     m_chartView = qobject_cast<QChartView *>(QObject::sender());
     QPoint globalPos = m_chartView->mapToGlobal(pos);
@@ -74,8 +76,10 @@ void PWindowHistogram::showSaveContextMenu(const QPoint &pos)
                           SLOT(chartView_actionSave()),
                           QKeySequence("Ctrl+S"));
     contextMenu.exec(globalPos);
+   // qDebug() << m_chartView->
 }
-void PWindowHistogram::chartView_actionSave()
+
+void WidgetHistogram::chartView_actionSave()
 {
     QString filename = QFileDialog::getSaveFileName(this,
                                                     tr("Save as Image"),
@@ -86,7 +90,7 @@ void PWindowHistogram::chartView_actionSave()
         pixmap.save(filename, "PNG");
     }
 }
-void PWindowHistogram::connectSignalsToSlots()
+void WidgetHistogram::connectSignalsToSlots()
 {
     QObject::connect(ui_wordLineEdit, SIGNAL(textChanged(QString)),
                      this, SLOT(on_wordLineEdit_textChanged(QString)));
@@ -100,12 +104,12 @@ void PWindowHistogram::connectSignalsToSlots()
                      this, SLOT(showSaveContextMenu(const QPoint &)));
 }
 
-QString PWindowHistogram::getDeclinedForm(double count)
+QString WidgetHistogram::getDeclinedForm(double count)
 {
     return count > 1.0 ? tr(" times") : count == 0.0 ? tr(" times") : tr(" time");
 }
 
-void PWindowHistogram::barSetHoveredOT(bool status, int index)
+void WidgetHistogram::barSetHoveredOT(bool status, int index)
 {
     if (status) {
         m_currentLabel->setText(m_categoriesLongOT[index] + ": " +
@@ -116,7 +120,7 @@ void PWindowHistogram::barSetHoveredOT(bool status, int index)
     }
 }
 
-void PWindowHistogram::barSetHoveredNT(bool status, int index)
+void WidgetHistogram::barSetHoveredNT(bool status, int index)
 {
     if (status) {
         m_currentLabel->setText(tr("New Testament") + ", " + m_categoriesLongNT[index] + ": " +
@@ -127,7 +131,7 @@ void PWindowHistogram::barSetHoveredNT(bool status, int index)
     }
 }
 
-void PWindowHistogram::resizeEvent(QResizeEvent *event)
+void WidgetHistogram::resizeEvent(QResizeEvent *event)
 {
     if (!m_isBeingOpened) {
         ui_visualizeButton->setDisabled(true);
@@ -138,7 +142,7 @@ void PWindowHistogram::resizeEvent(QResizeEvent *event)
     event->accept();
 }
 
-void PWindowHistogram::searchAndPlot(const QString &word)
+void WidgetHistogram::searchAndPlot(const QString &word)
 {
     ui_visualizeButton->setDisabled(true);
     ui_wordLineEdit->blockSignals(true);
@@ -178,6 +182,7 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     }
 
     m_setOT = new QBarSet(tr("Old Testament"));
+    m_setOT->setBrush(QBrush(Qt::darkGreen));
     QStringList categoriesShortOT;
     int maxOT = 0;
     m_categoriesLongOT.clear();
@@ -215,47 +220,47 @@ void PWindowHistogram::searchAndPlot(const QString &word)
     if (maxNT == 0) {
         maxNT = 4;
     }
-    m_setOT->setBrush(QBrush(Qt::darkGreen));
+
     m_chartOT->removeAllSeries();
-    m_chartNT->removeAllSeries();
     QBarSeries *seriesOT = new QBarSeries;
-    QBarSeries *seriesNT = new QBarSeries;
-    seriesOT->setUseOpenGL(false);
-    seriesNT->setUseOpenGL(false);
     seriesOT->setBarWidth(1);
-    seriesNT->setBarWidth(1);
     seriesOT->append(m_setOT);
-    seriesNT->append(m_setNT);
     m_chartOT->addSeries(seriesOT);
     m_chartOT->setTitle(tr("Old Testament") + ": " + QString::number(countOT) + getDeclinedForm(countOT));
-    m_chartNT->addSeries(seriesNT);
-    m_chartNT->setTitle(tr("New Testament") + ": " + QString::number(countNT) + getDeclinedForm(countNT));
     QBarCategoryAxis *axisOT = new QBarCategoryAxis;
-    QBarCategoryAxis *axisNT = new QBarCategoryAxis;
     axisOT->setLabelsAngle(-90);
-    axisNT->setLabelsAngle(-90);
     axisOT->append(categoriesShortOT);
-    axisNT->append(categoriesNT);
-    m_chartOT->createDefaultAxes();
-    m_chartOT->setAxisX(axisOT, seriesOT);
-    m_chartOT->legend()->setVisible(false);
     QValueAxis *axisYOT = new QValueAxis;
     axisYOT->setLabelFormat("%d");
     axisYOT->setMinorTickCount(1);
     axisYOT->setMax(maxOT);
+    m_chartOT->createDefaultAxes();
+    m_chartOT->setAxisX(axisOT, seriesOT);
+    m_chartOT->setAxisY(axisYOT, seriesOT);
+    m_chartOT->legend()->setVisible(false);
+
+    m_chartNT->removeAllSeries();   
+    QBarSeries *seriesNT = new QBarSeries;
+    seriesNT->setBarWidth(1);   
+    seriesNT->append(m_setNT);
+    m_chartNT->addSeries(seriesNT);
+    m_chartNT->setTitle(tr("New Testament") + ": " + QString::number(countNT) + getDeclinedForm(countNT));    
+    QBarCategoryAxis *axisNT = new QBarCategoryAxis;    
+    axisNT->setLabelsAngle(-90);    
+    axisNT->append(categoriesNT);    
     QValueAxis *axisYNT = new QValueAxis;
     axisYNT->setLabelFormat("%d");
     axisYNT->setMinorTickCount(1);
     axisYNT->setMax(maxNT);
-    m_chartOT->setAxisY(axisYOT, seriesOT);
     m_chartNT->createDefaultAxes();
     m_chartNT->setAxisX(axisNT, seriesNT);
     m_chartNT->setAxisY(axisYNT, seriesNT);
     m_chartNT->legend()->setVisible(false);
+
     QTimer::singleShot(2000, this, SLOT(enableButtonAndSignals()));
 }
 
-void PWindowHistogram::on_visualizeButton_clicked()
+void WidgetHistogram::on_visualizeButton_clicked()
 {
     QString text = ui_wordLineEdit->text();
     QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
@@ -264,29 +269,29 @@ void PWindowHistogram::on_visualizeButton_clicked()
     }
     searchAndPlot(text);
 }
-void PWindowHistogram::on_wordLineEdit_returnPressed()
+void WidgetHistogram::on_wordLineEdit_returnPressed()
 {
     if (ui_visualizeButton->isEnabled()) {
         on_visualizeButton_clicked();
     }
 }
-void PWindowHistogram::on_wordLineEdit_textChanged(const QString &arg1)
+void WidgetHistogram::on_wordLineEdit_textChanged(const QString &arg1)
 {
     ui_visualizeButton->setDisabled(arg1.trimmed().isEmpty());
 }
 
-void PWindowHistogram::enableVisualizeButton()
+void WidgetHistogram::enableVisualizeButton()
 {
     ui_visualizeButton->setEnabled(true);
 }
 
-void PWindowHistogram::enableButtonAndSignals()
+void WidgetHistogram::enableButtonAndSignals()
 {
     ui_visualizeButton->setEnabled(true);
     ui_wordLineEdit->blockSignals(false);
 }
 
-void PWindowHistogram::loadBookAbbreviations()
+void WidgetHistogram::loadBookAbbreviations()
 {
     m_abbreviations << tr("Gen")
                     << tr("Exo")

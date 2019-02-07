@@ -29,20 +29,22 @@ PRECOMPILED_HEADER = precomp.h
 SOURCES += \
     Main.cpp \
     MainWindow.cpp \
-    PDialogPreferences.cpp \
-    PDialogStrong.cpp \
-    PDialogXRef.cpp \
-    PWindowHistogram.cpp \
     SearchEngine.cpp \
-    PWindowCommonWords.cpp
+    DialogPreferences.cpp \
+    DialogStrong.cpp \
+    DialogXRefs.cpp \
+    WidgetCommonWords.cpp \
+    WidgetHistogram.cpp \
+    WidgetCommonRare.cpp
 
 HEADERS += \
     MainWindow.h \
-    PDialogPreferences.h \
-    PDialogStrong.h \
-    PDialogXRef.h \
-    PWindowHistogram.h \
-    PWindowCommonWords.h
+    DialogPreferences.h \
+    DialogStrong.h \
+    DialogXRefs.h \
+    WidgetCommonWords.h \
+    WidgetHistogram.h \
+    WidgetCommonRare.h
 
 
 RESOURCES += \

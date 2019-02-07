@@ -1,6 +1,6 @@
-#include "PWindowCommonWords.h"
+#include "WidgetCommonWords.h"
 
-PWindowCommonWords::PWindowCommonWords(const QSqlDatabase &db, QWidget *parent)
+WidgetCommonWords::WidgetCommonWords(const QSqlDatabase &db, QWidget *parent)
     : QWidget(parent),
       m_db(&db),
       m_isBeingOpened(true)
@@ -9,12 +9,12 @@ PWindowCommonWords::PWindowCommonWords(const QSqlDatabase &db, QWidget *parent)
     generateMainLayout();
 }
 
-PWindowCommonWords::~PWindowCommonWords()
+WidgetCommonWords::~WidgetCommonWords()
 {
 
 }
 
-void PWindowCommonWords::resizeEvent(QResizeEvent *event)
+void WidgetCommonWords::resizeEvent(QResizeEvent *event)
 {
     if (!m_isBeingOpened) {
         ui_PushButton_Visualize->setDisabled(true);
@@ -25,9 +25,9 @@ void PWindowCommonWords::resizeEvent(QResizeEvent *event)
     event->accept();
 }
 
-void PWindowCommonWords::generateMainLayout()
+void WidgetCommonWords::generateMainLayout()
 {
-    QWidget::setWindowTitle(tr("Common Words"));
+    QWidget::setWindowTitle(tr("Common/Rare Words"));
     QWidget::resize(800, 480);
 
     ui_mainVerLayout = new QVBoxLayout;
@@ -44,6 +44,13 @@ void PWindowCommonWords::generateMainLayout()
     ignoreWordsHorLayout->addWidget(lettersLabel);
     ignoreWordsHorLayout->addStretch();
 
+    ui_RadioButton_Common = new QRadioButton(tr("Common"));
+    ui_RadioButton_Common->setChecked(true);
+    ignoreWordsHorLayout->addWidget(ui_RadioButton_Common);
+    QRadioButton *rareRadioButton = new QRadioButton(tr("Rare"));
+    ignoreWordsHorLayout->addWidget(rareRadioButton);
+
+
     ui_PushButton_Visualize = new QPushButton(tr("Visualize"));
     connect(ui_PushButton_Visualize, SIGNAL(clicked()), this, SLOT(on_visualizeButton_clicked()));
     ignoreWordsHorLayout->addWidget(ui_PushButton_Visualize);
@@ -51,6 +58,7 @@ void PWindowCommonWords::generateMainLayout()
     ui_mainVerLayout->addLayout(ignoreWordsHorLayout);
 
     ui_chart = new QChart;
+    ui_chart->layout()->setContentsMargins(2, 2, 2, 2);
     ui_chart->setAnimationOptions(QChart::AllAnimations);
     ui_chart->setTheme(QChart::ChartThemeBlueIcy);
     ui_chart->setAcceptHoverEvents(true);
@@ -62,12 +70,12 @@ void PWindowCommonWords::generateMainLayout()
     QWidget::setLayout(ui_mainVerLayout);
 }
 
-void PWindowCommonWords::on_visualizeButton_clicked()
+void WidgetCommonWords::on_visualizeButton_clicked()
 {
     QHash<QString, int> uniqueWords;
     int threshold = ui_SpinBox_LetterCount->value() - 1;
     QString queryString = "SELECT Scripture FROM Bible";
-    QRegExp rgxMarkupNotes(",|\\.|:|;|\\?|\\(|\\)|<.{1,4}>|<RF>.*<Rf>");
+    QRegExp rgxMarkupNotes(",|\\.|:|;|\\?|!|\\(|\\)|<.{1,4}>|<RF>.*<Rf>");
     QSqlQuery query(*m_db);
     if (query.exec(queryString)) {
         while (query.next()) {
@@ -85,23 +93,30 @@ void PWindowCommonWords::on_visualizeButton_clicked()
             }
         }
     }
+    plotResults(uniqueWords);
+}
+
+void WidgetCommonWords::plotResults(const QHash<QString, int> &uniqueWords)
+{
     QList<QPair<int, QString>> pairs;
     for (QHash<QString, int>::const_iterator i = uniqueWords.cbegin(); i != uniqueWords.cend(); ++i) {
         pairs.append(qMakePair(i.value(), i.key()));
     }
-    std::sort(pairs.rbegin(), pairs.rend());
-    plotResults(pairs);
-}
 
-void PWindowCommonWords::plotResults(const QList<QPair<int, QString>> &pairs)
-{
-    ui_PushButton_Visualize->setDisabled(true);
-    QBarSet *barSet = new QBarSet("Common Words");
+    QBarSet *barSet = new QBarSet("Common/Rare Words");
     QStringList categories;
+
+    if (ui_RadioButton_Common->isChecked()) {
+        std::sort(pairs.rbegin(), pairs.rend());
+    } else {
+        std::sort(pairs.begin(), pairs.end());
+    }
     for (int i = qMin(9, pairs.count() - 1); i >= 0; --i) {
         barSet->append(pairs[i].first);
         categories.append(pairs[i].second);
     }
+
+    ui_PushButton_Visualize->setDisabled(true);
     ui_chart->removeAllSeries();
 
     QHorizontalBarSeries *horSeries = new QHorizontalBarSeries;
@@ -122,7 +137,7 @@ void PWindowCommonWords::plotResults(const QList<QPair<int, QString>> &pairs)
     QTimer::singleShot(2000, this, SLOT(enableVisualizeButton()));
 }
 
-void PWindowCommonWords::enableVisualizeButton()
+void WidgetCommonWords::enableVisualizeButton()
 {
     ui_PushButton_Visualize->setEnabled(true);
 }

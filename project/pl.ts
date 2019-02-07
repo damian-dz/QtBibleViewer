@@ -2,6 +2,105 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pl_PL" sourcelanguage="en_US">
 <context>
+    <name>DialogPreferences</name>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferencje</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Ogólne</translation>
+    </message>
+    <message>
+        <source>Font Settings</source>
+        <translation>Ustawienia czcionki</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation>Wygląd</translation>
+    </message>
+    <message>
+        <source>Language:</source>
+        <translation>Język:</translation>
+    </message>
+    <message>
+        <source>Max. Recent Passages:</source>
+        <translation>Maks. liczba ostatnich fragmentów:</translation>
+    </message>
+    <message>
+        <source>Font Type:</source>
+        <translation>Typ czcionki:</translation>
+    </message>
+    <message>
+        <source>Font Size:</source>
+        <translation>Rozmiar czcionki:</translation>
+    </message>
+    <message>
+        <source>ABCabc123</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Preview:</source>
+        <translation>Podgląd:</translation>
+    </message>
+    <message>
+        <source>Window Style:</source>
+        <translation>Styl okien:</translation>
+    </message>
+    <message>
+        <source>Use background image</source>
+        <translation>Użyj obrazu tła</translation>
+    </message>
+    <message>
+        <source>Change...</source>
+        <translation>Zmień...</translation>
+    </message>
+    <message>
+        <source>Verse Highlight Color:</source>
+        <translation>Kolor podświetlenia wersetów:</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Góra</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Dół</translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation>Lewo</translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation>Prawo</translation>
+    </message>
+    <message>
+        <source>Bible Tabs Position:</source>
+        <translation>Pozycja kart Biblii:</translation>
+    </message>
+    <message>
+        <source>No Animation</source>
+        <translation>Brak animacji</translation>
+    </message>
+    <message>
+        <source>Grid Axis Anmiation</source>
+        <translation>Animacja osi siatki</translation>
+    </message>
+    <message>
+        <source>Series Animation</source>
+        <translation>Animacja wykresu</translation>
+    </message>
+    <message>
+        <source>All Animations</source>
+        <translation>Wszystkie animacje</translation>
+    </message>
+    <message>
+        <source>Chart Animation Type:</source>
+        <translation>Rodzaj animacji wykresu:</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <source>Details</source>
@@ -639,11 +738,11 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Language Change</source>
-        <translation>Zmiana języka</translation>
+        <translation type="vanished">Zmiana języka</translation>
     </message>
     <message>
         <source>The change will take effect after restarting the program.</source>
-        <translation>Zmiana będzie widoczna po ponownym uruchomieniu programu.</translation>
+        <translation type="vanished">Zmiana będzie widoczna po ponownym uruchomieniu programu.</translation>
     </message>
     <message>
         <source>Find</source>
@@ -785,88 +884,406 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>&lt;p&gt;&lt;b&gt;Qt Bible Viewer&lt;/b&gt; is an open-source application currently developed by Damian Dzienniak. The GitHub repositiory for the project can be found at &lt;a href=&apos;https://github.com/damian-dz/QtBibleViewer&apos;&gt; github.com/damian-dz/QtBibleViewer&lt;/a&gt;.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Qt Bible Viewer&lt;/b&gt; jest otwartoźródłową aplikacją rozwijaną obecnie przez Damiana Dzienniaka. Repozytorium GitHub projektu można znaleźć na &lt;a href=&apos;https://github.com/damian-dz/QtBibleViewer&apos;&gt; github.com/damian-dz/QtBibleViewer&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
+    <message>
+        <source>Common/Rare Words</source>
+        <translation>Częste/Rzadkie słowa</translation>
+    </message>
 </context>
 <context>
     <name>PDialogPreferences</name>
     <message>
         <source>Font Settings</source>
-        <translation>Ustawienia czcionki</translation>
+        <translation type="vanished">Ustawienia czcionki</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation>Wygląd</translation>
+        <translation type="vanished">Wygląd</translation>
     </message>
     <message>
         <source>Font Type:</source>
-        <translation>Typ czcionki:</translation>
+        <translation type="vanished">Typ czcionki:</translation>
     </message>
     <message>
         <source>Font Size:</source>
-        <translation>Rozmiar czcionki:</translation>
+        <translation type="vanished">Rozmiar czcionki:</translation>
     </message>
     <message>
         <source>Preview:</source>
-        <translation>Podgląd:</translation>
+        <translation type="vanished">Podgląd:</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation>Preferencje</translation>
+        <translation type="vanished">Preferencje</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Ogólne</translation>
+        <translation type="vanished">Ogólne</translation>
     </message>
     <message>
         <source>Window Style:</source>
-        <translation>Styl okien:</translation>
+        <translation type="vanished">Styl okien:</translation>
     </message>
     <message>
         <source>Use background image</source>
-        <translation>Użyj obrazu tła</translation>
+        <translation type="vanished">Użyj obrazu tła</translation>
     </message>
     <message>
         <source>Verse Highlight Color:</source>
-        <translation>Kolor podświetlenia wersetów:</translation>
+        <translation type="vanished">Kolor podświetlenia wersetów:</translation>
     </message>
     <message>
         <source>Top</source>
-        <translation>Góra</translation>
+        <translation type="vanished">Góra</translation>
     </message>
     <message>
         <source>Bottom</source>
-        <translation>Dół</translation>
+        <translation type="vanished">Dół</translation>
     </message>
     <message>
         <source>Left</source>
-        <translation>Lewo</translation>
+        <translation type="vanished">Lewo</translation>
     </message>
     <message>
         <source>Right</source>
-        <translation>Prawo</translation>
+        <translation type="vanished">Prawo</translation>
     </message>
     <message>
         <source>Change...</source>
-        <translation>Zmień...</translation>
+        <translation type="vanished">Zmień...</translation>
     </message>
     <message>
         <source>Language:</source>
-        <translation>Język:</translation>
+        <translation type="vanished">Język:</translation>
     </message>
     <message>
         <source>Max. Recent Passages:</source>
-        <translation>Maks. liczba ostatnich fragmentów:</translation>
-    </message>
-    <message>
-        <source>ABCabc123</source>
-        <translation></translation>
+        <translation type="vanished">Maks. liczba ostatnich fragmentów:</translation>
     </message>
     <message>
         <source>Bible Tabs Position:</source>
-        <translation>Pozycja kart Biblii:</translation>
+        <translation type="vanished">Pozycja kart Biblii:</translation>
     </message>
 </context>
 <context>
     <name>PWindowHistogram</name>
+    <message>
+        <source>Word Frequency</source>
+        <translation type="vanished">Częstość Występowania Słowa</translation>
+    </message>
+    <message>
+        <source>Visualize</source>
+        <translation type="vanished">Wizualizuj</translation>
+    </message>
+    <message>
+        <source>Save as Image</source>
+        <translation type="vanished">Zapisz jako obraz</translation>
+    </message>
+    <message>
+        <source>PNG Files (*.png);;All Files (*.*)</source>
+        <translation type="vanished">Pliki PNG (*.png);;Wszystkie pliki (*.*)</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation type="vanished">Stary Testament</translation>
+    </message>
+    <message>
+        <source>New Testament</source>
+        <translation type="vanished">Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Gen</source>
+        <translation type="vanished">Rdz</translation>
+    </message>
+    <message>
+        <source>Exo</source>
+        <translation type="vanished">Wj</translation>
+    </message>
+    <message>
+        <source>Lev</source>
+        <translation type="vanished">Kpł</translation>
+    </message>
+    <message>
+        <source>Num</source>
+        <translation type="vanished">Lb</translation>
+    </message>
+    <message>
+        <source>Deu</source>
+        <translation type="vanished">Pwt</translation>
+    </message>
+    <message>
+        <source>Jos</source>
+        <translation type="vanished">Joz</translation>
+    </message>
+    <message>
+        <source>Jdg</source>
+        <translation type="vanished">Sdz</translation>
+    </message>
+    <message>
+        <source>Rut</source>
+        <translation type="vanished">Rt</translation>
+    </message>
+    <message>
+        <source>1Sa</source>
+        <translation type="vanished">1Sm</translation>
+    </message>
+    <message>
+        <source>2Sa</source>
+        <translation type="vanished">2Sm</translation>
+    </message>
+    <message>
+        <source>1Ki</source>
+        <translation type="vanished">1Krl</translation>
+    </message>
+    <message>
+        <source>2Ki</source>
+        <translation type="vanished">2Krl</translation>
+    </message>
+    <message>
+        <source>1Ch</source>
+        <translation type="vanished">1Krn</translation>
+    </message>
+    <message>
+        <source>2Ch</source>
+        <translation type="vanished">2Krn</translation>
+    </message>
+    <message>
+        <source>Ezr</source>
+        <translation type="vanished">Ezd</translation>
+    </message>
+    <message>
+        <source>Neh</source>
+        <translation type="vanished">Ne</translation>
+    </message>
+    <message>
+        <source>Est</source>
+        <translation type="vanished">Est</translation>
+    </message>
+    <message>
+        <source>Job</source>
+        <translation type="vanished">Hi</translation>
+    </message>
+    <message>
+        <source>Psa</source>
+        <translation type="vanished">Ps</translation>
+    </message>
+    <message>
+        <source>Pro</source>
+        <translation type="vanished">Prz</translation>
+    </message>
+    <message>
+        <source>Ecc</source>
+        <translation type="vanished">Koh</translation>
+    </message>
+    <message>
+        <source>Sol</source>
+        <translation type="vanished">Pnp</translation>
+    </message>
+    <message>
+        <source>Isa</source>
+        <translation type="vanished">Iz</translation>
+    </message>
+    <message>
+        <source>Jer</source>
+        <translation type="vanished">Jr</translation>
+    </message>
+    <message>
+        <source>Lam</source>
+        <translation type="vanished">Lm</translation>
+    </message>
+    <message>
+        <source>Eze</source>
+        <translation type="vanished">Ez</translation>
+    </message>
+    <message>
+        <source>Dan</source>
+        <translation type="vanished">Dn</translation>
+    </message>
+    <message>
+        <source>Hos</source>
+        <translation type="vanished">Oz</translation>
+    </message>
+    <message>
+        <source>Joe</source>
+        <translation type="vanished">Jl</translation>
+    </message>
+    <message>
+        <source>Amo</source>
+        <translation type="vanished">Am</translation>
+    </message>
+    <message>
+        <source>Oba</source>
+        <translation type="vanished">Ab</translation>
+    </message>
+    <message>
+        <source>Jon</source>
+        <translation type="vanished">Jon</translation>
+    </message>
+    <message>
+        <source>Mic</source>
+        <translation type="vanished">Mi</translation>
+    </message>
+    <message>
+        <source>Nah</source>
+        <translation type="vanished">Na</translation>
+    </message>
+    <message>
+        <source>Hab</source>
+        <translation type="vanished">Ha</translation>
+    </message>
+    <message>
+        <source>Zep</source>
+        <translation type="vanished">So</translation>
+    </message>
+    <message>
+        <source>Hag</source>
+        <translation type="vanished">Ag</translation>
+    </message>
+    <message>
+        <source>Zec</source>
+        <translation type="vanished">Za</translation>
+    </message>
+    <message>
+        <source>Mal</source>
+        <translation type="vanished">Ml</translation>
+    </message>
+    <message>
+        <source>Mat</source>
+        <translation type="vanished">Mt</translation>
+    </message>
+    <message>
+        <source>Mar</source>
+        <translation type="vanished">Mk</translation>
+    </message>
+    <message>
+        <source>Luk</source>
+        <translation type="vanished">Łk</translation>
+    </message>
+    <message>
+        <source>Joh</source>
+        <translation type="vanished">J</translation>
+    </message>
+    <message>
+        <source>Act</source>
+        <translation type="vanished">Dz</translation>
+    </message>
+    <message>
+        <source>Rom</source>
+        <translation type="vanished">Rz</translation>
+    </message>
+    <message>
+        <source>1Co</source>
+        <translation type="vanished">1Kor</translation>
+    </message>
+    <message>
+        <source>2Co</source>
+        <translation type="vanished">2Kor</translation>
+    </message>
+    <message>
+        <source>Gal</source>
+        <translation type="vanished">Ga</translation>
+    </message>
+    <message>
+        <source>Eph</source>
+        <translation type="vanished">Ef</translation>
+    </message>
+    <message>
+        <source>Phi</source>
+        <translation type="vanished">Flp</translation>
+    </message>
+    <message>
+        <source>Col</source>
+        <translation type="vanished">Kol</translation>
+    </message>
+    <message>
+        <source>1Th</source>
+        <translation type="vanished">1Tes</translation>
+    </message>
+    <message>
+        <source>2Th</source>
+        <translation type="vanished">2Tes</translation>
+    </message>
+    <message>
+        <source>1Ti</source>
+        <translation type="vanished">1Tm</translation>
+    </message>
+    <message>
+        <source>2Ti</source>
+        <translation type="vanished">2Tm</translation>
+    </message>
+    <message>
+        <source>Tit</source>
+        <translation type="vanished">Tt</translation>
+    </message>
+    <message>
+        <source>Phm</source>
+        <translation type="vanished">Flm</translation>
+    </message>
+    <message>
+        <source>Heb</source>
+        <translation type="vanished">Hbr</translation>
+    </message>
+    <message>
+        <source>Jam</source>
+        <translation type="vanished">Jk</translation>
+    </message>
+    <message>
+        <source>1Pe</source>
+        <translation type="vanished">1P</translation>
+    </message>
+    <message>
+        <source>2Pe</source>
+        <translation type="vanished">2P</translation>
+    </message>
+    <message>
+        <source>1Jo</source>
+        <translation type="vanished">1J</translation>
+    </message>
+    <message>
+        <source>2Jo</source>
+        <translation type="vanished">2J</translation>
+    </message>
+    <message>
+        <source>3Jo</source>
+        <translation type="vanished">3J</translation>
+    </message>
+    <message>
+        <source>Jud</source>
+        <translation type="vanished">Jud</translation>
+    </message>
+    <message>
+        <source>Rev</source>
+        <translation type="vanished">Ap</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetCommonWords</name>
+    <message>
+        <source>Common/Rare Words</source>
+        <translation>Częste/Rzadkie Słowa</translation>
+    </message>
+    <message>
+        <source>Ignore words shorter than</source>
+        <translation>Pomiń słowa krótsze niż</translation>
+    </message>
+    <message>
+        <source>letters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Common</source>
+        <translation>Częste</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation>Rzadkie</translation>
+    </message>
+    <message>
+        <source>Visualize</source>
+        <translation>Wizualizuj</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetHistogram</name>
     <message>
         <source>Word Frequency</source>
         <translation>Częstość Występowania Słowa</translation>
@@ -884,12 +1301,20 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation>Pliki PNG (*.png);;Wszystkie pliki (*.*)</translation>
     </message>
     <message>
-        <source>Old Testament</source>
-        <translation>Stary Testament</translation>
+        <source> times</source>
+        <translation> razy</translation>
+    </message>
+    <message>
+        <source> time</source>
+        <translation> raz</translation>
     </message>
     <message>
         <source>New Testament</source>
         <translation>Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation>Stary Testament</translation>
     </message>
     <message>
         <source>Gen</source>
@@ -961,7 +1386,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Job</source>
-        <translation>Hi</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Psa</source>

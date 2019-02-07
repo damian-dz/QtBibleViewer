@@ -5,12 +5,12 @@
 
 using namespace QtCharts;
 
-class PWindowHistogram : public QWidget
+class WidgetHistogram : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PWindowHistogram(const QSqlDatabase &m_db, const QStringList &fullNames, QWidget *parent = nullptr);
-    ~PWindowHistogram();
+    explicit WidgetHistogram(const QSqlDatabase &m_db, const QStringList &fullNames, QWidget *parent = nullptr);
+    ~WidgetHistogram();
 
 protected:
     void resizeEvent(QResizeEvent *event);

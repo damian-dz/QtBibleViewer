@@ -1,9 +1,9 @@
 #include "MainWindow.h"
-#include "PDialogPreferences.h"
-#include "PDialogStrong.h"
-#include "PDialogXRef.h"
-#include "PWindowCommonWords.h"
-#include "PWindowHistogram.h"
+#include "DialogPreferences.h"
+#include "DialogStrong.h"
+#include "DialogXRefs.h"
+#include "WidgetCommonWords.h"
+#include "WidgetHistogram.h"
 
 inline void createFavDatabase(QSqlDatabase &db, const QString &filename)
 {
@@ -215,7 +215,7 @@ void MainWindow::setMenuTexts()
     m_actions[3]->setText(tr("Find"));
     m_menus[2]->setTitle(tr("Statistics"));
     m_actions[4]->setText(tr("Word Frequency"));
-    m_actions[5]->setText(tr("Common Words"));
+    m_actions[5]->setText(tr("Common/Rare Words"));
     m_menus[3]->setTitle(tr("Options"));
     ui_Menu_Language->setTitle(tr("Language"));
     m_actions[6]->setText(tr("Preferences"));
@@ -3117,7 +3117,7 @@ void MainWindow::openStrongDialog(const QString &number)
             }
         }
     }
-    PDialogStrong strongDialog(m_dbDict, number, m_currentFont, m_papyrusBckgrnd, m_useBackground, this);
+    DialogStrong strongDialog(m_dbDict, number, m_currentFont, m_papyrusBckgrnd, m_useBackground, this);
     strongDialog.exec();
 }
 
@@ -3141,7 +3141,7 @@ void MainWindow::on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1)
         verseInfo << argString
                   << QString::number(ui_Bib_ListWidget_Book->currentRow())
                   << QString::number(ui_Bib_ListWidget_Chapter->currentItem()->text().toInt());
-        PDialogXRef dlgXRef(m_modules[idx].database,
+        DialogXRefs dlgXRef(m_modules[idx].database,
                             verseInfo,
                             m_bookNames,
                             m_papyrusBckgrnd,
@@ -3165,14 +3165,14 @@ void MainWindow::actionHelp()
 void MainWindow::actionWordFrequency()
 {
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
-    PWindowHistogram *histogramWindow = new PWindowHistogram(m_modules[idx].database, m_bookNames);
+    WidgetHistogram *histogramWindow = new WidgetHistogram(m_modules[idx].database, m_bookNames);
     histogramWindow->show();
 }
 
 void MainWindow::actionCommonWords()
 {
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
-    PWindowCommonWords *commonWordsWindow = new PWindowCommonWords(m_modules[idx].database);
+    WidgetCommonWords *commonWordsWindow = new WidgetCommonWords(m_modules[idx].database);
     commonWordsWindow->show();
 }
 
@@ -3234,7 +3234,7 @@ void MainWindow::actionSpanish()
 
 void MainWindow::actionPreferences()
 {
-    PDialogPreferences dlgPreferences(m_languages.key(m_language),
+    DialogPreferences dlgPreferences(m_languages.key(m_language),
                                       m_maxRecentPassages,
                                       m_style,
                                       m_useBackground,

@@ -3,20 +3,19 @@
 
 #include "precomp.h"
 
-class PDialogPreferences : public QDialog
+class DialogPreferences : public QDialog
 {
     Q_OBJECT
-
 public:
-    PDialogPreferences(int langIdx,
-                       int maxPassages,
-                       const QString &style,
-                       bool useBckgrnd,
-                       const QColor &hghlhtClr,
-                       const QFont &font,
-                       int tabPos,
-                       QWidget *parent = nullptr);
-    ~PDialogPreferences();
+    DialogPreferences(int langIdx,
+                      int maxPassages,
+                      const QString &style,
+                      bool useBckgrnd,
+                      const QColor &hghlhtClr,
+                      const QFont &font,
+                      int tabPos,
+                      QWidget *parent = nullptr);
+    ~DialogPreferences();
 
     QString getWindowStyle();
     bool getUseBackground();
@@ -46,6 +45,7 @@ private:
     QColor m_highlightColor;
     QSpinBox *m_maxRecentSpinBox;
     QComboBox *m_langComboBox;
+    QComboBox *m_animateChartComboBox;
 };
 
 

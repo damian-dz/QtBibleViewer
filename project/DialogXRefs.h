@@ -3,19 +3,18 @@
 
 #include "precomp.h"
 
-class PDialogXRef : public QDialog
+class DialogXRefs : public QDialog
 {
     Q_OBJECT
-
 public:
-    PDialogXRef(const QSqlDatabase &dbBib,
+    DialogXRefs(const QSqlDatabase &dbBib,
                 const QStringList &verseInfo,
                 const QStringList &bookNames,
                 const QPixmap &background,
                 bool useBckgrnd,
                 const QFont &font,
                 QWidget *parent = nullptr);
-    ~PDialogXRef();
+    ~DialogXRefs();
 
 private:
     QTextBrowser *ui_TextBrowser_Main;

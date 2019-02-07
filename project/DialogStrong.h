@@ -3,18 +3,17 @@
 
 #include "precomp.h"
 
-class PDialogStrong : public QDialog
+class DialogStrong : public QDialog
 {
     Q_OBJECT
-
 public:
-    PDialogStrong(const QSqlDatabase &db,
-                  const QString &number,
-                  const QFont &font,
-                  const QPixmap &background,
-                  bool useBckgrnd,
-                  QWidget *parent = nullptr);
-    ~PDialogStrong();
+    DialogStrong(const QSqlDatabase &db,
+                 const QString &number,
+                 const QFont &font,
+                 const QPixmap &background,
+                 bool useBckgrnd,
+                 QWidget *parent = nullptr);
+    ~DialogStrong();
 
 private slots:
      void on_definitionTextBrowser_anchorClicked(const QUrl &arg1) ;

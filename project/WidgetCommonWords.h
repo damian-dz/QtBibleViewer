@@ -5,12 +5,12 @@
 
 using namespace QtCharts;
 
-class PWindowCommonWords : public QWidget
+class WidgetCommonWords : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PWindowCommonWords(const QSqlDatabase &db, QWidget *parent = nullptr);
-    ~PWindowCommonWords();
+    explicit WidgetCommonWords(const QSqlDatabase &db, QWidget *parent = nullptr);
+    ~WidgetCommonWords();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -23,12 +23,13 @@ private:
     const QSqlDatabase *m_db;
     QVBoxLayout *ui_mainVerLayout;
     QSpinBox *ui_SpinBox_LetterCount;
+    QRadioButton *ui_RadioButton_Common;
     QPushButton *ui_PushButton_Visualize;
     QChart *ui_chart;
     bool m_isBeingOpened;
 
     void generateMainLayout();
-    void plotResults(const QList<QPair<int, QString>> &pairs);
+    void plotResults(const QHash<QString, int> &uniqueWords);
 };
 
 #endif // PWINDOWCOMMONWORDS_H

@@ -1,6 +1,6 @@
-#include "PDialogXRef.h"
+#include "DialogXRefs.h"
 
-PDialogXRef::PDialogXRef(const QSqlDatabase &dbBib,
+DialogXRefs::DialogXRefs(const QSqlDatabase &dbBib,
                          const QStringList &verseInfo,
                          const QStringList &bookNames,
                          const QPixmap &background,
@@ -24,12 +24,12 @@ PDialogXRef::PDialogXRef(const QSqlDatabase &dbBib,
     loadPassages(dbBib, verseInfoSplit[2], bookNames);
 }
 
-PDialogXRef::~PDialogXRef()
+DialogXRefs::~DialogXRefs()
 {
 
 }
 
-void PDialogXRef::generateMainLayout(const QFont &font)
+void DialogXRefs::generateMainLayout(const QFont &font)
 {
     QDialog::resize(640, 480);
     ui_TextBrowser_Main = new QTextBrowser;
@@ -40,7 +40,7 @@ void PDialogXRef::generateMainLayout(const QFont &font)
     QDialog::setLayout(mainVBoxLayout);   
 }
 
-void PDialogXRef::setBrowserBackground(const QPixmap &background)
+void DialogXRefs::setBrowserBackground(const QPixmap &background)
 {
     QPalette palette;
     palette.setBrush(ui_TextBrowser_Main->viewport()->backgroundRole(), QBrush(background));
@@ -72,7 +72,7 @@ QString formatStrong(QString text)
     return text;
 }
 
-void PDialogXRef::loadPassages(const QSqlDatabase &db, const QString &passageStr, const QStringList &bookNames)
+void DialogXRefs::loadPassages(const QSqlDatabase &db, const QString &passageStr, const QStringList &bookNames)
 {
     QStringList passageList = passageStr.split(",");
     QSqlQuery query(db);

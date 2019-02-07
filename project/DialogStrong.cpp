@@ -1,6 +1,6 @@
-#include "PDialogStrong.h"
+#include "DialogStrong.h"
 
-PDialogStrong::PDialogStrong(const QSqlDatabase &db,
+DialogStrong::DialogStrong(const QSqlDatabase &db,
                              const QString &number,
                              const QFont &font,
                              const QPixmap &background,
@@ -27,12 +27,12 @@ PDialogStrong::PDialogStrong(const QSqlDatabase &db,
     loadDefinition(number);
 }
 
-PDialogStrong::~PDialogStrong()
+DialogStrong::~DialogStrong()
 {
 
 }
 #include <QDebug>
-void PDialogStrong::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
+void DialogStrong::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
 {
     QString argString = arg1.toString();
     QChar scndChar = argString[1];
@@ -45,7 +45,7 @@ void PDialogStrong::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
    }
 }
 
-void PDialogStrong::loadDefinition(const QString &number)
+void DialogStrong::loadDefinition(const QString &number)
 {
     QSqlQuery query(*dbDct);
     QString queryString =  "SELECT data FROM dictionary WHERE word = '" + number + "'";
@@ -56,7 +56,7 @@ void PDialogStrong::loadDefinition(const QString &number)
     }
 }
 
-void PDialogStrong::setBrowserBackground(const QPixmap &background)
+void DialogStrong::setBrowserBackground(const QPixmap &background)
 {
     QPalette palette;
     palette.setBrush(m_defTextBrowser->viewport()->backgroundRole(), QBrush(background));

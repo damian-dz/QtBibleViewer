@@ -1,6 +1,6 @@
-#include "PDialogPreferences.h"
+#include "DialogPreferences.h"
 
-PDialogPreferences::PDialogPreferences(int langIdx,
+DialogPreferences::DialogPreferences(int langIdx,
                                        int maxPassages,
                                        const QString &style,
                                        bool useBckgrnd,
@@ -49,12 +49,12 @@ PDialogPreferences::PDialogPreferences(int langIdx,
     QDialog::setLayout(mainVBoxLayout);
 }
 
-PDialogPreferences::~PDialogPreferences()
+DialogPreferences::~DialogPreferences()
 {
 
 }
 
-void PDialogPreferences::generateGeneralWidget(int langIdx, int maxPassages)
+void DialogPreferences::generateGeneralWidget(int langIdx, int maxPassages)
 {
     QWidget *generalWidget = new QWidget;
 
@@ -80,7 +80,7 @@ void PDialogPreferences::generateGeneralWidget(int langIdx, int maxPassages)
     m_stackedWidget->addWidget(generalWidget);
 }
 
-void PDialogPreferences::generateFontWidget(const QFont &font)
+void DialogPreferences::generateFontWidget(const QFont &font)
 {
     QWidget *fontWidget = new QWidget;
 
@@ -127,7 +127,7 @@ void PDialogPreferences::generateFontWidget(const QFont &font)
 }
 
 
-void PDialogPreferences::generateAppearanceWidget(const QString &style, bool useBackgrnd, int tabPos)
+void DialogPreferences::generateAppearanceWidget(const QString &style, bool useBackgrnd, int tabPos)
 {
     QWidget *appearanceWidget = new QWidget;
 
@@ -158,67 +158,76 @@ void PDialogPreferences::generateAppearanceWidget(const QString &style, bool use
     m_tabPosComboBox->setStyleSheet("combobox-popup: 0");
     appearanceFormLayout->addRow(tr("Bible Tabs Position:"), m_tabPosComboBox);
 
+    m_animateChartComboBox = new QComboBox;
+    QStringList animateOptns;
+    animateOptns << tr("No Animation") << tr("Grid Axis Anmiation")
+                 << tr("Series Animation") << tr("All Animations");
+    m_animateChartComboBox->addItems(animateOptns);
+    m_animateChartComboBox->setCurrentIndex(tabPos);
+    m_animateChartComboBox->setStyleSheet("combobox-popup: 0");
+    appearanceFormLayout->addRow(tr("Chart Animation Type:"), m_animateChartComboBox);
+
     m_stackedWidget->addWidget(appearanceWidget);
 }
 
-QString PDialogPreferences::getWindowStyle()
+QString DialogPreferences::getWindowStyle()
 {
     return m_styleComboBox->currentText();
 }
 
-bool PDialogPreferences::getUseBackground()
+bool DialogPreferences::getUseBackground()
 {
     return m_backgroundCheckBox->isChecked();
 }
 
-QString PDialogPreferences::getFontFamily()
+QString DialogPreferences::getFontFamily()
 {
     return m_fontAbcTextBrowser->font().family();
 }
 
-int PDialogPreferences::getFontSize()
+int DialogPreferences::getFontSize()
 {
     return m_fontAbcTextBrowser->font().pointSize();
 }
 
-QColor PDialogPreferences::getHighlightColor()
+QColor DialogPreferences::getHighlightColor()
 {
     return m_highlightColor;
 }
 
-int PDialogPreferences::getMaxRecentPassages()
+int DialogPreferences::getMaxRecentPassages()
 {
     return m_maxRecentSpinBox->value();
 }
 
-int PDialogPreferences::getTabPosition()
+int DialogPreferences::getTabPosition()
 {
     return m_tabPosComboBox->currentIndex();
 }
 
-int PDialogPreferences::getLanguageIndex()
+int DialogPreferences::getLanguageIndex()
 {
     return m_langComboBox->currentIndex();
 }
 
-void PDialogPreferences::listWidgetCurrentRowChanged(int currentRow)
+void DialogPreferences::listWidgetCurrentRowChanged(int currentRow)
 {
     m_stackedWidget->setCurrentIndex(currentRow);
 }
 
-void PDialogPreferences::currentFontTypeChanged(const QFont &font)
+void DialogPreferences::currentFontTypeChanged(const QFont &font)
 {
     int fontSize = m_fontAbcTextBrowser->font().pointSize();
     m_fontAbcTextBrowser->setFont(QFont(font.family(), fontSize));
 }
 
-void PDialogPreferences::currentFontSizeChanged(const QString &text)
+void DialogPreferences::currentFontSizeChanged(const QString &text)
 {
     QString fontType = m_fontAbcTextBrowser->font().family();
     m_fontAbcTextBrowser->setFont(QFont(fontType, text.toInt()));
 }
 
-void PDialogPreferences::colorPushButtonClicked()
+void DialogPreferences::colorPushButtonClicked()
 {
     QColor highlightColor = QColorDialog::getColor(m_highlightColor, this, QString(), QColorDialog::ShowAlphaChannel);
     if (highlightColor.isValid()) {
