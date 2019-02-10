@@ -44,7 +44,9 @@ HEADERS += \
     DialogXRefs.h \
     WidgetCommonWords.h \
     WidgetHistogram.h \
-    WidgetCommonRare.h
+    WidgetCommonRare.h \
+    TabBookChapterVerses.h \
+    AppConfig.h
 
 
 RESOURCES += \

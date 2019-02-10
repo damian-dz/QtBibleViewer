@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "precomp.h"
+#include "AppConfig.h"
 
 #define DEFAULT_WIDTH 920
 #define DEFAULT_HEIGHT 600
@@ -51,11 +51,9 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(const QString &appDir,
-               const QString &lang,
+               AppConfig &config,
                QTranslator &appTs,
                QTranslator &qtTs,
-               const QString &style,
-               const QString configPath,
                QWidget *parent = nullptr);
     ~MainWindow() override;
 
@@ -122,7 +120,7 @@ public slots:
 
 private:
     int cursorCnt = 0;
-    /* Auxiliary structures */
+
     struct ModuleData
     {
         QSqlDatabase database;
@@ -131,86 +129,7 @@ private:
         bool hasStrong;
     };
 
-    struct TabBookChapterVerses
-    {
-        int tab;
-        int book;
-        int chapter;
-        int verseFrom;
-        int verseTo;
-
-        TabBookChapterVerses() :
-            tab(-1),
-            book(-1),
-            chapter(-1),
-            verseFrom(-1),
-            verseTo(-1)
-        {
-
-        }
-
-        TabBookChapterVerses(int tab, int book, int chapter, int verseFrom, int verseTo) :
-            tab(tab),
-            book(book),
-            chapter(chapter),
-            verseFrom(verseFrom),
-            verseTo(verseTo)
-        {
-
-        }
-
-        TabBookChapterVerses(const TabBookChapterVerses &tbcvv) :
-            tab(tbcvv.tab),
-            book(tbcvv.book),
-            chapter(tbcvv.chapter),
-            verseFrom(tbcvv.verseFrom),
-            verseTo(tbcvv.verseTo)
-        {
-
-        }
-
-        bool isPassageEqual(const TabBookChapterVerses &tbcvv)
-        {
-            return (book == tbcvv.book &&
-                    chapter == tbcvv.chapter &&
-                    verseFrom == tbcvv.verseFrom &&
-                    verseTo == tbcvv.verseTo);
-        }
-
-        bool isPassageValid()
-        {
-            return (book > 0 && chapter > 0 && verseFrom > 0 && verseTo > 0);
-        }
-
-        bool isSameAs(const TabBookChapterVerses &tbcvv)
-        {
-            return (tab == tbcvv.tab &&
-                    book == tbcvv.book &&
-                    chapter == tbcvv.chapter &&
-                    verseFrom == tbcvv.verseFrom &&
-                    verseTo == tbcvv.verseTo);
-        }
-
-        TabBookChapterVerses operator =(const TabBookChapterVerses &tbcvv)
-        {
-            tab = tbcvv.tab;
-            book = tbcvv.book;
-            chapter = tbcvv.chapter;
-            verseFrom = tbcvv.verseFrom;
-            verseTo = tbcvv.verseTo;
-            return *this;
-        }
-
-        bool operator ==(const TabBookChapterVerses &tbcvv)
-        {
-            return this->isSameAs(tbcvv);
-        }
-
-        bool operator !=(const TabBookChapterVerses &tbcvv)
-        {
-            return !this->isSameAs(tbcvv);
-        }
-    };
+    AppConfig *m_pConfig;
 
     /* GUI */
     QAction *ui_Act_Back;
@@ -311,8 +230,7 @@ private:
     bool m_blockHistory;
     QPair<int, int> m_blockRange;
     QStringList m_bookNames;
-    QList<QTextBrowser*> m_chapterBrowsers;
-    QStringList m_comVerse;
+    QList<QTextBrowser *> m_chapterBrowsers;
     int m_crntStartRes;
     QFont m_currentFont;
     QSqlDatabase m_dbCntr;
@@ -326,30 +244,21 @@ private:
     bool m_firstLoadCompare;
     QList<TabBookChapterVerses> m_favorites;
     QList<QStringList> m_globalNotes;
-    QColor m_highlightColor;
     QVector<TabBookChapterVerses> m_history;
-    QString m_language;
     QMap<int, QString> m_languages;
     QList<QTextCursor> m_lastCursors;
     QList<bool> m_loadedFlags;
-    int m_maxRecentPassages;
-    QStringList m_modulePathsList;
     QList<ModuleData> m_modules;
     bool m_modulesFound;
     int m_noteCount;
     int m_numResPerPage;
     QPixmap m_papyrusBckgrnd;
     int m_psgIdx;
-    QStringList m_removedPathsList;
     QStringList m_resRefs;
     QStringList m_resVerses;
     QStringList m_sectionNames;
-    QString m_settingsPath;
-    QString m_style;
-    int m_tabPos;
-    QTranslator *m_tsApp;
-    QTranslator *m_tsQt;
-    bool m_useBackground;
+    QTranslator *m_pTsApp;
+    QTranslator *m_pTsQt;
     QList<QMap<int, int>> m_verseMaps;
     QPair<int, int> m_verseRange;
 
@@ -414,7 +323,7 @@ private:
     void performSearchByStrong();
     void populateBookNames();
     void populateChapterListWidget(int chapter);
-    void populateLanguageMap(const QString &lang);
+    void populateLanguageMap();
     void populateSectionNames();
     void populateVersesComboBoxes(int verseFrom, int verseTo);
     void removeTabFromHistory(int idx);

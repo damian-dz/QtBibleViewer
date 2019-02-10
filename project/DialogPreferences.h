@@ -1,30 +1,20 @@
 #ifndef PDIALOGPREFERENCES_H
 #define PDIALOGPREFERENCES_H
 
-#include "precomp.h"
+#include "AppConfig.h"
 
 class DialogPreferences : public QDialog
 {
     Q_OBJECT
 public:
-    DialogPreferences(int langIdx,
-                      int maxPassages,
-                      const QString &style,
-                      bool useBckgrnd,
-                      const QColor &hghlhtClr,
-                      const QFont &font,
-                      int tabPos,
+    DialogPreferences(AppConfig *pConfig,
+                      int langIdx,
+                      QFont font,
                       QWidget *parent = nullptr);
     ~DialogPreferences();
 
-    QString getWindowStyle();
-    bool getUseBackground();
-    QString getFontFamily();
-    int getFontSize();
-    QColor getHighlightColor();
-    int getMaxRecentPassages();
-    int getTabPosition();
     int getLanguageIndex();
+    void updateSettings();
 
 public slots:
     void listWidgetCurrentRowChanged(int currentRow);
@@ -37,6 +27,7 @@ private:
     void generateFontWidget(const QFont &font);
     void generateAppearanceWidget(const QString &style, bool useBackgrnd, int tabPos);
 
+    AppConfig *m_pConfig;
     QComboBox *m_styleComboBox;
     QComboBox *m_tabPosComboBox;
     QCheckBox *m_backgroundCheckBox;

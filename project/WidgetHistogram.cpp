@@ -1,6 +1,6 @@
 #include "WidgetHistogram.h"
 
-WidgetHistogram::WidgetHistogram(const QSqlDatabase &db, const QStringList &fullNames, QWidget *parent)
+WidgetHistogram::WidgetHistogram(const QSqlDatabase &db, const QStringList &fullNames, int animType, QWidget *parent)
     : QWidget(parent),
       m_isBeingOpened(true),
       m_db(&db),
@@ -9,7 +9,7 @@ WidgetHistogram::WidgetHistogram(const QSqlDatabase &db, const QStringList &full
     QWidget::setAttribute(Qt::WA_DeleteOnClose);
     loadBookAbbreviations();
     generateMainLayout();
-    setUpChartsAndValidator();
+    setUpChartsAndValidator(animType);
     connectSignalsToSlots();
 }
 
@@ -37,11 +37,11 @@ void WidgetHistogram::generateMainLayout()
     QWidget::setLayout(ui_mainVerLayout);
 }
 
-void WidgetHistogram::setUpChartsAndValidator()
+void WidgetHistogram::setUpChartsAndValidator(int animType)
 {
     m_chartOT = new QChart;
     m_chartOT->layout()->setContentsMargins(2, 2, 2, 2);
-    m_chartOT->setAnimationOptions(QChart::AllAnimations);
+    m_chartOT->setAnimationOptions(QChart::AnimationOption(animType));
     m_chartOT->setTheme(QChart::ChartThemeBlueIcy);
     m_chartOT->setAcceptHoverEvents(true);
     m_chartViewOT = new QChartView(m_chartOT, this);
@@ -54,7 +54,7 @@ void WidgetHistogram::setUpChartsAndValidator()
 
     m_chartNT = new QChart;
     m_chartNT->layout()->setContentsMargins(2, 2, 2, 2);
-    m_chartNT->setAnimationOptions(QChart::AllAnimations);
+    m_chartNT->setAnimationOptions(QChart::AnimationOption(animType));
     m_chartNT->setTheme(QChart::ChartThemeBlueIcy);
     m_chartNT->setAcceptHoverEvents(true);
     m_chartViewNT = new QChartView(m_chartNT, this);

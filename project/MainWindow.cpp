@@ -44,13 +44,12 @@ inline void removeBrowserBackground(QTextEdit &browser)
 }
 
 MainWindow::MainWindow(const QString &appDir,
-                       const QString &lang,
+                       AppConfig &config,
                        QTranslator &appTs,
                        QTranslator &qtTs,
-                       const QString &style,
-                       const QString configPath,
                        QWidget *parent)
     : QMainWindow(parent),
+      m_pConfig(&config),
       m_textBrowser(nullptr),
       m_textEdit(nullptr),
       m_lineEdit(nullptr),
@@ -59,19 +58,16 @@ MainWindow::MainWindow(const QString &appDir,
       m_blockHistory(false),
       m_executionPath(appDir),
       m_firstLoadCompare(true),
-      m_language(lang),
-      m_settingsPath(configPath),
-      m_style(style),
-      m_tsApp(&appTs),
-      m_tsQt(&qtTs)
+      m_pTsApp(&appTs),
+      m_pTsQt(&qtTs)
 {
     TabBookChapterVerses tbcvv = loadSettings();
     generateMainLayout();
-    populateLanguageMap(lang);
+    populateLanguageMap();
     generateBibModuleTabs();
-    populateBookNames();   
+    populateBookNames();
     loadDictPaths();
-    if (tbcvv.isPassageValid()) {
+    if (tbcvv.isPassageValid() && m_modulesFound) {
         setTabBookChapterVerses(tbcvv, true);
     }
     connectBibleTabSignals();
@@ -428,7 +424,8 @@ void MainWindow::generateBibleTabControls()
     ui_Bib_TabWidget_Modules = new QTabWidget;
     ui_Bib_TabWidget_Modules->setMovable(true);
     ui_Bib_TabWidget_Modules->setTabsClosable(true);
-    ui_Bib_TabWidget_Modules->setTabPosition(QTabWidget::TabPosition(m_tabPos));
+    ui_Bib_TabWidget_Modules->setTabPosition(
+                QTabWidget::TabPosition(m_pConfig->appearance.module_tab_position));
     ui_Bib_VerLayout_Modules->addWidget(ui_Bib_TabWidget_Modules);
 
     ui_Bib_TabBar_Modules = ui_Bib_TabWidget_Modules->tabBar();
@@ -437,74 +434,36 @@ void MainWindow::generateBibleTabControls()
     setButtonTexts(0);
 }
 
-void MainWindow::populateLanguageMap(const QString &lang)
+void MainWindow::populateLanguageMap()
 {
     m_languages.insert(0, "EN");
     m_languages.insert(1, "ES");
     m_languages.insert(2, "PL");
-    actionCheckLanguage(m_languages.key(lang), true);
+    actionCheckLanguage(m_languages.key(m_pConfig->general.language), true);
 }
 
-MainWindow::TabBookChapterVerses MainWindow::loadSettings()
+TabBookChapterVerses MainWindow::loadSettings()
 {
     TabBookChapterVerses tbcvv;
-    QSettings settings(m_settingsPath, QSettings::IniFormat);
-    m_maxRecentPassages = settings.value(SET_MAX_RECENT_PASSAGES).toInt();
-    if (m_maxRecentPassages < 2) {
-        m_maxRecentPassages = 20;
-    }
-    settings.beginGroup(GROUP_MAIN_WINDOW);
-    const QByteArray geometry = settings.value(SET_GEOMETRY, QByteArray()).toByteArray();
-    if (!geometry.isNull() && !geometry.isEmpty()) {
-        QWidget::restoreGeometry(geometry);
-    } else {
+    if (m_pConfig->general.window_geometry.isNull()
+            || m_pConfig->general.window_geometry.isEmpty()) {
         QMainWindow::resize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
-    const QByteArray state = settings.value(SET_STATE, QByteArray()).toByteArray();
-    if (!state.isNull() && !state.isEmpty()) {
-        QMainWindow::restoreState(state);
-    }
-    settings.endGroup();
-    settings.beginGroup(GROUP_MODULE_DATA);
-    const int setIndex = settings.value(SET_INDEX).toInt();
-    const QStringList setPassage = settings.value(SET_PASSAGE).toStringList();
-    if (!setPassage.isEmpty() && setPassage.count() == 4) {
-        tbcvv = { setIndex,
-                  setPassage[0].toInt(),
-                  setPassage[1].toInt(),
-                  setPassage[2].toInt(),
-                  setPassage[3].toInt()};
-    }
-    m_modulePathsList = settings.value(SET_PATHS).toStringList();
-    if (m_modulePathsList.count() == 1 && m_modulePathsList[0] == "") {
-        m_modulePathsList.clear();
-    }
-    m_removedPathsList = settings.value(SET_REMOVED_PATHS).toStringList();
-    if (m_removedPathsList.count() == 1 && m_removedPathsList[0] == "") {
-        m_removedPathsList.clear();
-    }
-    m_comVerse = settings.value(SET_COM_VERSE).toStringList();
-    if (m_comVerse.count() == 1 && m_comVerse[0] == "") {
-        m_comVerse.clear();
-    }
-    settings.endGroup();
-    settings.beginGroup(GROUP_FONT);
-    const QString setFontFamily = settings.value(SET_FONT_FAMILY).toString();
-    const int setFontSize = settings.value(SET_FONT_SIZE).toInt();
-    if (!setFontFamily.isEmpty() && setFontSize != 0) {
-        m_currentFont = QFont(setFontFamily, setFontSize);
     } else {
-        m_currentFont = QFont(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE);
+        QWidget::restoreGeometry(m_pConfig->general.window_geometry);
     }
-    settings.endGroup();
-    settings.beginGroup(GROUP_APPEARANCE);
-    m_useBackground = settings.value(SET_USE_BACKGROUND).toBool();
-    m_highlightColor = settings.value(SET_HIGHLIGHT_COLOR).value<QColor>();
-    if (!m_highlightColor.isValid()) {
-        m_highlightColor = QColor(0, 255, 0, 50);
+    if (!m_pConfig->general.window_state.isNull()
+            && !m_pConfig->general.window_state.isEmpty()) {
+        QMainWindow::restoreState(m_pConfig->general.window_state);
     }
-    m_tabPos = settings.value(SET_TAB_POSITION).toInt();
-    settings.endGroup();
+    if (!m_pConfig->module_data.last_passage.isEmpty()
+            && m_pConfig->module_data.last_passage.count() == 4) {
+        tbcvv = { m_pConfig->module_data.index,
+                  m_pConfig->module_data.last_passage[0].toInt(),
+                  m_pConfig->module_data.last_passage[1].toInt(),
+                  m_pConfig->module_data.last_passage[2].toInt(),
+                  m_pConfig->module_data.last_passage[3].toInt()};
+    }
+    m_currentFont = QFont(m_pConfig->fonts.textbrowser_family, m_pConfig->fonts.textbrowser_size);
     return tbcvv;
 }
 
@@ -520,24 +479,24 @@ void MainWindow::generateBibModuleTabs()
     } else {
         QStringList localModules = getModulePaths(moduleDirName);
         for (const QString &path : localModules) {
-            if (!m_modulePathsList.contains(path)
-                    && !m_removedPathsList.contains(path)
+            if (!m_pConfig->module_data.paths.contains(path)
+                    && !m_pConfig->module_data.removed_paths.contains(path)
                     && QFileInfo(path).exists()) {
-                m_modulePathsList << path;
+                m_pConfig->module_data.paths << path;
             }
         }
-        if (m_modulePathsList.isEmpty()) {
+        if (m_pConfig->module_data.paths.isEmpty()) {
             ui_Bib_TabWidget_Modules->addTab(new QWidget(), noModule);
             ui_Bib_ListWidget_Book->setDisabled(true);
             m_modulesFound = false;
         } else {
             loadBackgroundPixmap();
             loadXRefDatabase();
-            for (int i = 0; i < m_modulePathsList.count(); ++i) {
-                if (QFileInfo(m_modulePathsList[i]).exists()) {
-                    loadBibleModule(m_modulePathsList[i]);
+            for (int i = 0; i < m_pConfig->module_data.paths.count(); ++i) {
+                if (QFileInfo(m_pConfig->module_data.paths[i]).exists()) {
+                    loadBibleModule(m_pConfig->module_data.paths[i]);
                 } else {
-                    m_modulePathsList.removeAt(i--);
+                    m_pConfig->module_data.paths.removeAt(i--);
                 }
             }
             m_modulesFound = true;
@@ -937,7 +896,7 @@ void MainWindow::loadPassage()
     m_loadedFlags[idx] = true;
 }
 
-MainWindow::TabBookChapterVerses MainWindow::getTabBookChapterVerses()
+TabBookChapterVerses MainWindow::getTabBookChapterVerses()
 {
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
     int book = ui_Bib_ListWidget_Book->currentRow() + 1;
@@ -949,7 +908,7 @@ MainWindow::TabBookChapterVerses MainWindow::getTabBookChapterVerses()
 
 void MainWindow::updateHistory(const TabBookChapterVerses &tbcvv)
 {
-    if (m_history.count() == m_maxRecentPassages) {
+    if (m_history.count() == m_pConfig->general.max_recent_passages) {
         m_history.removeFirst();
     } else if (m_psgIdx < m_history.count() - 1) {
         m_history.remove(m_psgIdx + 1, m_history.count() - 1 - m_psgIdx);
@@ -1174,10 +1133,10 @@ void MainWindow::generateCompareTabControls(int idx)
 
     setLabelTexts(3);
 
-    if (!m_comVerse.isEmpty()) {
-        ui_Com_ListWidget_Book->setCurrentRow(m_comVerse[0].toInt() - 1);
-        ui_Com_ListWidget_Chapter->setCurrentRow(m_comVerse[1].toInt() - 1);
-        ui_Com_ListWidget_Verse->setCurrentRow(m_comVerse[2].toInt() - 1);
+    if (!m_pConfig->module_data.compare_tab_last_verse.isEmpty()) {
+        ui_Com_ListWidget_Book->setCurrentRow(m_pConfig->module_data.compare_tab_last_verse[0].toInt() - 1);
+        ui_Com_ListWidget_Chapter->setCurrentRow(m_pConfig->module_data.compare_tab_last_verse[1].toInt() - 1);
+        ui_Com_ListWidget_Verse->setCurrentRow(m_pConfig->module_data.compare_tab_last_verse[2].toInt() - 1);
     } else {
         ui_Com_ListWidget_Book->setCurrentRow(0);
         ui_Com_ListWidget_Chapter->setCurrentRow(0);
@@ -1188,7 +1147,7 @@ void MainWindow::generateCompareTabControls(int idx)
 
 void MainWindow::on_Com_CurrentRowChanged_ListWidget_Book(int currentRow)
 {
-    QString queryString = "SELECT Chapter FROM Counters WHERE Book = " +
+    QString queryString = "SELECT Chapter FROM Counters WHERE Book = " %
                           QString::number(currentRow + 1);
     QSqlQuery query(m_dbCntr);
     query.exec(queryString);
@@ -1208,8 +1167,8 @@ void MainWindow::on_Com_CurrentRowChanged_ListWidget_Book(int currentRow)
 void MainWindow::on_Com_CurrentRowChanged_ListWidget_Chapter(int currentRow)
 {
     int book = ui_Com_ListWidget_Book->currentRow() + 1;
-    QString queryString = "SELECT VerseCount, ChapterNumber FROM Counters WHERE Book = " +
-                          QString::number(book) + " AND Chapter = " + QString::number(currentRow + 1);
+    QString queryString = "SELECT VerseCount, ChapterNumber FROM Counters WHERE Book = " %
+                          QString::number(book) % " AND Chapter = " % QString::number(currentRow + 1);
     QSqlQuery query(m_dbCntr);
     int verseCount = 0;
     if (query.exec(queryString)) {
@@ -1253,10 +1212,12 @@ void MainWindow::on_Com_CurrentRowChanged_ListWidget_Verse(int currentRow)
     }
     text += QStringLiteral("</table>");
     ui_Com_TextBrowser_Compare->setHtml(text);
-    m_comVerse.clear();
-    m_comVerse << QString::number(ui_Com_ListWidget_Book->currentRow() + 1)
-               << QString::number(ui_Com_ListWidget_Chapter->currentRow() + 1)
-               << QString::number(ui_Com_ListWidget_Verse->currentRow() + 1);
+
+    m_pConfig->module_data.compare_tab_last_verse.clear();
+    m_pConfig->module_data.compare_tab_last_verse
+            << QString::number(ui_Com_ListWidget_Book->currentRow() + 1)
+            << QString::number(ui_Com_ListWidget_Chapter->currentRow() + 1)
+            << QString::number(ui_Com_ListWidget_Verse->currentRow() + 1);
     m_firstLoadCompare = false;
 }
 
@@ -1803,39 +1764,18 @@ void MainWindow::generateTopicsTab(int idx)
 
 void MainWindow::saveSettings()
 {
-    QSettings settings(m_settingsPath, QSettings::IniFormat);
-    settings.setValue(SET_LANGUAGE, m_language);
-    settings.setValue(SET_MAX_RECENT_PASSAGES, m_maxRecentPassages);
-    settings.beginGroup(GROUP_MAIN_WINDOW);
-    settings.setValue(SET_GEOMETRY, QWidget::saveGeometry());
-    settings.setValue(SET_STATE, QMainWindow::saveState());
-    settings.endGroup();
-    settings.beginGroup(GROUP_MODULE_DATA);
-    if (m_modulesFound) {
-        settings.setValue(SET_INDEX, ui_Bib_TabWidget_Modules->currentIndex());
-    } else {
-        settings.setValue(SET_INDEX, -1);
-    }
-    QStringList setPassage;
-    setPassage << QString::number(ui_Bib_ListWidget_Book->currentRow() + 1)
-               << QString::number(ui_Bib_ListWidget_Chapter->currentRow() + 1)
-               << QString::number(ui_Bib_ComboBox_VerseFrom->currentIndex() + 1)
-               << QString::number(ui_Bib_ComboBox_VerseTo->currentIndex() + 1);
-    settings.setValue(SET_PASSAGE, setPassage);
-    settings.setValue(SET_PATHS, m_modulePathsList);
-    settings.setValue(SET_REMOVED_PATHS, m_removedPathsList);
-    settings.setValue(SET_COM_VERSE, m_comVerse);
-    settings.endGroup();
-    settings.beginGroup(GROUP_FONT);
-    settings.setValue(SET_FONT_FAMILY, m_currentFont.family());
-    settings.setValue(SET_FONT_SIZE, m_currentFont.pointSize());
-    settings.endGroup();
-    settings.beginGroup(GROUP_APPEARANCE);
-    settings.setValue(SET_STYLE, m_style);
-    settings.setValue(SET_USE_BACKGROUND, m_useBackground);
-    settings.setValue(SET_HIGHLIGHT_COLOR, m_highlightColor);
-    settings.setValue(SET_TAB_POSITION, m_tabPos);
-    settings.endGroup();
+    m_pConfig->general.window_geometry = QWidget::saveGeometry();
+    m_pConfig->general.window_state = QMainWindow::saveState();
+    m_pConfig->module_data.index = m_modulesFound ? ui_Bib_TabWidget_Modules->currentIndex() : -1;
+    m_pConfig->module_data.last_passage.clear();
+    m_pConfig->module_data.last_passage
+            << QString::number(ui_Bib_ListWidget_Book->currentRow() + 1)
+            << QString::number(ui_Bib_ListWidget_Chapter->currentRow() + 1)
+            << QString::number(ui_Bib_ComboBox_VerseFrom->currentIndex() + 1)
+            << QString::number(ui_Bib_ComboBox_VerseTo->currentIndex() + 1);
+    m_pConfig->fonts.textbrowser_family = m_currentFont.family();
+    m_pConfig->fonts.textbrowser_size = m_currentFont.pointSize();
+    m_pConfig->save();
 }
 
 void MainWindow::formatPassage(QString &text, bool hasStrong)
@@ -1998,7 +1938,7 @@ void MainWindow::on_Bib_CursorPositionChanged_chapterBrowser()
         m_lastCursors[idx].setBlockFormat(format);
     }
     QTextCursor cursor = m_chapterBrowsers[idx]->textCursor();
-    format.setBackground(m_highlightColor);
+    format.setBackground(m_pConfig->appearance.verse_highlight_color);
     cursor.setBlockFormat(format);
     m_lastCursors[idx] = cursor;
 }
@@ -2221,7 +2161,7 @@ void MainWindow::on_Sea_ComboBox_CurrentIndexChanged_Translation(int index)
 void MainWindow::on_Bib_TabMoved_Modules(int from, int to)
 {
     m_modules.swap(from, to);
-    m_modulePathsList.swap(from, to);
+    m_pConfig->module_data.paths.swap(from, to);
     m_chapterBrowsers.swap(from, to);
     m_globalNotes.swap(from, to);
     m_lastCursors.swap(from, to);
@@ -2251,9 +2191,9 @@ void MainWindow::on_Bib_TabCloseRequested_TabWidget_Modules(int index)
                                      "It will not be visible unless you re-add it manually."),
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (reply == QMessageBox::Yes) {
-        m_removedPathsList << m_modulePathsList[index];
+        m_pConfig->module_data.removed_paths << m_pConfig->module_data.paths[index];
         m_modules.removeAt(index);
-        m_modulePathsList.removeAt(index);
+        m_pConfig->module_data.paths.removeAt(index);
         m_chapterBrowsers.removeAt(index);
         m_globalNotes.removeAt(index);
         m_lastCursors.removeAt(index);
@@ -2314,7 +2254,7 @@ void MainWindow::blockPassageSelectionSignals(bool isBlocked)
 
 void MainWindow::setBrowserBackground(QTextEdit &browser)
 {
-    if (m_useBackground) {
+    if (m_pConfig->appearance.use_background_image) {
         QPalette palette;
         palette.setBrush(browser.viewport()->backgroundRole(), QBrush(m_papyrusBckgrnd));
         browser.viewport()->setPalette(palette);
@@ -2431,11 +2371,11 @@ void MainWindow::action_ChapterBrowser_InsertIntoFavorites()
             return;
         }
         queryString = "INSERT INTO Favorites (Book, Chapter, VerseFirst, VerseLast)"
-                      "VALUES (" + book + ", " + chapter + ", " + verseFirst + ", " + verseLast + ")";
+                      "VALUES (" % book % ", " % chapter % ", " % verseFirst % ", " % verseLast % ")";
         query.exec(queryString);
-        QString passageId = m_bookNames[ui_Bib_ListWidget_Book->currentRow()] + " " + chapter + ":" + verseFirst;
+        QString passageId = m_bookNames[ui_Bib_ListWidget_Book->currentRow()] % " " % chapter % ":" % verseFirst;
         if (m_verseRange.first != m_verseRange.second) {
-            passageId += "-" + verseLast;
+            passageId += "-" % verseLast;
         }
         ui_Fav_ListWidget_Passages->addItem(passageId);
         m_favorites.append({ 0, book.toInt(), chapter.toInt(), m_verseRange.first, m_verseRange.second });
@@ -2462,13 +2402,13 @@ void MainWindow::action_ChapterBrowser_CopyWithReference()
     }
     textToCopy = textToCopy.replace(QRegExp("\\s+"), " ").remove("*");
     QClipboard *clipboard = QApplication::clipboard();
-    QString reference = "—" + m_bookNames[ui_Bib_ListWidget_Book->currentRow()] +
-                        " " + ui_Bib_ListWidget_Chapter->currentItem()->text() +
-                        ":" + QString::number(firstVerse);
+    QString reference = "—" % m_bookNames[ui_Bib_ListWidget_Book->currentRow()] +
+                        " " % ui_Bib_ListWidget_Chapter->currentItem()->text() +
+                        ":" % QString::number(firstVerse);
     if (firstVerse != lastVerse) {
-        reference += "-" + QString::number(lastVerse);
+        reference += "-" % QString::number(lastVerse);
     }
-    clipboard->setText(textToCopy.trimmed() + reference);
+    clipboard->setText(textToCopy.trimmed() % reference);
 }
 
 void MainWindow::action_EditMenu_CopyWithReference()
@@ -2544,10 +2484,10 @@ void MainWindow::on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1)
     QChar firstChar = argString[0];
     if (firstChar == 't') {
         highlightPassage(TabBookChapterVerses ( argString.split(":")[1].toInt(),
-                                                m_comVerse[0].toInt(),
-                                                m_comVerse[1].toInt(),
-                                                m_comVerse[2].toInt(),
-                                                m_comVerse[2].toInt() ));
+                                                m_pConfig->module_data.compare_tab_last_verse[0].toInt(),
+                                                m_pConfig->module_data.compare_tab_last_verse[1].toInt(),
+                                                m_pConfig->module_data.compare_tab_last_verse[2].toInt(),
+                                                m_pConfig->module_data.compare_tab_last_verse[2].toInt() ));
     } else if (firstChar == 's') {
         openStrongDialog(argString.split(":")[1]);
     }
@@ -3017,12 +2957,13 @@ void MainWindow::actionOpenBibleModule()
         if (ui_Bib_TabWidget_Modules->tabText(0) == "No module found") {
             ui_Bib_TabWidget_Modules->removeTab(0);
         }
-        if (!m_modulePathsList.contains(filename)) {
+        if (!m_pConfig->module_data.paths.contains(filename)) {
             if (loadBibleModule(filename)) {
-                m_modulePathsList << filename;
+                m_pConfig->module_data.paths << filename;
                 ui_Bib_TabWidget_Modules->setCurrentIndex(ui_Bib_TabWidget_Modules->count() - 1);
-                if (m_removedPathsList.contains(filename)) {
-                    m_removedPathsList.removeAt(m_removedPathsList.indexOf(filename));
+                if (m_pConfig->module_data.removed_paths.contains(filename)) {
+                    m_pConfig->module_data.removed_paths.removeAt(
+                                m_pConfig->module_data.removed_paths.indexOf(filename));
                 }
             }
         } else {
@@ -3117,7 +3058,7 @@ void MainWindow::openStrongDialog(const QString &number)
             }
         }
     }
-    DialogStrong strongDialog(m_dbDict, number, m_currentFont, m_papyrusBckgrnd, m_useBackground, this);
+    DialogStrong strongDialog(m_dbDict, number, m_currentFont, m_papyrusBckgrnd, m_pConfig->appearance.use_background_image, this);
     strongDialog.exec();
 }
 
@@ -3145,7 +3086,7 @@ void MainWindow::on_Bib_AnchorClicked_ChapterBrowser(const QUrl &arg1)
                             verseInfo,
                             m_bookNames,
                             m_papyrusBckgrnd,
-                            m_useBackground,
+                            m_pConfig->appearance.use_background_image,
                             m_currentFont);
         dlgXRef.exec();
     }
@@ -3165,7 +3106,9 @@ void MainWindow::actionHelp()
 void MainWindow::actionWordFrequency()
 {
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
-    WidgetHistogram *histogramWindow = new WidgetHistogram(m_modules[idx].database, m_bookNames);
+    WidgetHistogram *histogramWindow = new WidgetHistogram(m_modules[idx].database,
+                                                           m_bookNames,
+                                                           m_pConfig->appearance.chart_animation);
     histogramWindow->show();
 }
 
@@ -3202,16 +3145,16 @@ void MainWindow::actionCheckLanguage(int idx, bool firstRun)
     for (int i = 0; i < languageActions.count(); ++i) {
         languageActions[i]->setChecked(i == idx);
     }
-    m_language = m_languages.value(idx);
+    m_pConfig->general.language = m_languages.value(idx);
     if (!firstRun) {
-        if (m_language != "EN") {
-            m_tsApp->load(m_language.toLower(), m_executionPath + "/App/lang");
-            qApp->installTranslator(m_tsApp);
-            m_tsQt->load("qt_" + m_language.toLower(), m_executionPath + "/App/lang");
-            qApp->installTranslator(m_tsQt);
+        if (m_pConfig->general.language != "EN") {
+            m_pTsApp->load(m_pConfig->general.language.toLower(), m_executionPath + "/App/lang");
+            qApp->installTranslator(m_pTsApp);
+            m_pTsQt->load("qt_" + m_pConfig->general.language.toLower(), m_executionPath + "/App/lang");
+            qApp->installTranslator(m_pTsQt);
         } else {
-            qApp->removeTranslator(m_tsApp);
-            qApp->removeTranslator(m_tsQt);
+            qApp->removeTranslator(m_pTsApp);
+            qApp->removeTranslator(m_pTsQt);
         }
         translateTexts();
     }
@@ -3234,27 +3177,22 @@ void MainWindow::actionSpanish()
 
 void MainWindow::actionPreferences()
 {
-    DialogPreferences dlgPreferences(m_languages.key(m_language),
-                                      m_maxRecentPassages,
-                                      m_style,
-                                      m_useBackground,
-                                      m_highlightColor,
-                                      m_currentFont,
-                                      m_tabPos);
+    DialogPreferences dlgPreferences(m_pConfig,
+                                     m_languages.key(m_pConfig->general.language),
+                                     m_currentFont);
+    QString oldStyle = m_pConfig->appearance.window_style;
+    bool oldUseBackgroundImage = m_pConfig->appearance.use_background_image;
     if (dlgPreferences.exec()) {
+        dlgPreferences.updateSettings();
         int langIdx = dlgPreferences.getLanguageIndex();
-        if (m_language != m_languages[langIdx]) {
+        if (m_pConfig->general.language != m_languages[langIdx]) {
             actionCheckLanguage(langIdx);
         }
-        QString newStyle = dlgPreferences.getWindowStyle();
-        if (newStyle != m_style) {
-            m_style = newStyle;
-            qApp->setStyle(QStyleFactory::create(m_style));
+        if (m_pConfig->appearance.window_style != oldStyle) {
+            qApp->setStyle(QStyleFactory::create(m_pConfig->appearance.window_style));
         }
-        bool newUseBckgrnd = dlgPreferences.getUseBackground();
-        if (newUseBckgrnd != m_useBackground) {
-            m_useBackground = newUseBckgrnd;
-            if (m_useBackground) {
+        if (m_pConfig->appearance.use_background_image != oldUseBackgroundImage) {
+            if (m_pConfig->appearance.use_background_image) {
                 QList<QTextEdit *> widgets = QMainWindow::centralWidget()->findChildren<QTextEdit *>();
                 for (QTextEdit *te : widgets) {
                     setBrowserBackground(*te);
@@ -3266,12 +3204,10 @@ void MainWindow::actionPreferences()
                 }
             }
         }
-        m_maxRecentPassages = dlgPreferences.getMaxRecentPassages();
-        m_highlightColor = dlgPreferences.getHighlightColor();
-        m_currentFont.setFamily(dlgPreferences.getFontFamily());
-        m_currentFont.setPointSize(dlgPreferences.getFontSize());
-        m_tabPos = dlgPreferences.getTabPosition();
-        ui_Bib_TabWidget_Modules->setTabPosition((QTabWidget::TabPosition(m_tabPos)));
+        m_currentFont.setFamily(m_pConfig->fonts.textbrowser_family);
+        m_currentFont.setPointSize(m_pConfig->fonts.textbrowser_size);
+        ui_Bib_TabWidget_Modules->setTabPosition(
+                    (QTabWidget::TabPosition(m_pConfig->appearance.module_tab_position)));
         updateFonts();
     }
 }

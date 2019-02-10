@@ -9,7 +9,7 @@ class WidgetHistogram : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WidgetHistogram(const QSqlDatabase &m_db, const QStringList &fullNames, QWidget *parent = nullptr);
+    explicit WidgetHistogram(const QSqlDatabase &m_db, const QStringList &fullNames, int animType, QWidget *parent = nullptr);
     ~WidgetHistogram();
 
 protected:
@@ -48,7 +48,7 @@ private:
     void generateMainLayout();
     void loadBookAbbreviations();
     void searchAndPlot(const QString &word);
-    void setUpChartsAndValidator();
+    void setUpChartsAndValidator(int animType);
     QString getDeclinedForm(double count);
 };
 

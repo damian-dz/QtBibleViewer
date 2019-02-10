@@ -1,15 +1,8 @@
 #include "DialogPreferences.h"
 
-DialogPreferences::DialogPreferences(int langIdx,
-                                       int maxPassages,
-                                       const QString &style,
-                                       bool useBckgrnd,
-                                       const QColor &hghlhtClr,
-                                       const QFont &font,
-                                       int tabPos,
-                                       QWidget *parent) :
-    QDialog(parent),
-    m_highlightColor(hghlhtClr)
+DialogPreferences::DialogPreferences(AppConfig *pConfig, int langIdx, QFont font, QWidget *parent)
+    : QDialog(parent),
+      m_pConfig(pConfig)
 {
     QDialog::resize(480, 320);
     QDialog::setWindowTitle(tr("Preferences"));
@@ -25,7 +18,7 @@ DialogPreferences::DialogPreferences(int langIdx,
     listWidget->setFont(QFont(qApp->font().family(), 10));
     listWidget->setMaximumWidth(180);
     listWidget->addItem(tr("General"));
-    listWidget->addItem(tr("Font Settings"));
+    listWidget->addItem(tr("Fonts"));
     listWidget->addItem(tr("Appearance"));
     listWidget->setCurrentRow(0);
 
@@ -39,9 +32,11 @@ DialogPreferences::DialogPreferences(int langIdx,
 
     mainVBoxLayout->addWidget(dialogButtonBox);
 
-    generateGeneralWidget(langIdx, maxPassages);
+    generateGeneralWidget(langIdx, pConfig->general.max_recent_passages);
     generateFontWidget(font);
-    generateAppearanceWidget(style, useBckgrnd, tabPos);
+    generateAppearanceWidget(pConfig->appearance.window_style,
+                             pConfig->appearance.use_background_image,
+                             pConfig->appearance.module_tab_position);
 
     QObject::connect(listWidget, SIGNAL(currentRowChanged(int)),
                      this, SLOT(listWidgetCurrentRowChanged(int)));
@@ -146,7 +141,7 @@ void DialogPreferences::generateAppearanceWidget(const QString &style, bool useB
     appearanceFormLayout->addWidget(m_backgroundCheckBox);
 
     QPushButton *colorButton = new QPushButton(tr("Change..."));
-    colorButton->setStyleSheet("background-color:" + m_highlightColor.name());
+    colorButton->setStyleSheet("background-color:" + m_pConfig->appearance.verse_highlight_color.name());
     appearanceFormLayout->addRow(tr("Verse Highlight Color:"), colorButton);
     QObject::connect(colorButton, SIGNAL(clicked()), this, SLOT(colorPushButtonClicked()));
 
@@ -163,51 +158,27 @@ void DialogPreferences::generateAppearanceWidget(const QString &style, bool useB
     animateOptns << tr("No Animation") << tr("Grid Axis Anmiation")
                  << tr("Series Animation") << tr("All Animations");
     m_animateChartComboBox->addItems(animateOptns);
-    m_animateChartComboBox->setCurrentIndex(tabPos);
+    m_animateChartComboBox->setCurrentIndex(m_pConfig->appearance.chart_animation);
     m_animateChartComboBox->setStyleSheet("combobox-popup: 0");
     appearanceFormLayout->addRow(tr("Chart Animation Type:"), m_animateChartComboBox);
 
     m_stackedWidget->addWidget(appearanceWidget);
 }
 
-QString DialogPreferences::getWindowStyle()
-{
-    return m_styleComboBox->currentText();
-}
-
-bool DialogPreferences::getUseBackground()
-{
-    return m_backgroundCheckBox->isChecked();
-}
-
-QString DialogPreferences::getFontFamily()
-{
-    return m_fontAbcTextBrowser->font().family();
-}
-
-int DialogPreferences::getFontSize()
-{
-    return m_fontAbcTextBrowser->font().pointSize();
-}
-
-QColor DialogPreferences::getHighlightColor()
-{
-    return m_highlightColor;
-}
-
-int DialogPreferences::getMaxRecentPassages()
-{
-    return m_maxRecentSpinBox->value();
-}
-
-int DialogPreferences::getTabPosition()
-{
-    return m_tabPosComboBox->currentIndex();
-}
-
 int DialogPreferences::getLanguageIndex()
 {
     return m_langComboBox->currentIndex();
+}
+
+void DialogPreferences::updateSettings()
+{
+    m_pConfig->general.max_recent_passages = m_maxRecentSpinBox->value();
+    m_pConfig->fonts.textbrowser_family = m_fontAbcTextBrowser->font().family();
+    m_pConfig->fonts.textbrowser_size = m_fontAbcTextBrowser->font().pointSize();
+    m_pConfig->appearance.window_style = m_styleComboBox->currentText();
+    m_pConfig->appearance.use_background_image = m_backgroundCheckBox->isChecked();
+    m_pConfig->appearance.module_tab_position = m_tabPosComboBox->currentIndex();
+    m_pConfig->appearance.chart_animation = m_animateChartComboBox->currentIndex();
 }
 
 void DialogPreferences::listWidgetCurrentRowChanged(int currentRow)
@@ -229,9 +200,10 @@ void DialogPreferences::currentFontSizeChanged(const QString &text)
 
 void DialogPreferences::colorPushButtonClicked()
 {
-    QColor highlightColor = QColorDialog::getColor(m_highlightColor, this, QString(), QColorDialog::ShowAlphaChannel);
+    QColor highlightColor = QColorDialog::getColor(
+                m_pConfig->appearance.verse_highlight_color, this, QString(), QColorDialog::ShowAlphaChannel);
     if (highlightColor.isValid()) {
-        m_highlightColor = highlightColor;
+        m_pConfig->appearance.verse_highlight_color = highlightColor;
     }
 }
 

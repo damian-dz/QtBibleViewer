@@ -1,4 +1,7 @@
 #include "MainWindow.h"
+#include "AppConfig.h"
+
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -6,18 +9,18 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QString appDir = app.applicationDirPath();
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    QString configFilePath = appDir + "/App/config/settings.ini";
-    if (!QFileInfo(configFilePath).exists()) {
+    QString configPath = appDir + "/App/config/settings.ini";
+    if (!QFileInfo(configPath).exists()) {
         bool settingsFound = false;
         for (QString location : locations) {
             if (QFileInfo(location + "/settings.ini").exists()) {
-                configFilePath = location + "/settings.ini";
+                configPath = location + "/settings.ini";
                 settingsFound = true;
                 break;
             }
         }
         if (!settingsFound) {
-            configFilePath = locations[0] + "/settings.ini";
+            configPath = locations[0] + "/settings.ini";
         }
     } else {
         for (QString location : locations) {
@@ -31,30 +34,18 @@ int main(int argc, char *argv[])
             }
         }
     }
-    QSettings settings(configFilePath, QSettings::IniFormat);
-    QString setLanguage = settings.value(SET_LANGUAGE).toString();
-    if (setLanguage.isNull() || setLanguage.isEmpty()) {
-        if (QLocale::system().language() == QLocale::Polish) {
-            setLanguage = "PL";
-        } else if (QLocale::system().language() == QLocale::Spanish) {
-            setLanguage = "ES";
-        } else {
-            setLanguage = "EN";
-        }
-    }
-    settings.beginGroup(GROUP_APPEARANCE);
-    const QString style = settings.value(SET_STYLE).toString();
-    settings.endGroup();
-    app.setStyle(QStyleFactory::create(style));
+    AppConfig config(configPath);
+    config.load();
+    app.setStyle(QStyleFactory::create(config.appearance.window_style));
     QTranslator appTranslator;
     QTranslator qtTranslator;
-    if (setLanguage != "EN") {
-        appTranslator.load(setLanguage.toLower(), appDir + "/App/lang");
+    if (config.general.language != "EN") {
+        appTranslator.load(config.general.language.toLower(), appDir + "/App/lang");
         app.installTranslator(&appTranslator);
-        qtTranslator.load("qt_" + setLanguage.toLower(), appDir + "/App/lang");
+        qtTranslator.load("qt_" + config.general.language.toLower(), appDir + "/App/lang");
         app.installTranslator(&qtTranslator);
     }
-    MainWindow win(appDir, setLanguage.toUpper(), appTranslator, qtTranslator,  style, configFilePath);
+    MainWindow win(appDir, config, appTranslator, qtTranslator);
     win.show();
     return app.exec();
 }
