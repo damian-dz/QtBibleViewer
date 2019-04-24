@@ -213,7 +213,8 @@ namespace uninstall
                     FileName = tempFilePath,
                     CreateNoWindow = true,
                     Arguments = uninstId + " " + uninstPath + " " + dltRoot,
-                    UseShellExecute = false
+                    UseShellExecute = false,
+                    Verb = "runas"
                 };
                 Process.Start(startInfo);
             }

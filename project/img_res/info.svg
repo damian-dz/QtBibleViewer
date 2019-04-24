@@ -1,0 +1,6 @@
+<svg height="200" width="200" viewBox="0 0 20 20" >
+  <g>
+    <circle cx="10" cy="10" r="9.2" stroke="black" stroke-width="1.2" fill="white" />
+    <text x="7.5" y="15.5" font-family="Times New Roman" font-size="18px" font-style="italic" font-weight="bold">i</text>
+  </g>
+</svg>

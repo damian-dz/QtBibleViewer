@@ -6,8 +6,8 @@ DialogXRefs::DialogXRefs(const QSqlDatabase &dbBib,
                          const QPixmap &background,
                          bool useBckgrnd,
                          const QFont &font,
-                         QWidget *parent) :
-    QDialog(parent)
+                         QWidget *parent)
+    : QDialog(parent)
 {
     generateMainLayout(font);
     if (useBckgrnd) {
@@ -18,9 +18,7 @@ DialogXRefs::DialogXRefs(const QSqlDatabase &dbBib,
     QString chapter = verseInfo[2];
     QString verse = verseInfoSplit[1];
     QString title = bookName + " " + chapter + ":" + verse;
-    QDialog::setWindowTitle(title);
-    QTime t;
-    t.start();
+    QWidget::setWindowTitle(title);
     loadPassages(dbBib, verseInfoSplit[2], bookNames);
 }
 
@@ -31,13 +29,17 @@ DialogXRefs::~DialogXRefs()
 
 void DialogXRefs::generateMainLayout(const QFont &font)
 {
-    QDialog::resize(640, 480);
     ui_TextBrowser_Main = new QTextBrowser;
     ui_TextBrowser_Main->setFont(font);
     ui_TextBrowser_Main->setOpenLinks(false);
-    QVBoxLayout *mainVBoxLayout = new QVBoxLayout;
-    mainVBoxLayout->addWidget(ui_TextBrowser_Main);
-    QDialog::setLayout(mainVBoxLayout);   
+
+    QVBoxLayout *mainVerLayout = new QVBoxLayout;
+    mainVerLayout->setContentsMargins(5, 5, 5 ,5);
+    mainVerLayout->addWidget(ui_TextBrowser_Main);
+
+    QWidget::resize(640, 480);
+    QWidget::setMinimumSize(300, 200);
+    QWidget::setLayout(mainVerLayout);
 }
 
 void DialogXRefs::setBrowserBackground(const QPixmap &background)
@@ -47,7 +49,7 @@ void DialogXRefs::setBrowserBackground(const QPixmap &background)
     ui_TextBrowser_Main->viewport()->setPalette(palette);
 }
 
-QString formatReferences(QString text, const QRegExp &refRgx)
+QString formatReferences(QString text, const QRegularExpression &refRgx)
 {
     text.replace(QStringLiteral("<FI>"), QStringLiteral("<i>"))
             .replace(QStringLiteral("<Fi>"), QStringLiteral("</i>"));
@@ -77,19 +79,20 @@ void DialogXRefs::loadPassages(const QSqlDatabase &db, const QString &passageStr
     QStringList passageList = passageStr.split(",");
     QSqlQuery query(db);
     QString references;
-    QRegExp refRgx("<RF>[^<]*<Rf>");
+    QRegularExpression refRgx("<RF>[^<]*<Rf>");
     for (int i = 0; i < passageList.count(); ++i) {
         if (!passageList[i].contains("-")) {
             QStringList bookChapterVerse = passageList[i].split(".");
             QString book = bookChapterVerse[0];
             QString chapter = bookChapterVerse[1];
             QString verse = bookChapterVerse[2];
-            query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse = %3")
-                       .arg(book, chapter, verse));
-            if (query.next()) {
-                references += formatReferences(query.record().value(0).toString(), refRgx) %
-                              QString("<a href='%1,%2,%3' style='text-decoration:none'><b>—%4 %5:%6</b></a><br><br>")
-                        .arg(book, chapter, verse, bookNames[book.toInt() - 1], chapter, verse);
+            if (query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse = %3")
+                           .arg(book, chapter, verse))) {
+                if (query.next()) {
+                    references += formatReferences(query.record().value(0).toString(), refRgx) %
+                            QString("<a href='%1,%2,%3' style='text-decoration:none'><b>—%4 %5:%6</b></a><br><br>")
+                            .arg(book, chapter, verse, bookNames[book.toInt() - 1], chapter, verse);
+                }
             }
         } else {
             QStringList fromTo = passageList[i].split("-");
@@ -101,25 +104,33 @@ void DialogXRefs::loadPassages(const QSqlDatabase &db, const QString &passageStr
             QString chapterTo = bookChapterVerseTo[1];
             QString verseTo = bookChapterVerseTo[2];
             if (chapterFrom == chapterTo) {
-                query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3 AND Verse <= %4")
-                           .arg(book, chapterFrom, verseFrom, verseTo));
-                QString passage;
-                while (query.next()) {
-                    passage += query.record().value(0).toString() % " ";
+                if (query.exec(QStringLiteral("SELECT Scripture FROM Bible "
+                                              "WHERE Book = %1 "
+                                              "AND Chapter = %2 "
+                                              "AND Verse >= %3 "
+                                              "AND Verse <= %4").arg(book, chapterFrom, verseFrom, verseTo))) {
+                    QString passage;
+                    while (query.next()) {
+                        passage += query.record().value(0).toString() % " ";
+                    }
+                    references += formatReferences(passage.left(passage.size() - 1), refRgx) %
+                            QString("<a href='%1,%2,%3-%4' style='text-decoration:none'><b>—%5 %6:%7-%8</b></a><br><br>")
+                            .arg(book, chapterFrom, verseFrom, verseTo,
+                                 bookNames[book.toInt() - 1], chapterFrom, verseFrom, verseTo);
                 }
-                references += formatReferences(passage.left(passage.size() - 1), refRgx) %
-                        QString("<a href='%1,%2,%3-%4' style='text-decoration:none'><b>—%5 %6:%7-%8</b></a><br><br>")
-                        .arg(book, chapterFrom, verseFrom, verseTo,
-                        bookNames[book.toInt() - 1], chapterFrom, verseFrom, verseTo);
             } else {
-                query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3")
-                           .arg(book, chapterFrom, verseFrom));
+                if (!query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3")
+                                .arg(book, chapterFrom, verseFrom))) {
+                    return;
+                }
                 QString passage;
                 while (query.next()) {
                     passage += query.record().value(0).toString() % " ";
                 }
-                query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse <= %3")
-                           .arg(book, chapterTo, verseTo));
+                if (!query.exec(QStringLiteral("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse <= %3")
+                                .arg(book, chapterTo, verseTo))) {
+                    return;
+                }
                 while (query.next()) {
                     passage += query.record().value(0).toString() % " ";
                 }

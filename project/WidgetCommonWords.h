@@ -9,11 +9,11 @@ class WidgetCommonWords : public QWidget
 {
     Q_OBJECT
 public:
-    explicit WidgetCommonWords(const QSqlDatabase &db, QWidget *parent = nullptr);
+    explicit WidgetCommonWords(const QSqlDatabase &db, int animType, QWidget *parent = nullptr);
     ~WidgetCommonWords();
 
 protected:
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *evt);
 
 private slots:
     void on_visualizeButton_clicked();
@@ -28,7 +28,7 @@ private:
     QChart *ui_chart;
     bool m_isBeingOpened;
 
-    void generateMainLayout();
+    void generateMainLayout(int animType);
     void plotResults(const QHash<QString, int> &uniqueWords);
 };
 

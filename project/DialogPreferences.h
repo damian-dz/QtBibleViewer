@@ -22,10 +22,14 @@ public slots:
     void currentFontSizeChanged(const QString &text);
     void colorPushButtonClicked();
 
+    void referenceFormattingToggled(bool);
+
 private:
-    void generateGeneralWidget(int langIdx, int maxPassages);
+    void generateGeneralWidget(int langIdx);
     void generateFontWidget(const QFont &font);
-    void generateAppearanceWidget(const QString &style, bool useBackgrnd, int tabPos);
+    void generateAppearanceWidget();
+    void generateFormattingWidget();
+    QString getPreviewString(bool before, bool includeNumbers);
 
     AppConfig *m_pConfig;
     QComboBox *m_styleComboBox;
@@ -37,6 +41,10 @@ private:
     QSpinBox *m_maxRecentSpinBox;
     QComboBox *m_langComboBox;
     QComboBox *m_animateChartComboBox;
+
+    QCheckBox *ui_ComboBox_IncludeNumbers;
+    QRadioButton *ui_RadioButton_Before;
+    QTextBrowser *ui_TextBrowser_Preview;
 };
 
 

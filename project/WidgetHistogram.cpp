@@ -65,7 +65,7 @@ void WidgetHistogram::setUpChartsAndValidator(int animType)
     QValidator *validator = new QRegExpValidator(rgx, this);
     ui_wordLineEdit->setValidator(validator);
 }
-#include <QDebug>
+
 void WidgetHistogram::showSaveContextMenu(const QPoint &pos)
 {
     m_chartView = qobject_cast<QChartView *>(QObject::sender());
@@ -76,7 +76,6 @@ void WidgetHistogram::showSaveContextMenu(const QPoint &pos)
                           SLOT(chartView_actionSave()),
                           QKeySequence("Ctrl+S"));
     contextMenu.exec(globalPos);
-   // qDebug() << m_chartView->
 }
 
 void WidgetHistogram::chartView_actionSave()
@@ -235,8 +234,8 @@ void WidgetHistogram::searchAndPlot(const QString &word)
     axisYOT->setMinorTickCount(1);
     axisYOT->setMax(maxOT);
     m_chartOT->createDefaultAxes();
-    m_chartOT->setAxisX(axisOT, seriesOT);
-    m_chartOT->setAxisY(axisYOT, seriesOT);
+    m_chartOT->axes(Qt::Horizontal, seriesOT).append(axisOT);
+    m_chartOT->axes(Qt::Vertical, seriesOT).append(axisYOT);
     m_chartOT->legend()->setVisible(false);
 
     m_chartNT->removeAllSeries();   
@@ -253,8 +252,8 @@ void WidgetHistogram::searchAndPlot(const QString &word)
     axisYNT->setMinorTickCount(1);
     axisYNT->setMax(maxNT);
     m_chartNT->createDefaultAxes();
-    m_chartNT->setAxisX(axisNT, seriesNT);
-    m_chartNT->setAxisY(axisYNT, seriesNT);
+    m_chartOT->axes(Qt::Horizontal, seriesNT).append(axisNT);
+    m_chartOT->axes(Qt::Vertical, seriesNT).append(axisYNT);
     m_chartNT->legend()->setVisible(false);
 
     QTimer::singleShot(2000, this, SLOT(enableButtonAndSignals()));

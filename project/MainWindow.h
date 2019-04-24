@@ -9,46 +9,75 @@
 #define DEFAULT_FONT_SIZE 10
 #define MAX_WIDGET_HEIGHT 16777215
 
-#define SET_LANGUAGE "language"
-#define SET_MAX_RECENT_PASSAGES "maxRecent"
-#define GROUP_MAIN_WINDOW "MainWindow"
-#define SET_GEOMETRY "geometry"
-#define SET_STATE "state"
-#define GROUP_MODULE_DATA "ModuleData"
-#define SET_INDEX "index"
-#define SET_PASSAGE "passage"
-#define SET_PATHS "paths"
-#define SET_REMOVED_PATHS "removedPaths"
-#define SET_COM_VERSE "comVerse"
-#define GROUP_FONT "Font"
-#define SET_FONT_FAMILY "family"
-#define SET_FONT_SIZE "size"
-#define GROUP_APPEARANCE "Appearance"
-#define SET_STYLE "style"
-#define SET_USE_BACKGROUND "useBackground"
-#define SET_HIGHLIGHT_COLOR "highlightColor"
-#define SET_TAB_POSITION "tabPosition"
-
 #define IMG_BACKGROUND ":/img/img_res/papyrus.jpg"
 
 #define ICON_ARROW_LEFT ":/img/img_res/arrow_left.svg"
 #define ICON_ARROW_RIGHT ":/img/img_res/arrow_right.svg"
+#define ICON_BUBBLE ":/img/img_res/bubble.svg"
 #define ICON_CLOSE ":/img/img_res/close.svg"
+#define ICON_COGWHEEL ":/img/img_res/cogwheel.svg"
 #define ICON_COPY ":/img/img_res/copy.svg"
 #define ICON_COPY_PLUS ":/img/img_res/copy_plus.svg"
 #define ICON_EXIT ":/img/img_res/exit.svg"
 #define ICON_FIND ":/img/img_res/find.svg"
 #define ICON_FOLDER ":/img/img_res/folder.svg"
 #define ICON_HEART ":/img/img_res/heart.svg"
+#define ICON_INFO ":/img/img_res/info.svg"
 #define ICON_MAGNIFY ":/img/img_res/magnify.svg"
 #define ICON_MINIFY ":/img/img_res/minify.svg"
+#define ICON_SCROLL ":/img/img_res/scroll.svg"
 
 #define COMBOBOX_STYLE "combobox-popup: 0"
+
+#define MENU_FILE "File"
+#define MENU_EDIT "Edit"
+#define MENU_STATISTICS "Statistics"
+#define MENU_OPTIONS "Options"
+#define MENU_VIEW "View"
+#define MENU_HELP "Help"
+
+#define ACT_OPEN_MODULE "OpenModule"
+#define ACT_MODULE_INFO "ModuleInfo"
+#define ACT_EXIT "Exit"
+#define ACT_SELECT_ALL "SelectAll"
+#define ACT_FIND "Find"
+#define ACT_WORD_FREQUENCY "WordFrequency"
+#define ACT_COMMON_WORDS "CommonWords"
+#define ACT_PREFERENCES "Preferences"
+#define ACT_HELP "Help"
+#define ACT_ABOUT "About"
+#define ACT_ABOUT_QT "AboutQt"
+
+#define BIB_BOOK "Bib Book"
+#define BIB_CHAPTER "Bib Chapter"
+#define BIB_VERSES "Bib Verses"
+#define DET_DESC "Det Desc"
+#define DET_ABBR "Det Abbr"
+#define DET_COMMENTS "Det Comments"
+#define DET_VERSION "Det Version"
+#define DET_VER_DATE "Det VerDate"
+#define DET_PUB_DATE "Det PubDate"
+#define SEA_ENTER "Sea Enter"
+#define SEA_SECTION "Sea Section"
+#define SEA_RESULTS "Sea Results"
+#define SEA_OPTIONS "Sea Options"
+#define SEA_TRANSLATION "Sea Translation"
+#define SEA_RES_PER_PAGE "Sea ResPerPage"
+#define SEA_GO_TO "Sea GoTo"
+#define SEA_OF "Sea Of"
+#define COM_BOOK "Com Book"
+#define COM_CHAPTER "Com Chapter"
+#define COM_VERSE "Com Verse"
+#define FAV_PASSAGE "Fav Passage"
+#define FAV_COMMENT "Fav Comment"
+#define DIC_AVAILABLE "Dic Available"
+#define DIC_NUMBER "Dic Number"
+#define DIC_ALL_ENTRIES "Dic AllEntries"
+#define DIC_DEFINITION "Dic Definition"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     MainWindow(const QString &appDir,
                AppConfig &config,
@@ -91,6 +120,7 @@ public slots:
     void on_Bib_TabCloseRequested_TabWidget_Modules(int index);
     void on_Bib_TabMoved_Modules(int from, int to);
     void on_Bib_TextChanged_LineEdit_Find(const QString &text);
+    void on_Bib_ReturnPressed_LineEdit_MatchPassage();
     void on_Com_AnchorClicked_TextBrowser_Compare(const QUrl &arg1);
     void on_Com_CurrentRowChanged_ListWidget_Book(int currentRow);
     void on_Com_CurrentRowChanged_ListWidget_Chapter(int currentRow);
@@ -106,10 +136,14 @@ public slots:
     void on_Fav_Clicked_PushButton_Save();
     void on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow);
     void on_Sea_AnchorClicked_TextBrowser_Results(const QUrl &arg1);
+    void on_Sea_Clicked_PushButton_GoTo();
+    void on_Sea_Clicked_PushButton_First();
+    void on_Sea_Clicked_PushButton_Last();
     void on_Sea_Clicked_PushButton_Next();
     void on_Sea_Clicked_PushButton_Prev();
     void on_Sea_Clicked_PushButton_RandomVerse();
     void on_Sea_Clicked_PushButton_Search();
+    void on_Sea_ComboBox_CurrentIndexChanged_ResPerPage(int index);
     void on_Sea_ComboBox_CurrentIndexChanged_SearchFrom(int index);
     void on_Sea_ComboBox_CurrentIndexChanged_SearchTo(int index);
     void on_Sea_ComboBox_CurrentIndexChanged_Section(int index);
@@ -149,15 +183,17 @@ private:
 
     QTabBar *ui_TabBar_Main;
 
-    QVector<QLabel *> m_labels;
     QVector<QPushButton *> m_buttons;
 
-    QList<QMenu *> m_menus;
-    QList<QAction *> m_actions;
+    QHash<QString, QLabel *> m_labels;
+
+    QHash<QString, QMenu *> m_menus;
+    QHash<QString, QAction *> m_actions;
 
     /* Bible Tab */
     QComboBox *ui_Bib_ComboBox_VerseFrom;
     QComboBox *ui_Bib_ComboBox_VerseTo;
+    QWidget *ui_Bib_Widget_Find;
     QLabel *ui_Bib_Label_Find;
     QLineEdit *ui_Bib_LineEdit_Find;
     QListWidget *ui_Bib_ListWidget_Book;
@@ -169,18 +205,7 @@ private:
     QPushButton *ui_Bib_Button_Random;
     QTabBar *ui_Bib_TabBar_Modules;
     QTabWidget *ui_Bib_TabWidget_Modules;
-
-    /* Details Tab */
-    QCheckBox *ui_Det_CheckBox_NewTestament;
-    QCheckBox *ui_Det_CheckBox_OldTestament;
-    QCheckBox *ui_Det_CheckBox_RightToLeft;
-    QCheckBox *ui_Det_CheckBox_StrongsNumbers;
-    QLineEdit *ui_Det_LineEdit_Abbreviation;
-    QLineEdit *ui_Det_LineEdit_PublishDate;
-    QLineEdit *ui_Det_LineEdit_Version;
-    QLineEdit *ui_Det_LineEdit_VersionDate;
-    QTextBrowser *ui_Det_TextBrowser_Comments;
-    QTextBrowser *ui_Det_TextBrowser_Description;
+    QLineEdit *ui_Bib_LineEdit_MatchPassage;
     QVBoxLayout *ui_Bib_VerLayout_Modules;
 
     /* Search Tab */
@@ -192,6 +217,9 @@ private:
     QComboBox *ui_Sea_ComboBox_Section;
     QComboBox *ui_Sea_ComboBox_Translation;
     QLineEdit *ui_Sea_LineEdit_Search;
+    QPushButton *ui_Sea_Button_GoTo;
+    QPushButton *ui_Sea_Button_First;
+    QPushButton *ui_Sea_Button_Last;
     QPushButton *ui_Sea_Button_Next;
     QPushButton *ui_Sea_Button_Prev;
     QPushButton *ui_Sea_Button_RandomVerse;
@@ -200,6 +228,7 @@ private:
     QRadioButton *ui_Sea_RadioButton_Any;
     QRadioButton *ui_Sea_RadioButton_Exact;
     QRadioButton *ui_Sea_RadioButton_Strong;
+    QSpinBox *ui_Sea_SpinBox_PageNum;
     QTextBrowser *ui_Sea_TextBrowser_RandomVerse;
     QTextBrowser *ui_Sea_TextBrowser_Results;
 
@@ -277,7 +306,8 @@ private:
     void actionExit();
     void actionHelp();
     void actionIncreaseFontSize();
-    void actionOpenBibleModule();
+    void actionOpenModule();
+    void actionModuleInfo();
     void actionPolish();
     void actionPreferences();
     void actionSpanish();
@@ -296,13 +326,12 @@ private:
     void connectFavoritesTabSignals();
     void connectSearchTabSignals();
     void displaySearchResults(int startIdx, int endIdx);
-    void fillDetailsTab();
     void formatPassage(QString &text, bool hasStrong);
-    void formatScripture(QString &text, int idx, bool hasStrong, const QRegularExpression &noteRgx, const QRegularExpression &strongRgx);
+    void formatScripture(QString &text, int idx, bool hasStrong, const QRegularExpression &noteRgx,
+                         const QRegularExpression &strongRgx);
     void generateBibleTabControls();
     void generateBibModuleTabs();
     void generateCompareTabControls(int idx);
-    void generateDetailsTab(int idx);
     void generateDictionaryTabControls(int idx);
     void generateFavoritesTabControls(int idx);
     void generateMainLayout();
@@ -311,8 +340,10 @@ private:
     void generateTopicsTab(int idx);
     void getVerseRange();
     void highlightPassage(const TabBookChapterVerses &tbcvv);
-    void iterateRecords(QSqlQuery &query, const QString &text, Qt::CaseSensitivity sensitivity, bool wholeWords, bool hasStrong);
-    void iterateRecords(QSqlQuery &query, const QStringList &words, Qt::CaseSensitivity sensitivity, bool wholeWords, bool containsAll);
+    void iterateRecords(QSqlQuery &query, const QString &text, QRegularExpression::PatternOption sensitivity,
+                        bool wholeWords, bool hasStrong);
+    void iterateRecords(QSqlQuery &query, const QStringList &words, QRegularExpression::PatternOption sensitivity,
+                        bool wholeWords, bool containsAll);
     void loadBackgroundPixmap();
     void loadDictPaths();
     void loadFavorites();
@@ -341,7 +372,22 @@ private:
     void setMainTabToolTips();
     void setMenuTexts();
 
-    void closeEvent(QCloseEvent *event) override;
+    void enableDisableSearchNavigationButtons();
+    int findPassageMatch(const QString &word, int len, bool caseSensitive);
+    int findPassageMatch(const QString &word);
+    int findPassageRegex(const QString &wordt, const QVector<QString> &simpleNames);
+    bool passageExists(int idx, int &book, int &chapter, int &vrsFrom, int &vrsTo);
+
+    QVector<QString> getSimpleNames();
+    int matchPassage(const QString &bookStr);
+    int matchPassageStartsWith(const QString &word, const QVector<QString> &names);
+    int matchPassageContains(const QString &word, const QVector<QString> &names, Qt::CaseSensitivity sensitivity);
+    int matchPassageCharDistance(const QString &word, int len, bool caseSensitive);
+    int matchPassageRegex(const QString &word, const QVector<QString> &simpleNames,
+                          QRegularExpression::PatternOption sensivity);
+
+protected:
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

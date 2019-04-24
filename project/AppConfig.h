@@ -16,12 +16,10 @@ struct AppConfig
         int max_recent_passages;
 
         _General() :
-            keys(QStringList({
-                                  "window_geometry",
-                                  "window_state",
-                                  "language",
-                                  "max_recent_passages"
-                              }))
+            keys(QStringList({ "window_geometry",
+                               "window_state",
+                               "language",
+                               "max_recent_passages" }))
         {
 
         }
@@ -39,13 +37,11 @@ struct AppConfig
         QStringList removed_paths;
 
         _ModuleData() :
-            keys(QStringList({
-                                  "paths",
-                                  "removed_paths",
-                                  "index",
-                                  "last_passage",
-                                  "compare_tab_last_verse"
-                              }))
+            keys(QStringList({ "paths",
+                               "removed_paths",
+                               "index",
+                               "last_passage",
+                               "compare_tab_last_verse" }))
         {
 
         }
@@ -93,10 +89,29 @@ struct AppConfig
         }
     };
 
+    struct _Formatting
+    {
+        const QString sectionTitle = "Formatting";
+        QStringList keys;
+
+        bool reference_before;
+        bool include_numbers;
+
+        _Formatting() :
+            keys(QStringList({
+                                  "reference_before",
+                                  "include_numbers"
+                              }))
+        {
+
+        }
+    };
+
     _General general;
     _ModuleData module_data;
     _Fonts fonts;
     _Appearance appearance;
+    _Formatting formatting;
 
     AppConfig(const QString &path) :
         m_path(path)
@@ -166,6 +181,11 @@ struct AppConfig
         appearance.module_tab_position = settings.value(appearance.keys[3]).toInt();
         appearance.chart_animation = settings.value(appearance.keys[4]).toInt();
         settings.endGroup();
+
+        settings.beginGroup(formatting.sectionTitle);
+        formatting.reference_before = settings.value(formatting.keys[0]).toBool();
+        formatting.include_numbers = settings.value(formatting.keys[1]).toBool();
+        settings.endGroup();
     }
 
     void save()
@@ -196,6 +216,11 @@ struct AppConfig
         settings.setValue(appearance.keys[2], appearance.verse_highlight_color);
         settings.setValue(appearance.keys[3], appearance.module_tab_position);
         settings.setValue(appearance.keys[4], appearance.chart_animation);
+        settings.endGroup();
+
+        settings.beginGroup(formatting.sectionTitle);
+        settings.setValue(formatting.keys[0], formatting.reference_before);
+        settings.setValue(formatting.keys[1], formatting.include_numbers);
         settings.endGroup();
     }
 

@@ -12,5 +12,10 @@
         <file>img_res/minify.svg</file>
         <file>img_res/close.svg</file>
         <file>img_res/find.svg</file>
+        <file>img_res/cogwheel.svg</file>
+        <file>img_res/info.svg</file>
+        <file>img_res/scroll.svg</file>
+        <file>img_res/bubble.svg</file>
+        <file>img_res/scroll.ico</file>
     </qresource>
 </RCC>

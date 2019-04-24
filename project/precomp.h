@@ -21,6 +21,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QPair>
+#include <QPropertyAnimation>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSettings>

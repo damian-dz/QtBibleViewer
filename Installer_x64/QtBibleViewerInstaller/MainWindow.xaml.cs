@@ -28,7 +28,7 @@ namespace QtBibleViewerInstaller
         private List<UIElement> elements4 = new List<UIElement>();
         private string instDir;
         private int totalBufferSize;
-        private const int packedFilesSize = 19740916;
+        private const int packedFilesSize = 19785721;
         private bool createDesktop;
         private bool createStartMenu;
         private bool useAppData;
@@ -274,6 +274,7 @@ namespace QtBibleViewerInstaller
                     Content = langDict["apdtChk"],
                     Margin = new Thickness(250, 65, 10, 0),
                     VerticalAlignment = VerticalAlignment.Top,
+                    IsChecked = true
                 };
                 elements3.Add(apdtCheckBox);
 
@@ -764,6 +765,11 @@ namespace QtBibleViewerInstaller
             shortcut.TargetPath = Path.Combine(instDir, "QtBibleViewer.exe");
             shortcut.WorkingDirectory = Path.Combine(instDir, "QtBibleViewer.exe");
             shortcut.Save();
+            using (FileStream fs = new FileStream(shortcutFilePath, FileMode.Open, FileAccess.ReadWrite))
+            {
+                fs.Seek(21, SeekOrigin.Begin);
+                fs.WriteByte(0x22);
+            }
         }
 
         private void RegisterUninstaller()

@@ -19,7 +19,7 @@
     <system:String x:Key="to">to</system:String>
     <system:String x:Key="deleting">Deleting</system:String>
     <system:String x:Key="cancelled">Operation cancelled by the User</system:String>
-    <system:String x:Key="eraseAll">Delete the instalation folder with its content</system:String>
+    <system:String x:Key="eraseAll">Delete the installation folder with its content</system:String>
     <system:String x:Key="strtShort">Creating Start Menu shortcut</system:String>
     <system:String x:Key="regEntry">Creating registry entry</system:String>
     <system:String x:Key="success">QtBibleViewer has been installed successfully.</system:String>

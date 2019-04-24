@@ -19,7 +19,7 @@ private slots:
      void on_definitionTextBrowser_anchorClicked(const QUrl &arg1) ;
 
 private:
-    const QSqlDatabase *dbDct;
+    const QSqlDatabase *m_dbDct;
     QTextBrowser *m_defTextBrowser;
 
     void loadDefinition(const QString &number);

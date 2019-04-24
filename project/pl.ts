@@ -2,6 +2,53 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pl_PL" sourcelanguage="en_US">
 <context>
+    <name>DialogInfo</name>
+    <message>
+        <source>Description:</source>
+        <translation>Opis:</translation>
+    </message>
+    <message>
+        <source>Abbreviation:</source>
+        <translation>Oznaczenie:</translation>
+    </message>
+    <message>
+        <source>Comments:</source>
+        <translation>Komentarze:</translation>
+    </message>
+    <message>
+        <source>Version Date:</source>
+        <translation>Data wersji:</translation>
+    </message>
+    <message>
+        <source>Publish Date:</source>
+        <translation>Data wydania:</translation>
+    </message>
+    <message>
+        <source>Right to Left</source>
+        <translation>Prawa do lewej</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation>Stary Testament</translation>
+    </message>
+    <message>
+        <source>New Testament</source>
+        <translation>Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Strong&apos;s Numbers</source>
+        <translation>Numeracja Stronga</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Błąd</translation>
+    </message>
+    <message>
+        <source>Error reading the Details table.</source>
+        <translation>Błąd przy odczytywaniu tabeli Details.</translation>
+    </message>
+</context>
+<context>
     <name>DialogPreferences</name>
     <message>
         <source>Preferences</source>
@@ -10,10 +57,6 @@
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
-    </message>
-    <message>
-        <source>Font Settings</source>
-        <translation>Ustawienia czcionki</translation>
     </message>
     <message>
         <source>Appearance</source>
@@ -34,10 +77,6 @@
     <message>
         <source>Font Size:</source>
         <translation>Rozmiar czcionki:</translation>
-    </message>
-    <message>
-        <source>ABCabc123</source>
-        <translation></translation>
     </message>
     <message>
         <source>Preview:</source>
@@ -99,13 +138,45 @@
         <source>Chart Animation Type:</source>
         <translation>Rodzaj animacji wykresu:</translation>
     </message>
+    <message>
+        <source>Fonts</source>
+        <translation>Czcionki</translation>
+    </message>
+    <message>
+        <source>ABCabc123</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Formatting</source>
+        <translation>Formatowanie</translation>
+    </message>
+    <message>
+        <source>Before Text</source>
+        <translation>Przed tekstem</translation>
+    </message>
+    <message>
+        <source>After Text</source>
+        <translation>Po tekście</translation>
+    </message>
+    <message>
+        <source>Include Verse Numbers</source>
+        <translation>Dodaj numery wersetów</translation>
+    </message>
+    <message>
+        <source>Reference:</source>
+        <translation>Odnośnik:</translation>
+    </message>
+    <message>
+        <source>In the beginning God created the heaven and the earth.</source>
+        <translation>Na początku Bóg stworzył niebo i ziemię.</translation>
+    </message>
+    <message>
+        <source>Genesis 1:1</source>
+        <translation>Rodzaju 1:1</translation>
+    </message>
 </context>
 <context>
     <name>MainWindow</name>
-    <message>
-        <source>Details</source>
-        <translation>Szczegóły</translation>
-    </message>
     <message>
         <source>Search</source>
         <translation>Szukaj</translation>
@@ -174,7 +245,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation>Do Tyłu</translation>
+        <translation>Do tyłu</translation>
     </message>
     <message>
         <source>Ctrl+Left</source>
@@ -182,7 +253,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation>Do Przodu</translation>
+        <translation>Do przodu</translation>
     </message>
     <message>
         <source>Ctrl+Right</source>
@@ -194,7 +265,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Open Bible Module</source>
-        <translation>Otwórz Moduł Biblii</translation>
+        <translation>Otwórz moduł Biblii</translation>
     </message>
     <message>
         <source>Exit</source>
@@ -210,7 +281,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Word Frequency</source>
-        <translation>Częstość Występowania Słowa</translation>
+        <translation>Częstość występowania słowa</translation>
     </message>
     <message>
         <source>Options</source>
@@ -242,15 +313,15 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Show Help</source>
-        <translation>Pokaż Pomoc</translation>
+        <translation>Pokaż pomoc</translation>
     </message>
     <message>
         <source>About</source>
-        <translation>O Programie</translation>
+        <translation>O programie</translation>
     </message>
     <message>
         <source>About Qt</source>
-        <translation>O Platformie Qt</translation>
+        <translation>O platformie Qt</translation>
     </message>
     <message>
         <source>Genesis</source>
@@ -565,44 +636,12 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation>Nie można było otworzyć bazy danych.</translation>
     </message>
     <message>
-        <source>Description:</source>
-        <translation>Opis:</translation>
-    </message>
-    <message>
-        <source>Abbreviation:</source>
-        <translation>Oznaczenie:</translation>
-    </message>
-    <message>
-        <source>Comments:</source>
-        <translation>Komentarze:</translation>
-    </message>
-    <message>
-        <source>Version:</source>
-        <translation>Wersja:</translation>
-    </message>
-    <message>
-        <source>Version Date:</source>
-        <translation>Data wersji:</translation>
-    </message>
-    <message>
-        <source>Publish Date:</source>
-        <translation>Data wydania:</translation>
-    </message>
-    <message>
-        <source>Right to Left</source>
-        <translation>Prawa do lewej</translation>
-    </message>
-    <message>
         <source>Old Testament</source>
         <translation>Stary Testament</translation>
     </message>
     <message>
         <source>New Testament</source>
         <translation>Nowy Testament</translation>
-    </message>
-    <message>
-        <source>Strong&apos;s Numbers</source>
-        <translation>Numeracja Stronga</translation>
     </message>
     <message>
         <source>Number:</source>
@@ -737,14 +776,6 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation>Moduł o tej nazwie jest już otwarty.</translation>
     </message>
     <message>
-        <source>Language Change</source>
-        <translation type="vanished">Zmiana języka</translation>
-    </message>
-    <message>
-        <source>The change will take effect after restarting the program.</source>
-        <translation type="vanished">Zmiana będzie widoczna po ponownym uruchomieniu programu.</translation>
-    </message>
-    <message>
         <source>Find</source>
         <translation>Znajdź</translation>
     </message>
@@ -862,7 +893,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Look for verses that contain all of the words (in any order).</source>
-        <translation>Szukaj wersetów zawierających wszystkie ze słów (w dowolnej kojenosci).</translation>
+        <translation>Szukaj wersetów zawierających wszystkie ze słów (w dowolnej kolejności).</translation>
     </message>
     <message>
         <source>Look for verses that contain at least one of the words.</source>
@@ -888,6 +919,62 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>Common/Rare Words</source>
         <translation>Częste/Rzadkie słowa</translation>
     </message>
+    <message>
+        <source>Go to Page</source>
+        <translation>Idź do strony</translation>
+    </message>
+    <message>
+        <source>of</source>
+        <translation>z</translation>
+    </message>
+    <message>
+        <source>Go to the first result page.</source>
+        <translation>Przejdź do pierwszej strony z wynikami.</translation>
+    </message>
+    <message>
+        <source>Go to the last result page.</source>
+        <translation>Przejdź do ostatniej  strony z wynikami.</translation>
+    </message>
+    <message>
+        <source>Go to the next result page.</source>
+        <translation>Przejdź do następnej strony z wynikami.</translation>
+    </message>
+    <message>
+        <source>Go to the previous result page.</source>
+        <translation>Przejdź do poprzedniej strony z wynikami.</translation>
+    </message>
+    <message>
+        <source>No results; Elapsed time: </source>
+        <translation>Brak wyników; Czas: </translation>
+    </message>
+    <message>
+        <source>of </source>
+        <translation>z </translation>
+    </message>
+    <message>
+        <source>of —</source>
+        <translation>z —</translation>
+    </message>
+    <message>
+        <source>Module Info</source>
+        <translation>Informacje o module</translation>
+    </message>
+    <message>
+        <source>Book chapter:from-to (eg. Gen 3:1-4)</source>
+        <translation>Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
+    </message>
+    <message>
+        <source>Not Found</source>
+        <translation>Nie znaleziono</translation>
+    </message>
+    <message>
+        <source>The specified passage does not exist.</source>
+        <translation>Wpisany fragment nie istnieje.</translation>
+    </message>
+    <message>
+        <source>Failed to find the specified book.</source>
+        <translation>Nie znaleziono wpisanej księgi.</translation>
+    </message>
 </context>
 <context>
     <name>WidgetCommonWords</name>
@@ -901,7 +988,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>letters</source>
-        <translation type="unfinished"></translation>
+        <translation>liter</translation>
     </message>
     <message>
         <source>Common</source>
@@ -1017,10 +1104,6 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <message>
         <source>Est</source>
         <translation>Est</translation>
-    </message>
-    <message>
-        <source>Job</source>
-        <translation></translation>
     </message>
     <message>
         <source>Psa</source>
@@ -1213,6 +1296,10 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <message>
         <source>Rev</source>
         <translation>Ap</translation>
+    </message>
+    <message>
+        <source>Job</source>
+        <translation>Hi</translation>
     </message>
 </context>
 </TS>

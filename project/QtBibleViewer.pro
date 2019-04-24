@@ -35,7 +35,8 @@ SOURCES += \
     DialogXRefs.cpp \
     WidgetCommonWords.cpp \
     WidgetHistogram.cpp \
-    WidgetCommonRare.cpp
+    WidgetCommonRare.cpp \
+    DialogInfo.cpp
 
 HEADERS += \
     MainWindow.h \
@@ -46,8 +47,11 @@ HEADERS += \
     WidgetHistogram.h \
     WidgetCommonRare.h \
     TabBookChapterVerses.h \
-    AppConfig.h
+    AppConfig.h \
+    DialogInfo.h
 
 
 RESOURCES += \
     res.qrc
+
+RC_FILE = app.rc

@@ -5,38 +5,41 @@ DialogStrong::DialogStrong(const QSqlDatabase &db,
                              const QFont &font,
                              const QPixmap &background,
                              bool useBckgrnd,
-                             QWidget *parent) :
-    QDialog(parent)
+                             QWidget *parent)
+    : QDialog(parent),
+      m_dbDct(&db)
 {
-    QWidget::resize(640, 480);
-    QWidget::setMinimumSize(400, 300);
-    QWidget::setWindowTitle(number);
-    dbDct = &db;
-    QVBoxLayout *mainVerLayout = new QVBoxLayout;
-    mainVerLayout->setContentsMargins(5, 5, 5 ,5);
     m_defTextBrowser = new QTextBrowser;
     m_defTextBrowser->setFont(font);
     m_defTextBrowser->setOpenLinks(false);
-    QObject::connect(m_defTextBrowser, SIGNAL(anchorClicked(QUrl)),
-                     this, SLOT(on_definitionTextBrowser_anchorClicked(QUrl)));
+
+    QVBoxLayout *mainVerLayout = new QVBoxLayout;
+    mainVerLayout->setContentsMargins(5, 5, 5 ,5);
     mainVerLayout->addWidget(m_defTextBrowser);
-    QWidget::setLayout(mainVerLayout);
+
     if (useBckgrnd) {
         setBrowserBackground(background);
     }
     loadDefinition(number);
+
+    QObject::connect(m_defTextBrowser, SIGNAL(anchorClicked(QUrl)),
+                     this, SLOT(on_definitionTextBrowser_anchorClicked(QUrl)));
+
+    QWidget::resize(640, 480);
+    QWidget::setLayout(mainVerLayout);
+    QWidget::setMinimumSize(400, 300);
+    QWidget::setWindowTitle(number);
 }
 
 DialogStrong::~DialogStrong()
 {
 
 }
-#include <QDebug>
+
 void DialogStrong::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
 {
     QString argString = arg1.toString();
     QChar scndChar = argString[1];
-    qDebug() <<argString;
     if (scndChar != 'b') {
 
         QString number = argString.mid(2, argString.size() - 1);
@@ -47,7 +50,7 @@ void DialogStrong::on_definitionTextBrowser_anchorClicked(const QUrl &arg1)
 
 void DialogStrong::loadDefinition(const QString &number)
 {
-    QSqlQuery query(*dbDct);
+    QSqlQuery query(*m_dbDct);
     QString queryString =  "SELECT data FROM dictionary WHERE word = '" + number + "'";
     if (query.exec(queryString)) {
         if (query.next()) {

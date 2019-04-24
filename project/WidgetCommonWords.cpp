@@ -1,12 +1,12 @@
 #include "WidgetCommonWords.h"
 
-WidgetCommonWords::WidgetCommonWords(const QSqlDatabase &db, QWidget *parent)
+WidgetCommonWords::WidgetCommonWords(const QSqlDatabase &db, int animType, QWidget *parent)
     : QWidget(parent),
       m_db(&db),
       m_isBeingOpened(true)
 {
     QWidget::setAttribute(Qt::WA_DeleteOnClose);
-    generateMainLayout();
+    generateMainLayout(animType);
 }
 
 WidgetCommonWords::~WidgetCommonWords()
@@ -14,7 +14,7 @@ WidgetCommonWords::~WidgetCommonWords()
 
 }
 
-void WidgetCommonWords::resizeEvent(QResizeEvent *event)
+void WidgetCommonWords::resizeEvent(QResizeEvent *evt)
 {
     if (!m_isBeingOpened) {
         ui_PushButton_Visualize->setDisabled(true);
@@ -22,10 +22,10 @@ void WidgetCommonWords::resizeEvent(QResizeEvent *event)
     } else {
         m_isBeingOpened = false;
     }
-    event->accept();
+    evt->accept();
 }
 
-void WidgetCommonWords::generateMainLayout()
+void WidgetCommonWords::generateMainLayout(int animType)
 {
     QWidget::setWindowTitle(tr("Common/Rare Words"));
     QWidget::resize(800, 480);
@@ -50,7 +50,6 @@ void WidgetCommonWords::generateMainLayout()
     QRadioButton *rareRadioButton = new QRadioButton(tr("Rare"));
     ignoreWordsHorLayout->addWidget(rareRadioButton);
 
-
     ui_PushButton_Visualize = new QPushButton(tr("Visualize"));
     connect(ui_PushButton_Visualize, SIGNAL(clicked()), this, SLOT(on_visualizeButton_clicked()));
     ignoreWordsHorLayout->addWidget(ui_PushButton_Visualize);
@@ -59,7 +58,7 @@ void WidgetCommonWords::generateMainLayout()
 
     ui_chart = new QChart;
     ui_chart->layout()->setContentsMargins(2, 2, 2, 2);
-    ui_chart->setAnimationOptions(QChart::AllAnimations);
+    ui_chart->setAnimationOptions(QChart::AnimationOption(animType));
     ui_chart->setTheme(QChart::ChartThemeBlueIcy);
     ui_chart->setAcceptHoverEvents(true);
     QChartView *chartView = new QChartView(ui_chart, this);
