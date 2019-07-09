@@ -387,7 +387,7 @@ private:
                           QRegularExpression::PatternOption sensivity);
 
 protected:
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

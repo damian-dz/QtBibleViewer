@@ -16,6 +16,5 @@
         <file>img_res/info.svg</file>
         <file>img_res/scroll.svg</file>
         <file>img_res/bubble.svg</file>
-        <file>img_res/scroll.ico</file>
     </qresource>
 </RCC>

@@ -2219,13 +2219,13 @@ void MainWindow::on_Sea_ComboBox_CurrentIndexChanged_Translation(int index)
 
 void MainWindow::on_Bib_TabMoved_Modules(int from, int to)
 {
-    m_modules.swap(from, to);
-    m_pConfig->module_data.paths.swap(from, to);
-    m_chapterBrowsers.swap(from, to);
-    m_globalNotes.swap(from, to);
-    m_lastCursors.swap(from, to);
-    m_loadedFlags.swap(from, to);
-    m_verseMaps.swap(from, to);
+    m_modules.swapItemsAt(from, to);
+    m_pConfig->module_data.paths.swapItemsAt(from, to);
+    m_chapterBrowsers.swapItemsAt(from, to);
+    m_globalNotes.swapItemsAt(from, to);
+    m_lastCursors.swapItemsAt(from, to);
+    m_loadedFlags.swapItemsAt(from, to);
+    m_verseMaps.swapItemsAt(from, to);
     swapTabHistory(from, to);
     if (ui_TabWidget_Main->widget(2)->children().count() > 0 && ui_Sea_ComboBox_Translation->count() > 1) {
         QStringList list;
@@ -2234,7 +2234,7 @@ void MainWindow::on_Bib_TabMoved_Modules(int from, int to)
         }
         QString text = ui_Sea_ComboBox_Translation->currentText();
         ui_Sea_ComboBox_Translation->blockSignals(true);
-        list.swap(from, to);
+        list.swapItemsAt(from, to);
         ui_Sea_ComboBox_Translation->clear();
         ui_Sea_ComboBox_Translation->addItems(list);
         ui_Sea_ComboBox_Translation->setCurrentText(text);

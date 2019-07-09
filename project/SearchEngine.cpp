@@ -112,7 +112,7 @@ void MainWindow::iterateRecords(QSqlQuery &query, const QStringList &words,
     QString boundary = wholeWords ? "\\b" : "";
     QList<QRegularExpression> wordsRgx;
     for (int i = 0; i < words.count(); ++i) {
-        wordsRgx << QRegularExpression(boundary % words[i] % boundary, sensitivity);
+        wordsRgx << QRegularExpression(boundary % words[i] % boundary, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
     }
     while (query.next()) {
         QSqlRecord record = query.record();
@@ -139,9 +139,10 @@ void MainWindow::iterateRecords(QSqlQuery &query, const QString &text,
                                 QRegularExpression::PatternOption sensitivity, bool wholeWords, bool hasStrong)
 {
     QString boundary = wholeWords ? "\\b" : "";
-    QRegularExpression textRgx(boundary % text % boundary, sensitivity);
+    QRegularExpression textRgx(boundary % text % boundary, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
     QString strong = hasStrong ? "|<W[HG][0-9]{1,4}>" : "";
     QRegularExpression patterns("<.{2,3}>|<RF>.*<Rf>" + strong);
+    qDebug() << textRgx.pattern();
     while (query.next()) {
         QSqlRecord record = query.record();
         QString rawText = record.value(3).toString();
