@@ -44,10 +44,7 @@ inline void removeBrowserBackground(QTextEdit &browser)
     browser.viewport()->setPalette(browser.style()->standardPalette());
 }
 
-MainWindow::MainWindow(const QString &appDir,
-                       AppConfig &config,
-                       QTranslator &appTs,
-                       QTranslator &qtTs,
+MainWindow::MainWindow(const QString &appDir, AppConfig &config, QTranslator &appTs, QTranslator &qtTs,
                        QWidget *parent)
     : QMainWindow(parent),
       m_pConfig(&config),
@@ -646,7 +643,7 @@ void MainWindow::on_Bib_ReturnPressed_LineEdit_MatchPassage()
     }
     QString s = QString("%1:%2-%3").arg(chapter).arg(vFrom).arg(vTo);
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
-    int book = matchPassage(wordt) + 1;
+    int book = matchPassageV2(wordt) + 1;
     if (book > 0) {
         if (passageExists(idx, book, chapter, vFrom, vTo)) {
             blockPassageSelectionSignals(true);
@@ -662,59 +659,58 @@ void MainWindow::on_Bib_ReturnPressed_LineEdit_MatchPassage()
 
 bool MainWindow::passageExists(int idx, int &book, int &chapter, int &vrsFrom, int &vrsTo)
 {
-    bool res = false;
+    bool result = false;
     if (vrsTo > -1 && vrsTo > -1) {
         if (vrsTo - vrsFrom > 0) {
-
             if (chapter > -1) {
-
-                QSqlQuery query(m_modules[idx].database);
-                QString queryString = "SELECT MAX(Chapter) from Bible WHERE Book = " + QString::number(book);
-                query.exec(queryString);
-                if (query.next()) {
-                    if (chapter > query.record().value(0).toInt() ) {
-                        res = false;
+                QSqlQuery chapterQuery(m_modules[idx].database);
+                QString chapterQueryString = "SELECT MAX(Chapter) from Bible WHERE Book = " % QString::number(book);
+                chapterQuery.exec(chapterQueryString);
+                if (chapterQuery.next()) {
+                    if (chapter > chapterQuery.record().value(0).toInt() ) {
+                        result = false;
                     } else {
-                        QSqlQuery query2(m_modules[idx].database);
-                        QString queryString2 = "SELECT MAX(Verse) from Bible WHERE Book = " + QString::number(book) +
-                                               " AND Chapter = "  + QString::number(chapter);
-                        query2.exec(queryString2);
-                        if (query2.next()) {
-                            if (vrsFrom > query2.record().value(0).toInt() ||
-                                    vrsTo > query2.record().value(0).toInt()) {
-                                res = false;
+                        QSqlQuery verseQuery(m_modules[idx].database);
+                        QString verseQueryString = "SELECT MAX(Verse) from Bible WHERE Book = " %
+                                                   QString::number(book) %" AND Chapter = "  %
+                                                   QString::number(chapter);
+                        verseQuery.exec(verseQueryString);
+                        if (verseQuery.next()) {
+                            if (vrsFrom > verseQuery.record().value(0).toInt() ||
+                                vrsTo > verseQuery.record().value(0).toInt()) {
+                                result = false;
                             } else {
-                                res = true;
+                                result = true;
                             }
                         }
                     }
                 }
             } else {
-                res = false;
+                result = false;
             }
         }
     } else {
         if (chapter > -1) {
-            QSqlQuery query(m_modules[idx].database);
-            QString queryString = "SELECT MAX(Chapter) from Bible WHERE Book = " + QString::number(book);
-            query.exec(queryString);
-            if (query.next()) {
-                if (chapter > query.record().value(0).toInt()) {
-                    res = false;
+            QSqlQuery chapterQuery(m_modules[idx].database);
+            QString chapterQueryString = "SELECT MAX(Chapter) from Bible WHERE Book = " % QString::number(book);
+            chapterQuery.exec(chapterQueryString);
+            if (chapterQuery.next()) {
+                if (chapter > chapterQuery.record().value(0).toInt()) {
+                    result = false;
                 } else {
                     vrsFrom = 1;
                     vrsTo = -1;
-                    res = true;
+                    result = true;
                 }
             }
         } else {
             chapter = 1;
             vrsFrom = 1;
             vrsTo = -1;
-            res = true;
+            result = true;
         }
     }
-    return res;
+    return result;
 }
 
 
@@ -2757,22 +2753,23 @@ void MainWindow::on_Fav_CurrentRowChanged_ListWidget_Passages(int currentRow)
     QString chapter = QString::number(m_favorites[currentRow].chapter);
     QString verseFirst = QString::number(m_favorites[currentRow].verseFrom);
     QString verseLast = QString::number(m_favorites[currentRow].verseTo);
-    QString queryString = "SELECT Comment FROM Favorites WHERE Book = " + book +
-            " AND Chapter = " + chapter +
-            " AND VerseFirst = " + verseFirst +
-            " AND VerseLast = " + verseLast;
+    QString queryString = "SELECT Comment FROM Favorites WHERE Book = " % book %
+            " AND Chapter = " % chapter %
+            " AND VerseFirst = " % verseFirst %
+            " AND VerseLast = " % verseLast;
     QSqlQuery query(m_dbUsr);
-    if (!query.exec(queryString))
+    if (!query.exec(queryString)) {
         return;
+    }
     if (query.next()) {
         ui_Fav_TextEdit_Comment->setPlainText(query.record().value(0).toString());
     }
     int idx = ui_Bib_TabWidget_Modules->currentIndex();
     query = QSqlQuery(m_modules[idx].database);
-    queryString = "SELECT Verse, Scripture FROM Bible WHERE Book = " + book +
-            " AND Chapter = " + chapter +
-            " AND Verse >= " + verseFirst +
-            " AND Verse <= " + verseLast;
+    queryString = "SELECT Verse, Scripture FROM Bible WHERE Book = " % book %
+            " AND Chapter = " % chapter %
+            " AND Verse >= " % verseFirst %
+            " AND Verse <= " % verseLast;
     if (!query.exec(queryString))
         return;
     QString passage;
@@ -2816,10 +2813,10 @@ void MainWindow::on_Fav_Clicked_PushButton_Delete()
         QString chapter = QString::number(m_favorites[index].chapter);
         QString verseFirst = QString::number(m_favorites[index].verseFrom);
         QString verseLast = QString::number(m_favorites[index].verseTo);
-        QString queryString = "DELETE FROM Favorites WHERE Book = " + book +
-                " AND Chapter = " + chapter +
-                " AND VerseFirst = " + verseFirst +
-                " AND VerseLast = " + verseLast;
+        QString queryString = "DELETE FROM Favorites WHERE Book = " % book %
+                " AND Chapter = " % chapter %
+                " AND VerseFirst = " % verseFirst %
+                " AND VerseLast = " % verseLast;
         if (query.exec(queryString)) {
             m_favorites.removeAt(index);
             ui_Fav_ListWidget_Passages->blockSignals(true);
@@ -2847,10 +2844,10 @@ void MainWindow::on_Fav_Clicked_PushButton_Save()
     QString verseLast = QString::number(m_favorites[index].verseTo);
     QString comment = ui_Fav_TextEdit_Comment->toPlainText();
     QString queryString = "UPDATE Favorites SET Comment = '" + comment + "'" +
-            " WHERE Book = " + book +
-            " AND Chapter = " + chapter +
-            " AND VerseFirst = " + verseFirst +
-            " AND VerseLast = " + verseLast;
+            " WHERE Book = " % book %
+            " AND Chapter = " % chapter %
+            " AND VerseFirst = " % verseFirst %
+            " AND VerseLast = " % verseLast;
     QSqlQuery query(m_dbUsr);
     if (query.exec(queryString)) {
         statusBar()->showMessage(tr("Entry updated."), 2500);

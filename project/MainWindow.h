@@ -386,6 +386,8 @@ private:
     int matchPassageRegex(const QString &word, const QVector<QString> &simpleNames,
                           QRegularExpression::PatternOption sensivity);
 
+    int matchPassageV2(const QString &bookStr);
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 };

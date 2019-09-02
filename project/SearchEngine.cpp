@@ -352,6 +352,37 @@ int MainWindow::matchPassage(const QString &bookStr)
     return resList[0].second;
 }
 
+int MainWindow::matchPassageV2(const QString &bookStr)
+{
+    QVector<QString> simpleNames = getSimpleNames();
+    int idx = -1;
+    idx = matchPassageStartsWith(bookStr, simpleNames);
+    if (idx > -1) {
+        return idx;
+    }
+    idx = matchPassageContains(bookStr, simpleNames, Qt::CaseSensitive);
+    if (idx > -1) {
+        return idx;
+    }
+    idx = matchPassageContains(bookStr, simpleNames, Qt::CaseInsensitive);
+    if (idx > -1) {
+        return idx;
+    }
+    idx = matchPassageCharDistance(bookStr, bookStr.length(), true);
+    if (idx > -1) {
+        return idx;
+    }
+    idx = matchPassageCharDistance(bookStr, bookStr.length(), false);
+    if (idx > -1) {
+        return idx;
+    }
+    idx = matchPassageRegex(bookStr, simpleNames, QRegularExpression::NoPatternOption);
+    if (idx > -1) {
+        return idx;
+    }
+    return matchPassageRegex(bookStr, simpleNames, QRegularExpression::CaseInsensitiveOption);
+}
+
 int MainWindow::matchPassageStartsWith(const QString &word, const QVector<QString> &names)
 {
     int idx = -1;
@@ -447,3 +478,4 @@ int MainWindow::matchPassageRegex(const QString &word, const QVector<QString> &s
     }
     return idx;
 }
+
