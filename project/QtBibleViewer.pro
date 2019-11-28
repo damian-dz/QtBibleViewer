@@ -35,6 +35,7 @@ SOURCES += \
     ModuleTabWidget.cpp \
     NewMainWindow.cpp \
     SearchEngine.cpp \
+    DialogInfo.cpp \
     DialogPreferences.cpp \
     DialogStrong.cpp \
     DialogXRefs.cpp \
@@ -45,15 +46,16 @@ SOURCES += \
     TabSearch.cpp \
     WidgetCommonWords.cpp \
     WidgetHistogram.cpp \
-    WidgetCommonRare.cpp \
-    DialogInfo.cpp
+    WidgetCommonRare.cpp
 
 HEADERS += \
     AbstractTab.h \
+    AppConfig.h \
     BibleNavigationPanel.h \
     BiblePassageBrowser.h \
     Formatting.h \
     Location.h \
+    DialogInfo.h \
     DialogPreferences.h \
     DialogStrong.h \
     DialogXRefs.h \
@@ -69,10 +71,7 @@ HEADERS += \
     TabSearch.h \
     WidgetCommonWords.h \
     WidgetHistogram.h \
-    WidgetCommonRare.h \
-    AppConfig.h \
-    DialogInfo.h
-
+    WidgetCommonRare.h
 
 RESOURCES += \
     res.qrc

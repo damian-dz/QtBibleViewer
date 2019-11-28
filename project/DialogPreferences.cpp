@@ -3,7 +3,7 @@
 DialogPreferences::DialogPreferences(AppConfig *pConfig, const QStringList &languages, const QString &lang, QFont font,
                                      QWidget *parent)
     : QDialog(parent),
-      m_pConfig(pConfig) a
+      m_pConfig(pConfig)
 {
     QListWidget *listWidget = new QListWidget;
     listWidget->setFont(QFont(qApp->font().family(), 10));
