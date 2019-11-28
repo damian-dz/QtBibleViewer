@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>img_res/papyrus.jpg</file>
+        <file>img_res/folder.svg</file>
+        <file>img_res/arrow_left.svg</file>
+        <file>img_res/arrow_right.svg</file>
+        <file>img_res/copy.svg</file>
+        <file>img_res/heart.svg</file>
+        <file>img_res/copy_plus.svg</file>
+        <file>img_res/exit.svg</file>
+        <file>img_res/magnify.svg</file>
+        <file>img_res/minify.svg</file>
+        <file>img_res/close.svg</file>
+        <file>img_res/find.svg</file>
+        <file>img_res/cogwheel.svg</file>
+        <file>img_res/info.svg</file>
+        <file>img_res/scroll.svg</file>
+        <file>img_res/bubble.svg</file>
+        <file>img_res/close-button.svg</file>
+        <file>img_res/close-button-active.svg</file>
+    </qresource>
+</RCC>

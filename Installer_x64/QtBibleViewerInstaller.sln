@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtBibleViewerInstaller", "QtBibleViewerInstaller\QtBibleViewerInstaller.csproj", "{645CCF9D-CBA9-430B-BA8F-10639B4B341B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uninstall", "uninstall\uninstall.csproj", "{3839F1B0-7652-40FF-9648-160D42FA6CA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "uninstallDeleter", "uninstallDeleter\uninstallDeleter.csproj", "{1FF64215-BD31-4BD9-A250-12D6592814E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{645CCF9D-CBA9-430B-BA8F-10639B4B341B}.Debug|x64.ActiveCfg = Debug|x64
+		{645CCF9D-CBA9-430B-BA8F-10639B4B341B}.Debug|x64.Build.0 = Debug|x64
+		{645CCF9D-CBA9-430B-BA8F-10639B4B341B}.Release|x64.ActiveCfg = Release|x64
+		{645CCF9D-CBA9-430B-BA8F-10639B4B341B}.Release|x64.Build.0 = Release|x64
+		{3839F1B0-7652-40FF-9648-160D42FA6CA1}.Debug|x64.ActiveCfg = Debug|x64
+		{3839F1B0-7652-40FF-9648-160D42FA6CA1}.Debug|x64.Build.0 = Debug|x64
+		{3839F1B0-7652-40FF-9648-160D42FA6CA1}.Release|x64.ActiveCfg = Release|x64
+		{3839F1B0-7652-40FF-9648-160D42FA6CA1}.Release|x64.Build.0 = Release|x64
+		{1FF64215-BD31-4BD9-A250-12D6592814E4}.Debug|x64.ActiveCfg = Debug|x64
+		{1FF64215-BD31-4BD9-A250-12D6592814E4}.Debug|x64.Build.0 = Debug|x64
+		{1FF64215-BD31-4BD9-A250-12D6592814E4}.Release|x64.ActiveCfg = Release|x64
+		{1FF64215-BD31-4BD9-A250-12D6592814E4}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E50E85EC-FD70-404A-AE16-06CBEE93A45D}
+	EndGlobalSection
+EndGlobal

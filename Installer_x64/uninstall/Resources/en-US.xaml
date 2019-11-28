@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <system:String x:Key="title">QtBibleViewer Uninstaller</system:String>
+    <system:String x:Key="welcome">Welcome to the QtBibleViewer uninstaller.</system:String>
+    <system:String x:Key="instruction">Follow the displayed instructions to uninstall the program.</system:String>
+    <system:String x:Key="next">Next &gt;</system:String>
+    <system:String x:Key="close">Close</system:String>
+    <system:String x:Key="back">&lt; Back</system:String>
+    <system:String x:Key="license">GNU General Public License, version 3</system:String>
+    <system:String x:Key="accept">I accept the license terms</system:String>
+    <system:String x:Key="optnLbl">Unistallation options:</system:String>
+    <system:String x:Key="chngBtn">Change...</system:String>
+    <system:String x:Key="leaveFiles">Leave modules, dictionaries, and favorites</system:String>
+    <system:String x:Key="strtChk">Create Start Menu folder</system:String>
+    <system:String x:Key="apdtChk">Store settings in AppData</system:String>
+    <system:String x:Key="uninstall">Uninstall</system:String>
+    <system:String x:Key="unpacking">Unpacking</system:String>
+    <system:String x:Key="to">to</system:String>
+    <system:String x:Key="deleting">Deleting</system:String>
+    <system:String x:Key="cancelled">Operation cancelled by the User</system:String>
+    <system:String x:Key="eraseAll">Delete the installation folder with its content</system:String>
+    <system:String x:Key="strtShort">Creating Start Menu shortcut</system:String>
+    <system:String x:Key="regEntry">Creating registry entry</system:String>
+    <system:String x:Key="success">QtBibleViewer has been installed successfully.</system:String>
+    <system:String x:Key="youMay">You may run the program now or quit the installer.</system:String>
+    <system:String x:Key="runQBV">Run QtBibleViewer</system:String>
+    <system:String x:Key="finish">Finish</system:String>
+</ResourceDictionary>
