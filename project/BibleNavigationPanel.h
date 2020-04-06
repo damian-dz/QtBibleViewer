@@ -12,6 +12,7 @@ public:
     int getChapterCount(int book);
     int getVerseCount(int book, int chapter);
     int getChapterNumber(int book, int chapter);
+    void reloadBookNames();
     void selectPassage(int book, int chapter);
     void selectPassage(int book, int chapter, int verseFrom, int verseTo, bool sendSignal = true);
     void selectPassage(int chapterNumber);

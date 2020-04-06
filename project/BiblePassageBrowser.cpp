@@ -1,12 +1,11 @@
 #include "BiblePassageBrowser.h"
+#include "Formatting.h"
 
 BiblePassageBrowser::BiblePassageBrowser(QWidget *parent) :
     QTextBrowser(parent),
     m_isZeroIndexed(true),
     m_hasOldTestament(true),
-    m_hasStrong(false),
-    m_noteRgx("<RF>[^<]*<Rf>"),
-    m_strongRgx("<W[HG]\\d{1,4}>")
+    m_hasStrong(false)
 {
     QTextBrowser::setOpenLinks(false);
     QTextBrowser::setOpenExternalLinks(false);
@@ -19,36 +18,6 @@ BiblePassageBrowser::~BiblePassageBrowser()
 {
     QTextEdit::clear();
     m_notes.clear();
-}
-
-void BiblePassageBrowser::formatPassage(QString &text)
-{
-    text.replace(QStringLiteral("<CM>"), QStringLiteral("<br>"));
-    text.replace(QStringLiteral("<FI>"), QStringLiteral("<i>"))
-            .replace(QStringLiteral("<Fi>"), QStringLiteral("</i>"));
-    text.replace(QStringLiteral("<FR>"), QStringLiteral("<font color=#C80000>"))
-            .replace(QStringLiteral("<Fr>"), QStringLiteral("</font>"));
-    QRegularExpressionMatchIterator iter = m_noteRgx.globalMatch(text);
-    while (iter.hasNext()) {
-        QRegularExpressionMatch match = iter.next();
-        if (match.hasMatch()) {
-            QString original = match.captured(0);
-            m_notes.append(original);
-            text.replace(original, QStringLiteral("<a href='c:") % QString::number(m_notes.count()) %
-                         QStringLiteral("' style='text-decoration:none'><b>*</b></a> "));
-        }
-    }
-    if (m_hasStrong) {
-        QRegularExpressionMatchIterator iter = m_strongRgx.globalMatch(text);
-        while (iter.hasNext()) {
-            QRegularExpressionMatch match = iter.next();
-            if (match.hasMatch()) {
-                QString original = match.captured(0);
-                QString modified = original.mid(2, original.size() - 3);
-                text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
-            }
-        }
-    }
 }
 
 int BiblePassageBrowser::getBook() const
@@ -120,7 +89,7 @@ void BiblePassageBrowser::loadPassageV1(const QSqlDatabase &module)
                 insertNotFoundMessage(cursor, verse - verseNumber, verseNumber);
             }
             QString scripture = record.value(1).toString();
-            formatPassage(scripture);
+            Formatting::formatScripture(scripture, m_notes, m_hasStrong);
             cursor.insertHtml("[" % QString::number(verse) + "] " % scripture);
             cursor.insertBlock();
             ++verseNumber;
@@ -151,7 +120,7 @@ void BiblePassageBrowser::loadPassageV2(const QSqlDatabase &module)
             QTextCursor cursor = QTextEdit::textCursor();
             if (query.next()) {
                 QString scripture = query.record().value(0).toString();
-                formatPassage(scripture);
+                Formatting::formatScripture(scripture, m_notes, m_hasStrong);
                 cursor.movePosition(QTextCursor::End);
                 cursor.insertHtml("[" % QString::number(verse) % "] " % scripture);
             } else {

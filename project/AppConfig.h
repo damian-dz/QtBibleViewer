@@ -97,7 +97,6 @@ struct AppConfig
             keys(QStringList({ "reference_before",
                                "include_numbers" }))
         {
-
         }
     };
 
@@ -186,7 +185,6 @@ struct AppConfig
     void save()
     {
         QSettings settings(m_filePath, QSettings::IniFormat);
-
         settings.setValue(general.keys[0], general.window_geometry);
         settings.setValue(general.keys[1], general.window_state);
         settings.setValue(general.keys[2], general.language);

@@ -1,6 +1,6 @@
-#include "ModuleTabWidget.h"
+#include "BibleModuleTabWidget.h"
 
-ModuleTabWidget::ModuleTabWidget(QWidget *parent) :
+BibleModuleTabWidget::BibleModuleTabWidget(QWidget *parent) :
     QTabWidget(parent)
 {
     QTabWidget::setMovable(true);
@@ -15,7 +15,7 @@ ModuleTabWidget::ModuleTabWidget(QWidget *parent) :
     connectSignals();
 }
 
-void ModuleTabWidget::addModule(const QString &name, const QString &filePath, bool hasOT, bool hasStrong)
+void BibleModuleTabWidget::addModule(const QString &name, const QString &filePath, bool hasOT, bool hasStrong)
 {
     BiblePassageBrowser *passageTextBrowser = new BiblePassageBrowser;
     passageTextBrowser->setHasOldTestament(hasOT);
@@ -25,12 +25,12 @@ void ModuleTabWidget::addModule(const QString &name, const QString &filePath, bo
     QTabWidget::setTabToolTip(QTabWidget::count() - 1, filePath);
 }
 
-bool ModuleTabWidget::hasModules() const
+bool BibleModuleTabWidget::hasModules() const
 {
     return QTabWidget::count() > 0;
 }
 
-void ModuleTabWidget::loadPassage(int book, int chapter, int verseFrom, int verseTo, const QSqlDatabase& module)
+void BibleModuleTabWidget::loadPassage(int book, int chapter, int verseFrom, int verseTo, const QSqlDatabase& module)
 {
     if (hasModules()) {
         int idx = QTabWidget::currentIndex();
@@ -39,19 +39,19 @@ void ModuleTabWidget::loadPassage(int book, int chapter, int verseFrom, int vers
     }
 }
 
-void ModuleTabWidget::selectModule(int idx)
+void BibleModuleTabWidget::selectModule(int idx)
 {
     QTabWidget::setCurrentIndex(idx);
 }
 
-void ModuleTabWidget::setPassageTextBrowserFont(const QFont &font)
+void BibleModuleTabWidget::setPassageTextBrowserFont(const QFont &font)
 {
     for (BiblePassageBrowser* passageTextBrowser : m_passageTextBrowers) {
         passageTextBrowser->setFont(font);
     }
 }
 
-void ModuleTabWidget::connectSignals()
+void BibleModuleTabWidget::connectSignals()
 {
     QObject::connect(this, QOverload<int>::of(&QTabWidget::tabCloseRequested),
                      [=] (int index) { onTabCloseRequested(index); });
@@ -59,12 +59,12 @@ void ModuleTabWidget::connectSignals()
                      [=] (int from, int to) { onModuleMoved(from, to); });
 }
 
-void ModuleTabWidget::onModuleMoved(int from, int to)
+void BibleModuleTabWidget::onModuleMoved(int from, int to)
 {
     m_passageTextBrowers.swapItemsAt(from, to);
 }
 
-void ModuleTabWidget::onTabCloseRequested(int index)
+void BibleModuleTabWidget::onTabCloseRequested(int index)
 {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, tr("Confirm Removal"),

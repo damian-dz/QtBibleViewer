@@ -148,6 +148,16 @@ int BibleNavigationPanel::getChapterNumber(int book, int chapter)
     return chapterNumber;
 }
 
+void BibleNavigationPanel::reloadBookNames()
+{
+    ui_ListWidget_Book->blockSignals(true);
+    int idx = ui_ListWidget_Book->currentRow();
+    ui_ListWidget_Book->clear();
+    ui_ListWidget_Book->addItems(*m_bookNames);
+    ui_ListWidget_Book->setCurrentRow(idx);
+    ui_ListWidget_Book->blockSignals(false);
+}
+
 void BibleNavigationPanel::selectPassage(int book, int chapter)
 {
     selectPassage(book, chapter, 0, getVerseCount(book, chapter) - 1);

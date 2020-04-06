@@ -1,3 +1,4 @@
+#include "Formatting.h"
 #include "SearchResultsArea.h"
 
 SearchResultsArea::SearchResultsArea(QWidget *parent) :
@@ -24,6 +25,8 @@ SearchResultsArea::SearchResultsArea(QWidget *parent) :
     ui_Label_Results = new QLabel;
 
     ui_TextBrowser_Results = new QTextBrowser;
+    ui_TextBrowser_Results->setOpenLinks(false);
+    ui_TextBrowser_Results->setOpenExternalLinks(false);
 
     QHBoxLayout *randomVerseHorLayout = new QHBoxLayout;
 
@@ -112,16 +115,24 @@ void SearchResultsArea::connectSignals()
 
 void SearchResultsArea::displayResults()
 {
-    qDebug() << "num res:" << m_results->count();
+    QStringList notes;
     ui_TextBrowser_Results->clear();
     int endIdx = std::min(m_currentIdx + m_numResPerPage, m_results->count());
     for (int i = m_currentIdx; i < endIdx; i++) {
         QTextCursor cursor = ui_TextBrowser_Results->textCursor();
+        QString result = m_results->at(i).trimmed();
+        Formatting::formatScripture(result, notes, true);
         cursor.movePosition(QTextCursor::End);
-        cursor.insertHtml("[" % QString::number(i + 1) % "] " % m_results->at(i));
+        cursor.insertHtml("[" % QString::number(i + 1) % "] " % result % m_refs->at(i));
         cursor.insertBlock();
         ui_TextBrowser_Results->moveCursor(QTextCursor::Start);
     }
+}
+
+void SearchResultsArea::setFonts(const QFont &font)
+{
+    ui_TextBrowser_Results->setFont(font);
+    ui_TextBrowser_RandomVerse->setFont(font);
 }
 
 void SearchResultsArea::setUiTexts()
@@ -140,9 +151,10 @@ void SearchResultsArea::setNumResultsPerPage(int numResults)
     m_numResPerPage = numResults;
 }
 
-void SearchResultsArea::setResults(const QStringList &results)
+void SearchResultsArea::setResults(const QStringList &results, const QStringList &refs)
 {
     m_results = &results;
+    m_refs = &refs;
     m_currentIdx = 0;
     ui_Button_Next->setEnabled(results.count() > m_numResPerPage);
 }

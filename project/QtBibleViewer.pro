@@ -23,17 +23,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 #QMAKE_LFLAGS += -no-pie
+CONFIG += c++17
 
 PRECOMPILED_HEADER = precomp.h
 
 SOURCES += \
     AbstractTab.cpp \
+    BibleModuleTabWidget.cpp \
     BibleNavigationPanel.cpp \
     BiblePassageBrowser.cpp \
     Formatting.cpp \
     Main.cpp \
-    ModuleTabWidget.cpp \
-    NewMainWindow.cpp \
+    MainWindow.cpp \
     SearchEngine.cpp \
     DialogInfo.cpp \
     DialogPreferences.cpp \
@@ -51,6 +52,7 @@ SOURCES += \
 HEADERS += \
     AbstractTab.h \
     AppConfig.h \
+    BibleModuleTabWidget.h \
     BibleNavigationPanel.h \
     BiblePassageBrowser.h \
     Formatting.h \
@@ -59,9 +61,8 @@ HEADERS += \
     DialogPreferences.h \
     DialogStrong.h \
     DialogXRefs.h \
+    MainWindow.h \
     ModuleData.h \
-    ModuleTabWidget.h \
-    NewMainWindow.h \
     SearchEngine.h \
     SearchOptions.h \
     SearchOptionsPanel.h \

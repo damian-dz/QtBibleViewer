@@ -6,7 +6,11 @@ TabSearch::TabSearch(const QStringList &bookNames, QList<ModuleData> &moduleData
     m_bookNames(&bookNames),
     m_moduleData(&moduleData)
 {
+}
 
+void TabSearch::setResultsAreaFont(const QFont &font)
+{
+    ui_SearchResultsArea->setFonts(font);
 }
 
 void TabSearch::connectSignals()
@@ -45,7 +49,8 @@ void TabSearch::onSearchButtonClicked(const QString &text)
     qDebug() << searchOptions.bookFrom;
     ModuleData module = m_moduleData->at(searchOptions.translation);
     m_results.clear();
-    m_results = SearchEngine::search(text, searchOptions, module.database, module.hasStrong);
-    ui_SearchResultsArea->setResults(m_results);
+    m_refs.clear();
+    m_results = SearchEngine::search(text, searchOptions, module.database, module.hasStrong, m_refs, *m_bookNames);
+    ui_SearchResultsArea->setResults(m_results, m_refs);
     ui_SearchResultsArea->displayResults();
 }

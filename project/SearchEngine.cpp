@@ -24,9 +24,9 @@ bool SearchEngine::containsAnyWord(const QString &text, const QList<QRegularExpr
     return hasAny;
 }
 
-void SearchEngine::iterateRecords(QSqlQuery &query, const QStringList &words,
+QRegExp SearchEngine::iterateRecords(QSqlQuery &query, const QStringList &words,
                                   QRegularExpression::PatternOption sensitivity, bool wholeWords, bool containsAll,
-                                  QStringList &results)
+                                  QStringList &results, QStringList &refs, const QStringList &bookNames)
 {
     AllAny containsFunc = containsAll ? containsAllWords : containsAnyWord;
     QString boundary = wholeWords ? "\\b" : "";
@@ -40,12 +40,10 @@ void SearchEngine::iterateRecords(QSqlQuery &query, const QStringList &words,
         QString chapter = record.value(1).toString();
         QString verse = record.value(2).toString();
         QString scripture = record.value(3).toString();
-
         if (containsFunc(scripture, wordsRgx)) {
             results << scripture;
-          //  m_resVerses << scripture;
-          //  m_resRefs << QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
-           //              .arg(book, chapter, verse, m_bookNames[book.toInt() - 1], chapter, verse);
+            refs << QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
+                           .arg(book, chapter, verse, bookNames[book.toInt() - 1], chapter, verse);
         }
     }
     QStringList dispWords;
@@ -54,12 +52,13 @@ void SearchEngine::iterateRecords(QSqlQuery &query, const QStringList &words,
     }
     Qt::CaseSensitivity cs = sensitivity == QRegularExpression::NoPatternOption ?
                 Qt::CaseSensitive : Qt::CaseInsensitive;
+    return QRegExp(dispWords.join("|"), cs);
 //    m_dispRgx = QRegExp(dispWords.join("|"), cs);
 }
 
-void SearchEngine::iterateRecords(QSqlQuery &query, const QString &text,
+QRegExp SearchEngine::iterateRecords(QSqlQuery &query, const QString &text,
                                   QRegularExpression::PatternOption sensitivity, bool wholeWords, bool hasStrong,
-                                  QStringList &results)
+                                  QStringList &results, QStringList &refs, const QStringList &bookNames)
 {
     QString boundary = wholeWords ? "\\b" : "";
     QRegularExpression textRgx(boundary % text % boundary, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
@@ -74,13 +73,13 @@ void SearchEngine::iterateRecords(QSqlQuery &query, const QString &text,
             QString chapter = record.value(1).toString();
             QString verse = record.value(2).toString();
             results << record.value(3).toString();
-           // m_resVerses << record.value(3).toString();
-            //m_resRefs << QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
-            //             .arg(book, chapter, verse, m_bookNames[book.toInt() - 1], chapter, verse);
+            refs << QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
+                            .arg(book, chapter, verse, bookNames[book.toInt() - 1], chapter, verse);
         }
     }
     Qt::CaseSensitivity cs = sensitivity == QRegularExpression::NoPatternOption ?
                 Qt::CaseSensitive : Qt::CaseInsensitive;
+    return QRegExp(textRgx.pattern(), cs);
    // m_dispRgx = QRegExp(textRgx.pattern(), cs);
 }
 
@@ -97,7 +96,8 @@ QString SearchEngine::multipleWordQueryString(const QStringList &wordsLow, const
     return queryString;
 }
 
-QStringList SearchEngine::search(QString text, SearchOptions options, const QSqlDatabase &module, bool hasStrong)
+QStringList SearchEngine::search(QString text, SearchOptions options, const QSqlDatabase &module, bool hasStrong, QStringList &refs,
+                                 const QStringList &bookNames)
 {
     QString textLow = text.toLower();
     QString textUpp = text.toUpper();
@@ -115,9 +115,9 @@ QStringList SearchEngine::search(QString text, SearchOptions options, const QSql
     QStringList results;
     if (query.exec(command)) {
         if (options.searchMode == SearchMode::exactPhrase) {
-            iterateRecords(query, text, sensitivity, options.wholeWordsOnly, hasStrong, results);
+            iterateRecords(query, text, sensitivity, options.wholeWordsOnly, hasStrong, results, refs, bookNames);
         } else {
-            iterateRecords(query, words, sensitivity, options.wholeWordsOnly, containsAll, results);
+            iterateRecords(query, words, sensitivity, options.wholeWordsOnly, containsAll, results, refs, bookNames);
         }
         //iterateRecords(query, words, sensitivity, options.wholeWordsOnly, containsAll, results);
     }

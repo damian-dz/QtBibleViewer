@@ -3,7 +3,7 @@
 
 #include "AbstractTab.h"
 #include "ModuleData.h"
-#include "ModuleTabWidget.h"
+#include "BibleModuleTabWidget.h"
 #include "BibleNavigationPanel.h"
 
 class TabBible : public AbstractTab
@@ -20,9 +20,10 @@ public:
     void addModule(const QString &name, const QString &filePath, bool hasOT = true, bool hasStrong = false);
     int getCurrentIndex() const;
     int getModuleCount() const;
+    void reloadBookNames();
     void selectModule(int idx);
     void selectPassage(int book, int chapter, int verseFrom, int verseTo, bool sendSignal = true);
-    void setPassageTextBrowserFont(const QFont& font);
+    void setBiblePassageBrowserFont(const QFont& font);
 
 signals:
 
@@ -32,7 +33,7 @@ public slots:
 
 private:
     QTabBar *ui_TabBar_Modules;
-    ModuleTabWidget *ui_ModuleTabWidget;
+    BibleModuleTabWidget *ui_ModuleTabWidget;
     BibleNavigationPanel *ui_NavigationPanel;
 
     const QStringList *m_bookNames;

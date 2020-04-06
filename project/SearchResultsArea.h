@@ -11,9 +11,10 @@ public:
 
     void connectSignals();
     void displayResults();
+    void setFonts(const QFont& font);
     void setUiTexts();
     void setNumResultsPerPage(int numResults);
-    void setResults(const QStringList &results);
+    void setResults(const QStringList &results, const QStringList &refs);
 
 signals:
     void searchButtonClicked(const QString &text);
@@ -41,6 +42,7 @@ private:
     int m_currentIdx;
     int m_numResPerPage;
     const QStringList *m_results;
+    const QStringList *m_refs;
 
 private slots:
     void onNextButtonClicked();

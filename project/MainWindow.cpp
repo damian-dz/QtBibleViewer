@@ -1,4 +1,4 @@
-#include "NewMainWindow.h"
+#include "MainWindow.h"
 
 #include "DialogInfo.h"
 #include "DialogPreferences.h"
@@ -117,7 +117,18 @@ void MainWindow::changeLanguage(const QString &lang)
             qApp->removeTranslator(m_pTsApp);
             qApp->removeTranslator(m_pTsQt);
         }
+        populateBookNames();
+        ui_TabBible->reloadBookNames();
         setUiTexts();
+    }
+}
+
+void MainWindow::closeDatabase(QSqlDatabase &db)
+{
+    if (db.isOpen()) {
+        db.close();
+        db = QSqlDatabase();
+        QSqlDatabase::removeDatabase(db.connectionName());
     }
 }
 
@@ -255,7 +266,10 @@ void MainWindow::onForward()
 
 void MainWindow::onIncreaseFontSize()
 {
-
+    if (m_config->fonts.browser_size < 20) {
+        ui_TabBible->setBiblePassageBrowserFont(QFont(m_config->fonts.browser_family, m_config->fonts.browser_size + 1));
+        m_config->fonts.browser_size++;
+    }
 }
 
 void MainWindow::onLanguage()
@@ -307,8 +321,16 @@ void MainWindow::onPreferences()
     DialogPreferences dlgPreferences(m_config, m_languages.keys(), m_languages.key(m_config->general.language),
                                      m_currentFont);
     dlgPreferences.setWindowIcon(QIcon(ICON_COGWHEEL));
+    QString oldWindowStyle = m_config->appearance.window_style;
     if (dlgPreferences.exec()) {
+        dlgPreferences.updateSettings();
         changeLanguage(dlgPreferences.getLanguage());
+        if (m_config->appearance.window_style != oldWindowStyle) {
+            qApp->setStyle(QStyleFactory::create(m_config->appearance.window_style));
+        }
+        m_currentFont.setFamily(m_config->fonts.browser_family);
+        m_currentFont.setPointSize(m_config->fonts.browser_size);
+        updateFromSettings();
     }
 }
 
@@ -329,14 +351,14 @@ void MainWindow::onWordFrequency()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-//        saveSettings();
-//        for (ModuleData &md : m_modules) {
-//            closeDatabase(md.database);
-//        }
-//        closeDatabase(m_dbCntr);
-//        closeDatabase(m_dbXRef);
-//        closeDatabase(m_dbDict);
-//        event->accept();
+//      saveSettings();
+        for (ModuleData &md : m_modules) {
+            closeDatabase(md.database);
+        }
+        closeDatabase(m_verseData);
+//      closeDatabase(m_dbXRef);
+//      closeDatabase(m_dbDict);
+        event->accept();
 }
 
 
@@ -353,7 +375,7 @@ void MainWindow::initializeBibleTab()
         ui_TabBible->addModule(md.name, md.filePath, md.hasOldTestament, md.hasStrong);
     }
 
-    ui_TabBible->setPassageTextBrowserFont(m_currentFont);
+    ui_TabBible->setBiblePassageBrowserFont(m_currentFont);
     ui_TabBible->selectModule(m_config->module_data.index);
     ui_TabBible->selectPassage(m_config->module_data.last_passage[0].toInt() - 1,
                                m_config->module_data.last_passage[1].toInt() - 1,
@@ -495,7 +517,14 @@ void MainWindow::setWindowGeometry()
     } else {
         QWidget::restoreGeometry(m_config->general.window_geometry);
     }
+}
 
+void MainWindow::updateFromSettings()
+{
+    ui_TabBible->setBiblePassageBrowserFont(m_currentFont);
+    if (ui_TabSearch->isInitialized()) {
+        ui_TabSearch->setResultsAreaFont(m_currentFont);
+    }
 }
 
 void MainWindow::onAbout()
@@ -537,7 +566,10 @@ void MainWindow::onCopyWithReference()
 
 void MainWindow::onDecreaseFontSize()
 {
-
+    if (m_config->fonts.browser_size > 4) {
+        ui_TabBible->setBiblePassageBrowserFont(QFont(m_config->fonts.browser_family, m_config->fonts.browser_size - 1));
+        m_config->fonts.browser_size--;
+    }
 }
 
 void MainWindow::onMainTabChanged(int index)
@@ -552,6 +584,7 @@ void MainWindow::onMainTabChanged(int index)
     case 1:
         if (!ui_TabSearch->isInitialized()) {
             ui_TabSearch->initialize();
+            ui_TabSearch->setResultsAreaFont(m_currentFont);
         }
         break;
     default:

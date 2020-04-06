@@ -13,6 +13,8 @@ class TabSearch : public AbstractTab
 public:
     explicit TabSearch(const QStringList &bookNames, QList<ModuleData> &moduleData, QWidget *parent = nullptr);
 
+    void setResultsAreaFont(const QFont& font);
+
     virtual void connectSignals() override;
     virtual void addControls() override;
     virtual void setUiTexts() override;
@@ -30,6 +32,7 @@ private:
     QList<ModuleData> *m_moduleData;
     QHash<QString, QLabel *> m_labels;
     QStringList m_results;
+    QStringList m_refs;
 };
 
 #endif // TABSEARCH_H

@@ -1,5 +1,5 @@
-#ifndef NEWMAINWINDOW_H
-#define NEWMAINWINDOW_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 //#define MENU_FILE "File"
 //#define MENU_EDIT "Edit"
@@ -114,6 +114,7 @@ private:
     void checkModulePaths();
 
     void changeLanguage(const QString &lang);
+    void closeDatabase(QSqlDatabase &db);
     void connectSignals();
     void createMenuBar();
     void initializeBibleTab();
@@ -124,6 +125,8 @@ private:
 
     void setUiTexts();
     void setWindowGeometry();
+
+    void updateFromSettings();
 
     void onAbout();
     void onAboutQt();
@@ -145,4 +148,4 @@ private:
     void onWordFrequency();
 };
 
-#endif // NEWMAINWINDOW_H
+#endif // MAINWINDOW_H

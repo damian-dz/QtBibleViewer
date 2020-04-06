@@ -36,9 +36,7 @@ private:
     bool m_isZeroIndexed;
     bool m_hasOldTestament;
     bool m_hasStrong;
-    QRegularExpression m_noteRgx;
     QStringList m_notes;
-    QRegularExpression m_strongRgx;
     int m_verseCount;
     int m_verseFrom;
     int m_verseTo;

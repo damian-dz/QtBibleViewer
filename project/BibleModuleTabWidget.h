@@ -6,11 +6,11 @@
 #include "Location.h"
 #include "BiblePassageBrowser.h"
 
-class ModuleTabWidget : public QTabWidget
+class BibleModuleTabWidget : public QTabWidget
 {
     Q_OBJECT
 public:
-    explicit ModuleTabWidget(QWidget *parent = nullptr);
+    explicit BibleModuleTabWidget(QWidget *parent = nullptr);
 
     void addModule(const QString &name, const QString &filePath, bool hasOT = true, bool hasStrong = false);
     bool hasModules() const;

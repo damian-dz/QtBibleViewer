@@ -14,7 +14,7 @@ void TabBible::addControls()
 {
     ui_NavigationPanel = new BibleNavigationPanel(*m_verseData, *m_bookNames);
 
-    ui_ModuleTabWidget = new ModuleTabWidget;
+    ui_ModuleTabWidget = new BibleModuleTabWidget;
     ui_TabBar_Modules = ui_ModuleTabWidget->tabBar();
 
     QHBoxLayout *tabBibleHorLayout = new QHBoxLayout;
@@ -57,6 +57,11 @@ int TabBible::getModuleCount() const
     return ui_ModuleTabWidget->count();
 }
 
+void TabBible::reloadBookNames()
+{
+    ui_NavigationPanel->reloadBookNames();
+}
+
 void TabBible::selectModule(int idx)
 {
     ui_ModuleTabWidget->selectModule(idx);
@@ -67,7 +72,7 @@ void TabBible::selectPassage(int book, int chapter, int verseFrom, int verseTo, 
     ui_NavigationPanel->selectPassage(book, chapter, verseFrom, verseTo, sendSignal);
 }
 
-void TabBible::setPassageTextBrowserFont(const QFont &font)
+void TabBible::setBiblePassageBrowserFont(const QFont &font)
 {
     ui_ModuleTabWidget->setPassageTextBrowserFont(font);
 }

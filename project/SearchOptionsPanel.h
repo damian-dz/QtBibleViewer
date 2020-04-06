@@ -33,6 +33,8 @@ private:
 
     const QStringList *m_bookNames;
 
+    QString m_popup0;
+
     QLabel *ui_Label_Translation;
     QLabel *ui_Label_Range;
     QLabel *ui_Label_From;

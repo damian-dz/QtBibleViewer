@@ -2,36 +2,30 @@
 
 SearchOptionsPanel::SearchOptionsPanel(const QStringList &bookNames, const QStringList &translationNames, QWidget *parent) :
     QGroupBox(parent),
-    m_bookNames(&bookNames)
+    m_bookNames(&bookNames),
+    m_popup0("combobox-popup: 0")
 {
     QFormLayout *mainFormLayout = new QFormLayout;
 
     ui_ComboBox_Translation = new QComboBox;
+    ui_ComboBox_Translation->setStyleSheet(m_popup0);
     ui_ComboBox_Translation->addItems(translationNames);
     ui_Label_Translation = new QLabel;
 
     ui_ComboBox_Range = new QComboBox;
     ui_Label_Range = new QLabel;
-    ui_ComboBox_Range->addItems(QStringList({tr("Entire Bible"),
-                                             tr("Old Testament"),
-                                             tr("Pentateuch"),
-                                             tr("Historical Books"),
-                                             tr("Poetical Books"),
-                                             tr("Major Prophets"),
-                                             tr("Minor Prophets"),
-                                             tr("New Testament"),
-                                             tr("Gospels & Acts"),
-                                             tr("Pauline Epistles"),
-                                             tr("General Epistles & Revelation"),
-                                             tr("Custom")}));
+
+    ui_ComboBox_Range->setStyleSheet(m_popup0);
     ui_ComboBox_Range->setCurrentIndex(0);
 
     ui_ComboBox_From = new QComboBox;
+    ui_ComboBox_From->setStyleSheet(m_popup0);
     ui_ComboBox_From->addItems(bookNames);
     ui_ComboBox_From->setMaxVisibleItems(30);
     ui_Label_From = new QLabel;
 
     ui_ComboBox_To = new QComboBox;
+    ui_ComboBox_To->setStyleSheet(m_popup0);
     ui_ComboBox_To->addItems(bookNames);
     ui_ComboBox_To->setMaxVisibleItems(30);
     ui_ComboBox_To->setCurrentIndex(bookNames.count() - 1);
@@ -51,6 +45,7 @@ SearchOptionsPanel::SearchOptionsPanel(const QStringList &bookNames, const QStri
     ui_RadioButton_ByStrong = new QRadioButton;
 
     ui_ComboBox_ResPerPage = new QComboBox;
+    ui_ComboBox_ResPerPage->setStyleSheet(m_popup0);
     ui_ComboBox_ResPerPage->setMaximumWidth(40);
     ui_Label_ResultsPerPassage = new QLabel;
     ui_ComboBox_ResPerPage->addItems(QStringList({"10", "15", "25", "30", "40", "50", "75", "100"}));
@@ -74,7 +69,7 @@ SearchOptionsPanel::SearchOptionsPanel(const QStringList &bookNames, const QStri
 
     QWidget::setLayout(mainFormLayout);
 
-   // setUiTexts();
+    // setUiTexts();
 
     QObject::connect(ui_ComboBox_Range, QOverload<int>::of(&QComboBox::currentIndexChanged),
                      [=] (int index) { onRangeChanged(index); });
@@ -108,6 +103,25 @@ int SearchOptionsPanel::getNumResultsPerPage()
 void SearchOptionsPanel::setUiTexts()
 {
     QGroupBox::setTitle((tr("Search Options")));
+
+    ui_ComboBox_Range->clear();
+    ui_ComboBox_Range->addItems(QStringList({tr("Entire Bible"),
+                                             tr("Old Testament"),
+                                             tr("Pentateuch"),
+                                             tr("Historical Books"),
+                                             tr("Poetical Books"),
+                                             tr("Major Prophets"),
+                                             tr("Minor Prophets"),
+                                             tr("New Testament"),
+                                             tr("Gospels & Acts"),
+                                             tr("Pauline Epistles"),
+                                             tr("General Epistles & Revelation"),
+                                             tr("Custom")}));
+
+    if (ui_ComboBox_From->count() > 0) {
+        ui_ComboBox_From->clear();
+        ui_ComboBox_From->addItems(*m_bookNames);
+    }
 
     ui_Label_Translation->setText(tr("Translation:"));
     ui_Label_Range->setText(tr("Range:"));
