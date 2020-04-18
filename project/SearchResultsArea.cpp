@@ -111,6 +111,8 @@ void SearchResultsArea::connectSignals()
                      [=] { onPrevButtonClicked(); });
     QObject::connect(ui_Button_Next, QOverload<bool>::of(&QPushButton::clicked),
                      [=] { onNextButtonClicked(); });
+    QObject::connect(ui_Button_RandomVerse, QOverload<bool>::of(&QPushButton::clicked),
+                     [=] { onRandomVerseButtonClicked(); });
 }
 
 void SearchResultsArea::displayResults()
@@ -157,6 +159,11 @@ void SearchResultsArea::setResults(const QStringList &results, const QStringList
     m_refs = &refs;
     m_currentIdx = 0;
     ui_Button_Next->setEnabled(results.count() > m_numResPerPage);
+}
+
+void SearchResultsArea::onRandomVerseButtonClicked()
+{
+    qDebug() << "onRandomVerseButtonClicked()";
 }
 
 void SearchResultsArea::onNextButtonClicked()

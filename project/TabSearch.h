@@ -3,7 +3,7 @@
 
 #include "AbstractTab.h"
 #include "Location.h"
-#include "ModuleData.h"
+#include "Module.h"
 #include "SearchOptionsPanel.h"
 #include "SearchResultsArea.h"
 
@@ -11,7 +11,7 @@ class TabSearch : public AbstractTab
 {
     Q_OBJECT
 public:
-    explicit TabSearch(const QStringList &bookNames, QList<ModuleData> &moduleData, QWidget *parent = nullptr);
+    explicit TabSearch(const QStringList &bookNames, QList<Module> &moduleData, QWidget *parent = nullptr);
 
     void setResultsAreaFont(const QFont& font);
 
@@ -29,7 +29,7 @@ private:
     SearchResultsArea *ui_SearchResultsArea;
 
     const QStringList *m_bookNames;
-    QList<ModuleData> *m_moduleData;
+    QList<Module> *m_moduleData;
     QHash<QString, QLabel *> m_labels;
     QStringList m_results;
     QStringList m_refs;

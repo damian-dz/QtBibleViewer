@@ -29,6 +29,7 @@ public:
     void setVerseCount(int count);
     void setVerseFrom(int verseFrom);
     void setVerseTo(int verseTo);
+    void setHighlightColor(QColor &color);
 
 private:
     int m_book;
@@ -40,10 +41,16 @@ private:
     int m_verseCount;
     int m_verseFrom;
     int m_verseTo;
+    QColor *m_hightlightColor;
+    QTextCursor m_lastCursor;
+
 
     void initialize();
 
+
 private slots:
+    void onCursorPositionChanged();
+
     void onTextBrowserHighlighted(const QString &link);
 };
 

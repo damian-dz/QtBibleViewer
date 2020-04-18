@@ -16,6 +16,8 @@ public:
     void setNumResultsPerPage(int numResults);
     void setResults(const QStringList &results, const QStringList &refs);
 
+    void onRandomVerseButtonClicked();
+
 signals:
     void searchButtonClicked(const QString &text);
 

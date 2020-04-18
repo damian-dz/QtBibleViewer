@@ -28,17 +28,20 @@ MainWindow::MainWindow(const QString &appDir, AppConfig &config, QTranslator &ap
     loadModuleData();
     populateBookNames();
 
-    int openTabIdx = 0;
+    constexpr int openTabIdx = 0;
 
     m_currentFont = QFont(m_config->fonts.browser_family, m_config->fonts.browser_size);
 
     ui_TabBible = new TabBible(m_verseData, m_bookNames, m_modules);
     ui_TabSearch = new TabSearch(m_bookNames, m_modules);
+    ui_TabCompare = new TabCompare;
 
     ui_TabWidget_Main = new QTabWidget;
     ui_TabWidget_Main->addTab(ui_TabBible, nullptr);
     ui_TabWidget_Main->addTab(ui_TabSearch, nullptr);
+    ui_TabWidget_Main->addTab(ui_TabCompare, nullptr);
     ui_TabWidget_Main->setCurrentIndex(openTabIdx);
+   // ui_TabWidget_Main->setFont()
 
     onMainTabChanged(openTabIdx);
 
@@ -69,9 +72,30 @@ MainWindow::MainWindow(const QString &appDir, AppConfig &config, QTranslator &ap
     setUiTexts();
 }
 
-/*!
- * \brief
- */
+void MainWindow::setWindowGeometry()
+{
+    QMainWindow::setMinimumSize(QSize(720, 480));
+    if (m_config->general.window_geometry.isEmpty()) {
+        QMainWindow::resize(920, 600);
+    } else {
+        QWidget::restoreGeometry(m_config->general.window_geometry);
+    }
+}
+
+void MainWindow::loadVerseData()
+{
+    const QString verseDataPath = m_executionPath % "/App/data/verse_data.bblv";
+    if (QFileInfo(verseDataPath).exists()) {
+        m_verseData = QSqlDatabase::addDatabase("QSQLITE", "Counters");
+        m_verseData.setDatabaseName(verseDataPath);
+        if (!m_verseData.open()) {
+            QMessageBox::critical(this, tr("Error"), tr("Could not open the verse data file."));
+        }
+    } else {
+         QMessageBox::critical(this, tr("Error"), tr("The verse data file not found."));
+    }
+}
+
 void MainWindow::checkModulePaths()
 {
     const QString modulesDirPath = m_executionPath % "/App/modules";
@@ -101,113 +125,11 @@ void MainWindow::checkModulePaths()
     }
 }
 
-void MainWindow::changeLanguage(const QString &lang)
+void MainWindow::loadModuleData()
 {
-    for (QAction *action : m_langActions) {
-        action->setChecked(action->text() == lang);
+    for (const QString &filePath: m_config->module_data.paths) {
+        loadBibleModule(filePath);
     }
-    if (m_languages[lang] != m_config->general.language) {
-        m_config->general.language = m_languages[lang];
-        if (m_config->general.language != "EN") {
-            m_pTsApp->load(m_config->general.language.toLower(), m_executionPath % "/App/lang");
-            qApp->installTranslator(m_pTsApp);
-            m_pTsQt->load("qt_" + m_config->general.language.toLower(), m_executionPath % "/App/lang");
-            qApp->installTranslator(m_pTsQt);
-        } else {
-            qApp->removeTranslator(m_pTsApp);
-            qApp->removeTranslator(m_pTsQt);
-        }
-        populateBookNames();
-        ui_TabBible->reloadBookNames();
-        setUiTexts();
-    }
-}
-
-void MainWindow::closeDatabase(QSqlDatabase &db)
-{
-    if (db.isOpen()) {
-        db.close();
-        db = QSqlDatabase();
-        QSqlDatabase::removeDatabase(db.connectionName());
-    }
-}
-
-void MainWindow::createMenuBar()
-{
-    ui_Menu_File = menuBar()->addMenu(QString());
-    ui_Act_OpenModule = ui_Menu_File->addAction(QIcon(ICON_FOLDER), nullptr,
-                                                this, &MainWindow::onOpenModule, QKeySequence::Open);
-    ui_Act_ModuleInfo = ui_Menu_File->addAction(nullptr, this, &MainWindow::onModuleInfo, QKeySequence("Ctrl+I"));
-    ui_Menu_File->addSeparator();
-    ui_Act_Exit = ui_Menu_File->addAction(QIcon(ICON_EXIT), nullptr,
-                                          this, &MainWindow::onExit, QKeySequence("Ctrl+Q"));
-
-    ui_Menu_Edit = menuBar()->addMenu(QString());
-    ui_Act_Back = ui_Menu_Edit->addAction(QIcon(ICON_ARROW_LEFT), nullptr, this, &MainWindow::onBack);
-    ui_Act_Back->setDisabled(true);
-    ui_Act_Forward = ui_Menu_Edit->addAction(QIcon(ICON_ARROW_RIGHT),
-                                             nullptr, this, &MainWindow::onForward);
-    ui_Act_Forward->setDisabled(true);
-    ui_Menu_Edit->addSeparator();
-    ui_Act_Copy = ui_Menu_Edit->addAction(QIcon(ICON_COPY), nullptr,
-                                          this, &MainWindow::onCopy, QKeySequence::Copy);
-    ui_Act_CopyWithReference = ui_Menu_Edit->addAction(QIcon(ICON_COPY_PLUS), nullptr,
-                                                       this, &MainWindow::onCopyWithReference);
-    ui_Act_SelectAll = ui_Menu_Edit->addAction(nullptr, this, &MainWindow::onSelectAll, QKeySequence::SelectAll);
-    ui_Act_Find = ui_Menu_Edit->addAction(QIcon(ICON_FIND), nullptr, this, &MainWindow::onFind, QKeySequence::Find);
-
-    ui_Menu_Statistics = menuBar()->addMenu(QString());
-    ui_Act_WordFrequency = ui_Menu_Statistics->addAction(nullptr, this, &MainWindow::onWordFrequency);
-    ui_Act_CommonRareWords = ui_Menu_Statistics->addAction(nullptr, this, &MainWindow::onCommonRareWords);
-
-    ui_Menu_Options = menuBar()->addMenu(QString());
-    ui_Act_Preferences = ui_Menu_Options->addAction(QIcon(ICON_COGWHEEL), nullptr, this, &MainWindow::onPreferences);
-    ui_Menu_Language = ui_Menu_Options->addMenu(QIcon(ICON_BUBBLE), QString());
-    QStringList languages = { "English", "español", "polski" };
-    for (const QString &language : languages) {
-        QAction *action = ui_Menu_Language->addAction(language, this, &MainWindow::onLanguage);
-        action->setCheckable(true);
-        m_langActions.append(action);
-    }
-
-    ui_Menu_View = menuBar()->addMenu(QString());
-    ui_Act_IncreaseFontSize = ui_Menu_View->addAction(QIcon(ICON_MAGNIFY), nullptr, this,
-                                                      &MainWindow::onIncreaseFontSize, QKeySequence::ZoomIn);
-    ui_Act_DecreaseFontSize = ui_Menu_View->addAction(QIcon(ICON_MINIFY), nullptr, this,
-                                                      &MainWindow::onDecreaseFontSize, QKeySequence::ZoomOut);
-
-    ui_Menu_Help = menuBar()->addMenu(QString());
-    ui_Act_ShowHelp = ui_Menu_Help->addAction(nullptr, this, &MainWindow::onShowHelp, QKeySequence::HelpContents);
-    ui_Act_About = ui_Menu_Help->addAction(QIcon(ICON_INFO), nullptr, this, &MainWindow::onAbout);
-    ui_Act_AboutQt = ui_Menu_Help->addAction(nullptr, this, &MainWindow::onAboutQt);
-}
-
-void MainWindow::loadVerseData()
-{
-    const QString verseDataPath = m_executionPath % "/App/data/verse_data.bblv";
-    if (QFileInfo(verseDataPath).exists()) {
-        m_verseData = QSqlDatabase::addDatabase("QSQLITE", "Counters");
-        m_verseData.setDatabaseName(verseDataPath);
-        if (!m_verseData.open()) {
-            QMessageBox::critical(this, tr("Error"), tr("Could not open the verse data file."));
-        }
-    } else {
-         QMessageBox::critical(this, tr("Error"), tr("The verse data file not found."));
-    }
-
-}
-
-QStringList MainWindow::getModulePaths(const QString &dirPath)
-{
-    QDir dir(dirPath);
-    QStringList filters("*.bbl.mybible");
-    dir.setNameFilters(filters);
-    QFileInfoList moduleList = dir.entryInfoList();
-    QStringList modulePathList;
-    for (const QFileInfo &file : moduleList) {
-        modulePathList << file.absoluteFilePath();
-    }
-    return modulePathList;
 }
 
 bool MainWindow::loadBibleModule(const QString &filePath)
@@ -219,11 +141,12 @@ bool MainWindow::loadBibleModule(const QString &filePath)
     QString moduleName;
     bool hasOldTestament = false;
     bool hasStrong = false;
-    QString command = "SELECT Abbreviation, OT, Strong FROM Details";
+    QString command = "SELECT Abbreviation, OldTestament, Strong FROM Info";
     if (query.exec(command)) {
         if (query.next()) {
             QSqlRecord record = query.record();
             moduleName = record.value(0).toString();
+            qDebug() << "moduleName" << moduleName;
             hasOldTestament = record.value(1).toBool();
         }
     }
@@ -234,8 +157,8 @@ bool MainWindow::loadBibleModule(const QString &filePath)
         }
     }
     bool containsModule = false;
-    for (const ModuleData &md : m_modules) {
-        if (filePath == md.filePath) {
+    for (const Module &translation : m_modules) {
+        if (filePath == translation.filePath) {
             containsModule = true;
             QMessageBox::critical(this, tr("Error"), tr("This module is already open."));
             break;
@@ -246,149 +169,6 @@ bool MainWindow::loadBibleModule(const QString &filePath)
        // ui_TabBible->addModule(moduleName, filePath, hasOldTestament, hasStrong);
     }
     return !containsModule;
-}
-
-
-void MainWindow::onExit()
-{
-
-}
-
-void MainWindow::onFind()
-{
-
-}
-
-void MainWindow::onForward()
-{
-
-}
-
-void MainWindow::onIncreaseFontSize()
-{
-    if (m_config->fonts.browser_size < 20) {
-        ui_TabBible->setBiblePassageBrowserFont(QFont(m_config->fonts.browser_family, m_config->fonts.browser_size + 1));
-        m_config->fonts.browser_size++;
-    }
-}
-
-void MainWindow::onLanguage()
-{
-    const QString lang = qobject_cast<QAction *>(QObject::sender())->text();
-    changeLanguage(lang);
-}
-
-void MainWindow::onModuleInfo()
-{
-    if (!m_modules.isEmpty()) {
-        DialogInfo infoDlg(m_modules[ui_TabBible->getCurrentIndex()].database,
-                           QApplication::font(),
-                           QPixmap(),
-                           m_config->appearance.use_background_image);
-        infoDlg.exec();
-    } else {
-        QMessageBox::information(this, tr("No Modules"), tr("There are no modules currently avaiable."));
-    }
-}
-
-void MainWindow::onOpenModule()
-{
-    QString filename = QFileDialog::getOpenFileName(
-                this, tr("Open MYBIBLE Module"), "/",
-                tr("MYBIBLE Modules (*.bbl.mybible);;All Files (*.*)"));
-    if (!filename.isEmpty()) {
-//        if (ui_Bib_TabWidget_Modules->tabText(0) == "No module found") {
-//            ui_Bib_TabWidget_Modules->removeTab(0);
-//        }
-//        if (!m_pConfig->module_data.paths.contains(filename)) {
-//            if (loadBibleModule(filename)) {
-//                m_pConfig->module_data.paths << filename;
-//                ui_Bib_TabWidget_Modules->setCurrentIndex(ui_Bib_TabWidget_Modules->count() - 1);
-//                if (m_pConfig->module_data.removed_paths.contains(filename)) {
-//                    m_pConfig->module_data.removed_paths.removeAt(
-//                                m_pConfig->module_data.removed_paths.indexOf(filename));
-//                }
-//            }
-//        } else {
-//            QMessageBox::critical(this, tr("Error"), tr("The selected file is already open."));
-//        }
-    }
-}
-
-void MainWindow::onPreferences()
-{
-    qDebug() << m_languages.value(m_config->general.language);
-    DialogPreferences dlgPreferences(m_config, m_languages.keys(), m_languages.key(m_config->general.language),
-                                     m_currentFont);
-    dlgPreferences.setWindowIcon(QIcon(ICON_COGWHEEL));
-    QString oldWindowStyle = m_config->appearance.window_style;
-    if (dlgPreferences.exec()) {
-        dlgPreferences.updateSettings();
-        changeLanguage(dlgPreferences.getLanguage());
-        if (m_config->appearance.window_style != oldWindowStyle) {
-            qApp->setStyle(QStyleFactory::create(m_config->appearance.window_style));
-        }
-        m_currentFont.setFamily(m_config->fonts.browser_family);
-        m_currentFont.setPointSize(m_config->fonts.browser_size);
-        updateFromSettings();
-    }
-}
-
-void MainWindow::onSelectAll()
-{
-
-}
-
-void MainWindow::onShowHelp()
-{
-
-}
-
-void MainWindow::onWordFrequency()
-{
-
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-//      saveSettings();
-        for (ModuleData &md : m_modules) {
-            closeDatabase(md.database);
-        }
-        closeDatabase(m_verseData);
-//      closeDatabase(m_dbXRef);
-//      closeDatabase(m_dbDict);
-        event->accept();
-}
-
-
-void MainWindow::connectSignals()
-{
-    QObject::connect(ui_TabWidget_Main, QOverload<int>::of(&QTabWidget::currentChanged),
-                     [=] (int index) { onMainTabChanged(index); } );
-}
-
-void MainWindow::initializeBibleTab()
-{
-    ui_TabBible->initialize();
-    for (const ModuleData &md : m_modules) {
-        ui_TabBible->addModule(md.name, md.filePath, md.hasOldTestament, md.hasStrong);
-    }
-
-    ui_TabBible->setBiblePassageBrowserFont(m_currentFont);
-    ui_TabBible->selectModule(m_config->module_data.index);
-    ui_TabBible->selectPassage(m_config->module_data.last_passage[0].toInt() - 1,
-                               m_config->module_data.last_passage[1].toInt() - 1,
-                               m_config->module_data.last_passage[2].toInt() - 1,
-                               m_config->module_data.last_passage[3].toInt() - 1);
-
-}
-
-void MainWindow::loadModuleData()
-{
-    for (const QString &filePath: m_config->module_data.paths) {
-        loadBibleModule(filePath);
-    }
 }
 
 void MainWindow::populateBookNames()
@@ -464,10 +244,273 @@ void MainWindow::populateBookNames()
                 << tr("Revelation");
 }
 
+void MainWindow::onMainTabChanged(int index)
+{
+    qDebug() << "onMainTabChanged()" << index;
+    switch (index) {
+    case 0:
+        if (!ui_TabBible->isInitialized()) {
+            initializeBibleTab();
+        }
+        break;
+    case 1:
+        if (!ui_TabSearch->isInitialized()) {
+            ui_TabSearch->initialize();
+            ui_TabSearch->setResultsAreaFont(m_currentFont);
+        }
+        break;
+    case 2:
+        if (!ui_TabCompare->isInitialized()) {
+            ui_TabSearch->initialize();
+        }
+        break;
+    default:
+        QMessageBox::critical(this, tr("Error"), tr("Specified index not found."));
+        break;
+    }
+}
+
+void MainWindow::connectSignals()
+{
+    QObject::connect(ui_TabWidget_Main, QOverload<int>::of(&QTabWidget::currentChanged),
+                     [=] (int index) { onMainTabChanged(index); } );
+}
+
+void MainWindow::createMenuBar()
+{
+    ui_Menu_File = menuBar()->addMenu(QString());
+    ui_Act_OpenModule = ui_Menu_File->addAction(QIcon(ICON_FOLDER), nullptr,
+                                                this, &MainWindow::onOpenModule, QKeySequence::Open);
+    ui_Act_ModuleInfo = ui_Menu_File->addAction(nullptr, this, &MainWindow::onModuleInfo, QKeySequence("Ctrl+I"));
+    ui_Menu_File->addSeparator();
+    ui_Act_Exit = ui_Menu_File->addAction(QIcon(ICON_EXIT), nullptr,
+                                          this, &MainWindow::onExit, QKeySequence("Ctrl+Q"));
+
+    ui_Menu_Edit = menuBar()->addMenu(QString());
+    ui_Act_Back = ui_Menu_Edit->addAction(QIcon(ICON_ARROW_LEFT), nullptr, this, &MainWindow::onBack);
+    ui_Act_Back->setDisabled(true);
+    ui_Act_Forward = ui_Menu_Edit->addAction(QIcon(ICON_ARROW_RIGHT),
+                                             nullptr, this, &MainWindow::onForward);
+    ui_Act_Forward->setDisabled(true);
+    ui_Menu_Edit->addSeparator();
+    ui_Act_Copy = ui_Menu_Edit->addAction(QIcon(ICON_COPY), nullptr,
+                                          this, &MainWindow::onCopy, QKeySequence::Copy);
+    ui_Act_CopyWithReference = ui_Menu_Edit->addAction(QIcon(ICON_COPY_PLUS), nullptr,
+                                                       this, &MainWindow::onCopyWithReference);
+    ui_Act_SelectAll = ui_Menu_Edit->addAction(nullptr, this, &MainWindow::onSelectAll, QKeySequence::SelectAll);
+    ui_Act_Find = ui_Menu_Edit->addAction(QIcon(ICON_FIND), nullptr, this, &MainWindow::onFind, QKeySequence::Find);
+
+    ui_Menu_Statistics = menuBar()->addMenu(QString());
+    ui_Act_WordFrequency = ui_Menu_Statistics->addAction(nullptr, this, &MainWindow::onWordFrequency);
+    ui_Act_CommonRareWords = ui_Menu_Statistics->addAction(nullptr, this, &MainWindow::onCommonRareWords);
+
+    ui_Menu_Options = menuBar()->addMenu(QString());
+    ui_Act_Preferences = ui_Menu_Options->addAction(QIcon(ICON_COGWHEEL), nullptr, this, &MainWindow::onPreferences);
+    ui_Menu_Language = ui_Menu_Options->addMenu(QIcon(ICON_BUBBLE), QString());
+    QStringList languages = { "English", "español", "polski" };
+    for (const QString &language : languages) {
+        QAction *action = ui_Menu_Language->addAction(language, this, &MainWindow::onLanguage);
+        action->setCheckable(true);
+        m_langActions.append(action);
+    }
+
+    ui_Menu_View = menuBar()->addMenu(QString());
+    ui_Act_IncreaseFontSize = ui_Menu_View->addAction(QIcon(ICON_MAGNIFY), nullptr, this,
+                                                      &MainWindow::onIncreaseFontSize, QKeySequence::ZoomIn);
+    ui_Act_DecreaseFontSize = ui_Menu_View->addAction(QIcon(ICON_MINIFY), nullptr, this,
+                                                      &MainWindow::onDecreaseFontSize, QKeySequence::ZoomOut);
+
+    ui_Menu_Help = menuBar()->addMenu(QString());
+    ui_Act_ShowHelp = ui_Menu_Help->addAction(nullptr, this, &MainWindow::onShowHelp, QKeySequence::HelpContents);
+    ui_Act_About = ui_Menu_Help->addAction(QIcon(ICON_INFO), nullptr, this, &MainWindow::onAbout);
+    ui_Act_AboutQt = ui_Menu_Help->addAction(nullptr, this, &MainWindow::onAboutQt);
+}
+
+void MainWindow::onOpenModule()
+{
+    QString filename = QFileDialog::getOpenFileName(
+                this, tr("Open MYBIBLE Module"), "/",
+                tr("MYBIBLE Modules (*.bbl.mybible);;All Files (*.*)"));
+    if (!filename.isEmpty()) {
+//        if (ui_Bib_TabWidget_Modules->tabText(0) == "No module found") {
+//            ui_Bib_TabWidget_Modules->removeTab(0);
+//        }
+//        if (!m_pConfig->module_data.paths.contains(filename)) {
+//            if (loadBibleModule(filename)) {
+//                m_pConfig->module_data.paths << filename;
+//                ui_Bib_TabWidget_Modules->setCurrentIndex(ui_Bib_TabWidget_Modules->count() - 1);
+//                if (m_pConfig->module_data.removed_paths.contains(filename)) {
+//                    m_pConfig->module_data.removed_paths.removeAt(
+//                                m_pConfig->module_data.removed_paths.indexOf(filename));
+//                }
+//            }
+//        } else {
+//            QMessageBox::critical(this, tr("Error"), tr("The selected file is already open."));
+//        }
+    }
+}
+
+void MainWindow::onModuleInfo()
+{
+    if (!m_modules.isEmpty()) {
+        DialogInfo infoDlg(m_modules[ui_TabBible->getCurrentIndex()].database,
+                           QApplication::font(),
+                           QPixmap(),
+                           m_config->appearance.use_background_image);
+        infoDlg.exec();
+    } else {
+        QMessageBox::information(this, tr("No Modules"), tr("There are no modules currently avaiable."));
+    }
+}
+
+void MainWindow::onExit()
+{
+
+}
+
+void MainWindow::changeLanguage(const QString &lang)
+{
+    for (QAction *action : m_langActions) {
+        action->setChecked(action->text() == lang);
+    }
+    if (m_languages[lang] != m_config->general.language) {
+        m_config->general.language = m_languages[lang];
+        if (m_config->general.language != "EN") {
+            m_pTsApp->load(m_config->general.language.toLower(), m_executionPath % "/App/lang");
+            qApp->installTranslator(m_pTsApp);
+            m_pTsQt->load("qt_" + m_config->general.language.toLower(), m_executionPath % "/App/lang");
+            qApp->installTranslator(m_pTsQt);
+        } else {
+            qApp->removeTranslator(m_pTsApp);
+            qApp->removeTranslator(m_pTsQt);
+        }
+        populateBookNames();
+        ui_TabBible->reloadBookNames();
+        setUiTexts();
+    }
+}
+
+void MainWindow::closeDatabase(QSqlDatabase &db)
+{
+    if (db.isOpen()) {
+        db.close();
+        db = QSqlDatabase();
+        QSqlDatabase::removeDatabase(db.connectionName());
+    }
+}
+
+QStringList MainWindow::getModulePaths(const QString &dirPath)
+{
+    QDir dir(dirPath);
+    QStringList filters("*.qbv");
+    dir.setNameFilters(filters);
+    QFileInfoList moduleList = dir.entryInfoList();
+    QStringList modulePathList;
+    for (const QFileInfo &file : moduleList) {
+        modulePathList << file.absoluteFilePath();
+    }
+    return modulePathList;
+}
+
+
+
+
+
+
+void MainWindow::onFind()
+{
+
+}
+
+void MainWindow::onForward()
+{
+
+}
+
+void MainWindow::onIncreaseFontSize()
+{
+    if (m_config->fonts.browser_size < 20) {
+        ui_TabBible->setBiblePassageBrowserFont(QFont(m_config->fonts.browser_family, m_config->fonts.browser_size + 1));
+        ++m_config->fonts.browser_size;
+    }
+}
+
+void MainWindow::onLanguage()
+{
+    const QString lang = qobject_cast<QAction *>(QObject::sender())->text();
+    changeLanguage(lang);
+}
+
+void MainWindow::onPreferences()
+{
+    qDebug() << m_languages.value(m_config->general.language);
+    DialogPreferences dlgPreferences(m_config, m_languages.keys(), m_languages.key(m_config->general.language),
+                                     m_currentFont);
+    dlgPreferences.setWindowIcon(QIcon(ICON_COGWHEEL));
+    QString oldWindowStyle = m_config->appearance.window_style;
+    if (dlgPreferences.exec()) {
+        dlgPreferences.updateSettings();
+        changeLanguage(dlgPreferences.getLanguage());
+        if (m_config->appearance.window_style != oldWindowStyle) {
+            qApp->setStyle(QStyleFactory::create(m_config->appearance.window_style));
+        }
+        m_currentFont.setFamily(m_config->fonts.browser_family);
+        m_currentFont.setPointSize(m_config->fonts.browser_size);
+        updateFromSettings();
+    }
+}
+
+void MainWindow::onSelectAll()
+{
+
+}
+
+void MainWindow::onShowHelp()
+{
+
+}
+
+void MainWindow::onWordFrequency()
+{
+
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+//      saveSettings();
+        for (Module &module : m_modules) {
+            closeDatabase(module.database);
+        }
+        closeDatabase(m_verseData);
+//      closeDatabase(m_dbXRef);
+//      closeDatabase(m_dbDict);
+        event->accept();
+}
+
+
+
+
+void MainWindow::initializeBibleTab()
+{
+    ui_TabBible->initialize();
+    for (const Module &module : m_modules) {
+        ui_TabBible->addModule(module.name, module.filePath, module.hasOldTestament, module.hasStrong);
+    }
+
+    ui_TabBible->setBiblePassageBrowserFont(m_currentFont);
+    ui_TabBible->selectModule(m_config->module_data.index);
+    ui_TabBible->selectPassage(m_config->module_data.last_passage[0].toInt() - 1,
+                               m_config->module_data.last_passage[1].toInt() - 1,
+                               m_config->module_data.last_passage[2].toInt() - 1,
+                               m_config->module_data.last_passage[3].toInt() - 1);
+    ui_TabBible->setBiblePassageBrowserHighlightColor(m_config->appearance.verse_highlight_color);
+}
+
 void MainWindow::setUiTexts()
 {
     ui_TabWidget_Main->setTabText(0, tr("Bible"));
     ui_TabWidget_Main->setTabText(1, tr("Search"));
+    ui_TabWidget_Main->setTabText(2, tr("Compare"));
 
     ui_Menu_File->setTitle(tr("File"));
     ui_Act_OpenModule->setText(tr("Open Bible Module"));
@@ -507,17 +550,12 @@ void MainWindow::setUiTexts()
         qDebug() << "ui_TabSearch->setUiTexts()";
         ui_TabSearch->setUiTexts();
     }
-}
-
-void MainWindow::setWindowGeometry()
-{
-    QMainWindow::setMinimumSize(QSize(720, 480));
-    if (m_config->general.window_geometry.isEmpty()) {
-        QMainWindow::resize(920, 600);
-    } else {
-        QWidget::restoreGeometry(m_config->general.window_geometry);
+    if (ui_TabCompare->isInitialized()) {
+        ui_TabCompare->setUiTexts();
     }
 }
+
+
 
 void MainWindow::updateFromSettings()
 {
@@ -572,23 +610,4 @@ void MainWindow::onDecreaseFontSize()
     }
 }
 
-void MainWindow::onMainTabChanged(int index)
-{
-    qDebug() << "onMainTabChanged()" << index;
-    switch (index) {
-    case 0:
-        if (!ui_TabBible->isInitialized()) {
-            initializeBibleTab();
-        }
-        break;
-    case 1:
-        if (!ui_TabSearch->isInitialized()) {
-            ui_TabSearch->initialize();
-            ui_TabSearch->setResultsAreaFont(m_currentFont);
-        }
-        break;
-    default:
-        QMessageBox::critical(this, tr("Error"), tr("Specified index not found."));
-        break;
-    }
-}
+

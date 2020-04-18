@@ -1,6 +1,13 @@
 #include "TabBible.h"
 
-TabBible::TabBible(const QSqlDatabase &verseData, const QStringList &bookNames, const QList<ModuleData> &modules,
+/*!
+ * \brief A class that represents the tab for browsing different Bible translations.
+ * \param verseData
+ * \param bookNames a list of the names of the biblical books.
+ * \param modules
+ * \param parent specifies the parent widget for this object
+ */
+TabBible::TabBible(const QSqlDatabase &verseData, const QStringList &bookNames, const QList<Module> &modules,
                    QWidget *parent) :
     AbstractTab(parent),
     m_bookNames(&bookNames),
@@ -75,6 +82,11 @@ void TabBible::selectPassage(int book, int chapter, int verseFrom, int verseTo, 
 void TabBible::setBiblePassageBrowserFont(const QFont &font)
 {
     ui_ModuleTabWidget->setPassageTextBrowserFont(font);
+}
+
+void TabBible::setBiblePassageBrowserHighlightColor(QColor &color)
+{
+    ui_ModuleTabWidget->setHighlightColor(color);
 }
 
 void TabBible::onPassageChanged(int book, int chapter, int verseFrom, int verseTo)

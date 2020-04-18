@@ -29,7 +29,7 @@ DialogInfo::DialogInfo(const QSqlDatabase &db,
     descAbbrVerLayout->addWidget(abbreviationLineEdit);
 
     QLabel *commentsLabel = new QLabel(tr("Comments:"));
-    
+
     QTextBrowser *commentsTextBrowser = new QTextBrowser;
     commentsTextBrowser->setContextMenuPolicy(Qt::NoContextMenu);
     commentsTextBrowser->setFont(font);
@@ -122,10 +122,10 @@ DialogInfo::DialogInfo(const QSqlDatabase &db,
                           "VersionDate, "
                           "PublishDate, "
                           "RightToLeft, "
-                          "OT, "
-                          "NT, "
+                          "OldTestament, "
+                          "NewTestament, "
                           "Strong "
-                          "FROM Details";
+                          "FROM Info";
     QSqlQuery query(db);
     if (query.exec(queryString)) {
         if (query.next()) {
@@ -145,7 +145,7 @@ DialogInfo::DialogInfo(const QSqlDatabase &db,
             strongCheckBox->setChecked(record.value(9).toBool());
         }
     } else {
-        QMessageBox::critical(this, tr("Error"), tr("Error reading the Details table."));
+        QMessageBox::critical(this, tr("Error"), tr("Error reading the Info table."));
     }
 }
 

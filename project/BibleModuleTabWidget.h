@@ -16,6 +16,7 @@ public:
     bool hasModules() const;
     void loadPassage(int book, int chapter, int verseFrom, int verseTo, const QSqlDatabase &module);
     void selectModule(int idx);
+    void setHighlightColor(QColor &color);
     void setPassageTextBrowserFont(const QFont &font);
 
 private:

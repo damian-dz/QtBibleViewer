@@ -44,6 +44,13 @@ void BibleModuleTabWidget::selectModule(int idx)
     QTabWidget::setCurrentIndex(idx);
 }
 
+void BibleModuleTabWidget::setHighlightColor(QColor &color)
+{
+    for (BiblePassageBrowser* passageTextBrowser : m_passageTextBrowers) {
+        passageTextBrowser->setHighlightColor(color);
+    }
+}
+
 void BibleModuleTabWidget::setPassageTextBrowserFont(const QFont &font)
 {
     for (BiblePassageBrowser* passageTextBrowser : m_passageTextBrowers) {

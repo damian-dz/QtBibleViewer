@@ -2,7 +2,7 @@
 #define TABBIBLE_H
 
 #include "AbstractTab.h"
-#include "ModuleData.h"
+#include "Module.h"
 #include "BibleModuleTabWidget.h"
 #include "BibleNavigationPanel.h"
 
@@ -10,7 +10,7 @@ class TabBible : public AbstractTab
 {
     Q_OBJECT
 public:
-    explicit TabBible(const QSqlDatabase &verseData, const QStringList &bookNames, const QList<ModuleData>& modules,
+    explicit TabBible(const QSqlDatabase &verseData, const QStringList &bookNames, const QList<Module>& modules,
                       QWidget *parent = nullptr);
 
     virtual void connectSignals() override;
@@ -24,6 +24,7 @@ public:
     void selectModule(int idx);
     void selectPassage(int book, int chapter, int verseFrom, int verseTo, bool sendSignal = true);
     void setBiblePassageBrowserFont(const QFont& font);
+    void setBiblePassageBrowserHighlightColor(QColor &color);
 
 signals:
 
@@ -37,7 +38,7 @@ private:
     BibleNavigationPanel *ui_NavigationPanel;
 
     const QStringList *m_bookNames;
-    const QList<ModuleData> *m_modules;
+    const QList<Module> *m_modules;
     const QSqlDatabase *m_verseData;
 };
 

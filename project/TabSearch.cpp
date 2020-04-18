@@ -1,7 +1,7 @@
 #include "TabSearch.h"
 #include "SearchEngine.h"
 
-TabSearch::TabSearch(const QStringList &bookNames, QList<ModuleData> &moduleData, QWidget *parent) :
+TabSearch::TabSearch(const QStringList &bookNames, QList<Module> &moduleData, QWidget *parent) :
     AbstractTab(parent),
     m_bookNames(&bookNames),
     m_moduleData(&moduleData)
@@ -47,7 +47,7 @@ void TabSearch::onSearchButtonClicked(const QString &text)
     SearchOptions searchOptions = ui_SearchOptionsPanel->getSearchOptions();
     qDebug() << text;
     qDebug() << searchOptions.bookFrom;
-    ModuleData module = m_moduleData->at(searchOptions.translation);
+    Module module = m_moduleData->at(searchOptions.translation);
     m_results.clear();
     m_refs.clear();
     m_results = SearchEngine::search(text, searchOptions, module.database, module.hasStrong, m_refs, *m_bookNames);

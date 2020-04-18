@@ -11,7 +11,9 @@ BiblePassageBrowser::BiblePassageBrowser(QWidget *parent) :
     QTextBrowser::setOpenExternalLinks(false);
 
     QObject::connect(this, QOverload<const QString &>::of(&QTextBrowser::highlighted),
-                     [=] (const QString &link) { onTextBrowserHighlighted(link); } );
+                     [=] (const QString &link) { onTextBrowserHighlighted(link); });
+    QObject::connect(this, QOverload<>::of(&QTextBrowser::cursorPositionChanged),
+                     [=] () { onCursorPositionChanged(); });
 }
 
 BiblePassageBrowser::~BiblePassageBrowser()
@@ -39,8 +41,8 @@ QString BiblePassageBrowser::getPassageAsPlainText(int verseFrom, int verseTo, b
     QString text;
     for (int i = verseFrom; i <= verseTo; ++i) {
         QString textToAppend = includeVerseNumber ?
-                    QTextBrowser::document()->findBlockByNumber(i).text().simplified() :
-                    removeVerseNumber(QTextBrowser::document()->findBlockByNumber(i).text().simplified());
+                    QTextEdit::document()->findBlockByNumber(i).text().simplified() :
+                    removeVerseNumber(QTextEdit::document()->findBlockByNumber(i).text().simplified());
         text += i == verseFrom ? textToAppend : " " % textToAppend;
     }
     return text.remove("*");
@@ -63,24 +65,25 @@ void BiblePassageBrowser::insertNotFoundMessage(QTextCursor &cursor, int missing
 
 void BiblePassageBrowser::loadPassageV1(const QSqlDatabase &module)
 {
+    QObject::blockSignals(true);
     QTextEdit::clear();
     m_notes.clear();
     QString book = m_isZeroIndexed ? QString::number(m_book + 1) : QString::number(m_book);
     QString chapter = m_isZeroIndexed ? QString::number(m_chapter + 1) : QString::number(m_chapter);
     QString verseFrom = m_isZeroIndexed ? QString::number(m_verseFrom + 1) : QString::number(m_verseFrom);
     QString verseTo = m_isZeroIndexed ? QString::number(m_verseTo + 1) : QString::number(m_verseTo);
-    QString queryString = QStringLiteral("SELECT Verse, Scripture FROM Bible "
-                                         "WHERE Book = %1 "
-                                         "AND Chapter = %2 "
-                                         "AND Verse >= %3 "
-                                         "AND Verse <= %4").arg(book, chapter, verseFrom, verseTo);
+    QString command = QStringLiteral("SELECT Verse, Scripture FROM Bible "
+                                     "WHERE Book = %1 "
+                                     "AND Chapter = %2 "
+                                     "AND Verse >= %3 "
+                                     "AND Verse <= %4").arg(book, chapter, verseFrom, verseTo);
     int verseNumber = m_isZeroIndexed ? m_verseFrom + 1 : m_verseFrom;
     int verseCount = m_isZeroIndexed ? m_verseTo + 1 : m_verseTo;
     QSqlQuery query(module);
     bool hasNoRecords = true;
     int verse = 1;
-    if (query.exec(queryString)) {
-        QTextCursor cursor(textCursor());
+    if (query.exec(command)) {
+        QTextCursor cursor(QTextEdit::textCursor());
         while (query.next() && verseNumber <= verseCount) {
             hasNoRecords = false;
             QSqlRecord record = query.record();
@@ -89,7 +92,8 @@ void BiblePassageBrowser::loadPassageV1(const QSqlDatabase &module)
                 insertNotFoundMessage(cursor, verse - verseNumber, verseNumber);
             }
             QString scripture = record.value(1).toString();
-            Formatting::formatScripture(scripture, m_notes, m_hasStrong);
+         //   Formatting::formatScripture(scripture, m_notes, m_hasStrong);
+            Formatting::populateNotes(scripture, m_notes);
             cursor.insertHtml("[" % QString::number(verse) + "] " % scripture);
             cursor.insertBlock();
             ++verseNumber;
@@ -100,6 +104,7 @@ void BiblePassageBrowser::loadPassageV1(const QSqlDatabase &module)
             insertNotFoundMessage(cursor, verseCount - verse, verseNumber);
         }
     }
+    QObject::blockSignals(false);
 }
 
 void BiblePassageBrowser::loadPassageV2(const QSqlDatabase &module)
@@ -120,7 +125,8 @@ void BiblePassageBrowser::loadPassageV2(const QSqlDatabase &module)
             QTextCursor cursor = QTextEdit::textCursor();
             if (query.next()) {
                 QString scripture = query.record().value(0).toString();
-                Formatting::formatScripture(scripture, m_notes, m_hasStrong);
+               // Formatting::formatScripture(scripture, m_notes, m_hasStrong);
+                Formatting::populateNotes(scripture, m_notes);
                 cursor.movePosition(QTextCursor::End);
                 cursor.insertHtml("[" % QString::number(verse) % "] " % scripture);
             } else {
@@ -185,6 +191,24 @@ void BiblePassageBrowser::setVerseFrom(int verseFrom)
 void BiblePassageBrowser::setVerseTo(int verseTo)
 {
     m_verseTo = verseTo;
+}
+
+void BiblePassageBrowser::setHighlightColor(QColor &color)
+{
+    m_hightlightColor = &color;
+}
+
+void BiblePassageBrowser::onCursorPositionChanged()
+{
+    QTextCursor cursor = QTextEdit::textCursor();
+    QTextBlockFormat format;
+    format.setBackground(Qt::transparent);
+    if (!m_lastCursor.isNull()) {
+        m_lastCursor.setBlockFormat(format);
+    }
+    format.setBackground(QBrush(*m_hightlightColor));
+    cursor.setBlockFormat(format);
+    m_lastCursor = cursor;
 }
 
 void BiblePassageBrowser::selectPassage(int verseFrom, int verseTo)

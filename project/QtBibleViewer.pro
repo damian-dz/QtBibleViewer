@@ -62,7 +62,7 @@ HEADERS += \
     DialogStrong.h \
     DialogXRefs.h \
     MainWindow.h \
-    ModuleData.h \
+    Module.h \
     SearchEngine.h \
     SearchOptions.h \
     SearchOptionsPanel.h \

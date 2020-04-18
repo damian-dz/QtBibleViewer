@@ -9,6 +9,10 @@ class TabCompare : public AbstractTab
 public:
     explicit TabCompare(QWidget *parent = nullptr);
 
+    virtual void connectSignals() override;
+    virtual void addControls() override;
+    virtual void setUiTexts() override;
+
 signals:
 
 public slots:

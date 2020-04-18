@@ -40,6 +40,7 @@
 #include "AppConfig.h"
 #include "TabBible.h"
 #include "TabSearch.h"
+#include "TabCompare.h"
 
 class MainWindow : public QMainWindow
 {
@@ -61,6 +62,7 @@ private:
 
     TabBible *ui_TabBible;
     TabSearch *ui_TabSearch;
+    TabCompare *ui_TabCompare;
 
     QLabel *ui_Label_Status;
 
@@ -99,7 +101,7 @@ private:
     QString m_executionPath;
     QList<QAction *> m_langActions;
     QMap<QString, QString> m_languages;
-    QList<ModuleData> m_modules;
+    QList<Module> m_modules;
     bool m_modulesFound;
 
     QHash<QString, QMenu *> m_menus;

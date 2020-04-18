@@ -1,7 +1,10 @@
-#ifndef MODULEDATA_H
-#define MODULEDATA_H
+#ifndef MODULE_H
+#define MODULE_H
 
-struct ModuleData
+/*!
+ * \brief The Module struct
+ */
+struct Module
 {
     QSqlDatabase database;
     QString name;
@@ -10,4 +13,4 @@ struct ModuleData
     bool hasStrong;
 };
 
-#endif // MODULEDATA_H
+#endif // MODULE_H
