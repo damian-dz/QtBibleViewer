@@ -3,7 +3,7 @@
 DialogPreferences::DialogPreferences(AppConfig *config, const QStringList &languages, const QString &lang, QFont font,
                                      QWidget *parent)
     : QDialog(parent),
-      m_config(config)
+      m_pConfig(config)
 {
     QListWidget *listWidget = new QListWidget;
     listWidget->setFont(QFont(qApp->font().family(), 10));
@@ -29,8 +29,8 @@ DialogPreferences::DialogPreferences(AppConfig *config, const QStringList &langu
     generateGeneralWidget(languages, lang);
     generateFontWidget(font);
     generateAppearanceWidget();
-    generateFormattingWidget();
-    connectSignals();
+    GenerateFormattingWidget();
+    ConnectSignals();
 
     QObject::connect(listWidget, SIGNAL(currentRowChanged(int)), this, SLOT(listWidgetCurrentRowChanged(int)));
     QObject::connect(dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -57,7 +57,7 @@ void DialogPreferences::generateGeneralWidget(const QStringList &languages, cons
     m_maxRecentSpinBox->setMinimum(2);
     m_maxRecentSpinBox->setMaximum(100);
     m_maxRecentSpinBox->setMaximumWidth(60);
-    m_maxRecentSpinBox->setValue(m_config->general.max_recent_passages);
+    m_maxRecentSpinBox->setValue(m_pConfig->general.max_recent_passages);
 
     QFormLayout *generalFormLayout = new QFormLayout;
     generalFormLayout->addRow(tr("Language:"), m_langComboBox);
@@ -115,14 +115,14 @@ void DialogPreferences::generateAppearanceWidget()
 {
     m_styleComboBox = new QComboBox;
     m_styleComboBox->addItems(QStyleFactory::keys());
-    m_styleComboBox->setCurrentText(m_config->appearance.window_style);
+    m_styleComboBox->setCurrentText(m_pConfig->appearance.window_style);
     m_styleComboBox->setStyleSheet("combobox-popup: 0");
 
     m_backgroundCheckBox = new QCheckBox(tr("Use background image"));
-    m_backgroundCheckBox->setChecked(m_config->appearance.use_background_image);
+    m_backgroundCheckBox->setChecked(m_pConfig->appearance.use_background_image);
 
     QPushButton *colorButton = new QPushButton(tr("Change..."));
-    colorButton->setStyleSheet("background-color:" + m_config->appearance.verse_highlight_color.name());
+    colorButton->setStyleSheet("background-color:" + m_pConfig->appearance.verse_highlight_color.name());
 
     QObject::connect(colorButton, SIGNAL(clicked()), this, SLOT(colorPushButtonClicked()));
 
@@ -130,7 +130,7 @@ void DialogPreferences::generateAppearanceWidget()
     positions << tr("Top") << tr("Bottom") << tr("Left") << tr("Right");
     m_tabPosComboBox = new QComboBox;
     m_tabPosComboBox->addItems(positions);
-    m_tabPosComboBox->setCurrentIndex(m_config->appearance.module_tab_position);
+    m_tabPosComboBox->setCurrentIndex(m_pConfig->appearance.module_tab_position);
     m_tabPosComboBox->setStyleSheet("combobox-popup: 0");
 
     QStringList animateOptns;
@@ -138,7 +138,7 @@ void DialogPreferences::generateAppearanceWidget()
                  << tr("Series Animation") << tr("All Animations");
     m_animateChartComboBox = new QComboBox;
     m_animateChartComboBox->addItems(animateOptns);
-    m_animateChartComboBox->setCurrentIndex(m_config->appearance.chart_animation);
+    m_animateChartComboBox->setCurrentIndex(m_pConfig->appearance.chart_animation);
     m_animateChartComboBox->setStyleSheet("combobox-popup: 0");
 
     QFormLayout *appearanceFormLayout = new QFormLayout;
@@ -154,17 +154,19 @@ void DialogPreferences::generateAppearanceWidget()
     m_stackedWidget->addWidget(appearanceWidget);
 }
 
-void DialogPreferences::generateFormattingWidget()
+void DialogPreferences::GenerateFormattingWidget()
 {
+   // QTabWidget *tabWidget = new QTabWidget;
+
     ui_TextBrowser_Preview = new QTextBrowser;
-    ui_TextBrowser_Preview->setText(getPreviewString(m_config->formatting.reference_before,
-                                                     m_config->formatting.include_numbers));
+    ui_TextBrowser_Preview->setText(GetPreviewString(m_pConfig->formatting.reference_before,
+                                                     m_pConfig->formatting.include_numbers));
 
     ui_RadioButton_Before = new QRadioButton(tr("Before Text"));
 
     QRadioButton *afterRadioButton = new QRadioButton(tr("After Text"));
 
-    if (m_config->formatting.reference_before) {
+    if (m_pConfig->formatting.reference_before) {
         ui_RadioButton_Before->setChecked(true);
     } else {
         afterRadioButton->setChecked(true);
@@ -175,7 +177,7 @@ void DialogPreferences::generateFormattingWidget()
     beforeAfterHorLayout->addWidget(afterRadioButton);
 
     ui_CheckBox_IncludeNumbers = new QCheckBox(tr("Include Verse Numbers"));
-    ui_CheckBox_IncludeNumbers->setChecked(m_config->formatting.include_numbers);
+    ui_CheckBox_IncludeNumbers->setChecked(m_pConfig->formatting.include_numbers);
 
     QFormLayout *formattingFormLayout = new QFormLayout;
     formattingFormLayout->addRow(tr("Reference:"), beforeAfterHorLayout);
@@ -185,10 +187,25 @@ void DialogPreferences::generateFormattingWidget()
     QWidget *formattingWidget = new QWidget;
     formattingWidget->setLayout(formattingFormLayout);
 
+    ui_TextEdit_SymBefore = new QLineEdit;
+    ui_TextEdit_SymBefore->setText(m_pConfig->formatting.symbol_before);
+    ui_TextEdit_SymAfter = new QLineEdit;
+    ui_TextEdit_SymAfter->setText(m_pConfig->formatting.symbol_after);
+
+   // QHBoxLayout *verseSymbolHorLayout = new QHBoxLayout;
+   // verseSymbolHorLayout->addWidget(new QLabel(tr("Before:")));
+   // verseSymbolHorLayout->addWidget(ui_TextEdit_SymBefore);
+   // verseSymbolHorLayout->addWidget(new QLabel(tr("After:")));
+   // verseSymbolHorLayout->addWidget(ui_TextEdit_SymAfter);
+   // tabWidget->addTab(formattingWidget, tr("Reference"));
+
+    formattingFormLayout->addRow(tr("Before:"), ui_TextEdit_SymBefore);
+    formattingFormLayout->addRow(tr("After:"), ui_TextEdit_SymAfter);
+
     m_stackedWidget->addWidget(formattingWidget);
 }
 
-QString DialogPreferences::getPreviewString(bool before, bool includeNumbers) const
+QString DialogPreferences::GetPreviewString(bool before, bool includeNumbers) const
 {
     QString verseText = tr("In the beginning God created the heaven and the earth.");
     if (includeNumbers) {
@@ -208,17 +225,19 @@ QString DialogPreferences::getLanguage() const
     return m_langComboBox->currentText();
 }
 
-void DialogPreferences::updateSettings()
+void DialogPreferences::UpdateSettings()
 {
-    m_config->appearance.chart_animation = m_animateChartComboBox->currentIndex();
-    m_config->appearance.module_tab_position = m_tabPosComboBox->currentIndex();
-    m_config->appearance.use_background_image = m_backgroundCheckBox->isChecked();
-    m_config->appearance.window_style = m_styleComboBox->currentText();
-    m_config->fonts.browser_family = m_TextBrowser_FontPreview->font().family();
-    m_config->fonts.browser_size = m_TextBrowser_FontPreview->font().pointSize();
-    m_config->formatting.reference_before = ui_RadioButton_Before->isChecked();
-    m_config->formatting.include_numbers = ui_CheckBox_IncludeNumbers->isChecked();
-    m_config->general.max_recent_passages = m_maxRecentSpinBox->value();
+    m_pConfig->appearance.chart_animation = m_animateChartComboBox->currentIndex();
+    m_pConfig->appearance.module_tab_position = m_tabPosComboBox->currentIndex();
+    m_pConfig->appearance.use_background_image = m_backgroundCheckBox->isChecked();
+    m_pConfig->appearance.window_style = m_styleComboBox->currentText();
+    m_pConfig->fonts.family = m_TextBrowser_FontPreview->font().family();
+    m_pConfig->fonts.size = m_TextBrowser_FontPreview->font().pointSize();
+    m_pConfig->formatting.reference_before = ui_RadioButton_Before->isChecked();
+    m_pConfig->formatting.include_numbers = ui_CheckBox_IncludeNumbers->isChecked();
+    m_pConfig->formatting.symbol_before = ui_TextEdit_SymBefore->text();
+    m_pConfig->formatting.symbol_after = ui_TextEdit_SymAfter->text();
+    m_pConfig->general.max_recent_passages = m_maxRecentSpinBox->value();
 }
 
 void DialogPreferences::listWidgetCurrentRowChanged(int currentRow)
@@ -241,19 +260,19 @@ void DialogPreferences::currentFontSizeChanged(const QString &text)
 void DialogPreferences::colorPushButtonClicked()
 {
     QColor highlightColor = QColorDialog::getColor(
-                m_config->appearance.verse_highlight_color, this, QString(), QColorDialog::ShowAlphaChannel);
+                m_pConfig->appearance.verse_highlight_color, this, QString(), QColorDialog::ShowAlphaChannel);
     if (highlightColor.isValid()) {
-        m_config->appearance.verse_highlight_color = highlightColor;
+        m_pConfig->appearance.verse_highlight_color = highlightColor;
     }
 }
 
 void DialogPreferences::referenceFormattingToggled(bool)
 {
-    ui_TextBrowser_Preview->setText(getPreviewString(ui_RadioButton_Before->isChecked(),
+    ui_TextBrowser_Preview->setText(GetPreviewString(ui_RadioButton_Before->isChecked(),
                                                      ui_CheckBox_IncludeNumbers->isChecked()));
 }
 
-void DialogPreferences::connectSignals()
+void DialogPreferences::ConnectSignals()
 {
     QObject::connect(ui_RadioButton_Before, QOverload<bool>::of(&QAbstractButton::toggled),
                      [=] (bool checked) { referenceFormattingToggled(checked); });

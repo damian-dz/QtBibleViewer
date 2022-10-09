@@ -1,6 +1,8 @@
 #ifndef PRECOMP_H
 #define PRECOMP_H
 
+#include <3rd_party/sqlite3/api/sqlite3.h>
+
 #ifdef __cplusplus
 
 #include <QDebug>
@@ -12,6 +14,7 @@
 #include <QComboBox>
 #include <QDateTime>
 #include <QDialogButtonBox>
+#include <QElapsedTimer>
 #include <QFileDialog>
 #include <QFontComboBox>
 #include <QFormLayout>
@@ -34,7 +37,10 @@
 #include <QSpinBox>
 #include <QSplitter>
 #include <QSqlDatabase>
+#include <QSqlDriver>
+#include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlQueryModel>
 #include <QSqlRecord>
 #include <QStackedWidget>
 #include <QStandardPaths>
@@ -44,6 +50,8 @@
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QTextBrowser>
+#include <QTextDocumentFragment>
+#include <QTextTable>
 #include <QTime>
 #include <QTimer>
 #include <QToolTip>

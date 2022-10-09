@@ -10,15 +10,25 @@ AbstractTab::AbstractTab(QWidget *parent) :
 {
 }
 
-void AbstractTab::initialize()
+QString AbstractTab::GetLastStatusMsg() const
 {
-    addControls();
-    connectSignals();
-    setUiTexts();
+    return m_lastStatusMsg;
+}
+
+void AbstractTab::Initialize()
+{
+    AddControls();
+    ConnectSignals();
+    SetUiTexts();
     m_isInitialized = true;
 }
 
-bool AbstractTab::isInitialized() const
+void AbstractTab::SetLastStatusMsg(const QString &msg)
+{
+    m_lastStatusMsg = msg;
+}
+
+bool AbstractTab::IsInitialized() const
 {
     return m_isInitialized;
 }

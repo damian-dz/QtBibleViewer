@@ -12,7 +12,7 @@ public:
     ~DialogPreferences();
 
     QString getLanguage() const;
-    void updateSettings();
+    void UpdateSettings();
 
 public slots:
     void listWidgetCurrentRowChanged(int currentRow);
@@ -23,14 +23,7 @@ public slots:
     void referenceFormattingToggled(bool);
 
 private:
-    void connectSignals();
-    void generateGeneralWidget(const QStringList &languages, const QString &lang);
-    void generateFontWidget(const QFont &font);
-    void generateAppearanceWidget();
-    void generateFormattingWidget();
-    QString getPreviewString(bool before, bool includeNumbers) const;
-
-    AppConfig *m_config;
+    AppConfig *m_pConfig;
     QComboBox *m_styleComboBox;
     QComboBox *m_tabPosComboBox;
     QCheckBox *m_backgroundCheckBox;
@@ -44,6 +37,16 @@ private:
     QCheckBox *ui_CheckBox_IncludeNumbers;
     QRadioButton *ui_RadioButton_Before;
     QTextBrowser *ui_TextBrowser_Preview;
+
+    QLineEdit *ui_TextEdit_SymBefore;
+    QLineEdit *ui_TextEdit_SymAfter;
+
+    void ConnectSignals();
+    void generateGeneralWidget(const QStringList &languages, const QString &lang);
+    void generateFontWidget(const QFont &font);
+    void generateAppearanceWidget();
+    void GenerateFormattingWidget();
+    QString GetPreviewString(bool before, bool includeNumbers) const;
 };
 
 

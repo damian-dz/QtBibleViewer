@@ -1,4 +1,5 @@
 #include "SearchEngine.h"
+#include "Formatting.h"
 
 bool SearchEngine::containsAllWords(const QString &text, const QList<QRegularExpression> &words)
 {
@@ -24,22 +25,27 @@ bool SearchEngine::containsAnyWord(const QString &text, const QList<QRegularExpr
     return hasAny;
 }
 
-QRegExp SearchEngine::iterateRecords(QSqlQuery &query, const QStringList &words,
-                                  QRegularExpression::PatternOption sensitivity, bool wholeWords, bool containsAll,
-                                  QStringList &results, QStringList &refs, const QStringList &bookNames)
+QRegularExpression SearchEngine::iterateRecords(QSqlQuery &query, const QStringList &words,
+                                     QRegularExpression::PatternOption sensitivity, bool wholeWords, bool containsAll,
+                                     QStringList &results, QStringList &refs, const QStringList &bookNames)
 {
+    qDebug() << "iterateRecords()";
     AllAny containsFunc = containsAll ? containsAllWords : containsAnyWord;
     QString boundary = wholeWords ? "\\b" : "";
     QList<QRegularExpression> wordsRgx;
     for (int i = 0; i < words.count(); ++i) {
-        wordsRgx << QRegularExpression(boundary % words[i] % boundary, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
+        wordsRgx << QRegularExpression(boundary % words[i] % boundary, sensitivity
+                                       | QRegularExpression::UseUnicodePropertiesOption);
     }
+    QRegularExpression patterns("{H}.*{h}");
     while (query.next()) {
         QSqlRecord record = query.record();
-        QString book = record.value(0).toString();
-        QString chapter = record.value(1).toString();
-        QString verse = record.value(2).toString();
-        QString scripture = record.value(3).toString();
+        QString book = record.value(1).toString();
+        QString chapter = record.value(2).toString();
+        QString verse = record.value(3).toString();
+        QString scripture = record.value(4).toString();
+        scripture.remove(patterns);
+        //qDebug() << scripture;
         if (containsFunc(scripture, wordsRgx)) {
             results << scripture;
             refs << QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
@@ -50,38 +56,64 @@ QRegExp SearchEngine::iterateRecords(QSqlQuery &query, const QStringList &words,
     for (QString word : words) {
         dispWords << boundary % word % boundary;
     }
-    Qt::CaseSensitivity cs = sensitivity == QRegularExpression::NoPatternOption ?
-                Qt::CaseSensitive : Qt::CaseInsensitive;
-    return QRegExp(dispWords.join("|"), cs);
-//    m_dispRgx = QRegExp(dispWords.join("|"), cs);
+    return QRegularExpression(dispWords.join('|'), sensitivity);
 }
 
-QRegExp SearchEngine::iterateRecords(QSqlQuery &query, const QString &text,
-                                  QRegularExpression::PatternOption sensitivity, bool wholeWords, bool hasStrong,
-                                  QStringList &results, QStringList &refs, const QStringList &bookNames)
+QRegularExpression SearchEngine::iterateRecords(QSqlQuery &query, const QString &text,
+                                     QRegularExpression::PatternOption sensitivity, bool wholeWords, bool hasStrong,
+                                     QStringList &results, QStringList &refs, const QStringList &bookNames)
 {
+    qDebug() << "iterateRecords2()";
     QString boundary = wholeWords ? "\\b" : "";
     QRegularExpression textRgx(boundary % text % boundary, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
     QString strong = hasStrong ? "|<W[HG][0-9]{1,4}>" : "";
-    QRegularExpression patterns("<.{2,3}>|<RF>.*<Rf>" + strong);
+    QRegularExpression patterns("{TN}.*{tn}|{H}.*{h}|{[A-Za-z]{2}}|<.{1,2}>" + strong);
     while (query.next()) {
         QSqlRecord record = query.record();
-        QString rawText = record.value(3).toString();
-        QString strippedText = rawText.remove(patterns);
-        if (strippedText.contains(textRgx)) {
-            QString book = record.value(0).toString();
-            QString chapter = record.value(1).toString();
-            QString verse = record.value(2).toString();
-            results << record.value(3).toString();
+        QString inputText = record.value(4).toString();
+        QString outputText(inputText);
+        inputText.remove(patterns);
+        if (inputText.contains(textRgx)) {
+            QString book = record.value(1).toString();
+            QString chapter = record.value(2).toString();
+            QString verse = record.value(3).toString();
+            results << outputText;
             refs << QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
                             .arg(book, chapter, verse, bookNames[book.toInt() - 1], chapter, verse);
         }
     }
-    Qt::CaseSensitivity cs = sensitivity == QRegularExpression::NoPatternOption ?
-                Qt::CaseSensitive : Qt::CaseInsensitive;
-    return QRegExp(textRgx.pattern(), cs);
-   // m_dispRgx = QRegExp(textRgx.pattern(), cs);
+    return QRegularExpression(textRgx.pattern(), sensitivity);
 }
+
+void SearchEngine::escape(QStringList &words)
+{
+    for (QString &word : words) {
+        word.replace("'", "''");
+    }
+}
+
+void SearchEngine::multipleWordQuery(QSqlQuery &query, const QStringList &wordsLow, const QStringList &wordsUpp, const QString &conj, int book1, int book2)
+{
+    QString command = "SELECT * FROM Bible";
+    QString whereOr = " WHERE (LOWER(Scripture) LIKE '%?%'"
+                      " OR UPPER(Scripture) LIKE '%?%')";
+    command += whereOr;
+    for (int i = 1; i < wordsLow.count(); ++i) {
+        command += " " % conj % whereOr;
+    }
+    command += " AND Book >= ? AND Book <= ?";
+    query.prepare(command);
+    for (int i = 0; i < wordsLow.count(); ++i) {
+        query.addBindValue(wordsLow[i]);
+        query.addBindValue(wordsUpp[i]);
+    }
+    query.addBindValue(book1);
+    query.addBindValue(book2);
+
+    qDebug() << "ERR:" << query.lastError();
+}
+
+
 
 
 QString SearchEngine::multipleWordQueryString(const QStringList &wordsLow, const QStringList &wordsUpp, const QString &conj)
@@ -96,32 +128,198 @@ QString SearchEngine::multipleWordQueryString(const QStringList &wordsLow, const
     return queryString;
 }
 
-QStringList SearchEngine::search(QString text, SearchOptions options, const QSqlDatabase &module, bool hasStrong, QStringList &refs,
-                                 const QStringList &bookNames)
+QRegularExpression SearchEngine::search(QString text, SearchOptions options, QSqlDatabase &module, bool hasStrong, QStringList &refs,
+                                 const QStringList &bookNames, QStringList &results)
 {
+    results.clear();
     QString textLow = text.toLower();
     QString textUpp = text.toUpper();
     QStringList words = text.split(" ");
     QStringList wordsLow = textLow.split(" ");
     QStringList wordsUpp = textUpp.split(" ");
+    escape(wordsLow);
+    escape(wordsUpp);
     QString conj = options.searchMode == SearchMode::anyWords ? "OR" : "AND";
     QRegularExpression::PatternOption sensitivity = options.caseSensitive ?
-                                      QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+                QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
     bool containsAll = options.searchMode == SearchMode::allWords ? true : false;
     QString command = multipleWordQueryString(wordsLow, wordsUpp, conj) %
                       " AND Book >= " % QString::number(options.bookFrom) %
                       " AND Book <= " % QString::number(options.bookTo);
+    //qDebug() << "CMD:" << command;
     QSqlQuery query(module);
-    QStringList results;
+   // multipleWordQuery(query, wordsLow, wordsUpp, conj, options.bookFrom, options.bookTo);
+
+    qDebug() << "Last Query:" << query.lastQuery();
+    QRegularExpression regex;
     if (query.exec(command)) {
+        qDebug() << "Bound Values:" << query.boundValues();
+        qDebug() << "Size:" << query.at() + 1;
         if (options.searchMode == SearchMode::exactPhrase) {
-            iterateRecords(query, text, sensitivity, options.wholeWordsOnly, hasStrong, results, refs, bookNames);
+            regex = iterateRecords(query, text, sensitivity, options.wholeWordsOnly, hasStrong, results, refs,
+                                   bookNames);
         } else {
-            iterateRecords(query, words, sensitivity, options.wholeWordsOnly, containsAll, results, refs, bookNames);
+            regex = iterateRecords(query, words, sensitivity, options.wholeWordsOnly, containsAll, results,
+                                   refs, bookNames);
         }
-        //iterateRecords(query, words, sensitivity, options.wholeWordsOnly, containsAll, results);
     }
-    return results;
+    return regex;
+}
+
+
+int SearchEngine::ComputeLevenshteinDistance(const QString &source, const QString &target)
+{
+    if ((source == nullptr) || (target == nullptr)) return 0;
+    if ((source.length() == 0) || (target.length() == 0)) return 0;
+    if (source == target) return source.length();
+
+    int sourceWordCount = source.length();
+    int targetWordCount = target.length();
+
+    // Step 1
+    if (sourceWordCount == 0)
+        return targetWordCount;
+
+    if (targetWordCount == 0)
+        return sourceWordCount;
+
+    int numCols = targetWordCount + 1;
+    int *distance = new int[(sourceWordCount + 1) * numCols];
+
+    // Step 2
+    for (int i = 0; i <= sourceWordCount; ++i)  {
+        distance[i * numCols] = i;
+    }
+    for (int j = 0; j <= targetWordCount; ++j) {
+        distance[j] = j;
+    }
+
+    for (int i = 1; i <= sourceWordCount; i++) {
+        for (int j = 1; j <= targetWordCount; j++) {
+            // Step 3
+            int cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
+
+            // Step 4
+            distance[i * numCols + j]
+                    = qMin(qMin(distance[(i - 1) * numCols + j] + 1,
+                           distance[i * numCols + j - 1] + 1), distance[(i - 1) * numCols + j - 1] + cost);
+        }
+    }
+    int result = distance[sourceWordCount * numCols + targetWordCount];
+    delete[] distance;
+    return result;
+}
+
+double SearchEngine::CalculateSimilarity(const QString &source, const QString &target, bool caseSensitive)
+{
+    if ((source == nullptr) || (target == nullptr)) return 0.0;
+    if ((source.length() == 0) || (target.length() == 0)) return 0.0;
+    if (source == target) return 1.0;
+
+    int stepsToSame = caseSensitive ?
+        ComputeLevenshteinDistance(source, target) :
+        ComputeLevenshteinDistance(source.toLower(), target.toLower());
+    return 1.0 - (stepsToSame / (double)qMax(source.length(), target.length()));
+}
+
+int SearchEngine::FindBestMatchIndex(QString pattern, QStringList values)
+{
+    if (values.empty() || values.length() == 0) return -1;
+
+    for (int i = 0; i < values.length(); i++) {
+        if (pattern == values[i]) return i;
+    }
+
+    QString patternLower = pattern.toLower();
+    for (int i = 0; i < values.length(); i++) {
+        if (patternLower == values[i].toLower()) return i;
+    }
+
+    for (int i = 0; i < values.length(); i++) {
+        if (values[i].startsWith(pattern)) return i;
+    }
+
+    for (int i = 0; i < values.length(); i++) {
+        if (values[i].toLower().startsWith(patternLower)) return i;
+    }
+
+    double lastSimilarityCs = 0.0;
+    int lastIndexCs = 0;
+
+    for (int i = 0; i < values.length(); i++) {
+        double similarity = CalculateSimilarity(pattern, values[i]);
+        if (similarity > lastSimilarityCs) {
+            lastIndexCs = i;
+            lastSimilarityCs = similarity;
+        }
+    }
+
+    double lastSimilarityCi = 0.0;
+    int lastIndexCi = 0;
+    for (int i = 0; i < values.length(); i++) {
+        double similarity = CalculateSimilarity(pattern, values[i]);
+        if (similarity > lastSimilarityCi) {
+            lastIndexCi = i;
+            lastSimilarityCi = similarity;
+        }
+    }
+    return lastSimilarityCs > lastSimilarityCi ? lastIndexCs : lastIndexCi;
+}
+
+
+qbv::Location SearchEngine::parseLocationStr(QString raw,
+                                             const QStringList& bookNames,
+                                             const QStringList& shortBookNames)
+{
+    QString trimmed = raw.trimmed();
+    int i = 0;
+    bool isDigit = false;
+    QList<int> indices;
+    if (trimmed.length() > 0 && trimmed[0].isDigit()) {
+        while (i < trimmed.length() && trimmed[i].isDigit()) i++;
+    }
+    while (i < trimmed.length() && indices.count() < 6) {
+        if ((trimmed[i].isDigit() && !isDigit) || (!trimmed[i].isDigit() && isDigit)) {
+            isDigit = !isDigit;
+            indices.append(i);
+        }
+        ++i;
+    }
+    QString bookStr = trimmed.mid(0, indices[0]);
+    int chapter = -1;
+    int verse1 = -1;
+    int verse2 = -1;
+    if (indices.count() == 1) {
+        chapter = trimmed.mid(indices[0]).toInt();
+    } else if (indices.count() == 2) {
+        chapter = trimmed.mid(indices[0], indices[1] - indices[0]).toInt();
+    } else if (indices.count() == 3) {
+        chapter = trimmed.mid(indices[0], indices[1] - indices[0]).toInt();
+        verse1 = trimmed.mid(indices[2]).toInt();
+    } else if (indices.count() == 4) {
+        chapter = trimmed.mid(indices[0], indices[1] - indices[0]).toInt();
+        verse1 = trimmed.mid(indices[2], indices[3] - indices[2]).toInt();
+    } else if (indices.count() == 5) {
+        chapter = trimmed.mid(indices[0], indices[1] - indices[0]).toInt();
+        verse1 = trimmed.mid(indices[2], indices[3] - indices[2]).toInt();
+        verse2 = trimmed.mid(indices[4]).toInt();
+    } else if (indices.count() > 5) {
+        chapter = trimmed.mid(indices[0], indices[1] - indices[0]).toInt();
+        verse1 = trimmed.mid(indices[2], indices[3] - indices[2]).toInt();
+        verse2 = trimmed.mid(indices[4], indices[5] - indices[4]).toInt();
+    }
+
+    int bookIdx = -1;
+    QString bookStrLower = bookStr.toLower();
+    for (int i = 0; i < shortBookNames.length(); ++i) {
+        if (bookStrLower == shortBookNames[i].toLower()) {
+            bookIdx = i;
+            return qbv::Location(bookIdx + 1, chapter, verse1, verse2);
+        }
+    }
+
+    bookIdx = FindBestMatchIndex(bookStr, bookNames);
+    return qbv::Location(bookIdx + 1, chapter, verse1, verse2);
 }
 
 
@@ -447,7 +645,7 @@ QStringList SearchEngine::search(QString text, SearchOptions options, const QSql
 //    idx = matchPassageStartsWith(bookStr, simpleNames);
 //    if (idx > -1) {
 //        return idx;
-//    }
+//    }r
 //    idx = matchPassageContains(bookStr, simpleNames, Qt::CaseSensitive);
 //    if (idx > -1) {
 //        return idx;

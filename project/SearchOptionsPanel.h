@@ -12,37 +12,38 @@ public:
     SearchOptionsPanel(const QStringList &bookNames, const QStringList &translationNames, QWidget *parent = nullptr);
 
     SearchOptions getSearchOptions();
-    int getNumResultsPerPage();
-    void setUiTexts();
+    int GetNumResultsPerPage() const;
+    int GetBookFrom() const;
+    int GetBookTo() const;
+    int GetTranslationIndex() const;
+    void SetUiTexts();
 
 signals:
     void numResultsPerPageChanged(int numResults);
 
 private:
-    QComboBox *ui_ComboBox_From;
-    QComboBox *ui_ComboBox_To;
-    QComboBox *ui_ComboBox_Translation;
-    QComboBox *ui_ComboBox_Range;
-    QComboBox *ui_ComboBox_ResPerPage;
+    const QStringList *m_bookNames;
+    QString m_popup0;
+
     QCheckBox *ui_CheckBox_CaseSensitive;
     QCheckBox *ui_CheckBox_WholeWordsOnly;
-    QRadioButton *ui_RadioButton_ExactPhrase;
+    QComboBox *ui_ComboBox_From;
+    QComboBox *ui_ComboBox_Range;
+    QComboBox *ui_ComboBox_ResPerPage;
+    QComboBox *ui_ComboBox_To;
+    QComboBox *ui_ComboBox_Translation;
+    QLabel *ui_Label_From;
+    QLabel *ui_Label_Range;
+    QLabel *ui_Label_ResultsPerPassage;
+    QLabel *ui_Label_To;
+    QLabel *ui_Label_Translation;
     QRadioButton *ui_RadioButton_AllWords;
     QRadioButton *ui_RadioButton_AnyWords;
     QRadioButton *ui_RadioButton_ByStrong;
-
-    const QStringList *m_bookNames;
-
-    QString m_popup0;
-
-    QLabel *ui_Label_Translation;
-    QLabel *ui_Label_Range;
-    QLabel *ui_Label_From;
-    QLabel *ui_Label_To;
-    QLabel *ui_Label_ResultsPerPassage;
+    QRadioButton *ui_RadioButton_ExactPhrase;
 
 private slots:
-    void onRangeChanged(int index);
+    void OnRangeChanged(int index);
 };
 
 #endif // SEARCHOPTIONSPANEL_H

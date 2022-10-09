@@ -1,53 +1,47 @@
 #include "SearchOptionsPanel.h"
 
-SearchOptionsPanel::SearchOptionsPanel(const QStringList &bookNames, const QStringList &translationNames, QWidget *parent) :
+SearchOptionsPanel::SearchOptionsPanel(const QStringList &bookNames, const QStringList &translationNames,
+                                       QWidget *parent) :
     QGroupBox(parent),
     m_bookNames(&bookNames),
-    m_popup0("combobox-popup: 0")
+    m_popup0("combobox-popup: 0"),
+    ui_CheckBox_CaseSensitive(new QCheckBox),
+    ui_CheckBox_WholeWordsOnly(new QCheckBox),
+    ui_ComboBox_From(new QComboBox),
+    ui_ComboBox_Range(new QComboBox),
+    ui_ComboBox_ResPerPage(new QComboBox),
+    ui_ComboBox_To(new QComboBox),
+    ui_ComboBox_Translation(new QComboBox),
+    ui_Label_From(new QLabel),
+    ui_Label_Range(new QLabel),
+    ui_Label_ResultsPerPassage(new QLabel),
+    ui_Label_To(new QLabel),
+    ui_Label_Translation(new QLabel),
+    ui_RadioButton_AllWords(new QRadioButton),
+    ui_RadioButton_AnyWords(new QRadioButton),
+    ui_RadioButton_ByStrong(new QRadioButton),
+    ui_RadioButton_ExactPhrase(new QRadioButton)
 {
-    QFormLayout *mainFormLayout = new QFormLayout;
-
-    ui_ComboBox_Translation = new QComboBox;
     ui_ComboBox_Translation->setStyleSheet(m_popup0);
     ui_ComboBox_Translation->addItems(translationNames);
-    ui_Label_Translation = new QLabel;
-
-    ui_ComboBox_Range = new QComboBox;
-    ui_Label_Range = new QLabel;
 
     ui_ComboBox_Range->setStyleSheet(m_popup0);
+    ui_ComboBox_Range->setMaxVisibleItems(12);
     ui_ComboBox_Range->setCurrentIndex(0);
 
-    ui_ComboBox_From = new QComboBox;
     ui_ComboBox_From->setStyleSheet(m_popup0);
     ui_ComboBox_From->addItems(bookNames);
     ui_ComboBox_From->setMaxVisibleItems(30);
-    ui_Label_From = new QLabel;
 
-    ui_ComboBox_To = new QComboBox;
     ui_ComboBox_To->setStyleSheet(m_popup0);
     ui_ComboBox_To->addItems(bookNames);
     ui_ComboBox_To->setMaxVisibleItems(30);
     ui_ComboBox_To->setCurrentIndex(bookNames.count() - 1);
-    ui_Label_To = new QLabel;
 
-    ui_CheckBox_CaseSensitive = new QCheckBox;
-
-    ui_CheckBox_WholeWordsOnly = new QCheckBox;
-
-    ui_RadioButton_ExactPhrase = new QRadioButton;
     ui_RadioButton_ExactPhrase->setChecked(true);
 
-    ui_RadioButton_AllWords = new QRadioButton;
-
-    ui_RadioButton_AnyWords = new QRadioButton;
-
-    ui_RadioButton_ByStrong = new QRadioButton;
-
-    ui_ComboBox_ResPerPage = new QComboBox;
     ui_ComboBox_ResPerPage->setStyleSheet(m_popup0);
     ui_ComboBox_ResPerPage->setMaximumWidth(40);
-    ui_Label_ResultsPerPassage = new QLabel;
     ui_ComboBox_ResPerPage->addItems(QStringList({"10", "15", "25", "30", "40", "50", "75", "100"}));
     ui_ComboBox_ResPerPage->setCurrentIndex(2);
 
@@ -55,6 +49,7 @@ SearchOptionsPanel::SearchOptionsPanel(const QStringList &bookNames, const QStri
     resPerPageHorLayout->addWidget(ui_ComboBox_ResPerPage);
     resPerPageHorLayout->addWidget(ui_Label_ResultsPerPassage);
 
+    QFormLayout *mainFormLayout = new QFormLayout;
     mainFormLayout->addRow(ui_Label_Translation, ui_ComboBox_Translation);
     mainFormLayout->addRow(ui_Label_Range, ui_ComboBox_Range);
     mainFormLayout->addRow(ui_Label_From, ui_ComboBox_From);
@@ -69,10 +64,8 @@ SearchOptionsPanel::SearchOptionsPanel(const QStringList &bookNames, const QStri
 
     QWidget::setLayout(mainFormLayout);
 
-    // setUiTexts();
-
     QObject::connect(ui_ComboBox_Range, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                     [=] (int index) { onRangeChanged(index); });
+                     [=] (int index) { OnRangeChanged(index); });
     QObject::connect(ui_ComboBox_ResPerPage, QOverload<const QString&>::of(&QComboBox::currentTextChanged),
                      [=] (const QString &text) { emit numResultsPerPageChanged(text.toInt()); });
 }
@@ -95,28 +88,37 @@ SearchOptions SearchOptionsPanel::getSearchOptions()
     return { translation, bookFrom, bookTo, caseSensitive, wholeWordsOnly, searchMode };
 }
 
-int SearchOptionsPanel::getNumResultsPerPage()
+int SearchOptionsPanel::GetNumResultsPerPage() const
 {
     return ui_ComboBox_ResPerPage->currentText().toInt();
 }
 
-void SearchOptionsPanel::setUiTexts()
+int SearchOptionsPanel::GetBookFrom() const
+{
+    return ui_ComboBox_From->currentIndex() + 1;
+}
+
+int SearchOptionsPanel::GetBookTo() const
+{
+    return ui_ComboBox_To->currentIndex() + 1;
+}
+
+int SearchOptionsPanel::GetTranslationIndex() const
+{
+    return ui_ComboBox_Translation->currentIndex();
+}
+
+void SearchOptionsPanel::SetUiTexts()
 {
     QGroupBox::setTitle((tr("Search Options")));
 
     ui_ComboBox_Range->clear();
-    ui_ComboBox_Range->addItems(QStringList({tr("Entire Bible"),
-                                             tr("Old Testament"),
-                                             tr("Pentateuch"),
-                                             tr("Historical Books"),
-                                             tr("Poetical Books"),
-                                             tr("Major Prophets"),
-                                             tr("Minor Prophets"),
-                                             tr("New Testament"),
-                                             tr("Gospels & Acts"),
-                                             tr("Pauline Epistles"),
-                                             tr("General Epistles & Revelation"),
-                                             tr("Custom")}));
+    ui_ComboBox_Range->addItems(
+                QStringList({ tr("Entire Bible"), tr("Old Testament"), tr("Pentateuch"),
+                              tr("Historical Books"), tr("Poetical Books"),
+                              tr("Major Prophets"), tr("Minor Prophets"), tr("New Testament"),
+                              tr("Gospels & Acts"), tr("Pauline Epistles"),
+                              tr("General Epistles & Revelation"), tr("Custom") }));
 
     if (ui_ComboBox_From->count() > 0) {
         ui_ComboBox_From->clear();
@@ -136,16 +138,20 @@ void SearchOptionsPanel::setUiTexts()
     ui_CheckBox_WholeWordsOnly->setToolTip(tr("Ignore word fragments."));
 
     ui_RadioButton_ExactPhrase->setText(tr("Exact Phrase"));
-    ui_RadioButton_ExactPhrase->setToolTip(tr("Look for verses that contain the exact sequence of characters."));
+    ui_RadioButton_ExactPhrase->setToolTip(
+                tr("Look for verses that contain the exact sequence of characters."));
     ui_RadioButton_AllWords->setText(tr("All of the Words"));
-    ui_RadioButton_AllWords->setToolTip(tr("Look for verses that contain all of the words (in any order)."));
+    ui_RadioButton_AllWords->setToolTip(
+                tr("Look for verses that contain all of the words (in any order)."));
     ui_RadioButton_AnyWords->setText(tr("Any of the Words"));
-    ui_RadioButton_AnyWords->setToolTip(tr("Look for verses that contain at least one of the words."));
+    ui_RadioButton_AnyWords->setToolTip(
+                tr("Look for verses that contain at least one of the words."));
     ui_RadioButton_ByStrong->setText(tr("By Strong's Number"));
-    ui_RadioButton_ByStrong->setToolTip(tr("Look for verses containing the specified Strong's Number (if available)."));
+    ui_RadioButton_ByStrong->setToolTip(
+                tr("Look for verses containing the specified Strong's Number (if available)."));
 }
 
-void SearchOptionsPanel::onRangeChanged(int index)
+void SearchOptionsPanel::OnRangeChanged(int index)
 {
     switch (index) {
        case 0:

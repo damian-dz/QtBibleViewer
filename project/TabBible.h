@@ -3,43 +3,78 @@
 
 #include "AbstractTab.h"
 #include "Module.h"
-#include "BibleModuleTabWidget.h"
-#include "BibleNavigationPanel.h"
+#include "ModuleTabWidget.h"
+#include "NavigationPanel.h"
+#include "CrossReferenceBox.h"
+#include "FindOnPageBox.h"
 
 class TabBible : public AbstractTab
 {
     Q_OBJECT
 public:
-    explicit TabBible(const QSqlDatabase &verseData, const QStringList &bookNames, const QList<Module>& modules,
+    explicit TabBible(const QSqlDatabase &verseData, const QSqlDatabase &crossRefs, const QStringList &bookNames,
+                      const QStringList &shortBookNames, const QList<qbv::Module>& modules, AppConfig *config,
                       QWidget *parent = nullptr);
 
-    virtual void connectSignals() override;
-    virtual void addControls() override;
-    virtual void setUiTexts() override;
+    virtual void ConnectSignals() override;
+    virtual void AddControls() override;
+    virtual void SetUiTexts() override;
 
-    void addModule(const QString &name, const QString &filePath, bool hasOT = true, bool hasStrong = false);
-    int getCurrentIndex() const;
-    int getModuleCount() const;
-    void reloadBookNames();
-    void selectModule(int idx);
-    void selectPassage(int book, int chapter, int verseFrom, int verseTo, bool sendSignal = true);
-    void setBiblePassageBrowserFont(const QFont& font);
-    void setBiblePassageBrowserHighlightColor(QColor &color);
+//  void AddModule(const QString &name, const QString &filePath, bool hasOT = true, bool hasStrong = false);
+    void AddModule(const qbv::Module &module);
+    int GetSelectedBook() const;
+    int GetSelectedChapter() const;
+    int GetCurrentIndex() const;
+    int GetModuleCount() const;
+    int GetSelectedVerseFrom() const;
+    int GetSelectedVerseTo() const;
+    QByteArray GetSplitterLayout() const;
+    void HighlightVerse(int verse);
+    void LoadPassageInCurrentTab();
+    void ReloadBookNames();
+    void SelectAllText();
+    void SetActiveModule(int idx, bool blockSignals = false);
+    void SetNavigationLocation(int book, int chapter, bool load = false);
+//  void SelectPassage(int book, int chapter, int verse1, int verse2, bool sendSignal = true);
+    void SelectPassageFromConfig();
+    void SetPassageBrowserFont(const QFont& font);
+    void SetPassageBrowserHighlightColor(QColor &color);
+    void UpdateFromConfig();
+
+   QString getBookName(int idx) const ;
+   void FindPhrase();
 
 signals:
+   void StatusMsgSet(QString msg);
+   void AddToNotesRequested(qbv::Location loc);
 
 public slots:
-    void onPassageChanged(int book, int chapter, int verseFrom, int verseTo);
+    void OnPassageChanged(int book, int chapter, int verse1, int verse2);
     void onRandomChapterRequested();
+    void OnModuleTabWidgetTabChanged(int index);
 
 private:
     QTabBar *ui_TabBar_Modules;
-    BibleModuleTabWidget *ui_ModuleTabWidget;
-    BibleNavigationPanel *ui_NavigationPanel;
+    ModuleTabWidget *ui_ModuleTabWidget;
+    NavigationPanel *ui_NavigationPanel;
 
-    const QStringList *m_bookNames;
-    const QList<Module> *m_modules;
-    const QSqlDatabase *m_verseData;
+    QVBoxLayout *ui_VerLayout_Modules;
+
+    QSplitter *ui_Splitter_ModuleCrossRef;
+    CrossReferenceBox *ui_CrossRefBox;
+    FindOnPageBox *ui_FindOnPageBox;
+    QLineEdit *ui_LineEdit_Find;
+    QPushButton *ui_Button_Close;
+
+    AppConfig *m_pConfig;
+    const QStringList *m_pBookNames;
+    const QStringList *m_pBookShortNames;
+    const QList<qbv::Module> *m_pModules;
+    const QSqlDatabase *m_pVerseData;
+    const QSqlDatabase *m_pCrossRefs;
+    QList<qbv::TabbedLocation> m_tabbedLocationHistory;
+
+    void OnCrossReferenceRequested(int verse);
 };
 
 #endif // TABBIBLE_H

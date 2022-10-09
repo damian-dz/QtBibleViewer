@@ -20,6 +20,17 @@
 //#define ACT_ABOUT "About"
 //#define ACT_ABOUT_QT "AboutQt"
 
+#define DEFAULT_WIN_WIDTH 920
+#define DEFAULT_WIN_HEIGHT 600
+#define MIN_WIN_WIDTH 720
+#define MIN_WIN_HEIGHT 480
+
+#define APP_MODULES_DIR "/App/modules"
+#define APP_LANG_DIR "/App/lang"
+#define VERSE_DATA_FILE_PATH "/App/data/VerseData.bblv"
+#define XREF_FILE_PATH "/App/data/xref.bblv"
+#define FAV_FILE_PATH "/App/data/fav.bblv"
+
 #define ICON_FOLDER ":/img/img_res/folder.svg"
 #define ICON_ARROW_LEFT ":/img/img_res/arrow_left.svg"
 #define ICON_ARROW_RIGHT ":/img/img_res/arrow_right.svg"
@@ -41,6 +52,8 @@
 #include "TabBible.h"
 #include "TabSearch.h"
 #include "TabCompare.h"
+#include "TabDictionary.h"
+#include "TabNotes.h"
 
 class MainWindow : public QMainWindow
 {
@@ -48,11 +61,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(const QString &appDir, AppConfig &config, QTranslator &appTs, QTranslator &qtTs,
                         QWidget *parent);
-
-signals:
-
-public slots:
-    void onMainTabChanged(int index);
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -63,12 +71,15 @@ private:
     TabBible *ui_TabBible;
     TabSearch *ui_TabSearch;
     TabCompare *ui_TabCompare;
+    TabDictionary *ui_TabDictionary;
+    TabNotes *ui_TabFavorites;
 
     QLabel *ui_Label_Status;
 
     QMenu *ui_Menu_Edit;
     QMenu *ui_Menu_File;
     QMenu *ui_Menu_Help;
+    QMenu *ui_Menu_Import;
     QMenu *ui_Menu_Language;
     QMenu *ui_Menu_Options;
     QMenu *ui_Menu_Statistics;
@@ -86,22 +97,26 @@ private:
     QAction *ui_Act_DecreaseFontSize;
     QAction *ui_Act_IncreaseFontSize;
     QAction *ui_Act_ModuleInfo;
+    QAction *ui_Act_MySwordModule;
     QAction *ui_Act_OpenModule;
     QAction *ui_Act_Preferences;
     QAction *ui_Act_SelectAll;
     QAction *ui_Act_ShowHelp;
+    QAction *ui_Act_TheWordModule;
     QAction *ui_Act_WordFrequency;
 
-    AppConfig *m_config;
+    AppConfig *m_pConfig;
 
     QTranslator m_appTs;
+    QStringList m_shortBookNames;
     QStringList m_bookNames;
     QFont m_currentFont;
     QSqlDatabase m_verseData;
+    QSqlDatabase m_xrefData;
     QString m_executionPath;
     QList<QAction *> m_langActions;
     QMap<QString, QString> m_languages;
-    QList<Module> m_modules;
+    QList<qbv::Module> m_modules;
     bool m_modulesFound;
 
     QHash<QString, QMenu *> m_menus;
@@ -112,42 +127,54 @@ private:
     QTranslator *m_pTsApp;
     QTranslator *m_pTsQt;
 
-    void loadVerseData();
-    void checkModulePaths();
+    void LoadVerseData();
+    void LoadCrossReferences();
+    void CheckModulePaths();
 
-    void changeLanguage(const QString &lang);
-    void closeDatabase(QSqlDatabase &db);
-    void connectSignals();
-    void createMenuBar();
-    void initializeBibleTab();
-    void loadModuleData();
-    void populateBookNames();
-    QStringList getModulePaths(const QString &dirPath);
-    bool loadBibleModule(const QString &filePath);
+    void SetLanguage(const QString &lang);
+    void CloseDatabase(QSqlDatabase &db);
+    void ConnectSignals();
+    void CreateMenuBar();
+    void InitializeBibleTab();
+    void LoadModules();
+    void PopulateShortBookNames();
+    void PopulateBookNames();
+    QStringList GetModulePaths(const QString &dirPath);
+    bool LoadModule(const QString &filePath);
 
-    void setUiTexts();
-    void setWindowGeometry();
+    void SaveSettings();
+    void SetGlobalFont(const QFont &font);
+    void SetUiTexts(bool skipBibleTab = false);
+    void SetWindowGeometry();
 
-    void updateFromSettings();
+    void UpdateFromSettings();
 
-    void onAbout();
-    void onAboutQt();
+    void OnAbout();
+    void OnAboutQt();
+    void OnAddToNotes(qbv::Location loc);
     void onBack();
-    void onCommonRareWords();
+    void OnCommonRareWords();
     void onCopy();
     void onCopyWithReference();
-    void onDecreaseFontSize();
-    void onExit();
+    void OnDecreaseFontSize();
+    void OnExit();
     void onFind();
     void onForward();
+    void onImportMySwordModule();
+    void onImportTheWordModule();
     void onIncreaseFontSize();
     void onLanguage();
-    void onModuleInfo();
+    void OnModuleInfo();
     void onOpenModule();
     void onPreferences();
     void onSelectAll();
     void onShowHelp();
     void onWordFrequency();
+
+    void OnMainTabChanged(int index);
+
+    void OnSearchReferenceClicked(int book, int chapter, int verse);
+    void OnCompareReferenceClicked(int idx, int book, int chapter, int verse);
 };
 
 #endif // MAINWINDOW_H
