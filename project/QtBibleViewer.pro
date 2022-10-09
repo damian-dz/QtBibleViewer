@@ -23,57 +23,84 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 #QMAKE_LFLAGS += -no-pie
+CONFIG += c++17
 
 PRECOMPILED_HEADER = precomp.h
 
 SOURCES += \
     AbstractTab.cpp \
-    BibleNavigationPanel.cpp \
-    BiblePassageBrowser.cpp \
+    CompareVerseBrowser.cpp \
+    ConversionTools.cpp \
+    CrossReferenceBox.cpp \
+    DialogImport.cpp \
+    FindOnPageBox.cpp \
     Formatting.cpp \
     Main.cpp \
+    MainWindow.cpp \
     ModuleTabWidget.cpp \
-    NewMainWindow.cpp \
+    NavigationPanel.cpp \
+    PassageBrowser.cpp \
     SearchEngine.cpp \
     DialogInfo.cpp \
     DialogPreferences.cpp \
     DialogStrong.cpp \
-    DialogXRefs.cpp \
     SearchOptionsPanel.cpp \
-    SearchResultsArea.cpp \
+    SearchResultArea.cpp \
+    SearchResultBrowser.cpp \
+    Strings.cpp \
     TabBible.cpp \
     TabCompare.cpp \
+    TabDictionary.cpp \
+    TabNotes.cpp \
     TabSearch.cpp \
-    WidgetCommonWords.cpp \
-    WidgetHistogram.cpp \
-    WidgetCommonRare.cpp
+    WidgetCommonRare.cpp \
+    WidgetCommonRareWords.cpp \
+    WidgetWordFrequency.cpp
 
 HEADERS += \
     AbstractTab.h \
     AppConfig.h \
-    BibleNavigationPanel.h \
-    BiblePassageBrowser.h \
+    CompareVerseBrowser.h \
+    ConversionTools.h \
+    CrossReferenceBox.h \
+    DialogImport.h \
+    FindOnPageBox.h \
     Formatting.h \
-    Location.h \
     DialogInfo.h \
     DialogPreferences.h \
     DialogStrong.h \
-    DialogXRefs.h \
-    ModuleData.h \
+    Location.h \
+    MainWindow.h \
+    Module.h \
     ModuleTabWidget.h \
-    NewMainWindow.h \
+    NavigationPanel.h \
+    PassageBrowser.h \
+    PassageWithRef.h \
     SearchEngine.h \
     SearchOptions.h \
     SearchOptionsPanel.h \
-    SearchResultsArea.h \
+    SearchResultArea.h \
+    SearchResultBrowser.h \
+    Strings.h \
     TabBible.h \
     TabCompare.h \
+    TabDictionary.h \
+    TabNotes.h \
     TabSearch.h \
-    WidgetCommonWords.h \
-    WidgetHistogram.h \
-    WidgetCommonRare.h
+    TabbedLocation.h \
+    WidgetCommonRare.h \
+    WidgetCommonRareWords.h \
+    WidgetWordFrequency.h
 
 RESOURCES += \
     res.qrc
 
 RC_FILE = app.rc
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/3rd_party/sqlite3/lib/ -lsqlite3
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/3rd_party/sqlite3/lib/ -lsqlite3d
+else:unix: LIBS += -L$$PWD/3rd_party/sqlite3/lib/ -lsqlite3
+
+INCLUDEPATH += $$PWD/3rd_party/sqlite3/api
+DEPENDPATH += $$PWD/3rd_party/sqlite3/api

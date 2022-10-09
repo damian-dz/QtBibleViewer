@@ -2,6 +2,120 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pl_PL" sourcelanguage="en_US">
 <context>
+    <name>BibleModuleTabWidget</name>
+    <message>
+        <source>Confirm Removal</source>
+        <translation type="unfinished">Potwierdź usunięcie</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove this module?
+It will not be visible unless you re-add it manually.</source>
+        <translation type="unfinished">Czy jesteś pewien, że chcesz usunąć ten moduł?
+Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
+    </message>
+</context>
+<context>
+    <name>BibleNavigationPanel</name>
+    <message>
+        <source>Book chapter:from-to (eg. Gen 3:1-4)</source>
+        <translation>Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
+    </message>
+    <message>
+        <source>Book:</source>
+        <translation>Księga:</translation>
+    </message>
+    <message>
+        <source>Chapter:</source>
+        <translation>Rozdział:</translation>
+    </message>
+    <message>
+        <source>Verses:</source>
+        <translation>Wersety:</translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <translation>Losowy</translation>
+    </message>
+    <message>
+        <source>Go to a random chapter.</source>
+        <translation>Przejdź do losowego rozdziału.</translation>
+    </message>
+    <message>
+        <source>Go to the previous chapter.</source>
+        <translation>Przejdź do poprzedniego rozdziału.</translation>
+    </message>
+    <message>
+        <source>Go to the next chapter.</source>
+        <translation>Przejdź do następnego rozdziału.</translation>
+    </message>
+</context>
+<context>
+    <name>BiblePassageBrowser</name>
+    <message>
+        <source>Not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopiuj</translation>
+    </message>
+    <message>
+        <source>Copy with Reference</source>
+        <translation type="unfinished">Kopiuj z odnośnikiem</translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation type="unfinished">Zaznacz wszystko</translation>
+    </message>
+    <message>
+        <source>Add Verse </source>
+        <translation type="unfinished">Dodaj Werset </translation>
+    </message>
+    <message>
+        <source> to Favorites</source>
+        <translation type="unfinished"> do Ulubionych</translation>
+    </message>
+    <message>
+        <source>Add Verses </source>
+        <translation type="unfinished">Dodaj wersety </translation>
+    </message>
+</context>
+<context>
+    <name>DialogImport</name>
+    <message>
+        <source>Input File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a MYBIBLE Module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MYBIBLE Modules (*.bbl.mybible);;All Files (*.*)</source>
+        <translation type="unfinished">Moduły MYBIBLE (*.bbl.mybible);;Wszystkie pliki (*.*)</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import successful.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Błąd</translation>
+    </message>
+    <message>
+        <source>The specified file does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DialogInfo</name>
     <message>
         <source>Description:</source>
@@ -45,7 +159,11 @@
     </message>
     <message>
         <source>Error reading the Details table.</source>
-        <translation>Błąd przy odczytywaniu tabeli Details.</translation>
+        <translation type="vanished">Błąd przy odczytywaniu tabeli Details.</translation>
+    </message>
+    <message>
+        <source>Error reading the Info table.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -176,6 +294,13 @@
     </message>
 </context>
 <context>
+    <name>FindOnPageBox</name>
+    <message>
+        <source>Find:</source>
+        <translation>Znajdź:</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <source>Search</source>
@@ -183,7 +308,7 @@
     </message>
     <message>
         <source>Compare</source>
-        <translation type="vanished">Porównaj</translation>
+        <translation>Porównaj</translation>
     </message>
     <message>
         <source>Book:</source>
@@ -265,7 +390,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Open Bible Module</source>
-        <translation>Otwórz moduł Biblii</translation>
+        <translation type="vanished">Otwórz moduł Biblii</translation>
     </message>
     <message>
         <source>Exit</source>
@@ -289,7 +414,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Preferences</source>
-        <translation type="vanished">Preferencje</translation>
+        <translation>Preferencje</translation>
     </message>
     <message>
         <source>Language</source>
@@ -617,11 +742,11 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Favorites</source>
-        <translation type="vanished">Ulubione</translation>
+        <translation>Ulubione</translation>
     </message>
     <message>
         <source>Dictionary</source>
-        <translation type="vanished">Słownik</translation>
+        <translation>Słownik</translation>
     </message>
     <message>
         <source>Topics</source>
@@ -976,10 +1101,6 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation type="vanished">Nie znaleziono wpisanej księgi.</translation>
     </message>
     <message>
-        <source>The directory /App/modules does not exist.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No Bible module found.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -992,10 +1113,6 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This module is already open.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No Modules</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1003,276 +1120,25 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>There are no modules currently avaiable.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModuleTabWidget</name>
     <message>
-        <source>Confirm Removal</source>
-        <translation type="unfinished">Potwierdź usunięcie</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove this module?
-It will not be visible unless you re-add it manually.</source>
-        <translation type="unfinished">Czy jesteś pewien, że chcesz usunąć ten moduł?
-Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
-    </message>
-</context>
-<context>
-    <name>NavigationPanel</name>
-    <message>
-        <source>Book chapter:from-to (eg. Gen 3:1-4)</source>
-        <translation>Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
-    </message>
-    <message>
-        <source>Book:</source>
-        <translation>Księga:</translation>
-    </message>
-    <message>
-        <source>Chapter:</source>
-        <translation>Rozdział:</translation>
-    </message>
-    <message>
-        <source>Verses:</source>
-        <translation>Wersety:</translation>
-    </message>
-    <message>
-        <source>Random</source>
-        <translation>Losowy</translation>
-    </message>
-    <message>
-        <source>Go to a random chapter.</source>
-        <translation>Przejdź do losowego rozdziału.</translation>
-    </message>
-    <message>
-        <source>Go to the previous chapter.</source>
-        <translation>Przejdź do poprzedniego rozdziału.</translation>
-    </message>
-    <message>
-        <source>Go to the next chapter.</source>
-        <translation>Przejdź do następnego rozdziału.</translation>
-    </message>
-</context>
-<context>
-    <name>PassageTextBrowser</name>
-    <message>
-        <source>Not found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SearchOptionsPanel</name>
-    <message>
-        <source>Entire Bible</source>
-        <translation>Cała Biblia</translation>
-    </message>
-    <message>
-        <source>Old Testament</source>
-        <translation>Stary Testament</translation>
-    </message>
-    <message>
-        <source>Pentateuch</source>
-        <translation>Pięcioksiąg</translation>
-    </message>
-    <message>
-        <source>Historical Books</source>
-        <translation>Księgi historyczne</translation>
-    </message>
-    <message>
-        <source>Poetical Books</source>
-        <translation>Księgi poetyckie</translation>
-    </message>
-    <message>
-        <source>Major Prophets</source>
-        <translation>Prorocy więksi</translation>
-    </message>
-    <message>
-        <source>Minor Prophets</source>
-        <translation>Prorocy mniejsi</translation>
-    </message>
-    <message>
-        <source>New Testament</source>
-        <translation>Nowy Testament</translation>
-    </message>
-    <message>
-        <source>Gospels &amp; Acts</source>
-        <translation>Ewangelie i Dzieje</translation>
-    </message>
-    <message>
-        <source>Pauline Epistles</source>
-        <translation>Listy Pawła</translation>
-    </message>
-    <message>
-        <source>General Epistles &amp; Revelation</source>
-        <translation>Listy ogólne i Objawienie</translation>
-    </message>
-    <message>
-        <source>Custom</source>
+        <source>The directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Search Options</source>
+        <source>Add Bible Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Translation:</source>
-        <translation>Przekład:</translation>
-    </message>
-    <message>
-        <source>Range:</source>
+        <source>Import...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Limit the search to a specific Bible section.</source>
-        <translation>Ogranicz wyszukiwanie do określonej części Biblii.</translation>
-    </message>
-    <message>
-        <source>From:</source>
+        <source>MySword Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To:</source>
+        <source>TheWord Module</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Results per Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Case-Sensitive</source>
-        <translation>Rozróżniaj wielkość liter</translation>
-    </message>
-    <message>
-        <source>Make the search case-sensitive.</source>
-        <translation>Ignoruj wielkość liter przy wyszukiwaniu.</translation>
-    </message>
-    <message>
-        <source>Whole Words Only</source>
-        <translation>Tylko całe słowa</translation>
-    </message>
-    <message>
-        <source>Ignore word fragments.</source>
-        <translation>Pomiń fragmenty słów.</translation>
-    </message>
-    <message>
-        <source>Exact Phrase</source>
-        <translation>Dokładna fraza</translation>
-    </message>
-    <message>
-        <source>Look for verses that contain the exact sequence of characters.</source>
-        <translation>Szukaj wersetów zawierających dokładny ciąg znaków.</translation>
-    </message>
-    <message>
-        <source>All of the Words</source>
-        <translation>Wszystkie ze słów</translation>
-    </message>
-    <message>
-        <source>Look for verses that contain all of the words (in any order).</source>
-        <translation>Szukaj wersetów zawierających wszystkie ze słów (w dowolnej kolejności).</translation>
-    </message>
-    <message>
-        <source>Any of the Words</source>
-        <translation>Dowolne ze słów</translation>
-    </message>
-    <message>
-        <source>Look for verses that contain at least one of the words.</source>
-        <translation>Szukaj wersetów zawierających co najmniej jedno ze słów.</translation>
-    </message>
-    <message>
-        <source>By Strong&apos;s Number</source>
-        <translation>Po numerze Stronga</translation>
-    </message>
-    <message>
-        <source>Look for verses containing the specified Strong&apos;s Number (if available).</source>
-        <translation>Szukaj wersetów zawierających określony numer Stronga (jeśli są dostępne).</translation>
-    </message>
-</context>
-<context>
-    <name>SearchResultsArea</name>
-    <message>
-        <source>Enter a Word or a Phrase:</source>
-        <translation>Wpisz słowo lub frazę:</translation>
-    </message>
-    <message>
-        <source>Results:</source>
-        <translation>Wyniki:</translation>
-    </message>
-    <message>
-        <source>Go to Page:</source>
-        <translation>Idź do strony:</translation>
-    </message>
-    <message>
-        <source>of</source>
-        <translation>z</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation>Szukaj</translation>
-    </message>
-    <message>
-        <source>Random Verse</source>
-        <translation>Losowy werset</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetCommonWords</name>
-    <message>
-        <source>Common/Rare Words</source>
-        <translation>Częste/Rzadkie Słowa</translation>
-    </message>
-    <message>
-        <source>Ignore words shorter than</source>
-        <translation>Pomiń słowa krótsze niż</translation>
-    </message>
-    <message>
-        <source>letters</source>
-        <translation>liter</translation>
-    </message>
-    <message>
-        <source>Common</source>
-        <translation>Częste</translation>
-    </message>
-    <message>
-        <source>Rare</source>
-        <translation>Rzadkie</translation>
-    </message>
-    <message>
-        <source>Visualize</source>
-        <translation>Wizualizuj</translation>
-    </message>
-</context>
-<context>
-    <name>WidgetHistogram</name>
-    <message>
-        <source>Word Frequency</source>
-        <translation>Częstość Występowania Słowa</translation>
-    </message>
-    <message>
-        <source>Visualize</source>
-        <translation>Wizualizuj</translation>
-    </message>
-    <message>
-        <source>Save as Image</source>
-        <translation>Zapisz jako obraz</translation>
-    </message>
-    <message>
-        <source>PNG Files (*.png);;All Files (*.*)</source>
-        <translation>Pliki PNG (*.png);;Wszystkie pliki (*.*)</translation>
-    </message>
-    <message>
-        <source> times</source>
-        <translation> razy</translation>
-    </message>
-    <message>
-        <source> time</source>
-        <translation> raz</translation>
-    </message>
-    <message>
-        <source>New Testament</source>
-        <translation>Nowy Testament</translation>
-    </message>
-    <message>
-        <source>Old Testament</source>
-        <translation>Stary Testament</translation>
     </message>
     <message>
         <source>Gen</source>
@@ -1534,9 +1400,855 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>Rev</source>
         <translation>Ap</translation>
     </message>
+</context>
+<context>
+    <name>ModuleTabWidget</name>
+    <message>
+        <source>Confirm Removal</source>
+        <translation type="obsolete">Potwierdź usunięcie</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove this module?
+It will not be visible unless you re-add it manually.</source>
+        <translation type="obsolete">Czy jesteś pewien, że chcesz usunąć ten moduł?
+Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
+    </message>
+</context>
+<context>
+    <name>NavigationPanel</name>
+    <message>
+        <source>Book chapter:from-to (eg. Gen 3:1-4)</source>
+        <translation type="vanished">Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
+    </message>
+    <message>
+        <source>Book:</source>
+        <translation type="vanished">Księga:</translation>
+    </message>
+    <message>
+        <source>Chapter:</source>
+        <translation type="vanished">Rozdział:</translation>
+    </message>
+    <message>
+        <source>Verses:</source>
+        <translation type="vanished">Wersety:</translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <translation type="vanished">Losowy</translation>
+    </message>
+    <message>
+        <source>Go to a random chapter.</source>
+        <translation type="vanished">Przejdź do losowego rozdziału.</translation>
+    </message>
+    <message>
+        <source>Go to the previous chapter.</source>
+        <translation type="vanished">Przejdź do poprzedniego rozdziału.</translation>
+    </message>
+    <message>
+        <source>Go to the next chapter.</source>
+        <translation type="vanished">Przejdź do następnego rozdziału.</translation>
+    </message>
+</context>
+<context>
+    <name>SearchOptionsPanel</name>
+    <message>
+        <source>Entire Bible</source>
+        <translation>Cała Biblia</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation>Stary Testament</translation>
+    </message>
+    <message>
+        <source>Pentateuch</source>
+        <translation>Pięcioksiąg</translation>
+    </message>
+    <message>
+        <source>Historical Books</source>
+        <translation>Księgi historyczne</translation>
+    </message>
+    <message>
+        <source>Poetical Books</source>
+        <translation>Księgi poetyckie</translation>
+    </message>
+    <message>
+        <source>Major Prophets</source>
+        <translation>Prorocy więksi</translation>
+    </message>
+    <message>
+        <source>Minor Prophets</source>
+        <translation>Prorocy mniejsi</translation>
+    </message>
+    <message>
+        <source>New Testament</source>
+        <translation>Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Gospels &amp; Acts</source>
+        <translation>Ewangelie i Dzieje</translation>
+    </message>
+    <message>
+        <source>Pauline Epistles</source>
+        <translation>Listy Pawła</translation>
+    </message>
+    <message>
+        <source>General Epistles &amp; Revelation</source>
+        <translation>Listy ogólne i Objawienie</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Dowolny</translation>
+    </message>
+    <message>
+        <source>Search Options</source>
+        <translation>Opcje wyszukiwania</translation>
+    </message>
+    <message>
+        <source>Translation:</source>
+        <translation>Przekład:</translation>
+    </message>
+    <message>
+        <source>Range:</source>
+        <translation>Zakres:</translation>
+    </message>
+    <message>
+        <source>Limit the search to a specific Bible section.</source>
+        <translation>Ogranicz wyszukiwanie do określonej części Biblii.</translation>
+    </message>
+    <message>
+        <source>From:</source>
+        <translation>Od:</translation>
+    </message>
+    <message>
+        <source>To:</source>
+        <translation>Do:</translation>
+    </message>
+    <message>
+        <source>Results per Page</source>
+        <translation>wyników na stronę</translation>
+    </message>
+    <message>
+        <source>Case-Sensitive</source>
+        <translation>Rozróżniaj wielkość liter</translation>
+    </message>
+    <message>
+        <source>Make the search case-sensitive.</source>
+        <translation>Ignoruj wielkość liter przy wyszukiwaniu.</translation>
+    </message>
+    <message>
+        <source>Whole Words Only</source>
+        <translation>Tylko całe słowa</translation>
+    </message>
+    <message>
+        <source>Ignore word fragments.</source>
+        <translation>Pomiń fragmenty słów.</translation>
+    </message>
+    <message>
+        <source>Exact Phrase</source>
+        <translation>Dokładna fraza</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain the exact sequence of characters.</source>
+        <translation>Szukaj wersetów zawierających dokładny ciąg znaków.</translation>
+    </message>
+    <message>
+        <source>All of the Words</source>
+        <translation>Wszystkie ze słów</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain all of the words (in any order).</source>
+        <translation>Szukaj wersetów zawierających wszystkie ze słów (w dowolnej kolejności).</translation>
+    </message>
+    <message>
+        <source>Any of the Words</source>
+        <translation>Dowolne ze słów</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain at least one of the words.</source>
+        <translation>Szukaj wersetów zawierających co najmniej jedno ze słów.</translation>
+    </message>
+    <message>
+        <source>By Strong&apos;s Number</source>
+        <translation>Po numerze Stronga</translation>
+    </message>
+    <message>
+        <source>Look for verses containing the specified Strong&apos;s Number (if available).</source>
+        <translation>Szukaj wersetów zawierających określony numer Stronga (jeśli są dostępne).</translation>
+    </message>
+</context>
+<context>
+    <name>SearchResultsArea</name>
+    <message>
+        <source>Enter a Word or a Phrase:</source>
+        <translation>Wpisz słowo lub frazę:</translation>
+    </message>
+    <message>
+        <source>Results:</source>
+        <translation>Wyniki:</translation>
+    </message>
+    <message>
+        <source>Go to Page:</source>
+        <translation>Idź do strony:</translation>
+    </message>
+    <message>
+        <source>of</source>
+        <translation>z</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Szukaj</translation>
+    </message>
+    <message>
+        <source>Random Verse</source>
+        <translation>Losowy werset</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetCommonRareWords</name>
+    <message>
+        <source>Common/Rare Words</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore words shorter than</source>
+        <translation type="unfinished">Pomiń słowa krótsze niż</translation>
+    </message>
+    <message>
+        <source>letters</source>
+        <translation type="unfinished">liter</translation>
+    </message>
+    <message>
+        <source>Common</source>
+        <translation type="unfinished">Częste</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation type="unfinished">Rzadkie</translation>
+    </message>
+    <message>
+        <source>Visualize</source>
+        <translation type="unfinished">Wizualizuj</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetCommonWords</name>
+    <message>
+        <source>Common/Rare Words</source>
+        <translation type="vanished">Częste/Rzadkie Słowa</translation>
+    </message>
+    <message>
+        <source>Ignore words shorter than</source>
+        <translation type="vanished">Pomiń słowa krótsze niż</translation>
+    </message>
+    <message>
+        <source>letters</source>
+        <translation type="vanished">liter</translation>
+    </message>
+    <message>
+        <source>Common</source>
+        <translation type="vanished">Częste</translation>
+    </message>
+    <message>
+        <source>Rare</source>
+        <translation type="vanished">Rzadkie</translation>
+    </message>
+    <message>
+        <source>Visualize</source>
+        <translation type="vanished">Wizualizuj</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetHistogram</name>
+    <message>
+        <source>Word Frequency</source>
+        <translation type="vanished">Częstość Występowania Słowa</translation>
+    </message>
+    <message>
+        <source>Visualize</source>
+        <translation type="vanished">Wizualizuj</translation>
+    </message>
+    <message>
+        <source>Save as Image</source>
+        <translation type="vanished">Zapisz jako obraz</translation>
+    </message>
+    <message>
+        <source>PNG Files (*.png);;All Files (*.*)</source>
+        <translation type="vanished">Pliki PNG (*.png);;Wszystkie pliki (*.*)</translation>
+    </message>
+    <message>
+        <source> times</source>
+        <translation type="vanished"> razy</translation>
+    </message>
+    <message>
+        <source> time</source>
+        <translation type="vanished"> raz</translation>
+    </message>
+    <message>
+        <source>New Testament</source>
+        <translation type="vanished">Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation type="vanished">Stary Testament</translation>
+    </message>
+    <message>
+        <source>Gen</source>
+        <translation type="vanished">Rdz</translation>
+    </message>
+    <message>
+        <source>Exo</source>
+        <translation type="vanished">Wj</translation>
+    </message>
+    <message>
+        <source>Lev</source>
+        <translation type="vanished">Kpł</translation>
+    </message>
+    <message>
+        <source>Num</source>
+        <translation type="vanished">Lb</translation>
+    </message>
+    <message>
+        <source>Deu</source>
+        <translation type="vanished">Pwt</translation>
+    </message>
+    <message>
+        <source>Jos</source>
+        <translation type="vanished">Joz</translation>
+    </message>
+    <message>
+        <source>Jdg</source>
+        <translation type="vanished">Sdz</translation>
+    </message>
+    <message>
+        <source>Rut</source>
+        <translation type="vanished">Rt</translation>
+    </message>
+    <message>
+        <source>1Sa</source>
+        <translation type="vanished">1Sm</translation>
+    </message>
+    <message>
+        <source>2Sa</source>
+        <translation type="vanished">2Sm</translation>
+    </message>
+    <message>
+        <source>1Ki</source>
+        <translation type="vanished">1Krl</translation>
+    </message>
+    <message>
+        <source>2Ki</source>
+        <translation type="vanished">2Krl</translation>
+    </message>
+    <message>
+        <source>1Ch</source>
+        <translation type="vanished">1Krn</translation>
+    </message>
+    <message>
+        <source>2Ch</source>
+        <translation type="vanished">2Krn</translation>
+    </message>
+    <message>
+        <source>Ezr</source>
+        <translation type="vanished">Ezd</translation>
+    </message>
+    <message>
+        <source>Neh</source>
+        <translation type="vanished">Ne</translation>
+    </message>
+    <message>
+        <source>Est</source>
+        <translation type="vanished">Est</translation>
+    </message>
+    <message>
+        <source>Psa</source>
+        <translation type="vanished">Ps</translation>
+    </message>
+    <message>
+        <source>Pro</source>
+        <translation type="vanished">Prz</translation>
+    </message>
+    <message>
+        <source>Ecc</source>
+        <translation type="vanished">Koh</translation>
+    </message>
+    <message>
+        <source>Sol</source>
+        <translation type="vanished">Pnp</translation>
+    </message>
+    <message>
+        <source>Isa</source>
+        <translation type="vanished">Iz</translation>
+    </message>
+    <message>
+        <source>Jer</source>
+        <translation type="vanished">Jr</translation>
+    </message>
+    <message>
+        <source>Lam</source>
+        <translation type="vanished">Lm</translation>
+    </message>
+    <message>
+        <source>Eze</source>
+        <translation type="vanished">Ez</translation>
+    </message>
+    <message>
+        <source>Dan</source>
+        <translation type="vanished">Dn</translation>
+    </message>
+    <message>
+        <source>Hos</source>
+        <translation type="vanished">Oz</translation>
+    </message>
+    <message>
+        <source>Joe</source>
+        <translation type="vanished">Jl</translation>
+    </message>
+    <message>
+        <source>Amo</source>
+        <translation type="vanished">Am</translation>
+    </message>
+    <message>
+        <source>Oba</source>
+        <translation type="vanished">Ab</translation>
+    </message>
+    <message>
+        <source>Jon</source>
+        <translation type="vanished">Jon</translation>
+    </message>
+    <message>
+        <source>Mic</source>
+        <translation type="vanished">Mi</translation>
+    </message>
+    <message>
+        <source>Nah</source>
+        <translation type="vanished">Na</translation>
+    </message>
+    <message>
+        <source>Hab</source>
+        <translation type="vanished">Ha</translation>
+    </message>
+    <message>
+        <source>Zep</source>
+        <translation type="vanished">So</translation>
+    </message>
+    <message>
+        <source>Hag</source>
+        <translation type="vanished">Ag</translation>
+    </message>
+    <message>
+        <source>Zec</source>
+        <translation type="vanished">Za</translation>
+    </message>
+    <message>
+        <source>Mal</source>
+        <translation type="vanished">Ml</translation>
+    </message>
+    <message>
+        <source>Mat</source>
+        <translation type="vanished">Mt</translation>
+    </message>
+    <message>
+        <source>Mar</source>
+        <translation type="vanished">Mk</translation>
+    </message>
+    <message>
+        <source>Luk</source>
+        <translation type="vanished">Łk</translation>
+    </message>
+    <message>
+        <source>Joh</source>
+        <translation type="vanished">J</translation>
+    </message>
+    <message>
+        <source>Act</source>
+        <translation type="vanished">Dz</translation>
+    </message>
+    <message>
+        <source>Rom</source>
+        <translation type="vanished">Rz</translation>
+    </message>
+    <message>
+        <source>1Co</source>
+        <translation type="vanished">1Kor</translation>
+    </message>
+    <message>
+        <source>2Co</source>
+        <translation type="vanished">2Kor</translation>
+    </message>
+    <message>
+        <source>Gal</source>
+        <translation type="vanished">Ga</translation>
+    </message>
+    <message>
+        <source>Eph</source>
+        <translation type="vanished">Ef</translation>
+    </message>
+    <message>
+        <source>Phi</source>
+        <translation type="vanished">Flp</translation>
+    </message>
+    <message>
+        <source>Col</source>
+        <translation type="vanished">Kol</translation>
+    </message>
+    <message>
+        <source>1Th</source>
+        <translation type="vanished">1Tes</translation>
+    </message>
+    <message>
+        <source>2Th</source>
+        <translation type="vanished">2Tes</translation>
+    </message>
+    <message>
+        <source>1Ti</source>
+        <translation type="vanished">1Tm</translation>
+    </message>
+    <message>
+        <source>2Ti</source>
+        <translation type="vanished">2Tm</translation>
+    </message>
+    <message>
+        <source>Tit</source>
+        <translation type="vanished">Tt</translation>
+    </message>
+    <message>
+        <source>Phm</source>
+        <translation type="vanished">Flm</translation>
+    </message>
+    <message>
+        <source>Heb</source>
+        <translation type="vanished">Hbr</translation>
+    </message>
+    <message>
+        <source>Jam</source>
+        <translation type="vanished">Jk</translation>
+    </message>
+    <message>
+        <source>1Pe</source>
+        <translation type="vanished">1P</translation>
+    </message>
+    <message>
+        <source>2Pe</source>
+        <translation type="vanished">2P</translation>
+    </message>
+    <message>
+        <source>1Jo</source>
+        <translation type="vanished">1J</translation>
+    </message>
+    <message>
+        <source>2Jo</source>
+        <translation type="vanished">2J</translation>
+    </message>
+    <message>
+        <source>3Jo</source>
+        <translation type="vanished">3J</translation>
+    </message>
+    <message>
+        <source>Jud</source>
+        <translation type="vanished">Jud</translation>
+    </message>
+    <message>
+        <source>Rev</source>
+        <translation type="vanished">Ap</translation>
+    </message>
     <message>
         <source>Job</source>
-        <translation>Hi</translation>
+        <translation type="vanished">Hi</translation>
+    </message>
+</context>
+<context>
+    <name>WidgetWordFrequency</name>
+    <message>
+        <source>Word Frequency</source>
+        <translation>Częstość Występowania Słowa</translation>
+    </message>
+    <message>
+        <source>Visualize</source>
+        <translation>Wizualizuj</translation>
+    </message>
+    <message>
+        <source>Save as Image</source>
+        <translation>Zapisz jako obraz</translation>
+    </message>
+    <message>
+        <source>PNG Files (*.png);;All Files (*.*)</source>
+        <translation>Pliki PNG (*.png);;Wszystkie pliki (*.*)</translation>
+    </message>
+    <message>
+        <source> times</source>
+        <translation> razy</translation>
+    </message>
+    <message>
+        <source> time</source>
+        <translation> raz</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation>Stary Testament</translation>
+    </message>
+    <message>
+        <source>New Testament</source>
+        <translation>Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Gen</source>
+        <translation type="vanished">Rdz</translation>
+    </message>
+    <message>
+        <source>Exo</source>
+        <translation type="vanished">Wj</translation>
+    </message>
+    <message>
+        <source>Lev</source>
+        <translation type="vanished">Kpł</translation>
+    </message>
+    <message>
+        <source>Num</source>
+        <translation type="vanished">Lb</translation>
+    </message>
+    <message>
+        <source>Deu</source>
+        <translation type="vanished">Pwt</translation>
+    </message>
+    <message>
+        <source>Jos</source>
+        <translation type="vanished">Joz</translation>
+    </message>
+    <message>
+        <source>Jdg</source>
+        <translation type="vanished">Sdz</translation>
+    </message>
+    <message>
+        <source>Rut</source>
+        <translation type="vanished">Rt</translation>
+    </message>
+    <message>
+        <source>1Sa</source>
+        <translation type="vanished">1Sm</translation>
+    </message>
+    <message>
+        <source>2Sa</source>
+        <translation type="vanished">2Sm</translation>
+    </message>
+    <message>
+        <source>1Ki</source>
+        <translation type="vanished">1Krl</translation>
+    </message>
+    <message>
+        <source>2Ki</source>
+        <translation type="vanished">2Krl</translation>
+    </message>
+    <message>
+        <source>1Ch</source>
+        <translation type="vanished">1Krn</translation>
+    </message>
+    <message>
+        <source>2Ch</source>
+        <translation type="vanished">2Krn</translation>
+    </message>
+    <message>
+        <source>Ezr</source>
+        <translation type="vanished">Ezd</translation>
+    </message>
+    <message>
+        <source>Neh</source>
+        <translation type="vanished">Ne</translation>
+    </message>
+    <message>
+        <source>Est</source>
+        <translation type="vanished">Est</translation>
+    </message>
+    <message>
+        <source>Psa</source>
+        <translation type="vanished">Ps</translation>
+    </message>
+    <message>
+        <source>Pro</source>
+        <translation type="vanished">Prz</translation>
+    </message>
+    <message>
+        <source>Ecc</source>
+        <translation type="vanished">Koh</translation>
+    </message>
+    <message>
+        <source>Sol</source>
+        <translation type="vanished">Pnp</translation>
+    </message>
+    <message>
+        <source>Isa</source>
+        <translation type="vanished">Iz</translation>
+    </message>
+    <message>
+        <source>Jer</source>
+        <translation type="vanished">Jr</translation>
+    </message>
+    <message>
+        <source>Lam</source>
+        <translation type="vanished">Lm</translation>
+    </message>
+    <message>
+        <source>Eze</source>
+        <translation type="vanished">Ez</translation>
+    </message>
+    <message>
+        <source>Dan</source>
+        <translation type="vanished">Dn</translation>
+    </message>
+    <message>
+        <source>Hos</source>
+        <translation type="vanished">Oz</translation>
+    </message>
+    <message>
+        <source>Joe</source>
+        <translation type="vanished">Jl</translation>
+    </message>
+    <message>
+        <source>Amo</source>
+        <translation type="vanished">Am</translation>
+    </message>
+    <message>
+        <source>Oba</source>
+        <translation type="vanished">Ab</translation>
+    </message>
+    <message>
+        <source>Jon</source>
+        <translation type="vanished">Jon</translation>
+    </message>
+    <message>
+        <source>Mic</source>
+        <translation type="vanished">Mi</translation>
+    </message>
+    <message>
+        <source>Nah</source>
+        <translation type="vanished">Na</translation>
+    </message>
+    <message>
+        <source>Hab</source>
+        <translation type="vanished">Ha</translation>
+    </message>
+    <message>
+        <source>Zep</source>
+        <translation type="vanished">So</translation>
+    </message>
+    <message>
+        <source>Hag</source>
+        <translation type="vanished">Ag</translation>
+    </message>
+    <message>
+        <source>Zec</source>
+        <translation type="vanished">Za</translation>
+    </message>
+    <message>
+        <source>Mal</source>
+        <translation type="vanished">Ml</translation>
+    </message>
+    <message>
+        <source>Mat</source>
+        <translation type="vanished">Mt</translation>
+    </message>
+    <message>
+        <source>Mar</source>
+        <translation type="vanished">Mk</translation>
+    </message>
+    <message>
+        <source>Luk</source>
+        <translation type="vanished">Łk</translation>
+    </message>
+    <message>
+        <source>Joh</source>
+        <translation type="vanished">J</translation>
+    </message>
+    <message>
+        <source>Act</source>
+        <translation type="vanished">Dz</translation>
+    </message>
+    <message>
+        <source>Rom</source>
+        <translation type="vanished">Rz</translation>
+    </message>
+    <message>
+        <source>1Co</source>
+        <translation type="vanished">1Kor</translation>
+    </message>
+    <message>
+        <source>2Co</source>
+        <translation type="vanished">2Kor</translation>
+    </message>
+    <message>
+        <source>Gal</source>
+        <translation type="vanished">Ga</translation>
+    </message>
+    <message>
+        <source>Eph</source>
+        <translation type="vanished">Ef</translation>
+    </message>
+    <message>
+        <source>Phi</source>
+        <translation type="vanished">Flp</translation>
+    </message>
+    <message>
+        <source>Col</source>
+        <translation type="vanished">Kol</translation>
+    </message>
+    <message>
+        <source>1Th</source>
+        <translation type="vanished">1Tes</translation>
+    </message>
+    <message>
+        <source>2Th</source>
+        <translation type="vanished">2Tes</translation>
+    </message>
+    <message>
+        <source>1Ti</source>
+        <translation type="vanished">1Tm</translation>
+    </message>
+    <message>
+        <source>2Ti</source>
+        <translation type="vanished">2Tm</translation>
+    </message>
+    <message>
+        <source>Tit</source>
+        <translation type="vanished">Tt</translation>
+    </message>
+    <message>
+        <source>Phm</source>
+        <translation type="vanished">Flm</translation>
+    </message>
+    <message>
+        <source>Heb</source>
+        <translation type="vanished">Hbr</translation>
+    </message>
+    <message>
+        <source>Jam</source>
+        <translation type="vanished">Jk</translation>
+    </message>
+    <message>
+        <source>1Pe</source>
+        <translation type="vanished">1P</translation>
+    </message>
+    <message>
+        <source>2Pe</source>
+        <translation type="vanished">2P</translation>
+    </message>
+    <message>
+        <source>1Jo</source>
+        <translation type="vanished">1J</translation>
+    </message>
+    <message>
+        <source>2Jo</source>
+        <translation type="vanished">2J</translation>
+    </message>
+    <message>
+        <source>3Jo</source>
+        <translation type="vanished">3J</translation>
+    </message>
+    <message>
+        <source>Jud</source>
+        <translation type="vanished">Jud</translation>
+    </message>
+    <message>
+        <source>Rev</source>
+        <translation type="vanished">Ap</translation>
     </message>
 </context>
 </TS>

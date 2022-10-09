@@ -1,10 +1,15 @@
 #include "ModuleTabWidget.h"
+#include "TabBible.h"
 
-ModuleTabWidget::ModuleTabWidget(QWidget *parent) :
-    QTabWidget(parent)
+ModuleTabWidget::ModuleTabWidget(const QList<qbv::Module> &modules, const QStringList &bookNames,
+                                 AppConfig *config, QWidget *parent) :
+    QTabWidget(parent),
+    m_pConfig(config),
+    m_pModules(&modules),
+    m_pBookNames(&bookNames)
+
 {
     QTabWidget::setMovable(true);
-    // setTabPosition(QTabWidget::TabPosition(m_pConfig->appearance.module_tab_position));
     QTabWidget::setTabsClosable(true);
     QTabWidget::setStyleSheet("QTabBar::close-button { "
                               "image: url(:/img/img_res/close-button.svg);"
@@ -12,59 +17,146 @@ ModuleTabWidget::ModuleTabWidget(QWidget *parent) :
                               "subcontrol-position: right; }"
                               "QTabBar::close-button:hover {"
                               "image: url(:/img/img_res/close-button-active.svg); }");
-    connectSignals();
+    UpdateFromConfig();
+    ConnectSignals();
 }
 
-void ModuleTabWidget::addModule(const QString &name, const QString &filePath, bool hasOT, bool hasStrong)
+//void BibleModuleTabWidget::AddModule(const QString &name, const QString &filePath, bool hasOT, bool hasStrong)
+//{
+//    BiblePassageBrowser *passageTextBrowser = new BiblePassageBrowser(*m_pBookNames, m_pConfig);
+//    passageTextBrowser->setHasOldTestament(hasOT);
+//    passageTextBrowser->setHasStrong(hasStrong);
+//    m_passageBrowers.append(passageTextBrowser);
+//    QTabWidget::addTab(passageTextBrowser, name);
+//    QTabWidget::setTabToolTip(QTabWidget::count() - 1, filePath);
+//    QObject::connect(passageTextBrowser, QOverload<int>::of(&BiblePassageBrowser::CrossReferenceRequested),
+//                     [=] (int verse) { emit CrossReferenceRequested(verse); });
+//}
+
+void ModuleTabWidget::AddModule(const qbv::Module &module)
 {
-    BiblePassageBrowser *passageTextBrowser = new BiblePassageBrowser;
-    passageTextBrowser->setHasOldTestament(hasOT);
-    passageTextBrowser->setHasStrong(hasStrong);
-    m_passageTextBrowers.append(passageTextBrowser);
-    QTabWidget::addTab(passageTextBrowser, name);
-    QTabWidget::setTabToolTip(QTabWidget::count() - 1, filePath);
+    qDebug() << "ModuleTabWidget::AddModule(const qbv::Module &module)" << module.shortName();;
+    PassageBrowser *passageTextBrowser = new PassageBrowser(*m_pBookNames, m_pConfig);
+    passageTextBrowser->SetHasOldTestament(module.hasOT());
+    passageTextBrowser->SetHasStrong(module.hasStrong());
+    m_passageBrowers.append(passageTextBrowser);
+    if (QTabWidget::count() == 0)  {
+        QTabWidget::blockSignals(true);
+    }
+    QTabWidget::addTab(passageTextBrowser, module.shortName());
+    if (QTabWidget::count() == 1)  {
+        QTabWidget::blockSignals(false);
+    }
+    QTabWidget::setTabToolTip(QTabWidget::count() - 1, module.filePath());
+    QObject::connect(passageTextBrowser, QOverload<int>::of(&PassageBrowser::CrossReferenceRequested),
+                     [=] (int verse) { emit CrossReferenceRequested(verse); });
+    QObject::connect(passageTextBrowser, QOverload<qbv::Location>::of(&PassageBrowser::AddToFavoritesRequested),
+                     [=] (qbv::Location loc) { emit AddToFavoritesRequested(loc); });
 }
 
-bool ModuleTabWidget::hasModules() const
+qbv::Location ModuleTabWidget::GetLocation() const
+{
+    int idx = QTabWidget::currentIndex();
+    return m_passageBrowers[idx]->GetLocation();
+}
+
+bool ModuleTabWidget::HasModules() const
 {
     return QTabWidget::count() > 0;
 }
 
-void ModuleTabWidget::loadPassage(int book, int chapter, int verseFrom, int verseTo, const QSqlDatabase& module)
+void ModuleTabWidget::HighlightText(const QString &text)
 {
-    if (hasModules()) {
+    m_passageBrowers[QTabWidget::currentIndex()]->HighlightText(text);
+}
+
+void ModuleTabWidget::HighlightVerse(int verse)
+{
+    m_passageBrowers[QTabWidget::currentIndex()]->HighlightVerse(verse);
+}
+
+void ModuleTabWidget::LoadPassage(const QSqlDatabase &module)
+{
+    qDebug() << "ModuleTabWidget::LoadPassage(const QSqlDatabase &module)" << module.databaseName();
+    if (HasModules()) {
         int idx = QTabWidget::currentIndex();
-        m_passageTextBrowers[idx]->setPassage(book, chapter, verseFrom, verseTo);
-        m_passageTextBrowers[idx]->loadPassageV1(module);
+        m_passageBrowers[idx]->SetLocation(m_location);
+        m_passageBrowers[idx]->LoadPassage_New(module);
     }
 }
 
-void ModuleTabWidget::selectModule(int idx)
+void ModuleTabWidget::LoadPassage(int book, int chapter, int verseFrom, int verseTo, const QSqlDatabase &module)
 {
+    qDebug() << "ModuleTabWidget::LoadPassage(int book, int chapter, int verseFrom, int verseTo, const QSqlDatabase &module)";
+    if (HasModules()) {
+        int idx = QTabWidget::currentIndex();
+        m_location = qbv::Location(book, chapter, verseFrom, verseTo);
+        m_passageBrowers[idx]->SetLocation(book, chapter, verseFrom, verseTo);
+        m_passageBrowers[idx]->LoadPassage_New(module);
+    }
+}
+
+void ModuleTabWidget::SetActiveModule(int idx, bool blockSignals)
+{
+    qDebug() << "ModuleTabWidget::SetActiveModule(int idx)";
+    QTabWidget::blockSignals(blockSignals);
     QTabWidget::setCurrentIndex(idx);
-}
-
-void ModuleTabWidget::setPassageTextBrowserFont(const QFont &font)
-{
-    for (BiblePassageBrowser* passageTextBrowser : m_passageTextBrowers) {
-        passageTextBrowser->setFont(font);
+    if (blockSignals) {
+        QTabWidget::blockSignals(false);
     }
 }
 
-void ModuleTabWidget::connectSignals()
+void ModuleTabWidget::SelectAllText()
+{
+    m_passageBrowers[QTabWidget::currentIndex()]->selectAll();
+}
+
+void ModuleTabWidget::SetHighlightColor(QColor &color)
+{
+    for (PassageBrowser *passageBrowser : m_passageBrowers) {
+        passageBrowser->SetHighlightColor(color);
+    }
+}
+
+void ModuleTabWidget::SetLocation(qbv::Location location)
+{
+    qDebug() << "ModuleTabWidget::SetLocation(qbv::Location location)";
+    m_location = location;
+}
+
+void ModuleTabWidget::SetBiblePassageBrowserFont(const QFont &font)
+{
+    for (PassageBrowser *passageBrowser : m_passageBrowers) {
+        passageBrowser->setFont(font);
+    }
+}
+
+void ModuleTabWidget::UpdateFromConfig()
+{
+    QTabWidget::setTabPosition(QTabWidget::TabPosition(m_pConfig->appearance.module_tab_position));
+}
+
+void ModuleTabWidget::ConnectSignals()
 {
     QObject::connect(this, QOverload<int>::of(&QTabWidget::tabCloseRequested),
-                     [=] (int index) { onTabCloseRequested(index); });
+                     [=] (int index) { OnTabCloseRequested(index); });
     QObject::connect(QTabWidget::tabBar(), QOverload<int, int>::of(&QTabBar::tabMoved),
-                     [=] (int from, int to) { onModuleMoved(from, to); });
+                     [=] (int from, int to) { OnModuleMoved(from, to); });
 }
 
-void ModuleTabWidget::onModuleMoved(int from, int to)
+void ModuleTabWidget::OnModuleMoved(int from, int to)
 {
-    m_passageTextBrowers.swapItemsAt(from, to);
+    m_passageBrowers.swapItemsAt(from, to);
 }
 
-void ModuleTabWidget::onTabCloseRequested(int index)
+void ModuleTabWidget::LoadPassageInCurrentTab()
+{
+    qDebug() << "ModuleTabWidget::LoadPassageInCurrentTab()";
+    int idx = QTabWidget::currentIndex();
+    LoadPassage(m_pModules->at(idx).translation);
+}
+
+void ModuleTabWidget::OnTabCloseRequested(int index)
 {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, tr("Confirm Removal"),
@@ -73,6 +165,6 @@ void ModuleTabWidget::onTabCloseRequested(int index)
                                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         QTabWidget::removeTab(index);
-        m_passageTextBrowers.removeAt(index);
+        m_passageBrowers.removeAt(index);
     }
 }

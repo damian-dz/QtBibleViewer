@@ -1,20 +1,34 @@
 #include "AbstractTab.h"
 
+/*!
+ * \brief Provides the abstract interface for main tabs in the program.
+ * \param parent specifies the parent widget for this object
+ */
 AbstractTab::AbstractTab(QWidget *parent) :
     QWidget(parent),
     m_isInitialized(false)
 {
 }
 
-void AbstractTab::initialize()
+QString AbstractTab::GetLastStatusMsg() const
 {
-    addControls();
-    connectSignals();
-    setUiTexts();
-    m_isInitialized = !m_isInitialized;
+    return m_lastStatusMsg;
 }
 
-bool AbstractTab::isInitialized() const
+void AbstractTab::Initialize()
+{
+    AddControls();
+    ConnectSignals();
+    SetUiTexts();
+    m_isInitialized = true;
+}
+
+void AbstractTab::SetLastStatusMsg(const QString &msg)
+{
+    m_lastStatusMsg = msg;
+}
+
+bool AbstractTab::IsInitialized() const
 {
     return m_isInitialized;
 }

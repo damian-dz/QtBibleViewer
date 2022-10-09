@@ -1,7 +1,7 @@
 #ifndef APPCONFIG_H
 #define APPCONFIG_H
 
-#include "Location.h"
+#include "TabbedLocation.h"
 
 struct AppConfig
 {
@@ -12,12 +12,14 @@ struct AppConfig
 
         QByteArray window_geometry;
         QByteArray window_state;
+        QByteArray splitter_layout;
         QString language;
         int max_recent_passages;
 
         _General() :
             keys(QStringList({ "window_geometry",
                                "window_state",
+                               "splitter_layout",
                                "language",
                                "max_recent_passages" }))
         {
@@ -52,12 +54,12 @@ struct AppConfig
         const QString sectionTitle = "Fonts";
         QStringList keys;
 
-        QString browser_family;
-        int browser_size;
+        QString family;
+        int size;
 
         _Fonts() :
-            keys(QStringList({ "textbrowser_font_family",
-                               "textbrowser_font_size" }))
+            keys(QStringList({ "family",
+                               "size" }))
         {
 
         }
@@ -92,12 +94,15 @@ struct AppConfig
 
         bool reference_before;
         bool include_numbers;
+        QString symbol_before;
+        QString symbol_after;
 
         _Formatting() :
             keys(QStringList({ "reference_before",
-                               "include_numbers" }))
+                               "include_numbers",
+                               "symbol_before",
+                               "symbol_after" }))
         {
-
         }
     };
 
@@ -116,10 +121,10 @@ struct AppConfig
     void load()
     {
         QSettings settings(m_filePath, QSettings::IniFormat);
-
         general.window_geometry = settings.value(general.keys[0], QByteArray()).toByteArray();
         general.window_state = settings.value(general.keys[1], QByteArray()).toByteArray();
-        general.language = settings.value(general.keys[2]).toString();
+        general.splitter_layout = settings.value(general.keys[2]).toByteArray();
+        general.language = settings.value(general.keys[3]).toString();
         if (general.language.isEmpty()) {
             QLocale::Language systemLanguage = QLocale::system().language();
             if (systemLanguage == QLocale::Polish) {
@@ -130,7 +135,7 @@ struct AppConfig
                 general.language = "EN";
             }
         }
-        general.max_recent_passages = settings.value(general.keys[3]).toInt();
+        general.max_recent_passages = settings.value(general.keys[4]).toInt();
         if (general.max_recent_passages < 2) {
             general.max_recent_passages = 20;
         }
@@ -156,13 +161,13 @@ struct AppConfig
         settings.endGroup();
 
         settings.beginGroup(fonts.sectionTitle);
-        fonts.browser_family = settings.value(fonts.keys[0]).toString();
-        if (fonts.browser_family.isNull() || fonts.browser_family.isEmpty()) {
-            fonts.browser_family = qApp->font().family();
+        fonts.family = settings.value(fonts.keys[0]).toString();
+        if (fonts.family.isNull() || fonts.family.isEmpty()) {
+            fonts.family = qApp->font().family();
         }
-        fonts.browser_size = settings.value(fonts.keys[1]).toInt();
-        if (fonts.browser_size == 0) {
-            fonts.browser_size = 10;
+        fonts.size = settings.value(fonts.keys[1]).toInt();
+        if (fonts.size == 0) {
+            fonts.size = 10;
         }
         settings.endGroup();
 
@@ -180,17 +185,19 @@ struct AppConfig
         settings.beginGroup(formatting.sectionTitle);
         formatting.reference_before = settings.value(formatting.keys[0]).toBool();
         formatting.include_numbers = settings.value(formatting.keys[1]).toBool();
+        formatting.symbol_before = settings.value(formatting.keys[2]).toString();
+        formatting.symbol_after = settings.value(formatting.keys[3]).toString();
         settings.endGroup();
     }
 
     void save()
     {
         QSettings settings(m_filePath, QSettings::IniFormat);
-
         settings.setValue(general.keys[0], general.window_geometry);
         settings.setValue(general.keys[1], general.window_state);
-        settings.setValue(general.keys[2], general.language);
-        settings.setValue(general.keys[3], general.max_recent_passages);
+        settings.setValue(general.keys[2], general.splitter_layout);
+        settings.setValue(general.keys[3], general.language);
+        settings.setValue(general.keys[4], general.max_recent_passages);
 
         settings.beginGroup(module_data.sectionTitle);
         settings.setValue(module_data.keys[0], module_data.paths);
@@ -201,8 +208,8 @@ struct AppConfig
         settings.endGroup();
 
         settings.beginGroup(fonts.sectionTitle);
-        settings.setValue(fonts.keys[0], fonts.browser_family);
-        settings.setValue(fonts.keys[1], fonts.browser_size);
+        settings.setValue(fonts.keys[0], fonts.family);
+        settings.setValue(fonts.keys[1], fonts.size);
         settings.endGroup();
 
         settings.beginGroup(appearance.sectionTitle);
@@ -216,6 +223,8 @@ struct AppConfig
         settings.beginGroup(formatting.sectionTitle);
         settings.setValue(formatting.keys[0], formatting.reference_before);
         settings.setValue(formatting.keys[1], formatting.include_numbers);
+        settings.setValue(formatting.keys[2], formatting.symbol_before);
+        settings.setValue(formatting.keys[3], formatting.symbol_after);
         settings.endGroup();
     }
 
