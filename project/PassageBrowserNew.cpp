@@ -40,9 +40,10 @@ void PassageBrowserNew::LoadPassageWithNotes()
     QString symbolBefore = m_pConfig->formatting.symbol_before.toHtmlEscaped();
     QString symbolAfter = m_pConfig->formatting.symbol_after.toHtmlEscaped();
     QTextCursor cursor(QTextEdit::textCursor());
-    int numVerses = m_passage.Count();
+    int numVerses = m_passage.verses.count();
     for (int i = 0; i < numVerses; ++i) {
-        QString verseId = QString("<b>%1%2%3</b>").arg(symbolBefore, QString::number(i + 1), symbolAfter);
+        QString verseId = QString("<b>%1%2%3</b>")
+                                  .arg(symbolBefore, QString::number(m_passage.verses[i]), symbolAfter);
         if (m_passage.IsNullOrEmpty(i)) {
             cursor.insertHtml(QString("%1 <font color='gray'><i>%2</i>").arg(verseId, tr("Not found.")));
             cursor.insertBlock();

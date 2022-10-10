@@ -29,7 +29,7 @@ public:
     QString BookName(int idx) const;
     QString BookNameForNumber(int number) const;
 
-    QString ShortName(int idx) const;
+    QString BibleShortName(int idx) const;
 
     int NumBibles() const;
 
@@ -37,6 +37,9 @@ public:
     int NumVerses(int book, int chapter) const;
     int ChapterId(int book, int chapter) const;
     int VerseId(int book, int chapter, int verse) const;
+
+    int ChapterIdForLocation(qbv::Location loc) const;
+    qbv::Location LocationForChapterId(int id) const;
 
     void SetActiveIdx(int idx);
 
@@ -51,9 +54,6 @@ private:
 
     QList<DbBible *> m_dbBibles;
     DbVerseData m_dbVerseData;
-
-
-
 
     QStringList m_bookNames;
     QStringList m_shortBookNames;

@@ -37,7 +37,7 @@ void TabBibleNew::AddControls()
         PassageBrowserNew *passageBrowser = new PassageBrowserNew(*m_pConfig, *m_pDatabaseService);
         m_passageBrowsers.append(passageBrowser);
         m_locations << qbv::Location();
-        ui_TabWidget_Bibles->addTab(passageBrowser, m_pDatabaseService->ShortName(i));
+        ui_TabWidget_Bibles->addTab(passageBrowser, m_pDatabaseService->BibleShortName(i));
     }
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
@@ -82,11 +82,23 @@ void TabBibleNew::OnTabMoved(int from, int to)
 
 void TabBibleNew::SetLocationFromConfig()
 {
-    if (m_pConfig->module_data.last_passage.count() == 4) {
-        qbv::Location loc(m_pConfig->module_data.last_passage[0].toInt(),
-                          m_pConfig->module_data.last_passage[1].toInt(),
-                          m_pConfig->module_data.last_passage[2].toInt(),
-                          m_pConfig->module_data.last_passage[3].toInt());
+    QStringList slLoc = m_pConfig->module_data.last_passage;
+    if (slLoc.count() == 4) {
+        qbv::Location loc(slLoc[0].toInt(),
+                          slLoc[1].toInt(),
+                          slLoc[2].toInt(),
+                          slLoc[3].toInt());
         ui_NavPanel->SetLocation(loc, true);
     }
+}
+
+void TabBibleNew::SaveLocationToConfig()
+{
+    qbv::Location loc = ui_NavPanel->Location();
+    QStringList slLoc;
+    slLoc << QString::number(loc.book)
+          << QString::number(loc.chapter)
+          << QString::number(loc.verse1)
+          << QString::number(loc.verse2);
+    m_pConfig->module_data.last_passage = slLoc;
 }

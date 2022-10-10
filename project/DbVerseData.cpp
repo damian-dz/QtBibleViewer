@@ -54,4 +54,25 @@ int DbVerseData::NumVerses(int book, int chapter) const
     return result;
 }
 
+int DbVerseData::ChapterIdForLocation(Location loc) const
+{
+    return ChapterId(loc.book, loc.chapter);
+}
+
+Location DbVerseData::LocationForChapterId(int id) const
+{
+    QSqlQuery query(m_db);
+    query.prepare("SELECT Book, Chapter, NumVerses FROM ChapterMap WHERE Id=?");
+    query.addBindValue(id, QSql::Out);
+    qbv::Location result;
+    if (query.exec() && query.next()) {
+        QSqlRecord record = query.record();
+        int book = record.value(0).toInt();
+        int chapter = record.value(1).toInt();
+        int numVerses = record.value(2).toInt();
+        result = { book, chapter, 1, numVerses };
+    }
+    return result;
+}
+
 }

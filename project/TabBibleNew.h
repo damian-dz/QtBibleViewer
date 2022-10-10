@@ -17,7 +17,8 @@ public:
     virtual void AddControls() override;
     virtual void SetUiTexts() override;
 
-       void  SetLocationFromConfig();
+    void SetLocationFromConfig();
+    void SaveLocationToConfig();
 
 private:
     AppConfig *m_pConfig;

@@ -2,6 +2,7 @@
 #define DBVERSEDATA_H
 
 #include "AbstractDb.h"
+#include "Location.h"
 
 namespace qbv {
 
@@ -13,6 +14,9 @@ public:
 
     int NumChapters(int book) const;
     int NumVerses(int book, int chapter) const;
+
+    int ChapterIdForLocation(qbv::Location loc) const;
+    qbv::Location LocationForChapterId(int id) const;
 };
 
 }

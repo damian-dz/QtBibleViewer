@@ -17,6 +17,8 @@ public:
     qbv::Location Location() const;
     void SetLocation(qbv::Location loc, bool emitSignal);
 
+    int ChapterId() const;
+
 
 signals:
     void LocationChanged(qbv::Location loc);
@@ -39,7 +41,7 @@ private:
     QPushButton *ui_Button_Random;
 
     AppConfig *m_pConfig;
-    qbv::DatabaseService *m_databaseService;
+    qbv::DatabaseService *m_pDatabaseService;
 
     bool m_moveByVerse;
     int m_chapterId;
@@ -51,8 +53,13 @@ private:
     void OnCurrentChapterChanged(int chapter);
     void OnCurrentVerseFromChanged(int verse, bool emitSignals = true);
     void OnCurrentVerseToChanged(int verse, bool emitSignals = true);
+    void OnRandomButtonClicked();
+    void OnNavButtonClicked(int direction);
+    void OnNextButtonClicked();
 
     void OnLocationChanged(bool emitSignals = true);
+
+    void UpdateLocationInConfig(qbv::Location loc);
 
 };
 

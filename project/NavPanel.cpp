@@ -3,7 +3,7 @@
 NavPanel::NavPanel(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent) :
     QGridLayout(parent),
     m_pConfig(&config),
-    m_databaseService(&databaseService),
+    m_pDatabaseService(&databaseService),
     m_moveByVerse(false)
 {
     AddControls();
@@ -19,7 +19,7 @@ void NavPanel::AddControls()
     ui_ListWidget_Book = new QListWidget;
     ui_ListWidget_Book->setFont(QFont(QApplication::font().family(), 10));
     ui_ListWidget_Book->setMaximumSize(QSize(155, 16777215));
-    ui_ListWidget_Book->addItems(m_databaseService->BookNames());
+    ui_ListWidget_Book->addItems(m_pDatabaseService->BookNames());
 
     ui_Label_Chapter = new QLabel;
     ui_ListWidget_Chapter = new QListWidget;
@@ -76,6 +76,13 @@ void NavPanel::ConnectSignals()
                      [=] (int idx) { OnCurrentVerseFromChanged(idx + 1); });
     QObject::connect(ui_ListWidget_VerseTo, QOverload<int>::of(&QListWidget::currentRowChanged),
                      [=] (int idx) { OnCurrentVerseToChanged(idx + 1); });
+
+    QObject::connect(ui_Button_Random, QOverload<bool>::of(&QPushButton::clicked),
+                     [=] { OnRandomButtonClicked(); });
+    QObject::connect(ui_Button_Prev, QOverload<bool>::of(&QPushButton::clicked),
+                     [=] { OnNavButtonClicked(-1); });
+    QObject::connect(ui_Button_Next, QOverload<bool>::of(&QPushButton::clicked),
+                     [=] { OnNavButtonClicked(+1); });
 }
 
 void NavPanel::SetUiTexts()
@@ -101,7 +108,7 @@ void NavPanel::OnCurrentBookChanged(int book)
 {
     ui_ListWidget_Chapter->blockSignals(true);
     ui_ListWidget_Chapter->clear();
-    int numChapters = m_databaseService->NumChapters(book);
+    int numChapters = m_pDatabaseService->NumChapters(book);
     ui_ListWidget_Chapter->addItems(GenerateRange(1, numChapters));
     ui_ListWidget_Chapter->blockSignals(false);
     ui_ListWidget_Chapter->setCurrentRow(0);
@@ -109,7 +116,7 @@ void NavPanel::OnCurrentBookChanged(int book)
 
 void NavPanel::OnCurrentChapterChanged(int chapter)
 {
-    int numVerses = m_databaseService->NumVerses(ui_ListWidget_Book->currentRow() + 1, chapter);
+    int numVerses = m_pDatabaseService->NumVerses(ui_ListWidget_Book->currentRow() + 1, chapter);
     QStringList verseNumbers = GenerateRange(1, numVerses);
 
     ui_ListWidget_VerseFrom->blockSignals(true);
@@ -145,6 +152,32 @@ void NavPanel::OnCurrentVerseToChanged(int verse, bool emitSignals)
     OnLocationChanged(emitSignals);
 }
 
+void NavPanel::OnRandomButtonClicked()
+{
+    QRandomGenerator randGen(quint32(QDateTime::currentDateTime().time().msec()));
+    if (m_moveByVerse) {
+        //SelectPassageByVerseId(randGen.bounded(1, 31102));
+    } else {
+        // SelectPassageByChapterId(randGen.bounded(1, 1189));
+        int id = randGen.bounded(1, 1189);
+        auto loc = m_pDatabaseService->LocationForChapterId(id);
+        SetLocation(loc, true);
+    }
+}
+
+void NavPanel::OnNavButtonClicked(int direction)
+{
+    int chapterId = m_pDatabaseService->ChapterIdForLocation(Location()) + direction;
+    auto loc = m_pDatabaseService->LocationForChapterId(chapterId);
+    SetLocation(loc, true);
+
+}
+
+void NavPanel::OnNextButtonClicked()
+{
+
+}
+
 void NavPanel::OnLocationChanged(bool emitSignals)
 {
     int book = ui_ListWidget_Book->currentRow() + 1;
@@ -155,17 +188,23 @@ void NavPanel::OnLocationChanged(bool emitSignals)
         if (emitSignals) {
             emit LocationChanged(qbv::Location { book, chapter, verse1, verse1 } );
         }
-        m_verseId =  m_databaseService->VerseId(book, chapter, verse1);
+        m_verseId =  m_pDatabaseService->VerseId(book, chapter, verse1);
         ui_Button_Next->setEnabled(m_verseId < 31102);
         ui_Button_Prev->setEnabled(m_verseId > 1);
     } else {
         if (emitSignals) {
             emit LocationChanged(qbv::Location { book, chapter, verse1, verse2 } );
         }
-        m_chapterId = m_databaseService->ChapterId(book, chapter);
+        m_chapterId = m_pDatabaseService->ChapterId(book, chapter);
         ui_Button_Next->setEnabled(m_chapterId < 1189);
         ui_Button_Prev->setEnabled(m_chapterId > 1);
     }
+
+}
+
+void NavPanel::UpdateLocationInConfig(qbv::Location loc)
+{
+
 }
 
 qbv::Location NavPanel::Location() const
@@ -187,14 +226,13 @@ void NavPanel::SetLocation(qbv::Location loc, bool emitSignal)
     ui_ListWidget_VerseFrom->blockSignals(true);
     ui_ListWidget_VerseTo->blockSignals(true);
 
-
     ui_ListWidget_Book->setCurrentRow(loc.book - 1);
     ui_ListWidget_Chapter->clear();
-    int numChapters = m_databaseService->NumChapters(loc.book);
+    int numChapters = m_pDatabaseService->NumChapters(loc.book);
     ui_ListWidget_Chapter->addItems(GenerateRange(1, numChapters));
     ui_ListWidget_Chapter->setCurrentRow(loc.chapter - 1);
 
-    int numVerses = m_databaseService->NumVerses(loc.book, loc.chapter);
+    int numVerses = m_pDatabaseService->NumVerses(loc.book, loc.chapter);
     QStringList verseNumbers = GenerateRange(1, numVerses);
 
     ui_ListWidget_VerseFrom->clear();
@@ -210,6 +248,17 @@ void NavPanel::SetLocation(qbv::Location loc, bool emitSignal)
     ui_ListWidget_VerseFrom->blockSignals(false);
     ui_ListWidget_VerseTo->blockSignals(false);
 
-    if (emitSignal)
+    int chapterId = m_pDatabaseService->ChapterIdForLocation(loc);
+    ui_Button_Next->setEnabled(chapterId < 1189);
+    ui_Button_Prev->setEnabled(chapterId > 1);
+
+    UpdateLocationInConfig(loc);
+    if (emitSignal) {
         emit LocationChanged(loc);
+    }
+}
+
+int NavPanel::ChapterId() const
+{
+    return -1;
 }

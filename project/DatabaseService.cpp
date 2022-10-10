@@ -262,7 +262,7 @@ QString DatabaseService::BookNameForNumber(int number) const
     return m_bookNames[number - 1];
 }
 
-QString DatabaseService::ShortName(int idx) const
+QString DatabaseService::BibleShortName(int idx) const
 {
     return m_dbBibles[idx]->ShortName();
 }
@@ -290,6 +290,16 @@ int DatabaseService::ChapterId(int book, int chapter) const
 int DatabaseService::VerseId(int book, int chapter, int verse) const
 {
     return  m_dbVerseData.VerseId(book, chapter, verse);
+}
+
+int DatabaseService::ChapterIdForLocation(Location loc) const
+{
+    return m_dbVerseData.ChapterIdForLocation(loc);
+}
+
+Location DatabaseService::LocationForChapterId(int id) const
+{
+    return m_dbVerseData.LocationForChapterId(id);
 }
 
 void DatabaseService::SetActiveIdx(int idx)
