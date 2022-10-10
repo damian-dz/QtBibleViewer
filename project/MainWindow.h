@@ -49,7 +49,9 @@
 #define ICON_SCROLL ":/img/img_res/scroll.svg"
 
 #include "AppConfig.h"
+#include "DatabaseService.h"
 #include "TabBible.h"
+#include "TabBibleNew.h"
 #include "TabSearch.h"
 #include "TabCompare.h"
 #include "TabDictionary.h"
@@ -66,9 +68,12 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    qbv::DatabaseService m_databaseService;
+
     QTabWidget *ui_TabWidget_Main;
 
     TabBible *ui_TabBible;
+    TabBibleNew *ui_TabBibleNew;
     TabSearch *ui_TabSearch;
     TabCompare *ui_TabCompare;
     TabDictionary *ui_TabDictionary;
@@ -126,6 +131,8 @@ private:
 
     QTranslator *m_pTsApp;
     QTranslator *m_pTsQt;
+
+
 
     void LoadVerseData();
     void LoadCrossReferences();

@@ -49,7 +49,7 @@ void Formatting::FormatScripture(QString &text, QStringList &notes, bool hasStro
     }
 }
 
-void Formatting::FormatTextAndNotes(QString &text, QStringList &notes)
+void Formatting::FormatTextAndAddNotes(QString &text, QStringList &notes)
 {
     text.replace("{JW}", QStringLiteral("<span style='color:%1'>").arg(m_jwColor.name()));
     text.replace("{OT}", QStringLiteral("<span style='font-weight:bold'>"));

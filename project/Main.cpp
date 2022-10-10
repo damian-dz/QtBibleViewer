@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "MainWindowNew.h"
 //#include "AppConfig.h"
 
 //#include <QDebug>
@@ -10,7 +11,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QString appDir = app.applicationDirPath();
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    QString configPath = appDir + "/App/config/settings.ini";
+    QString configPath = appDir + "/Data/Config/settings.ini";
     if (!QFileInfo(configPath).exists()) {
         bool settingsFound = false;
         for (QString location : locations) {
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
         qtTranslator.load("qt_" + config.general.language.toLower(), appDir + "/App/lang");
         app.installTranslator(&qtTranslator);
     }
-    MainWindow win(appDir, config, appTranslator, qtTranslator, nullptr);
+    MainWindowNew win(appDir, config, appTranslator, qtTranslator, nullptr);
     win.show();
     return app.exec();
 }

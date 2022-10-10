@@ -5,6 +5,7 @@
 #include "Module.h"
 #include "ModuleTabWidget.h"
 #include "NavigationPanel.h"
+#include "NavPanel.h"
 #include "CrossReferenceBox.h"
 #include "FindOnPageBox.h"
 
@@ -57,6 +58,7 @@ private:
     QTabBar *ui_TabBar_Modules;
     ModuleTabWidget *ui_ModuleTabWidget;
     NavigationPanel *ui_NavigationPanel;
+    NavPanel *ui_NavPanel;
 
     QVBoxLayout *ui_VerLayout_Modules;
 

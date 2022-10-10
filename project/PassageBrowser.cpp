@@ -147,7 +147,7 @@ void PassageBrowser::LoadPassage(const QSqlDatabase &module)
             QString scripture = record.value(1).toString();
 
             m_versesUnformatted << scripture;
-            Formatting::FormatTextAndNotes(scripture, m_notes);
+            Formatting::FormatTextAndAddNotes(scripture, m_notes);
 
             cursor.insertHtml(verseId % " " % scripture);
             if (verseNumber < finalVerse){
@@ -223,7 +223,7 @@ void PassageBrowser::LoadPassage_New(const QSqlDatabase &module)
             }
 
             m_versesUnformatted << scripture;
-            Formatting::FormatTextAndNotes(scripture, m_notes);
+            Formatting::FormatTextAndAddNotes(scripture, m_notes);
 
             cursor.insertHtml(verseId % " " % scripture);
             if (verseNumber < finalVerse){

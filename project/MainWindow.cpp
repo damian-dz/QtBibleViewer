@@ -18,6 +18,7 @@
 MainWindow::MainWindow(const QString &appDir, AppConfig &config, QTranslator &appTs, QTranslator &qtTs,
                        QWidget *parent) :
     QMainWindow(parent),
+    m_databaseService(appDir + "/Data/", config),
     m_pConfig(&config),
     m_executionPath(appDir),
     m_modulesFound(false),
@@ -33,6 +34,8 @@ MainWindow::MainWindow(const QString &appDir, AppConfig &config, QTranslator &ap
 
     m_currentFont = QFont(m_pConfig->fonts.family, m_pConfig->fonts.size);
 
+    //ui_TabBibleNew = new TabBibleNew(*m_pConfig, m_databaseService);
+   // ui_TabBibleNew->Initialize();
     ui_TabBible = new TabBible(m_verseData, m_xrefData, m_bookNames, m_shortBookNames, m_modules, m_pConfig);
     ui_TabSearch = new TabSearch(m_bookNames, m_modules);
     ui_TabCompare = new TabCompare(m_bookNames, m_shortBookNames, m_modules, m_verseData);

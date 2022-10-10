@@ -28,18 +28,26 @@ CONFIG += c++17
 PRECOMPILED_HEADER = precomp.h
 
 SOURCES += \
+    AbstractDb.cpp \
     AbstractTab.cpp \
+    BiblesTabWidget.cpp \
     CompareVerseBrowser.cpp \
     ConversionTools.cpp \
     CrossReferenceBox.cpp \
+    DatabaseService.cpp \
+    DbBible.cpp \
+    DbVerseData.cpp \
     DialogImport.cpp \
     FindOnPageBox.cpp \
     Formatting.cpp \
     Main.cpp \
     MainWindow.cpp \
+    MainWindowNew.cpp \
     ModuleTabWidget.cpp \
+    NavPanel.cpp \
     NavigationPanel.cpp \
     PassageBrowser.cpp \
+    PassageBrowserNew.cpp \
     SearchEngine.cpp \
     DialogInfo.cpp \
     DialogPreferences.cpp \
@@ -49,6 +57,7 @@ SOURCES += \
     SearchResultBrowser.cpp \
     Strings.cpp \
     TabBible.cpp \
+    TabBibleNew.cpp \
     TabCompare.cpp \
     TabDictionary.cpp \
     TabNotes.cpp \
@@ -58,11 +67,16 @@ SOURCES += \
     WidgetWordFrequency.cpp
 
 HEADERS += \
+    AbstractDb.h \
     AbstractTab.h \
     AppConfig.h \
+    BiblesTabWidget.h \
     CompareVerseBrowser.h \
     ConversionTools.h \
     CrossReferenceBox.h \
+    DatabaseService.h \
+    DbBible.h \
+    DbVerseData.h \
     DialogImport.h \
     FindOnPageBox.h \
     Formatting.h \
@@ -71,10 +85,14 @@ HEADERS += \
     DialogStrong.h \
     Location.h \
     MainWindow.h \
+    MainWindowNew.h \
     Module.h \
     ModuleTabWidget.h \
+    NavPanel.h \
     NavigationPanel.h \
     PassageBrowser.h \
+    PassageBrowserNew.h \
+    PassageWithNotes.h \
     PassageWithRef.h \
     SearchEngine.h \
     SearchOptions.h \
@@ -83,6 +101,7 @@ HEADERS += \
     SearchResultBrowser.h \
     Strings.h \
     TabBible.h \
+    TabBibleNew.h \
     TabCompare.h \
     TabDictionary.h \
     TabNotes.h \

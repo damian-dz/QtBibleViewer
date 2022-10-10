@@ -65,6 +65,11 @@ struct Location
         return (book > 0 && chapter > 0 && verse1 > 0 && verse2 > 0);
     }
 
+    bool IsValidChapter() const
+    {
+        return (book > 0 && chapter > 0);
+    }
+
     bool IsSameAs(const Location &other)
     {
         return (book == other.book &&
