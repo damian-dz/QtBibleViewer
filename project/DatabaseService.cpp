@@ -88,6 +88,11 @@ void DatabaseService::LoadDbBibles()
     }
 }
 
+QString DatabaseService::DirBibles() const
+{
+    return m_dirBibles;
+}
+
 QStringList DatabaseService::BibleFilePaths()
 {
     QDir dir(m_dirBibles);
@@ -124,6 +129,15 @@ QString DatabaseService::BookNameForNumber(int number) const
 QString DatabaseService::BibleShortName(int idx) const
 {
     return m_dbBibles[idx]->ShortName();
+}
+
+QStringList DatabaseService::BibleShortNames() const
+{
+    QStringList results;
+    for (const qbv::DbBible *item : m_dbBibles) {
+        results.append(item->ShortName());
+    }
+    return results;
 }
 
 int DatabaseService::NumBibles() const

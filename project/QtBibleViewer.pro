@@ -54,6 +54,7 @@ SOURCES += \
     DialogPreferences.cpp \
     DialogStrong.cpp \
     SearchOptionsPanel.cpp \
+    SearchOptionsPanelNew.cpp \
     SearchResultArea.cpp \
     SearchResultBrowser.cpp \
     Strings.cpp \
@@ -64,6 +65,7 @@ SOURCES += \
     TabNotes.cpp \
     TabNotesNew.cpp \
     TabSearch.cpp \
+    TabSearchNew.cpp \
     WidgetCommonRare.cpp \
     WidgetCommonRareWords.cpp \
     WidgetWordFrequency.cpp
@@ -100,6 +102,7 @@ HEADERS += \
     SearchEngine.h \
     SearchOptions.h \
     SearchOptionsPanel.h \
+    SearchOptionsPanelNew.h \
     SearchResultArea.h \
     SearchResultBrowser.h \
     Strings.h \
@@ -110,6 +113,7 @@ HEADERS += \
     TabNotes.h \
     TabNotesNew.h \
     TabSearch.h \
+    TabSearchNew.h \
     TabbedLocation.h \
     WidgetCommonRare.h \
     WidgetCommonRareWords.h \

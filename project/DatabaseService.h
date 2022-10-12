@@ -24,6 +24,8 @@ public:
     void LoadBookNames();
     void LoadDbBibles();
 
+    QString DirBibles() const;
+
     QStringList BookNames() const;
     QStringList ShortBookNames() const;
 
@@ -31,6 +33,7 @@ public:
     QString BookNameForNumber(int number) const;
 
     QString BibleShortName(int idx) const;
+    QStringList BibleShortNames() const;
 
     int NumBibles() const;
 

@@ -15,6 +15,8 @@ public:
 
     virtual void SetUiTexts() override;
 
+    void AddNewPassageBrowser(int idx);
+
     void SetLocationFromConfig();
     void SaveLocationToConfig();
     void SetTabIndexFromConfig();

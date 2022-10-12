@@ -49,7 +49,7 @@ void Formatting::FormatScripture(QString &text, QStringList &notes, bool hasStro
     }
 }
 
-void Formatting::FormatTextAndAddNotes(QString &text, QStringList &notes)
+void Formatting::FormatTextAndAddNotes(QString &text, QStringList &notes, bool hasStrong)
 {
     text.replace("{JW}", QStringLiteral("<span style='color:%1'>").arg(m_jwColor.name()));
     text.replace("{OT}", QStringLiteral("<span style='font-weight:bold'>"));
@@ -62,6 +62,17 @@ void Formatting::FormatTextAndAddNotes(QString &text, QStringList &notes)
             notes.append(original);
             text.replace(original, QStringLiteral("<a href='c:") % QString::number(notes.count()) %
                          QStringLiteral("' style='text-decoration:none'><b>*</b></a> "));
+        }
+    }
+    if (hasStrong) {
+        QRegularExpressionMatchIterator iter = m_strongRgx.globalMatch(text);
+        while (iter.hasNext()) {
+            QRegularExpressionMatch match = iter.next();
+            if (match.hasMatch()) {
+                QString original = match.captured(0);
+                QString modified = original.mid(2, original.size() - 3);
+                text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
+            }
         }
     }
 }

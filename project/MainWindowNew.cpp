@@ -1,5 +1,7 @@
 #include "MainWindowNew.h"
 
+#include "DialogImport.h"
+
 MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslator &appTs, QTranslator &qtTs,
                              QWidget *parent) :
     QMainWindow(parent),
@@ -13,12 +15,13 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
 {
 
     ui_TabBible = new TabBibleNew(config, m_databaseService);
+    ui_TabSearch = new TabSearchNew(config, m_databaseService);
 
     ui_TabFavorites = new TabNotesNew(m_databaseService);
 
     ui_TabWidget_Main = new QTabWidget;
     ui_TabWidget_Main->addTab(ui_TabBible, nullptr);
-    ui_TabWidget_Main->addTab(new QWidget, nullptr);
+    ui_TabWidget_Main->addTab(ui_TabSearch, nullptr);
     ui_TabWidget_Main->addTab(new QWidget, nullptr);
     ui_TabWidget_Main->addTab(new QWidget, nullptr);
     ui_TabWidget_Main->addTab(ui_TabFavorites, nullptr);
@@ -104,7 +107,12 @@ void MainWindowNew::OnModuleInfo()
 
 void MainWindowNew::OnImportMySwordModule()
 {
+    DialogImport importDlg(true, m_databaseService.DirBibles());
+    if (importDlg.exec()) {
+        for (const QString &file : importDlg.getImportedFiles()) {
 
+        }
+    }
 }
 
 void MainWindowNew::OnImportTheWordModule()
@@ -127,6 +135,10 @@ void MainWindowNew::OnTabIndexChanged(int idx)
         case 0:
             break;
         case 1:
+            if (!ui_TabSearch->IsInitialized()) {
+                ui_TabSearch->Initialize();
+            }
+            ui_Label_Status->setText(ui_TabSearch->LastStatusMsg());
             break;
         case 2:
             break;

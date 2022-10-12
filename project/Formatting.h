@@ -16,7 +16,7 @@ class Formatting
 public:
     static QString ExtractHeading(QString &text);
     static void FormatScripture(QString &text, QStringList &notes, bool hasStrong);
-    static void FormatTextAndAddNotes(QString &text, QStringList &notes);
+    static void FormatTextAndAddNotes(QString &text, QStringList &notes, bool hasStrong = false);
     static void FormatTextAndRemoveNotes(QString &text);
     static void FormatAsTeX(QString &text);
     static void LeaveIntact(QString &text);

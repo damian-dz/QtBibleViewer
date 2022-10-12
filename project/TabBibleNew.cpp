@@ -16,18 +16,14 @@ void TabBibleNew::AddControls()
     ui_TabWidget_Bibles->setMovable(true);
     ui_TabWidget_Bibles->setTabsClosable(true);
     ui_TabWidget_Bibles->setStyleSheet("QTabBar::close-button { "
-                              "image: url(:/img/img_res/close-button.svg);"
-                              "margin: 2px;"
-                              "subcontrol-position: right; }"
-                              "QTabBar::close-button:hover {"
-                              "image: url(:/img/img_res/close-button-active.svg); }");
+                                       "image: url(:/img/img_res/close-button.svg);"
+                                       "margin: 2px;"
+                                       "subcontrol-position: right; }"
+                                       "QTabBar::close-button:hover {"
+                                       "image: url(:/img/img_res/close-button-active.svg); }");
 
     for (int i = 0; i <  m_pDatabaseService->NumBibles(); i++) {
-        PassageBrowserNew *passageBrowser = new PassageBrowserNew(*m_pConfig, *m_pDatabaseService);
-        m_passageBrowsers.append(passageBrowser);
-        QObject::connect(passageBrowser, QOverload<qbv::Location>::of(&PassageBrowserNew::AddNoteRequested),
-                         [=] (qbv::Location loc) { emit AddNoteRequested(loc); });
-        ui_TabWidget_Bibles->addTab(passageBrowser, m_pDatabaseService->BibleShortName(i));
+        AddNewPassageBrowser(i);
     }
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
@@ -51,6 +47,15 @@ void TabBibleNew::ConnectSignals()
 void TabBibleNew::SetUiTexts()
 {
 
+}
+
+void TabBibleNew::AddNewPassageBrowser(int idx)
+{
+    PassageBrowserNew *passageBrowser = new PassageBrowserNew(*m_pConfig, *m_pDatabaseService);
+    m_passageBrowsers.append(passageBrowser);
+    QObject::connect(passageBrowser, QOverload<qbv::Location>::of(&PassageBrowserNew::AddNoteRequested),
+                     [=] (qbv::Location loc) { emit AddNoteRequested(loc); });
+    ui_TabWidget_Bibles->addTab(passageBrowser, m_pDatabaseService->BibleShortName(idx));
 }
 
 void TabBibleNew::OnLocationChanged(qbv::Location loc)

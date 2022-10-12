@@ -28,6 +28,7 @@
 #include "TabBible.h"
 #include "TabBibleNew.h"
 #include "TabSearch.h"
+#include "TabSearchNew.h"
 #include "TabCompare.h"
 #include "TabDictionary.h"
 #include "TabNotesNew.h"
@@ -43,7 +44,7 @@ private:
     QTabWidget *ui_TabWidget_Main;
 
     TabBibleNew *ui_TabBible;
-    TabSearch *ui_TabSearch;
+    TabSearchNew *ui_TabSearch;
     TabCompare *ui_TabCompare;
     TabDictionary *ui_TabDictionary;
     TabNotesNew *ui_TabFavorites;

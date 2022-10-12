@@ -5,6 +5,7 @@
 #include "Formatting.h"
 #include "Location.h"
 #include "PassageWithNotes.h"
+#include "SearchOptions.h"
 
 namespace qbv {
 
@@ -20,6 +21,14 @@ public:
 
     QStringList Passage(Location loc) const;
     PassageWithNotes PassageWithNotesAndMissingVerses(Location loc) const;
+
+    void Search(const QString &phrase, SearchOptions options);
+
+private:
+    QString MultipleWordCommand(const QStringList &words, const QString &conjunction);
+    void RegexStrings(QString &rgxStr, QString &highlightRgxStr);
+
+    QStringList m_lastResults;
 };
 
 }

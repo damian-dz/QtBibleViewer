@@ -88,6 +88,7 @@ PassageWithNotes DbBible::PassageWithNotesAndMissingVerses(Location loc) const
     int verseNumber = loc.verse1;
     int finalVerse = loc.verse2;
     int verse = loc.verse1;
+    bool hasStrong = HasStrong();
     PassageWithNotes results;
     if (query.exec()) {
         while (query.next() && verseNumber <= finalVerse) {
@@ -103,7 +104,7 @@ PassageWithNotes DbBible::PassageWithNotesAndMissingVerses(Location loc) const
             }
             QString scripture = record.value(1).toString();
             results.unformatted << scripture;
-            Formatting::FormatTextAndAddNotes(scripture, results.notes);
+            Formatting::FormatTextAndAddNotes(scripture, results.notes, hasStrong);
             results.formatted << scripture;
             ++verseNumber;
         }
@@ -115,6 +116,61 @@ PassageWithNotes DbBible::PassageWithNotesAndMissingVerses(Location loc) const
         }
     }
     return results;
+}
+
+void DbBible::Search(const QString &phrase, SearchOptions options)
+{
+    QStringList words = phrase.split(" ");
+    QString conj = options.searchMode == SearchMode::anyWords ? "OR" : "AND";
+
+    QString command = MultipleWordCommand(words, conj);
+    if (options.bookFrom > 1) {
+        command += " AND Book>=" + QString::number(options.bookFrom);
+    }
+    if (options.bookTo < 66) {
+        command += " AND Book<=" + QString::number(options.bookTo);
+    }
+
+    QString rgxStr = "";
+    QString highlightRgxStr = "";
+
+    if (options.searchMode == SearchMode::exactPhrase) {
+        rgxStr = options.wholeWordsOnly ? QString("\\b%1\\b").arg(phrase) : phrase;
+        highlightRgxStr = options.wholeWordsOnly ?
+            QString("(<i>)?\\b%1\\b(</i.*?>)?").arg(words.join("(</i>)? (<i>)?")) :
+            QString("(<i>)?%1(</i>)?").arg(words.join("(</i>)? (<i>)?"));
+    } else if (options.searchMode == SearchMode::allWords) {
+        rgxStr = options.wholeWordsOnly ?
+            QString("(?=.*\\b%1\\b)").arg(words.join("\\b)(?=.*\\b")) :
+            QString("(?=.*%1)").arg(words.join(")(?=.*"));
+        highlightRgxStr = options.wholeWordsOnly ?
+            QString("\\b%1\\b").arg(words.join("\\b|\\b")) :
+            words.join("|");
+    } else if (options.searchMode == SearchMode::anyWords) {
+        rgxStr = options.wholeWordsOnly ?
+            QString("\\b%1\\b)").arg(words.join("\\b|\\b")) :
+            words.join("|");
+        highlightRgxStr = rgxStr;
+    } else {
+        m_lastResults.clear();
+    }
+}
+
+QString DbBible::MultipleWordCommand(const QStringList &words, const QString &conjunction)
+{
+    QString command;
+    if (words.count() > 0) {
+        command = "SELECT * FROM Bible WHERE Scripture LIKE '%" + words[0] + "%'";
+        for (int i = 1; i < words.count(); i++) {
+            command += " " + conjunction + " Scripture LIKE '%" + words[i] + "%'";
+        }
+    }
+    return command;
+}
+
+void DbBible::RegexStrings(QString &rgxStr, QString &highlightRgxStr)
+{
+
 }
 
 }
