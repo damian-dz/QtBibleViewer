@@ -5,10 +5,11 @@
 namespace qbv {
 
 DatabaseService::DatabaseService(const QString &dataDir, AppConfig &config) :
-    m_pDataDir(&dataDir),
+    m_dataDir(&dataDir),
     m_pConfig(&config),
     m_dirCommon(dataDir + "Common"),
-    m_dirBibles(dataDir + "Bibles")
+    m_dirBibles(dataDir + "Bibles"),
+    m_dirUser(dataDir + "User")
 {
     m_dbVerseData.Open(m_dirCommon + "/verse_data.qbv");
 
@@ -19,6 +20,9 @@ DatabaseService::DatabaseService(const QString &dataDir, AppConfig &config) :
 DatabaseService::~DatabaseService()
 {
     CloseAll();
+    for (DbBible *dbBible : m_dbBibles) {
+        delete dbBible;
+    }
 }
 
 void DatabaseService::AddDbBible(DbBible *dbBible)
@@ -44,6 +48,7 @@ void DatabaseService::CloseAll()
         dbBible->Close();
     }
     m_dbVerseData.Close();
+    m_dbNotes.Close();
 }
 
 void DatabaseService::LoadBookNames()
@@ -94,6 +99,120 @@ QStringList DatabaseService::BibleFilePaths()
         results << file.absoluteFilePath();
     }
     return results;
+}
+
+QStringList DatabaseService::BookNames() const
+{
+    return m_bookNames;
+}
+
+QStringList DatabaseService::ShortBookNames() const
+{
+    return m_shortBookNames;
+}
+
+QString DatabaseService::BookName(int idx) const
+{
+    return m_bookNames[idx];
+}
+
+QString DatabaseService::BookNameForNumber(int number) const
+{
+    return m_bookNames[number - 1];
+}
+
+QString DatabaseService::BibleShortName(int idx) const
+{
+    return m_dbBibles[idx]->ShortName();
+}
+
+int DatabaseService::NumBibles() const
+{
+    return m_dbBibles.count();
+}
+
+int DatabaseService::NumChapters(int book) const
+{
+    return m_dbVerseData.NumChapters(book);
+}
+
+int DatabaseService::NumVerses(int book, int chapter) const
+{
+    return m_dbVerseData.NumVerses(book, chapter);
+}
+
+int DatabaseService::ChapterId(int book, int chapter) const
+{
+    return  m_dbVerseData.ChapterId(book, chapter);
+}
+
+int DatabaseService::VerseId(int book, int chapter, int verse) const
+{
+    return  m_dbVerseData.VerseId(book, chapter, verse);
+}
+
+int DatabaseService::ChapterIdForLocation(Location loc) const
+{
+    return m_dbVerseData.ChapterIdForLocation(loc);
+}
+
+Location DatabaseService::LocationForChapterId(int id) const
+{
+    return m_dbVerseData.LocationForChapterId(id);
+}
+
+QString DatabaseService::PassageIdForLocation(Location loc)
+{
+    QString result = BookNameForNumber(loc.book) + " " + QString::number(loc.chapter) +
+            ":" + QString::number(loc.verse1);
+    if (loc.verse1 != loc.verse2) {
+        result += "-" % QString::number(loc.verse2);
+    }
+    return result;
+}
+
+void DatabaseService::SetActiveIdx(int idx)
+{
+    m_activeIdx = idx;
+}
+
+PassageWithNotes DatabaseService::PassageWithNotesAndMissingVerses(int idx, Location loc)
+{
+    m_activeIdx = idx;
+    return m_dbBibles[idx]->PassageWithNotesAndMissingVerses(loc);
+}
+
+void DatabaseService::CreateUserDir()
+{
+    if (!QDir(m_dirUser).exists()) {
+        QDir(*m_dataDir).mkdir("User");
+    }
+}
+
+void DatabaseService::OpenUserNotesDb()
+{
+    m_dbNotes.Open(m_dirUser + "/notes.qbv");
+    m_dbNotes.Init();
+}
+
+void DatabaseService::AddToNotes(Location loc)
+{
+    m_dbNotes.Add(loc);
+}
+
+QList<Location> DatabaseService::NotesLocations()
+{
+    return m_dbNotes.Locations();
+}
+
+QString DatabaseService::Note(Location loc)
+{
+    return m_dbNotes.Note(loc);
+}
+
+void DatabaseService::SaveNote(const QString &note, Location loc)
+{
+    m_dbNotes.Save(note, loc);
 }
 
 void DatabaseService::PopulateBookNames()
@@ -240,77 +359,6 @@ void DatabaseService::PopulateShortBookNames()
                      << tr("3Jo")
                      << tr("Jud")
                      << tr("Rev");
-}
-
-QStringList DatabaseService::BookNames() const
-{
-    return m_bookNames;
-}
-
-QStringList DatabaseService::ShortBookNames() const
-{
-    return m_shortBookNames;
-}
-
-QString DatabaseService::BookName(int idx) const
-{
-    return m_bookNames[idx];
-}
-
-QString DatabaseService::BookNameForNumber(int number) const
-{
-    return m_bookNames[number - 1];
-}
-
-QString DatabaseService::BibleShortName(int idx) const
-{
-    return m_dbBibles[idx]->ShortName();
-}
-
-int DatabaseService::NumBibles() const
-{
-    return m_dbBibles.count();
-}
-
-int DatabaseService::NumChapters(int book) const
-{
-    return m_dbVerseData.NumChapters(book);
-}
-
-int DatabaseService::NumVerses(int book, int chapter) const
-{
-    return m_dbVerseData.NumVerses(book, chapter);
-}
-
-int DatabaseService::ChapterId(int book, int chapter) const
-{
-    return  m_dbVerseData.ChapterId(book, chapter);
-}
-
-int DatabaseService::VerseId(int book, int chapter, int verse) const
-{
-    return  m_dbVerseData.VerseId(book, chapter, verse);
-}
-
-int DatabaseService::ChapterIdForLocation(Location loc) const
-{
-    return m_dbVerseData.ChapterIdForLocation(loc);
-}
-
-Location DatabaseService::LocationForChapterId(int id) const
-{
-    return m_dbVerseData.LocationForChapterId(id);
-}
-
-void DatabaseService::SetActiveIdx(int idx)
-{
-    m_activeIdx = idx;
-}
-
-PassageWithNotes DatabaseService::PassageWithNotesAndMissingVerses(int idx, Location loc)
-{
-    m_activeIdx = idx;
-    return  m_dbBibles[idx]->PassageWithNotesAndMissingVerses(loc);
 }
 
 }

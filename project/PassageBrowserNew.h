@@ -48,6 +48,9 @@ private:
 
     void ComputeSelectedBlockAndVerseRanges();
     void CopyToClipboard(QString &textToCopy, int verse1, int verse2);
+
+signals:
+    void AddNoteRequested(qbv::Location loc);
 };
 
 #endif // PASSAGEBROWSERNEW_H

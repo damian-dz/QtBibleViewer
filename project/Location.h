@@ -70,7 +70,7 @@ struct Location
         return (book > 0 && chapter > 0);
     }
 
-    bool IsSameAs(const Location &other)
+    bool IsSameAs(const Location &other) const
     {
         return (book == other.book &&
                 chapter == other.chapter &&
@@ -93,14 +93,40 @@ struct Location
         return *this;
     }
 
-    bool operator ==(const Location &other)
+    bool operator ==(const Location &other) const
     {
         return this->IsSameAs(other);
     }
 
-    bool operator !=(const Location &other)
+    bool operator !=(const Location &other) const
     {
         return !this->IsSameAs(other);
+    }
+
+    bool operator<(const Location &other) const
+    {
+        bool result = false;
+        if (!this->IsSameAs(other)) {
+            if (other.book == book && other.chapter == chapter && other.verse1 == verse1) {
+                result = verse2 < other.verse2;
+            } else if (other.book == book && other.chapter == chapter) {
+                result = verse1 < other.verse1;
+            } else if (other.book == book) {
+                result = chapter < other.chapter;
+            } else {
+                result = book < other.book;
+            }
+        }
+        return result;
+    }
+
+    bool operator>(const Location &other) const
+    {
+        bool result = false;
+        if (!this->IsSameAs(other)) {
+           result =  !(*this < other);
+        }
+        return result;
     }
 };
 }

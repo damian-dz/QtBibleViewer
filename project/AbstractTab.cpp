@@ -10,11 +10,6 @@ AbstractTab::AbstractTab(QWidget *parent) :
 {
 }
 
-QString AbstractTab::GetLastStatusMsg() const
-{
-    return m_lastStatusMsg;
-}
-
 void AbstractTab::Initialize()
 {
     AddControls();
@@ -23,12 +18,17 @@ void AbstractTab::Initialize()
     m_isInitialized = true;
 }
 
-void AbstractTab::SetLastStatusMsg(const QString &msg)
-{
-    m_lastStatusMsg = msg;
-}
-
 bool AbstractTab::IsInitialized() const
 {
     return m_isInitialized;
+}
+
+QString AbstractTab::LastStatusMsg() const
+{
+    return m_lastStatusMsg;
+}
+
+void AbstractTab::SetLastStatusMsg(const QString &msg)
+{
+    m_lastStatusMsg = msg;
 }

@@ -12,10 +12,10 @@ public:
     virtual void AddControls() = 0;
     virtual void ConnectSignals() = 0;
     virtual void SetUiTexts() = 0;
-
-    QString GetLastStatusMsg() const;
-    bool IsInitialized() const;
     virtual void Initialize();
+
+    bool IsInitialized() const;
+    QString LastStatusMsg() const;
     void SetLastStatusMsg(const QString &msg);
 
 signals:

@@ -30,7 +30,7 @@
 #include "TabSearch.h"
 #include "TabCompare.h"
 #include "TabDictionary.h"
-#include "TabNotes.h"
+#include "TabNotesNew.h"
 
 class MainWindowNew : public QMainWindow
 {
@@ -42,11 +42,11 @@ public:
 private:
     QTabWidget *ui_TabWidget_Main;
 
-    TabBibleNew *ui_TabBibleNew;
+    TabBibleNew *ui_TabBible;
     TabSearch *ui_TabSearch;
     TabCompare *ui_TabCompare;
     TabDictionary *ui_TabDictionary;
-    TabNotes *ui_TabFavorites;
+    TabNotesNew *ui_TabFavorites;
 
     QMenu *ui_Menu_File;
     QAction *ui_Act_AddModule;
@@ -59,6 +59,7 @@ private:
     QLabel *ui_Label_Status;
 
     const QString *m_pAppDir;
+    const QString m_dataDir;
     AppConfig *m_pConfig;
     QTranslator *m_pTsApp;
     QTranslator *m_pTsQt;
@@ -68,12 +69,16 @@ private:
     void CreateMenuBar();
     void SetWindowGeometry();
     void SetUiTexts();
+    void ConnectSingals();
 
     void OnOpenModule();
     void OnModuleInfo();
     void OnImportMySwordModule();
     void OnImportTheWordModule();
 
+    void OnAddNoteRequested(qbv::Location loc);
+
+    void OnTabIndexChanged(int idx);
     void OnExit();
 
     void closeEvent(QCloseEvent *event) override;

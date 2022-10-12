@@ -4,17 +4,25 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
                              QWidget *parent) :
     QMainWindow(parent),
     m_pAppDir(&appDir),
+    m_dataDir(appDir + "/Data/"),
     m_pConfig(&config),
     m_pTsApp(&appTs),
     m_pTsQt(&qtTs),
-    m_databaseService(appDir + "/Data/", config)
-{
-    ui_TabBibleNew = new TabBibleNew(config, m_databaseService);
-    ui_TabBibleNew->Initialize();
+    m_databaseService(m_dataDir, config)
 
+{
+
+    ui_TabBible = new TabBibleNew(config, m_databaseService);
+
+    ui_TabFavorites = new TabNotesNew(m_databaseService);
 
     ui_TabWidget_Main = new QTabWidget;
-    ui_TabWidget_Main->addTab(ui_TabBibleNew, nullptr);
+    ui_TabWidget_Main->addTab(ui_TabBible, nullptr);
+    ui_TabWidget_Main->addTab(new QWidget, nullptr);
+    ui_TabWidget_Main->addTab(new QWidget, nullptr);
+    ui_TabWidget_Main->addTab(new QWidget, nullptr);
+    ui_TabWidget_Main->addTab(ui_TabFavorites, nullptr);
+
 
     QMainWindow::setCentralWidget(ui_TabWidget_Main);
 
@@ -25,9 +33,12 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
 
     SetWindowGeometry();
     CreateMenuBar();
+    ConnectSingals();
     SetUiTexts();
 
-    ui_TabBibleNew->SetLocationFromConfig();
+    ui_TabBible->Initialize();
+    ui_TabBible->SetTabIndexFromConfig();
+    ui_TabBible->SetLocationFromConfig();
 }
 
 void MainWindowNew::CreateMenuBar()
@@ -58,6 +69,10 @@ void MainWindowNew::SetWindowGeometry()
 void MainWindowNew::SetUiTexts()
 {
     ui_TabWidget_Main->setTabText(0, tr("Bible"));
+    ui_TabWidget_Main->setTabText(1, tr("Search"));
+    ui_TabWidget_Main->setTabText(2, tr("Compare"));
+    ui_TabWidget_Main->setTabText(3, tr("Dictionary"));
+    ui_TabWidget_Main->setTabText(4, tr("Notes"));
 
     ui_Menu_File->setTitle(tr("File"));
     ui_Act_AddModule->setText(tr("Add Bible Module"));
@@ -67,6 +82,14 @@ void MainWindowNew::SetUiTexts()
     ui_Act_TheWordModule->setText(tr("TheWord Module"));
     ui_Act_Exit->setText(tr("Exit"));
 
+}
+
+void MainWindowNew::ConnectSingals()
+{
+    QObject::connect(ui_TabWidget_Main, QOverload<int>::of(&QTabWidget::currentChanged),
+                     [=] (int idx) { OnTabIndexChanged(idx); } );
+    QObject::connect(ui_TabBible, QOverload<qbv::Location>::of(&TabBibleNew::AddNoteRequested),
+                     [=] (qbv::Location loc) { OnAddNoteRequested(loc); } );
 }
 
 void MainWindowNew::OnOpenModule()
@@ -89,6 +112,38 @@ void MainWindowNew::OnImportTheWordModule()
 
 }
 
+void MainWindowNew::OnAddNoteRequested(qbv::Location loc)
+{
+    ui_TabWidget_Main->setCurrentIndex(4);
+    if (!ui_TabFavorites->IsInitialized()) {
+        ui_TabFavorites->Initialize();
+    }
+    ui_TabFavorites->AddToNotes(loc);
+}
+
+void MainWindowNew::OnTabIndexChanged(int idx)
+{
+    switch (idx) {
+        case 0:
+            break;
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            if (!ui_TabFavorites->IsInitialized()) {
+                ui_TabFavorites->Initialize();
+            }
+            ui_Label_Status->setText(ui_TabFavorites->LastStatusMsg());
+            break;
+        default:
+            QMessageBox::critical(this, tr("Error"), tr("Specified index not found."));
+            break;
+    }
+}
+
 /*!
  * \brief Triggers the <i>closeEvent</i> by closing the MainWindow and shuts down the program.
  */
@@ -100,7 +155,8 @@ void MainWindowNew::OnExit()
 
 void MainWindowNew::closeEvent(QCloseEvent *event)
 {
-    ui_TabBibleNew->SaveLocationToConfig();
+    ui_TabBible->SaveTabIndexToConfig();
+    ui_TabBible->SaveLocationToConfig();
     m_pConfig->save();
     event->accept();
 }

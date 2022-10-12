@@ -164,7 +164,8 @@ void PassageBrowserNew::OnCopyWithReference()
 
 void PassageBrowserNew::OnAddNote()
 {
-
+    qbv::Location loc(m_location.book, m_location.chapter, m_selectedVerseRange.first, m_selectedVerseRange.second);
+    emit AddNoteRequested(loc);
 }
 
 void PassageBrowserNew::ComputeSelectedBlockAndVerseRanges()

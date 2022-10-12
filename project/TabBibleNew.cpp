@@ -6,17 +6,6 @@ TabBibleNew::TabBibleNew(AppConfig &config, qbv::DatabaseService &databaseServic
     m_pDatabaseService(&databaseService)
 {
 
-
-}
-
-void TabBibleNew::ConnectSignals()
-{
-    QObject::connect(ui_NavPanel, QOverload<qbv::Location>::of(&NavPanel::LocationChanged),
-                     [=] ( qbv::Location loc ) { OnLocationChanged(loc); } );
-    QObject::connect(ui_TabWidget_Bibles, QOverload<int>::of(&QTabWidget::currentChanged),
-                     [=] (int idx) { OnTabChanged(idx); } );
-    QObject::connect(ui_TabWidget_Bibles->tabBar(), QOverload<int, int>::of(&QTabBar::tabMoved),
-                     [=] (int from, int to) { OnTabMoved(from, to); } );
 }
 
 void TabBibleNew::AddControls()
@@ -36,7 +25,8 @@ void TabBibleNew::AddControls()
     for (int i = 0; i <  m_pDatabaseService->NumBibles(); i++) {
         PassageBrowserNew *passageBrowser = new PassageBrowserNew(*m_pConfig, *m_pDatabaseService);
         m_passageBrowsers.append(passageBrowser);
-        m_locations << qbv::Location();
+        QObject::connect(passageBrowser, QOverload<qbv::Location>::of(&PassageBrowserNew::AddNoteRequested),
+                         [=] (qbv::Location loc) { emit AddNoteRequested(loc); });
         ui_TabWidget_Bibles->addTab(passageBrowser, m_pDatabaseService->BibleShortName(i));
     }
 
@@ -44,9 +34,18 @@ void TabBibleNew::AddControls()
     mainLayout->setSpacing(5);
     mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->addLayout(ui_NavPanel);
-
     mainLayout->addWidget(ui_TabWidget_Bibles);
     QWidget::setLayout(mainLayout);
+}
+
+void TabBibleNew::ConnectSignals()
+{
+    QObject::connect(ui_NavPanel, QOverload<qbv::Location>::of(&NavPanel::LocationChanged),
+                     [=] ( qbv::Location loc ) { OnLocationChanged(loc); } );
+    QObject::connect(ui_TabWidget_Bibles, QOverload<int>::of(&QTabWidget::currentChanged),
+                     [=] (int idx) { OnTabChanged(idx); } );
+    QObject::connect(ui_TabWidget_Bibles->tabBar(), QOverload<int, int>::of(&QTabBar::tabMoved),
+                     [=] (int from, int to) { OnTabMoved(from, to); } );
 }
 
 void TabBibleNew::SetUiTexts()
@@ -58,8 +57,8 @@ void TabBibleNew::OnLocationChanged(qbv::Location loc)
 {
     int idx = ui_TabWidget_Bibles->currentIndex();
     auto passageWithNotes = m_pDatabaseService->PassageWithNotesAndMissingVerses(idx, loc);
-    m_passageBrowsers[idx]->SetAndLoadPassageWithNotes(passageWithNotes);
     m_passageBrowsers[idx]->SetLocation(loc);
+    m_passageBrowsers[idx]->SetAndLoadPassageWithNotes(passageWithNotes);
 }
 
 void TabBibleNew::OnTabChanged(int idx)
@@ -101,4 +100,19 @@ void TabBibleNew::SaveLocationToConfig()
           << QString::number(loc.verse1)
           << QString::number(loc.verse2);
     m_pConfig->module_data.last_passage = slLoc;
+}
+
+void TabBibleNew::SetTabIndexFromConfig()
+{
+    int idx = m_pConfig->module_data.index;
+    if (idx < ui_TabWidget_Bibles->count()) {
+        ui_TabWidget_Bibles->blockSignals(true);
+        ui_TabWidget_Bibles->setCurrentIndex(idx);
+        ui_TabWidget_Bibles->blockSignals(false);
+    }
+}
+
+void TabBibleNew::SaveTabIndexToConfig()
+{
+    m_pConfig->module_data.index = ui_TabWidget_Bibles->currentIndex();
 }

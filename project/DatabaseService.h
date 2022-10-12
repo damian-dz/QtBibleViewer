@@ -6,6 +6,7 @@
 #include "AppConfig.h"
 #include "DbBible.h"
 #include "DbVerseData.h"
+#include "DbNotes.h"
 
 namespace qbv {
 
@@ -40,20 +41,31 @@ public:
 
     int ChapterIdForLocation(qbv::Location loc) const;
     qbv::Location LocationForChapterId(int id) const;
+    QString PassageIdForLocation(qbv::Location loc);
 
     void SetActiveIdx(int idx);
 
     qbv::PassageWithNotes PassageWithNotesAndMissingVerses(int idx, Location loc);
 
+    void CreateUserDir();
+    void OpenUserNotesDb();
+
+    void AddToNotes(Location loc);
+    QList<qbv::Location> NotesLocations();
+    QString Note(qbv::Location loc);
+    void SaveNote(const QString &note, qbv::Location loc);
+
 private:
-    const QString *m_pDataDir;
+    const QString *m_dataDir;
     AppConfig *m_pConfig;
 
     const QString m_dirCommon;
     const QString m_dirBibles;
+    const QString m_dirUser;
 
     QList<DbBible *> m_dbBibles;
     DbVerseData m_dbVerseData;
+    DbNotes m_dbNotes;
 
     QStringList m_bookNames;
     QStringList m_shortBookNames;

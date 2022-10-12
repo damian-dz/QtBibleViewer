@@ -2,6 +2,7 @@ project/*.py
 project/*.qm
 project/icns/*
 project/QtBibleViewer.pro.user*
+project/.vscode/
 Installer_x64/.vs/*
 Installer_x64/QtBibleViewerInstaller/bin/*
 Installer_x64/QtBibleViewerInstaller/obj/*

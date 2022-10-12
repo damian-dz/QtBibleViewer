@@ -358,33 +358,33 @@ void MainWindow::OnMainTabChanged(int index)
             if (!ui_TabBible->IsInitialized()) {
                 InitializeBibleTab();
             }
-            ui_Label_Status->setText(ui_TabBible->GetLastStatusMsg());
+            ui_Label_Status->setText(ui_TabBible->LastStatusMsg());
             break;
         case 1:
             if (!ui_TabSearch->IsInitialized()) {
                 ui_TabSearch->Initialize();
                 ui_TabSearch->SetFont(m_currentFont);
             }
-            ui_Label_Status->setText(ui_TabSearch->GetLastStatusMsg());
+            ui_Label_Status->setText(ui_TabSearch->LastStatusMsg());
             break;
         case 2:
             if (!ui_TabCompare->IsInitialized()) {
                 ui_TabCompare->Initialize();
                 ui_TabCompare->SetFont(m_currentFont);
             }
-            ui_Label_Status->setText(ui_TabCompare->GetLastStatusMsg());
+            ui_Label_Status->setText(ui_TabCompare->LastStatusMsg());
             break;
         case 3:
             if (!ui_TabDictionary->IsInitialized()) {
                 ui_TabDictionary->Initialize();
             }
-            ui_Label_Status->setText(ui_TabDictionary->GetLastStatusMsg());
+            ui_Label_Status->setText(ui_TabDictionary->LastStatusMsg());
             break;
         case 4:
             if (!ui_TabFavorites->IsInitialized()) {
                 ui_TabFavorites->Initialize();
             }
-            ui_Label_Status->setText(ui_TabFavorites->GetLastStatusMsg());
+            ui_Label_Status->setText(ui_TabFavorites->LastStatusMsg());
             break;
         default:
             QMessageBox::critical(this, tr("Error"), tr("Specified index not found."));

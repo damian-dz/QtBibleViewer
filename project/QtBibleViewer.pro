@@ -36,6 +36,7 @@ SOURCES += \
     CrossReferenceBox.cpp \
     DatabaseService.cpp \
     DbBible.cpp \
+    DbNotes.cpp \
     DbVerseData.cpp \
     DialogImport.cpp \
     FindOnPageBox.cpp \
@@ -61,6 +62,7 @@ SOURCES += \
     TabCompare.cpp \
     TabDictionary.cpp \
     TabNotes.cpp \
+    TabNotesNew.cpp \
     TabSearch.cpp \
     WidgetCommonRare.cpp \
     WidgetCommonRareWords.cpp \
@@ -76,6 +78,7 @@ HEADERS += \
     CrossReferenceBox.h \
     DatabaseService.h \
     DbBible.h \
+    DbNotes.h \
     DbVerseData.h \
     DialogImport.h \
     FindOnPageBox.h \
@@ -105,6 +108,7 @@ HEADERS += \
     TabCompare.h \
     TabDictionary.h \
     TabNotes.h \
+    TabNotesNew.h \
     TabSearch.h \
     TabbedLocation.h \
     WidgetCommonRare.h \

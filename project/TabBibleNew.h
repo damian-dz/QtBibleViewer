@@ -13,12 +13,12 @@ class TabBibleNew : public AbstractTab
 public:
     explicit TabBibleNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent = nullptr);
 
-    virtual void ConnectSignals() override;
-    virtual void AddControls() override;
     virtual void SetUiTexts() override;
 
     void SetLocationFromConfig();
     void SaveLocationToConfig();
+    void SetTabIndexFromConfig();
+    void SaveTabIndexToConfig();
 
 private:
     AppConfig *m_pConfig;
@@ -28,14 +28,16 @@ private:
     QTabWidget *ui_TabWidget_Bibles;
 
     QList<PassageBrowserNew *> m_passageBrowsers;
-    QList<qbv::Location> m_locations;
+
+    virtual void ConnectSignals() override;
+    virtual void AddControls() override;
 
     void OnLocationChanged(qbv::Location loc);
     void OnTabChanged(int idx);
     void OnTabMoved(int from, int to);
 
-
-
+signals:
+    void AddNoteRequested(qbv::Location loc);
 };
 
 #endif // TABBIBLENEW_H
