@@ -12,6 +12,9 @@ public:
 
     void SetUiTexts();
 
+    SearchOptions GetSearchOptions();
+    int GetBibleIndex() const;
+
 private:
     AppConfig *m_pConfig;
     qbv::DatabaseService *m_pDatabaseService;

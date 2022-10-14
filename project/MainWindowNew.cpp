@@ -93,6 +93,9 @@ void MainWindowNew::ConnectSingals()
                      [=] (int idx) { OnTabIndexChanged(idx); } );
     QObject::connect(ui_TabBible, QOverload<qbv::Location>::of(&TabBibleNew::AddNoteRequested),
                      [=] (qbv::Location loc) { OnAddNoteRequested(loc); } );
+
+    QObject::connect(ui_TabSearch, QOverload<QString>::of(&TabSearchNew::StatusMsgSet),
+                     [=] (QString msg) { ui_Label_Status->setText(msg); } );
 }
 
 void MainWindowNew::OnOpenModule()
@@ -133,6 +136,7 @@ void MainWindowNew::OnTabIndexChanged(int idx)
 {
     switch (idx) {
         case 0:
+            ui_Label_Status->setText(ui_TabBible->LastStatusMsg());
             break;
         case 1:
             if (!ui_TabSearch->IsInitialized()) {

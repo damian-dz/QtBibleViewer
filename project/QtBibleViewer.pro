@@ -57,6 +57,8 @@ SOURCES += \
     SearchOptionsPanelNew.cpp \
     SearchResultArea.cpp \
     SearchResultBrowser.cpp \
+    SearchResultsArea.cpp \
+    SearchResultsBrowser.cpp \
     Strings.cpp \
     TabBible.cpp \
     TabBibleNew.cpp \
@@ -105,6 +107,8 @@ HEADERS += \
     SearchOptionsPanelNew.h \
     SearchResultArea.h \
     SearchResultBrowser.h \
+    SearchResultsArea.h \
+    SearchResultsBrowser.h \
     Strings.h \
     TabBible.h \
     TabBibleNew.h \

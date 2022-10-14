@@ -5,6 +5,7 @@
 #include "Formatting.h"
 #include "Location.h"
 #include "PassageWithNotes.h"
+#include "PassageWithRef.h"
 #include "SearchOptions.h"
 
 namespace qbv {
@@ -22,13 +23,19 @@ public:
     QStringList Passage(Location loc) const;
     PassageWithNotes PassageWithNotesAndMissingVerses(Location loc) const;
 
-    void Search(const QString &phrase, SearchOptions options);
+    QRegularExpression Search(const QString &text, SearchOptions options);
+    QRegularExpression SearchByPhrase(const QString &phrase, SearchOptions options);
+    QRegularExpression SearchByStrong(const QString &number, SearchOptions options);
+    QList<qbv::PassageWithLocation> GetLastSearchResults() const;
+    QList<qbv::PassageWithLocation> GetLastSearchResults(int pos, int count = -1) const;
+    int GetNumLastSearchResults() const;
 
 private:
     QString MultipleWordCommand(const QStringList &words, const QString &conjunction);
     void RegexStrings(QString &rgxStr, QString &highlightRgxStr);
+    void FilterRawResults(const QRegularExpression &rgx, QSqlQuery &query);
 
-    QStringList m_lastResults;
+    QList<qbv::PassageWithLocation> m_lastSearchResults;
 };
 
 }

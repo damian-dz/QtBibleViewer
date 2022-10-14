@@ -33,6 +33,7 @@
 #include <QRadioButton>
 #include <QRandomGenerator>
 #include <QSettings>
+#include <QScrollBar>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QSplitter>

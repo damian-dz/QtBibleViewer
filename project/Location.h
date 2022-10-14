@@ -129,6 +129,14 @@ struct Location
         return result;
     }
 };
+
+struct PassageWithLocation
+{
+    QString passage;
+    Location location;
+};
+
+
 }
 
 #endif // LOCATION_H

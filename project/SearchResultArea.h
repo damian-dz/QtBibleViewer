@@ -1,5 +1,5 @@
-#ifndef SEARCHRESULTSAREA_H
-#define SEARCHRESULTSAREA_H
+#ifndef SEARCHRESULTAREA_H
+#define SEARCHRESULTAREA_H
 
 #include "precomp.h"
 
@@ -40,6 +40,7 @@ private:
     QPushButton *ui_Button_Search;
 
     SearchResultBrowser *ui_SearchResultsBrowser;
+
     QPushButton *ui_Button_First;
     QPushButton *ui_Button_Prev;
     QPushButton *ui_Button_Next;
@@ -63,4 +64,4 @@ private:
 
 };
 
-#endif // SEARCHRESULTSAREA_H
+#endif // SEARCHRESULTAREA_H

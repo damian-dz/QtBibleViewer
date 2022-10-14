@@ -112,6 +112,31 @@ void SearchOptionsPanelNew::SetUiTexts()
                 tr("Look for verses containing the specified Strong's Number (if available)."));
 }
 
+SearchOptions SearchOptionsPanelNew::GetSearchOptions()
+{
+    int translation = ui_ComboBox_Translation->currentIndex();
+    int bookFrom = ui_ComboBox_From->currentIndex() + 1;
+    int bookTo = ui_ComboBox_To->currentIndex() + 1;
+    bool caseSensitive = ui_CheckBox_CaseSensitive->isChecked();
+    bool wholeWordsOnly = ui_CheckBox_WholeWordsOnly->isChecked();
+    SearchMode searchMode = SearchMode::exactPhrase;
+    if (ui_RadioButton_AllWords->isChecked()) {
+        searchMode = SearchMode::allWords;
+    } else if (ui_RadioButton_AnyWords->isChecked()) {
+        searchMode = SearchMode::anyWords;
+    } else if (ui_RadioButton_ByStrong->isChecked()) {
+        qDebug() << "before";
+        searchMode = SearchMode::byStrong;
+        qDebug() << "after";
+    }
+    return { translation, bookFrom, bookTo, caseSensitive, wholeWordsOnly, searchMode };
+}
+
+int SearchOptionsPanelNew::GetBibleIndex() const
+{
+    return ui_ComboBox_Translation->currentIndex();
+}
+
 void SearchOptionsPanelNew::OnRangeChanged(int idx)
 {
     switch (idx) {

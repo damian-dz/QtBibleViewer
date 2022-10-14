@@ -5,9 +5,11 @@ namespace qbv {
 
 struct PassageWithRef
 {
-    QStringList passage;
+    QString passage;
     QString reference;
 };
+
+
 
 }
 

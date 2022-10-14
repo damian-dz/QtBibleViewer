@@ -1,5 +1,5 @@
-#ifndef SEARCHRESULTSBROWSER_H
-#define SEARCHRESULTSBROWSER_H
+#ifndef SEARCHRESULTBROWSER_H
+#define SEARCHRESULTBROWSER_H
 
 #include "precomp.h"
 
@@ -30,4 +30,4 @@ signals:
     void ReferenceClicked(int book, int chapter, int verse);
 };
 
-#endif // SEARCHRESULTSBROWSER_H
+#endif // SEARCHRESULTBROWSER_H
