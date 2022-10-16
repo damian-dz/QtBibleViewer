@@ -14,6 +14,7 @@ public:
 
     SearchOptions GetSearchOptions();
     int GetBibleIndex() const;
+    int GetNumResultsPerPage() const;
 
 private:
     AppConfig *m_pConfig;

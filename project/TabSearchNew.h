@@ -14,6 +14,8 @@ public:
     explicit TabSearchNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent = nullptr);
     virtual void SetUiTexts() override;
 
+    void SetFocusAndSelectAll();
+
 private:
     QLabel *ui_Label_Enter;
     QLineEdit *ui_LineEdit_Search;
@@ -45,11 +47,19 @@ private:
 
     int m_lastIdx = 0;
     QList<qbv::PassageWithLocation> m_results;
+    int m_resultIdx = 0;
+    int m_numResults = 0;
+    QRegularExpression m_highlightRgx;
 
     virtual void AddControls() override;
     virtual void ConnectSignals() override;
 
     void OnSearchButtonClicked();
+
+    void OnButtonPrevClicked();
+    void OnButtonNextClicked();
+
+    void UpdateResults(int numResPerPage);
 
 signals:
     void StatusMsgSet(QString msg);

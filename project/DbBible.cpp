@@ -120,7 +120,6 @@ PassageWithNotes DbBible::PassageWithNotesAndMissingVerses(Location loc) const
 
 QRegularExpression DbBible::Search(const QString &text, SearchOptions options)
 {
-    qDebug() << (options.searchMode == SearchMode::byStrong);
     if (options.searchMode == SearchMode::byStrong) {
         return SearchByStrong(text, options);
     } else {
@@ -128,28 +127,45 @@ QRegularExpression DbBible::Search(const QString &text, SearchOptions options)
     }
 }
 
+QRegularExpression DbBible::SearchByStrong(const QString &number, SearchOptions options)
+{
+    m_lastSearchResults.clear();
+    QString pattern = QString("<W%1>").arg(number.toUpper());
+    QString command = "SELECT * FROM Bible WHERE Scripture LIKE '%" + pattern + "%'";
+    LimitRange(options, command);
+    QSqlQuery query(m_db);
+    if (query.exec(command)) {
+        while (query.next()) {
+            QSqlRecord record = query.record();
+            QString book = record.value(1).toString();
+            QString chapter = record.value(2).toString();
+            QString verse = record.value(3).toString();
+            QString scripture = record.value(4).toString();
+            qbv::Location loc(book.toInt(), chapter.toInt(), verse.toInt(), verse.toInt());
+            m_lastSearchResults.append({ scripture, loc });
+        }
+    }
+    QRegularExpression highlightRgx(QString("\\b%1\\b").arg(number.toUpper()));
+    return highlightRgx;
+}
+
 QRegularExpression DbBible::SearchByPhrase(const QString &phrase, SearchOptions options)
 {
-     qDebug() << "DbBible::SearchByPhrase";
     QStringList words = phrase.split(" ");
     QString conj = options.searchMode == SearchMode::anyWords ? "OR" : "AND";
 
     QString command = MultipleWordCommand(words, conj);
-    if (options.bookFrom > 1) {
-        command += " AND Book>=" + QString::number(options.bookFrom);
-    }
-    if (options.bookTo < 66) {
-        command += " AND Book<=" + QString::number(options.bookTo);
-    }
+    LimitRange(options, command);
 
     QString rgxStr = "";
     QString highlightRgxStr = "";
 
     if (options.searchMode == SearchMode::exactPhrase) {
         rgxStr = options.wholeWordsOnly ? QString("\\b%1\\b").arg(phrase) : phrase;
+        QString sep(" (([HG][0-9]{1,4} ){1,})?");
         highlightRgxStr = options.wholeWordsOnly ?
-            QString("\\b%1\\b?").arg(words.join(" ")) :
-            QString("%1").arg(words.join(" "));
+            QString("\\b%1\\b").arg(words.join(sep)) :
+            words.join(sep);
     } else if (options.searchMode == SearchMode::allWords) {
         rgxStr = options.wholeWordsOnly ?
             QString("(?=.*\\b%1\\b)").arg(words.join("\\b)(?=.*\\b")) :
@@ -169,46 +185,11 @@ QRegularExpression DbBible::SearchByPhrase(const QString &phrase, SearchOptions 
     QRegularExpression rgx(rgxStr, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
 
     QSqlQuery query(m_db);
-
     if (query.exec(command)) {
         FilterRawResults(rgx, query);
     }
 
     QRegularExpression highlightRgx(highlightRgxStr, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
-    return highlightRgx;
-}
-
-QRegularExpression DbBible::SearchByStrong(const QString &number, SearchOptions options)
-{
-    qDebug() << "DbBible::SearchByStrong";
-    m_lastSearchResults.clear();
-    QString pattern = QString("<W%1>").arg(number.toUpper());
-    QString command = "SELECT * FROM Bible WHERE Scripture LIKE '%" + pattern + "%'";
-
-    qDebug() << command;
-
-    if (options.bookFrom > 1) {
-        command += " AND Book>=" + QString::number(options.bookFrom);
-    }
-    if (options.bookTo < 66) {
-        command += " AND Book<=" + QString::number(options.bookTo);
-    }
-
-    QSqlQuery query(m_db);
-
-    if (query.exec(command)) {
-        while (query.next()) {
-            QSqlRecord record = query.record();
-            QString book = record.value(1).toString();
-            QString chapter = record.value(2).toString();
-            QString verse = record.value(3).toString();
-            QString scripture = record.value(4).toString();
-            qbv::Location loc(book.toInt(), chapter.toInt(), verse.toInt(), verse.toInt());
-            m_lastSearchResults.append({ scripture, loc });
-        }
-    }
-    qDebug() << "aaaaaaaaaaaaa";
-    QRegularExpression highlightRgx(QString("\\b%1\\b").arg(number.toUpper()));
     return highlightRgx;
 }
 
@@ -238,7 +219,6 @@ void DbBible::FilterRawResults(const QRegularExpression &rgx, QSqlQuery &query)
         inputText.remove(patterns);
 
         if (inputText.contains(rgx)) {
-            qDebug() << inputText;
             QString book = record.value(1).toString();
             QString chapter = record.value(2).toString();
             QString verse = record.value(3).toString();
@@ -258,6 +238,16 @@ QString DbBible::MultipleWordCommand(const QStringList &words, const QString &co
         }
     }
     return command;
+}
+
+void DbBible::LimitRange(SearchOptions options, QString &command)
+{
+    if (options.bookFrom > 1) {
+        command += " AND Book>=" + QString::number(options.bookFrom);
+    }
+    if (options.bookTo < 66) {
+        command += " AND Book<=" + QString::number(options.bookTo);
+    }
 }
 
 void DbBible::RegexStrings(QString &rgxStr, QString &highlightRgxStr)

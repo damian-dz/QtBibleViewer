@@ -9,7 +9,7 @@ class Formatting
    // static const inline QRegularExpression m_noteRgx = QRegularExpression("{TN}[^<]*{tn}");
     static const inline QRegularExpression m_headingRgx = QRegularExpression("{H}(.*?){h}");
     static const inline QRegularExpression m_noteRgx = QRegularExpression("{TN}.*?{tn}");
-    static const inline QRegularExpression m_strongRgx = QRegularExpression("<X?W[HG][0-9]{1,4}x?>");
+    static const inline QRegularExpression m_strongRgx = QRegularExpression("<X?W([HG][0-9]{1,4})x?>");
     static const inline QColor m_jwColor = QColor(190, 23, 24);
     static const inline QRegularExpression m_endTagRgx = QRegularExpression("{jw}|{ot}");
     static const inline QRegularExpression m_tagRgx = QRegularExpression("{..}");

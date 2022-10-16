@@ -47,7 +47,7 @@ private:
     TabSearchNew *ui_TabSearch;
     TabCompare *ui_TabCompare;
     TabDictionary *ui_TabDictionary;
-    TabNotesNew *ui_TabFavorites;
+    TabNotesNew *ui_TabNotes;
 
     QMenu *ui_Menu_File;
     QAction *ui_Act_AddModule;

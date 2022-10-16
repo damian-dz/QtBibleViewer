@@ -137,6 +137,11 @@ int SearchOptionsPanelNew::GetBibleIndex() const
     return ui_ComboBox_Translation->currentIndex();
 }
 
+int SearchOptionsPanelNew::GetNumResultsPerPage() const
+{
+    return ui_ComboBox_ResPerPage->currentText().toInt();
+}
+
 void SearchOptionsPanelNew::OnRangeChanged(int idx)
 {
     switch (idx) {

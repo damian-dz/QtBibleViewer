@@ -2,15 +2,16 @@
 #define TABNOTESNEW_H
 
 #include "AbstractTab.h"
+#include "AppConfig.h"
 #include "DatabaseService.h"
 #include "Module.h"
-#include "SearchResultBrowser.h"
+#include "SearchResultsBrowser.h"
 
 class TabNotesNew : public AbstractTab
 {
     Q_OBJECT
 public:
-    explicit TabNotesNew(qbv::DatabaseService &databaseService, QWidget *parent = nullptr);
+    explicit TabNotesNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent = nullptr);
 
     virtual void SetUiTexts() override;
     virtual void Initialize() override;
@@ -28,12 +29,13 @@ private:
     QLabel *ui_Label_Notes;
 
     QListWidget *ui_ListView_References;
-    SearchResultBrowser *ui_PassageBrowser;
+    SearchResultsBrowser *ui_PassageBrowser;
     QTextEdit *ui_TextEdit_Notes;
 
     QPushButton *ui_Button_Save;
     QPushButton *ui_Button_Delete;
 
+    AppConfig *m_pConfig;
     qbv::DatabaseService *m_pDatabaseService;
 
     QList<qbv::Location> m_locations;

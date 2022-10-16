@@ -77,10 +77,11 @@ void PassageBrowserNew::OnContextMenuRequested(const QPoint &pos)
 {
     QPoint globalPos = QWidget::mapToGlobal(pos);
     QMenu contextMenu(this);
-    contextMenu.addAction(tr("Copy Highlighted Text"), this, [=] { QTextEdit::copy(); }, QKeySequence::Copy);
+    contextMenu.addAction(tr("Copy Selected Text"), this, [=] { QTextEdit::copy(); }, QKeySequence::Copy);
     contextMenu.addAction(tr("Copy with Reference"), this, [=] { OnCopyWithReference(); });
    // contextMenu.addAction(tr("Copy with Reference as TeX"), this, [=] { OnCopyAsTeXWithReference(); });
    // contextMenu.addAction(tr("Copy with Reference as HTML"), this, [=] { OnCopyAsHtmlWithReference(); });
+    contextMenu.addAction(tr("Remove Highlight"), this, [=] { OnRemoveHighlight(); });
     contextMenu.addAction(tr("Select All"), this, [=] { QTextEdit::selectAll(); }, QKeySequence::SelectAll);
     contextMenu.addSeparator();
     QList<QAction *> contextActions = contextMenu.actions();
@@ -160,6 +161,15 @@ void PassageBrowserNew::CopyWithReferenceTemplate(PassageBrowserNew::FormattingF
 void PassageBrowserNew::OnCopyWithReference()
 {
     CopyWithReferenceTemplate(Formatting::RemoveTagsAndNotes);
+}
+
+void PassageBrowserNew::OnRemoveHighlight()
+{
+    QTextBlockFormat format;
+    format.setBackground(Qt::transparent);
+    if (!m_lastCursor.isNull()) {
+        m_lastCursor.setBlockFormat(format);
+    }
 }
 
 void PassageBrowserNew::OnAddNote()

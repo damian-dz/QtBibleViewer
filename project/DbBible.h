@@ -32,6 +32,7 @@ public:
 
 private:
     QString MultipleWordCommand(const QStringList &words, const QString &conjunction);
+    void LimitRange(SearchOptions options, QString &command);
     void RegexStrings(QString &rgxStr, QString &highlightRgxStr);
     void FilterRawResults(const QRegularExpression &rgx, QSqlQuery &query);
 

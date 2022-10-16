@@ -44,6 +44,7 @@ private:
     typedef void (&FormattingFunc)(QString &);
     void CopyWithReferenceTemplate(FormattingFunc format);
     void OnCopyWithReference();
+    void OnRemoveHighlight();
     void OnAddNote();
 
     void ComputeSelectedBlockAndVerseRanges();

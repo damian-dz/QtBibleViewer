@@ -2,8 +2,9 @@
 
 #include "PassageBrowser.h"
 
-TabNotesNew::TabNotesNew(qbv::DatabaseService &databaseService, QWidget *parent) :
+TabNotesNew::TabNotesNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent) :
     AbstractTab(parent),
+    m_pConfig(&config),
     m_pDatabaseService(&databaseService)
 {
 
@@ -16,8 +17,8 @@ void TabNotesNew::AddControls()
     ui_ListView_References->setMaximumWidth(200);
 
     ui_Label_Passage = new QLabel;
-    ui_PassageBrowser = new SearchResultBrowser;
-    ui_PassageBrowser->SetIncludeResultNumber(false);
+    ui_PassageBrowser = new SearchResultsBrowser(*m_pConfig, *m_pDatabaseService);
+    //ui_PassageBrowser->SetIncludeResultNumber(false);
 
     ui_Label_Notes = new QLabel;
     ui_TextEdit_Notes = new QTextEdit;
@@ -103,15 +104,15 @@ void TabNotesNew::AddToNotes(qbv::Location loc)
 
 void TabNotesNew::SetPassage(const QString &bookName, int chapter, int verse, const QString &scripture)
 {
-    ui_PassageBrowser->SetResult(scripture, QString("<b>—%1 %2:%3</b>")
-                                 .arg(bookName, QString::number(chapter), QString::number(verse)));
+//    ui_PassageBrowser->SetResult(scripture, QString("<b>—%1 %2:%3</b>")
+//                                 .arg(bookName, QString::number(chapter), QString::number(verse)));
 }
 
 void TabNotesNew::SetPassage(const QString &bookName, int chapter, int verse1, int verse2, const QString &scripture)
 {
-    ui_PassageBrowser->SetResult(scripture, QString("<b>—%1 %2:%3-%4</b>")
-                                 .arg(bookName, QString::number(chapter),
-                                      QString::number(verse1), QString::number(verse2)));
+//    ui_PassageBrowser->SetResult(scripture, QString("<b>—%1 %2:%3-%4</b>")
+//                                 .arg(bookName, QString::number(chapter),
+//                                      QString::number(verse1), QString::number(verse2)));
 }
 
 void TabNotesNew::OnIndexChanged(int idx)
@@ -119,6 +120,8 @@ void TabNotesNew::OnIndexChanged(int idx)
     auto loc = m_locations[idx];
     QString note = m_pDatabaseService->Note(loc);
     ui_TextEdit_Notes->setPlainText(note);
+
+
 }
 
 void TabNotesNew::OnButtonSaveClicked()

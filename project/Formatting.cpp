@@ -90,7 +90,7 @@ void Formatting::FormatTextAndRemoveNotes(QString &text, bool hasStrong)
             QRegularExpressionMatch match = iter.next();
             if (match.hasMatch()) {
                 QString original = match.captured(0);
-                QString modified = original.mid(2, original.size() - 3);
+                QString modified = match.captured(1);
                 text.replace(original, QStringLiteral(" <a href='%1' style='font-weight:normal'>%2</a>")
                              .arg(modified, modified));
             }

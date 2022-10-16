@@ -17,14 +17,14 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
     ui_TabBible = new TabBibleNew(config, m_databaseService);
     ui_TabSearch = new TabSearchNew(config, m_databaseService);
 
-    ui_TabFavorites = new TabNotesNew(m_databaseService);
+    ui_TabNotes = new TabNotesNew(config, m_databaseService);
 
     ui_TabWidget_Main = new QTabWidget;
     ui_TabWidget_Main->addTab(ui_TabBible, nullptr);
     ui_TabWidget_Main->addTab(ui_TabSearch, nullptr);
     ui_TabWidget_Main->addTab(new QWidget, nullptr);
     ui_TabWidget_Main->addTab(new QWidget, nullptr);
-    ui_TabWidget_Main->addTab(ui_TabFavorites, nullptr);
+    ui_TabWidget_Main->addTab(ui_TabNotes, nullptr);
 
 
     QMainWindow::setCentralWidget(ui_TabWidget_Main);
@@ -126,10 +126,10 @@ void MainWindowNew::OnImportTheWordModule()
 void MainWindowNew::OnAddNoteRequested(qbv::Location loc)
 {
     ui_TabWidget_Main->setCurrentIndex(4);
-    if (!ui_TabFavorites->IsInitialized()) {
-        ui_TabFavorites->Initialize();
+    if (!ui_TabNotes->IsInitialized()) {
+        ui_TabNotes->Initialize();
     }
-    ui_TabFavorites->AddToNotes(loc);
+    ui_TabNotes->AddToNotes(loc);
 }
 
 void MainWindowNew::OnTabIndexChanged(int idx)
@@ -142,6 +142,7 @@ void MainWindowNew::OnTabIndexChanged(int idx)
             if (!ui_TabSearch->IsInitialized()) {
                 ui_TabSearch->Initialize();
             }
+            ui_TabSearch->SetFocusAndSelectAll();
             ui_Label_Status->setText(ui_TabSearch->LastStatusMsg());
             break;
         case 2:
@@ -149,10 +150,10 @@ void MainWindowNew::OnTabIndexChanged(int idx)
         case 3:
             break;
         case 4:
-            if (!ui_TabFavorites->IsInitialized()) {
-                ui_TabFavorites->Initialize();
+            if (!ui_TabNotes->IsInitialized()) {
+                ui_TabNotes->Initialize();
             }
-            ui_Label_Status->setText(ui_TabFavorites->LastStatusMsg());
+            ui_Label_Status->setText(ui_TabNotes->LastStatusMsg());
             break;
         default:
             QMessageBox::critical(this, tr("Error"), tr("Specified index not found."));

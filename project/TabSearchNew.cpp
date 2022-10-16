@@ -27,53 +27,59 @@ TabSearchNew::TabSearchNew(AppConfig &config, qbv::DatabaseService &databaseServ
     QVBoxLayout *navVerLayout = new QVBoxLayout;
     randomVerseHorLayout->addLayout(navVerLayout);
 
-    QHBoxLayout *prevNextHorLayout = new QHBoxLayout;
-    navVerLayout->addLayout(prevNextHorLayout);
+
+
 
     ui_Button_First = new QPushButton("|<");
     ui_Button_First->setDisabled(true);
     ui_Button_First->setMaximumWidth(40);
-    prevNextHorLayout->addWidget(ui_Button_First);
 
     ui_Button_Prev = new QPushButton("<<");
     ui_Button_Prev->setDisabled(true);
     ui_Button_Prev->setMaximumWidth(50);
-    prevNextHorLayout->addWidget(ui_Button_Prev);
 
     ui_Button_Next = new QPushButton(">>");
     ui_Button_Next->setDisabled(true);
     ui_Button_Next->setMaximumWidth(50);
-    prevNextHorLayout->addWidget(ui_Button_Next);
 
     ui_Button_Last = new QPushButton(">|");
     ui_Button_Last->setDisabled(true);
     ui_Button_Last->setMaximumWidth(40);
+
+    QHBoxLayout *prevNextHorLayout = new QHBoxLayout;
+    prevNextHorLayout->addWidget(ui_Button_First);
+    prevNextHorLayout->addWidget(ui_Button_Prev);
+    prevNextHorLayout->addWidget(ui_Button_Next);
     prevNextHorLayout->addWidget(ui_Button_Last);
 
-    QHBoxLayout *goToHorLayout = new QHBoxLayout;
-    navVerLayout->addLayout(goToHorLayout);
+    navVerLayout->addLayout(prevNextHorLayout);
 
     ui_Label_GoToPage = new QLabel;
-
-    goToHorLayout->addWidget(ui_Label_GoToPage);
 
     ui_SpinBox_PageNum = new QSpinBox;
     ui_SpinBox_PageNum->setDisabled(true);
     ui_SpinBox_PageNum->setRange(0, 0);
     ui_SpinBox_PageNum->setFixedWidth(55);
-    goToHorLayout->addWidget(ui_SpinBox_PageNum);
+
 
     ui_Label_Of = new QLabel;
-
-    goToHorLayout->addWidget(ui_Label_Of);
 
     ui_Button_GoTo = new QPushButton;
     ui_Button_GoTo->setIcon(QIcon(":/img/img_res/arrow_right.svg"));
     ui_Button_GoTo->setFixedWidth(35);
     ui_Button_GoTo->setDisabled(true);
+
+    QHBoxLayout *goToHorLayout = new QHBoxLayout;
+    goToHorLayout->addWidget(ui_Label_GoToPage);
+    goToHorLayout->addWidget(ui_SpinBox_PageNum);
+    goToHorLayout->addWidget(ui_Label_Of);
     goToHorLayout->addWidget(ui_Button_GoTo);
 
+
+
     ui_Button_RandomVerse = new QPushButton;
+
+    navVerLayout->addLayout(goToHorLayout);
     navVerLayout->addWidget(ui_Button_RandomVerse);
 
     ui_randomVerseBrowser = new SearchResultsBrowser(config, databaseService);
@@ -110,7 +116,13 @@ void TabSearchNew::SetUiTexts()
 
      ui_Button_RandomVerse->setText(tr("Random Verse"));
 
-    ui_SearchOptionsPanel->SetUiTexts();
+     ui_SearchOptionsPanel->SetUiTexts();
+}
+
+void TabSearchNew::SetFocusAndSelectAll()
+{
+    ui_LineEdit_Search->setFocus();
+    ui_LineEdit_Search->selectAll();
 }
 
 void TabSearchNew::AddControls()
@@ -122,7 +134,14 @@ void TabSearchNew::ConnectSignals()
 {
     QObject::connect(ui_LineEdit_Search, QOverload<const QString &>::of(&QLineEdit::textChanged),
                      [=] (const QString &text) { ui_Button_Search->setEnabled(text.trimmed().length() > 0); });
+    QObject::connect(ui_LineEdit_Search, QOverload<>::of(&QLineEdit::returnPressed),
+                     [=] { ui_Button_Search->click(); });
     QObject::connect(ui_Button_Search, QOverload<bool>::of(&QPushButton::clicked), [=] { OnSearchButtonClicked(); });
+
+    QObject::connect(ui_Button_Prev, QOverload<bool>::of(&QPushButton::clicked),
+                     [=] { OnButtonPrevClicked(); });
+    QObject::connect(ui_Button_Next, QOverload<bool>::of(&QPushButton::clicked),
+                     [=] { OnButtonNextClicked(); });
 }
 
 void TabSearchNew::OnSearchButtonClicked()
@@ -132,15 +151,40 @@ void TabSearchNew::OnSearchButtonClicked()
 
     QElapsedTimer timer;
     timer.start();
-    auto highlightRgx = m_pDatabaseService->Search(m_lastIdx, ui_LineEdit_Search->text(), options);
-    int numResults = m_pDatabaseService->GetNumLastSearchResults(m_lastIdx);
+    m_highlightRgx = m_pDatabaseService->Search(m_lastIdx, ui_LineEdit_Search->text(), options);
+    m_numResults = m_pDatabaseService->GetNumLastSearchResults(m_lastIdx);
     QString statusMsg = QString(tr("The search took %1 s. ")).arg(timer.elapsed() * 0.001);
-    statusMsg += QString(tr("Number of verses found: %1.")).arg(numResults);
+    statusMsg += QString(tr("Number of verses found: %1.")).arg(m_numResults);
     emit StatusMsgSet(statusMsg);
     SetLastStatusMsg(statusMsg);
 
-    auto searchResults = m_pDatabaseService->GetLastSearchResults(m_lastIdx, 0, 25);
+    m_resultIdx = 0;
+    int numResPerPage = ui_SearchOptionsPanel->GetNumResultsPerPage();
+    UpdateResults(numResPerPage);
+}
+
+void TabSearchNew::OnButtonPrevClicked()
+{
+    int numResPerPage = ui_SearchOptionsPanel->GetNumResultsPerPage();
+    m_resultIdx -= numResPerPage;
+    UpdateResults(numResPerPage);
+}
+
+void TabSearchNew::OnButtonNextClicked()
+{
+    int numResPerPage = ui_SearchOptionsPanel->GetNumResultsPerPage();
+    m_resultIdx += numResPerPage;
+    UpdateResults(numResPerPage);
+}
+
+void TabSearchNew::UpdateResults(int numResPerPage)
+{
+    auto searchResults = m_pDatabaseService->GetLastSearchResults(m_lastIdx, m_resultIdx, numResPerPage);
     bool hasStrong = m_pDatabaseService->HasStrong(m_lastIdx);
     ui_searchResultsBrowser->SetResults(searchResults, hasStrong);
-    ui_searchResultsBrowser->HighlightKeywords(highlightRgx);
+    ui_searchResultsBrowser->HighlightKeywords(m_highlightRgx);
+    ui_Button_Prev->setDisabled(m_resultIdx == 0);
+    ui_Button_Next->setEnabled(m_resultIdx + numResPerPage < m_numResults);
 }
+
+
