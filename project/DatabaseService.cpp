@@ -195,6 +195,11 @@ void DatabaseService::SetActiveIdx(int idx)
     m_activeIdx = idx;
 }
 
+QStringList DatabaseService::Passage(int idx, Location loc)
+{
+    return m_dbBibles[idx]->Passage(loc);
+}
+
 PassageWithNotes DatabaseService::PassageWithNotesAndMissingVerses(int idx, Location loc)
 {
     m_activeIdx = idx;

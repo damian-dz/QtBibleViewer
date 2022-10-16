@@ -142,6 +142,9 @@ void TabSearchNew::ConnectSignals()
                      [=] { OnButtonPrevClicked(); });
     QObject::connect(ui_Button_Next, QOverload<bool>::of(&QPushButton::clicked),
                      [=] { OnButtonNextClicked(); });
+
+    QObject::connect(ui_Button_RandomVerse, QOverload<bool>::of(&QPushButton::clicked),
+                     [=] { OnButtonRandomClicked(); });
 }
 
 void TabSearchNew::OnSearchButtonClicked()
@@ -152,41 +155,50 @@ void TabSearchNew::OnSearchButtonClicked()
     QElapsedTimer timer;
     timer.start();
     QString text = ui_LineEdit_Search->text();
-    m_results = m_pDatabaseService->Search(m_lastIdx, text, options);
+    auto searchResults = m_pDatabaseService->Search(m_lastIdx, text, options);
    // m_numResults = m_pDatabaseService->GetNumLastSearchResults(m_lastIdx);
     QString statusMsg = QString(tr("The search took %1 s. ")).arg(timer.elapsed() * 0.001);
-    statusMsg += QString(tr("Number of verses found: %1.")).arg(m_results.count());
+    statusMsg += QString(tr("Number of verses found: %1.")).arg(searchResults.count());
     emit StatusMsgSet(statusMsg);
     SetLastStatusMsg(statusMsg);
 
     m_resultIdx = 0;
     int numResPerPage = ui_SearchOptionsPanel->GetNumResultsPerPage();
+    bool hasStrong = m_pDatabaseService->HasStrong(m_lastIdx);
+
     m_highlightRgx = Formatting::GetHighlightRegex(text, options);
-    UpdateResults(numResPerPage);
+    ui_searchResultsBrowser->SetHighlightRegex(m_highlightRgx);
+    ui_searchResultsBrowser->SetNumResultsPerPage(numResPerPage);
+    ui_searchResultsBrowser->SetResults(searchResults, hasStrong);
+    ui_Button_Prev->setEnabled(ui_searchResultsBrowser->HasPrev());
+    ui_Button_Next->setEnabled(ui_searchResultsBrowser->HasNext());
 }
 
 void TabSearchNew::OnButtonPrevClicked()
 {
-    int numResPerPage = ui_SearchOptionsPanel->GetNumResultsPerPage();
-    m_resultIdx -= numResPerPage;
-    UpdateResults(numResPerPage);
+    ui_searchResultsBrowser->DisplayPrevPage();
+    ui_Button_Prev->setEnabled(ui_searchResultsBrowser->HasPrev());
+    ui_Button_Next->setEnabled(ui_searchResultsBrowser->HasNext());
 }
 
 void TabSearchNew::OnButtonNextClicked()
 {
-    int numResPerPage = ui_SearchOptionsPanel->GetNumResultsPerPage();
-    m_resultIdx += numResPerPage;
-    UpdateResults(numResPerPage);
+    ui_searchResultsBrowser->DisplayNextPage();
+    ui_Button_Prev->setEnabled(ui_searchResultsBrowser->HasPrev());
+    ui_Button_Next->setEnabled(ui_searchResultsBrowser->HasNext());
+}
+
+void TabSearchNew::OnButtonRandomClicked()
+{
+
 }
 
 void TabSearchNew::UpdateResults(int numResPerPage)
 {
-    auto searchResults = m_results.mid(m_resultIdx, numResPerPage);
+    QList<qbv::PassageWithLocation> searchResults = m_results.mid(m_resultIdx, numResPerPage);
     bool hasStrong = m_pDatabaseService->HasStrong(m_lastIdx);
     ui_searchResultsBrowser->SetResults(searchResults, hasStrong);
     ui_searchResultsBrowser->HighlightKeywords(m_highlightRgx);
     ui_Button_Prev->setDisabled(m_resultIdx == 0);
     ui_Button_Next->setEnabled(m_resultIdx + numResPerPage < m_results.count());
 }
-
-

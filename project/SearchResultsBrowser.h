@@ -13,18 +13,33 @@ class SearchResultsBrowser : public QTextBrowser
 public:
     explicit SearchResultsBrowser(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent = nullptr);
 
-    void SetResults(QList<qbv::PassageWithLocation> results, bool hasStrong = false);
+    void SetIncludeResultNumber(bool includeResNumber);
+    void SetResult(qbv::PassageWithLocation result, bool hasStrong = false);
+    void SetResults(QList<qbv::PassageWithLocation> results, bool hasStrong = false, int pageIdx = 0);
     void HighlightKeywords(const QRegularExpression &rgx);
+    void SetNumResultsPerPage(int numResults);
+    void DisplayPage(int idx);
+    void DisplayNextPage();
+    void DisplayPrevPage();
+    bool HasNext() const;
+    bool HasPrev() const;
+
+    void SetHighlightRegex(const QRegularExpression &highlightRgx);
+
 
 private:
     AppConfig *m_pConfig;
     qbv::DatabaseService *m_pDatabaseService;
 
     QTextCursor m_lastCursor;
-    bool m_includeResultNumber;
+    bool m_includeResultNumber = true;
     QList<QPair<int, int>> m_passageOffsets;
 
     QList<qbv::PassageWithLocation> m_results;
+    bool m_hasStrong;
+    int m_numResultsPerPage = 25;
+    QRegularExpression m_highlightRegex;
+    int m_resultIdx = 0;
 
     bool IsBetween(int number, int first, int second) const;
     bool IsContainedInPassages(const QTextEdit::ExtraSelection &sel) const;

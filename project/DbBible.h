@@ -26,6 +26,8 @@ public:
     QList<PassageWithLocation> Search(const QString &text, SearchOptions options);
     QList<qbv::PassageWithLocation> SearchByPhrase(const QString &phrase, SearchOptions options);
     QList<qbv::PassageWithLocation> SearchByStrong(const QString &number, SearchOptions options);
+
+    qbv::PassageWithLocation GetRandomPassage(SearchOptions options);
    // QList<qbv::PassageWithLocation> GetLastSearchResults() const;
   //  QList<qbv::PassageWithLocation> GetLastSearchResults(int pos, int count = -1) const;
    // int GetNumLastSearchResults() const;

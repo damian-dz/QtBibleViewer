@@ -14,21 +14,68 @@ SearchResultsBrowser::SearchResultsBrowser(AppConfig &config, qbv::DatabaseServi
                      [=] (const QUrl &link) { OnAnchorClicked(link); } );
 }
 
-void SearchResultsBrowser::SetResults(QList<qbv::PassageWithLocation> results, bool hasStrong)
+void SearchResultsBrowser::SetIncludeResultNumber(bool includeResNumber)
+{
+    m_includeResultNumber = includeResNumber;
+}
+
+void SearchResultsBrowser::SetResult(qbv::PassageWithLocation result, bool hasStrong)
+{
+    SetResults(QList { result }, hasStrong);
+}
+
+void SearchResultsBrowser::SetResults(QList<qbv::PassageWithLocation> results, bool hasStrong, int pageIdx)
 {
     m_results = results;
+    m_hasStrong = hasStrong;
+    m_resultIdx = 0;
+    DisplayPage(pageIdx);
+}
+
+void SearchResultsBrowser::HighlightKeywords(const QRegularExpression &rgx)
+{
+    if (!rgx.pattern().isEmpty()) {
+        QObject::blockSignals(true);
+        QList<QTextEdit::ExtraSelection> extraSelections;
+        QColor color(Qt::yellow);
+        QTextDocument::FindFlag flag = rgx.patternOptions() == QRegularExpression::NoPatternOption ?
+                    QTextDocument::FindCaseSensitively : QTextDocument::FindFlag(0);
+        while (QTextEdit::find(rgx, flag)) {
+            QTextEdit::ExtraSelection extra;
+            extra.format.setBackground(color);
+            extra.cursor = QTextEdit::textCursor();
+            if (IsContainedInPassages(extra)) {
+                extraSelections << extra;
+            }
+        }
+        QTextEdit::setExtraSelections(extraSelections);
+        QTextEdit::moveCursor(QTextCursor::Start);
+        QScrollBar *vScrollBar = QTextEdit::verticalScrollBar();
+        vScrollBar->triggerAction(QScrollBar::SliderToMinimum);
+        QObject::blockSignals(false);
+    }
+}
+
+void SearchResultsBrowser::SetNumResultsPerPage(int numResults)
+{
+    m_numResultsPerPage = numResults;
+}
+
+void SearchResultsBrowser::DisplayPage(int idx)
+{
+    int startIdx = qMin(idx * m_numResultsPerPage, m_results.count() - 1);
 
     QObject::blockSignals(true);
     QTextEdit::clear();
     QTextBlockFormat format;
     format.setTopMargin(10);
     m_passageOffsets.clear();
-    for (int i = 0; i < results.count(); ++i) {
+    for (int i = startIdx; i < qMin(startIdx + m_numResultsPerPage, m_results.count()); ++i) {
         QTextCursor cursor = QTextEdit::textCursor();
-        QString result = results[i].passage.trimmed();
-        Formatting::FormatTextAndRemoveNotes(result, hasStrong);
+        QString result = m_results[i].passage.trimmed();
+        Formatting::FormatTextAndRemoveNotes(result, m_hasStrong);
         cursor.movePosition(QTextCursor::End);
-        i > 0 ? cursor.insertBlock(format) : cursor.setBlockFormat(format);
+        i > startIdx ? cursor.insertBlock(format) : cursor.setBlockFormat(format);
         QString resultNumberStr = QString::number(i + 1);
         int start = cursor.position();
         if (m_includeResultNumber) {
@@ -38,39 +85,45 @@ void SearchResultsBrowser::SetResults(QList<qbv::PassageWithLocation> results, b
             cursor.insertHtml(result);
         }
         m_passageOffsets << qMakePair(start, cursor.position());
-        auto loc = results[i].location;
-       QString reference =  QString ("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
-                        .arg(QString::number(loc.book), QString::number(loc.chapter), QString::number(loc.verse1),
-                             m_pDatabaseService->BookNameForNumber(loc.book),
-                             QString::number(loc.chapter), QString::number(loc.verse1));
-
+        auto loc = m_results[i].location;
+        QString reference =  QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
+            .arg(QString::number(loc.book), QString::number(loc.chapter), QString::number(loc.verse1),
+                 m_pDatabaseService->BookNameForNumber(loc.book),
+                 QString::number(loc.chapter), QString::number(loc.verse1));
         cursor.insertHtml(reference);
         QTextEdit::moveCursor(QTextCursor::Start);
     }
     QObject::blockSignals(false);
+    HighlightKeywords(m_highlightRegex);
 }
 
-void SearchResultsBrowser::HighlightKeywords(const QRegularExpression &rgx)
+void SearchResultsBrowser::DisplayNextPage()
 {
-    QObject::blockSignals(true);
-    QList<QTextEdit::ExtraSelection> extraSelections;
-    QColor color(Qt::yellow);
-    QTextDocument::FindFlag flag = rgx.patternOptions() == QRegularExpression::NoPatternOption ?
-                QTextDocument::FindCaseSensitively : QTextDocument::FindFlag(0);
-    while (QTextEdit::find(rgx, flag)) {
-        QTextEdit::ExtraSelection extra;
-        extra.format.setBackground(color);
-        extra.cursor = QTextEdit::textCursor();
-        if (IsContainedInPassages(extra)) {
-            extraSelections << extra;
-        }
-    }
-    QTextEdit::setExtraSelections(extraSelections);
-    QTextEdit::moveCursor(QTextCursor::Start);
+    m_resultIdx += m_numResultsPerPage;
+    qDebug() << m_resultIdx << (m_resultIdx / m_numResultsPerPage);
+    DisplayPage(m_resultIdx / m_numResultsPerPage);
+}
 
-    QScrollBar *vScrollBar = QTextEdit::verticalScrollBar();
-    vScrollBar->triggerAction(QScrollBar::SliderToMinimum);
-    QObject::blockSignals(false);
+void SearchResultsBrowser::DisplayPrevPage()
+{
+    m_resultIdx -= m_numResultsPerPage;
+    qDebug() << m_resultIdx << (m_resultIdx / m_numResultsPerPage);
+    DisplayPage(m_resultIdx / m_numResultsPerPage);
+}
+
+bool SearchResultsBrowser::HasNext() const
+{
+    return m_resultIdx + m_numResultsPerPage < m_results.count();
+}
+
+bool SearchResultsBrowser::HasPrev() const
+{
+    return m_resultIdx > 0;
+}
+
+void SearchResultsBrowser::SetHighlightRegex(const QRegularExpression &highlightRgx)
+{
+    m_highlightRegex = highlightRgx;
 }
 
 bool SearchResultsBrowser::IsBetween(int number, int first, int second) const

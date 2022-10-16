@@ -21,3 +21,4 @@ dox/
 old/
 Release_x64*/*
 Release_x86*/*
+*.autosave

@@ -13,12 +13,12 @@ TabNotesNew::TabNotesNew(AppConfig &config, qbv::DatabaseService &databaseServic
 void TabNotesNew::AddControls()
 {
     ui_Label_References = new QLabel;
-    ui_ListView_References = new QListWidget;
-    ui_ListView_References->setMaximumWidth(200);
+    ui_ListWidget_References = new QListWidget;
+    ui_ListWidget_References->setMaximumWidth(200);
 
     ui_Label_Passage = new QLabel;
     ui_PassageBrowser = new SearchResultsBrowser(*m_pConfig, *m_pDatabaseService);
-    //ui_PassageBrowser->SetIncludeResultNumber(false);
+    ui_PassageBrowser->SetIncludeResultNumber(false);
 
     ui_Label_Notes = new QLabel;
     ui_TextEdit_Notes = new QTextEdit;
@@ -33,7 +33,7 @@ void TabNotesNew::AddControls()
     mainLayout->setSpacing(5);
     mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->addWidget(ui_Label_References, 0, 0);
-    mainLayout->addWidget(ui_ListView_References, 1, 0, 4, 1);
+    mainLayout->addWidget(ui_ListWidget_References, 1, 0, 4, 1);
     mainLayout->addWidget(ui_Label_Passage, 0, 1);
     mainLayout->addWidget(ui_PassageBrowser, 1, 1, 1, 5);
     mainLayout->addWidget(ui_Label_Notes, 2, 1);
@@ -53,7 +53,7 @@ void TabNotesNew::ConnectSignals()
                      [=] { OnButtonSaveClicked(); } );
     QObject::connect(ui_Button_Delete, QOverload<bool>::of(&QPushButton::clicked),
                      [=] { OnButtonDeleteClicked(); } );
-    QObject::connect(ui_ListView_References, QOverload<int>::of(&QListWidget::currentRowChanged),
+    QObject::connect(ui_ListWidget_References, QOverload<int>::of(&QListWidget::currentRowChanged),
                      [=] (int idx) { OnIndexChanged(idx); } );
 }
 
@@ -82,22 +82,22 @@ void TabNotesNew::Initialize()
     }
 
     if (noteList.count() > 0) {
-        ui_ListView_References->addItems(noteList);
-        ui_ListView_References->setCurrentRow(0);
+        ui_ListWidget_References->addItems(noteList);
+        ui_ListWidget_References->setCurrentRow(0);
     }
 }
 
 void TabNotesNew::AddToNotes(qbv::Location loc)
 {
-    ui_ListView_References->blockSignals(true);
+    ui_ListWidget_References->blockSignals(true);
     m_pDatabaseService->AddToNotes(loc);
     m_locations.append(loc);
     std::sort(m_locations.begin(), m_locations.end());
     QString passageId = m_pDatabaseService->PassageIdForLocation(loc);
     int idx = m_locations.indexOf(loc);
-    ui_ListView_References->insertItem(idx, passageId);
-    ui_ListView_References->blockSignals(false);
-    ui_ListView_References->setCurrentRow(idx);
+    ui_ListWidget_References->insertItem(idx, passageId);
+    ui_ListWidget_References->blockSignals(false);
+    ui_ListWidget_References->setCurrentRow(idx);
     ui_TextEdit_Notes->setFocus();
 }
 
@@ -116,16 +116,17 @@ void TabNotesNew::SetPassage(const QString &bookName, int chapter, int verse1, i
 
 void TabNotesNew::OnIndexChanged(int idx)
 {
-    auto loc = m_locations[idx];
+    qbv::Location loc = m_locations[idx];
     QString note = m_pDatabaseService->Note(loc);
     ui_TextEdit_Notes->setPlainText(note);
 
-
+    QStringList passage = m_pDatabaseService->Passage(0, loc);
+    ui_PassageBrowser->SetResult( qbv::PassageWithLocation { passage.join(" "), loc  } );
 }
 
 void TabNotesNew::OnButtonSaveClicked()
 {
-    int idx = ui_ListView_References->currentRow();
+    int idx = ui_ListWidget_References->currentRow();
     qbv::Location loc = m_locations[idx];
     QString note = ui_TextEdit_Notes->toPlainText();
     m_pDatabaseService->SaveNote(note, loc);

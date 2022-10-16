@@ -59,6 +59,8 @@ private:
     void OnButtonPrevClicked();
     void OnButtonNextClicked();
 
+    void OnButtonRandomClicked();
+
     void UpdateResults(int numResPerPage);
 
 signals:

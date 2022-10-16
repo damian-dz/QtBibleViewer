@@ -49,6 +49,7 @@ public:
 
     void SetActiveIdx(int idx);
 
+    QStringList Passage(int idx, Location loc);
     qbv::PassageWithNotes PassageWithNotesAndMissingVerses(int idx, Location loc);
     QList<PassageWithLocation> Search(int idx, const QString &phrase, SearchOptions options);
    // QList<qbv::PassageWithLocation> GetLastSearchResults(int idx) const;

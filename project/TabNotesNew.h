@@ -28,7 +28,7 @@ private:
     QLabel *ui_Label_Passage;
     QLabel *ui_Label_Notes;
 
-    QListWidget *ui_ListView_References;
+    QListWidget *ui_ListWidget_References;
     SearchResultsBrowser *ui_PassageBrowser;
     QTextEdit *ui_TextEdit_Notes;
 
