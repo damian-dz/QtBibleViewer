@@ -201,25 +201,25 @@ PassageWithNotes DatabaseService::PassageWithNotesAndMissingVerses(int idx, Loca
     return m_dbBibles[idx]->PassageWithNotesAndMissingVerses(loc);
 }
 
-QRegularExpression DatabaseService::Search(int idx, const QString &phrase, SearchOptions options)
+QList<PassageWithLocation> DatabaseService::Search(int idx, const QString &phrase, SearchOptions options)
 {
     return m_dbBibles[idx]->Search(phrase, options);
 }
 
-QList<PassageWithLocation> DatabaseService::GetLastSearchResults(int idx) const
-{
-    return m_dbBibles[idx]->GetLastSearchResults();
-}
+//QList<PassageWithLocation> DatabaseService::GetLastSearchResults(int idx) const
+//{
+//    return m_dbBibles[idx]->GetLastSearchResults();
+//}
 
-QList<PassageWithLocation> DatabaseService::GetLastSearchResults(int idx, int pos, int count) const
-{
-    return m_dbBibles[idx]->GetLastSearchResults(pos, count);
-}
+//QList<PassageWithLocation> DatabaseService::GetLastSearchResults(int idx, int pos, int count) const
+//{
+//    return m_dbBibles[idx]->GetLastSearchResults(pos, count);
+//}
 
-int DatabaseService::GetNumLastSearchResults(int idx) const
-{
-    return  m_dbBibles[idx]->GetNumLastSearchResults();
-}
+//int DatabaseService::GetNumLastSearchResults(int idx) const
+//{
+//    return  m_dbBibles[idx]->GetNumLastSearchResults();
+//}
 
 void DatabaseService::CreateUserDir()
 {

@@ -87,7 +87,6 @@ void TabNotesNew::Initialize()
     }
 }
 
-
 void TabNotesNew::AddToNotes(qbv::Location loc)
 {
     ui_ListView_References->blockSignals(true);

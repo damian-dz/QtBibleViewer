@@ -23,20 +23,20 @@ public:
     QStringList Passage(Location loc) const;
     PassageWithNotes PassageWithNotesAndMissingVerses(Location loc) const;
 
-    QRegularExpression Search(const QString &text, SearchOptions options);
-    QRegularExpression SearchByPhrase(const QString &phrase, SearchOptions options);
-    QRegularExpression SearchByStrong(const QString &number, SearchOptions options);
-    QList<qbv::PassageWithLocation> GetLastSearchResults() const;
-    QList<qbv::PassageWithLocation> GetLastSearchResults(int pos, int count = -1) const;
-    int GetNumLastSearchResults() const;
+    QList<PassageWithLocation> Search(const QString &text, SearchOptions options);
+    QList<qbv::PassageWithLocation> SearchByPhrase(const QString &phrase, SearchOptions options);
+    QList<qbv::PassageWithLocation> SearchByStrong(const QString &number, SearchOptions options);
+   // QList<qbv::PassageWithLocation> GetLastSearchResults() const;
+  //  QList<qbv::PassageWithLocation> GetLastSearchResults(int pos, int count = -1) const;
+   // int GetNumLastSearchResults() const;
 
 private:
     QString MultipleWordCommand(const QStringList &words, const QString &conjunction);
     void LimitRange(SearchOptions options, QString &command);
     void RegexStrings(QString &rgxStr, QString &highlightRgxStr);
-    void FilterRawResults(const QRegularExpression &rgx, QSqlQuery &query);
+    QList<PassageWithLocation> GetFilteredResults(const QRegularExpression &rgx, QSqlQuery &query);
 
-    QList<qbv::PassageWithLocation> m_lastSearchResults;
+   // QList<qbv::PassageWithLocation> m_lastSearchResults;
 };
 
 }

@@ -1,5 +1,27 @@
 #include "Formatting.h"
 
+QRegularExpression Formatting::GetHighlightRegex(const QString &phrase, SearchOptions options)
+{
+    QStringList words = phrase.split(" ");
+    QString highlightRgxStr;
+    if (options.searchMode == SearchMode::exactPhrase) {
+        QString sep(" (([HG][0-9]{1,4} ){1,})?");
+        highlightRgxStr = options.wholeWordsOnly ?
+            QString("\\b%1\\b").arg(words.join(sep)) :
+            words.join(sep);
+    } else if (options.searchMode == SearchMode::allWords) {
+        highlightRgxStr = options.wholeWordsOnly ?
+            QString("\\b%1\\b").arg(words.join("\\b|\\b")) : words.join("|");
+    } else if (options.searchMode == SearchMode::anyWords) {
+        highlightRgxStr = options.wholeWordsOnly ?
+            QString("\\b%1\\b)").arg(words.join("\\b|\\b")) : words.join("|");
+    } else if (options.searchMode == SearchMode::byStrong) {
+        highlightRgxStr = QString("\\b%1\\b").arg(phrase.toUpper());
+    }
+    QRegularExpression::PatternOption sensitivity = options.caseSensitive ?
+        QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+    return QRegularExpression(highlightRgxStr, sensitivity | QRegularExpression::UseUnicodePropertiesOption);
+}
 
 /*!
  * \brief Extracts the inner text of a heading.

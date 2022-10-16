@@ -1,6 +1,7 @@
 #ifndef FORMATTING_H
 #define FORMATTING_H
 
+#include "SearchOptions.h"
 
 class Formatting
 {
@@ -14,6 +15,7 @@ class Formatting
     static const inline QRegularExpression m_endTagRgx = QRegularExpression("{jw}|{ot}");
     static const inline QRegularExpression m_tagRgx = QRegularExpression("{..}");
 public:
+    static QRegularExpression GetHighlightRegex(const QString &phrase, SearchOptions options);
     static QString ExtractHeading(QString &text);
     static void FormatScripture(QString &text, QStringList &notes, bool hasStrong);
     static void FormatTextAndAddNotes(QString &text, QStringList &notes, bool hasStrong = false);
