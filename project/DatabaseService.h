@@ -46,6 +46,7 @@ public:
     int ChapterIdForLocation(qbv::Location loc) const;
     qbv::Location LocationForChapterId(int id) const;
     QString PassageIdForLocation(qbv::Location loc);
+    int IndexForBibleShortName(const QString &name);
 
     void SetActiveIdx(int idx);
 

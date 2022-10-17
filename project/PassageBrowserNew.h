@@ -26,6 +26,7 @@ public:
 
     qbv::Location Location() const;
     void SetLocation(qbv::Location loc);
+    void HiglightBlock(int idx);
 
 private:
     AppConfig *m_pConfig;

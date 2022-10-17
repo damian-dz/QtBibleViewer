@@ -11,10 +11,18 @@ void TabCompareNew::SetUiTexts()
 
 }
 
+void TabCompareNew::SetFontFromConfig()
+{
+    QFont font(m_pConfig->fonts.family, m_pConfig->fonts.size);
+    ui_CompareVerseBrowser->setFont(font);
+}
+
 void TabCompareNew::ConnectSignals()
 {
     QObject::connect(ui_NavPanel, QOverload<qbv::Location>::of(&NavPanel::LocationChanged),
                      [=] (qbv::Location loc) { OnLocationChanged(loc); });
+    QObject::connect(ui_CompareVerseBrowser, QOverload<QString>::of(&CompareVerseBrowser::BibleNameClicked),
+                     [=] (QString name) { emit OnBibleNameClicked(name); });
 }
 
 void TabCompareNew::AddControls()
@@ -38,5 +46,10 @@ void TabCompareNew::OnLocationChanged(qbv::Location loc)
     QStringList scriptures = m_pDatabaseService->GetScriptures(loc);
     QStringList shortNames = m_pDatabaseService->BibleShortNames();
     ui_CompareVerseBrowser->SetScriptures(scriptures, shortNames);
+}
 
+void TabCompareNew::OnBibleNameClicked(const QString &name)
+{
+    qbv::Location loc = ui_NavPanel->GetLocation();
+    emit BibleNameClicked(name, loc);
 }

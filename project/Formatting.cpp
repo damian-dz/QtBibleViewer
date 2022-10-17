@@ -76,6 +76,7 @@ void Formatting::FormatScriptureAndAddNotes(QString &text, QStringList &notes, b
     text.replace("{JW}", QStringLiteral("<span style='color:%1'>").arg(m_jwColor.name()));
     text.replace("{OT}", QStringLiteral("<span style='font-weight:bold'>"));
     text.replace(m_endTagRgx, QStringLiteral("</span>"));
+    text.remove(m_headingRgx);
     QRegularExpressionMatchIterator iter = m_noteRgx.globalMatch(text);
     while (iter.hasNext()) {
         QRegularExpressionMatch match = iter.next();

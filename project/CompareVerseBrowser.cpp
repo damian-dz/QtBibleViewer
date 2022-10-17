@@ -69,7 +69,7 @@ void CompareVerseBrowser::SetScriptures(const QStringList &scriptures, const QSt
     for (int i = 0; i < scriptures.count(); ++i) {
         QString scripture  = scriptures[i];
         QString shortName = QString("<b><a href='%1' style='text-decoration:none'>%2</a></b>")
-            .arg(QString::number(i), shortNames[i]);
+            .arg(shortNames[i], shortNames[i]);
         table->cellAt(i, 0).firstCursorPosition().insertHtml(shortName);
         Formatting::FormatScriptureAndRemoveNotes(scripture, true);
         table->cellAt(i, 1).firstCursorPosition().insertHtml(scripture);
@@ -79,6 +79,7 @@ void CompareVerseBrowser::SetScriptures(const QStringList &scriptures, const QSt
 void CompareVerseBrowser::OnAnchorClicked(const QUrl &link)
 {
     //qDebug() << link.toString();
-    emit TranslationNameClicked(link.toString().toInt(), m_book, m_chapter, m_verse);
-   // emit ReferenceClicked(book, chapter, verse);
+    // emit TranslationNameClicked(link.toString().toInt(), m_book, m_chapter, m_verse);
+    emit BibleNameClicked(link.toString());
+    // emit ReferenceClicked(book, chapter, verse);
 }

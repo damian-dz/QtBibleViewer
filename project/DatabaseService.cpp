@@ -128,14 +128,14 @@ QString DatabaseService::BookNameForNumber(int number) const
 
 QString DatabaseService::BibleShortName(int idx) const
 {
-    return m_dbBibles[idx]->ShortName();
+    return m_dbBibles[idx]->GetShortName();
 }
 
 QStringList DatabaseService::BibleShortNames() const
 {
     QStringList results;
     for (const qbv::DbBible *item : m_dbBibles) {
-        results.append(item->ShortName());
+        results.append(item->GetShortName());
     }
     return results;
 }
@@ -190,6 +190,18 @@ QString DatabaseService::PassageIdForLocation(Location loc)
     return result;
 }
 
+int DatabaseService::IndexForBibleShortName(const QString &name)
+{
+    int result = -1;
+    for (int i = 0; i < m_dbBibles.count(); ++i) {
+        if (m_dbBibles[i]->GetShortName() == name) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
 void DatabaseService::SetActiveIdx(int idx)
 {
     m_activeIdx = idx;
@@ -224,21 +236,6 @@ PassageWithLocation DatabaseService::GetRandomPassage(int idx, SearchOptions opt
 {
     return m_dbBibles[idx]->GetRandomPassage(options);
 }
-
-//QList<PassageWithLocation> DatabaseService::GetLastSearchResults(int idx) const
-//{
-//    return m_dbBibles[idx]->GetLastSearchResults();
-//}
-
-//QList<PassageWithLocation> DatabaseService::GetLastSearchResults(int idx, int pos, int count) const
-//{
-//    return m_dbBibles[idx]->GetLastSearchResults(pos, count);
-//}
-
-//int DatabaseService::GetNumLastSearchResults(int idx) const
-//{
-//    return  m_dbBibles[idx]->GetNumLastSearchResults();
-//}
 
 void DatabaseService::CreateUserDir()
 {

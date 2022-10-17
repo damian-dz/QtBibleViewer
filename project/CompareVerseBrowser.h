@@ -28,6 +28,8 @@ private:
 signals:
     void ReferenceClicked(int book, int chapter, int verse);
     void TranslationNameClicked(int idx, int book, int chapter, int verse);
+
+    void BibleNameClicked(QString name);
 };
 
 #endif // COMPAREVERSEBROWSER_H

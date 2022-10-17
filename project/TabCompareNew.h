@@ -8,10 +8,13 @@
 
 class TabCompareNew : public AbstractTab
 {
+    Q_OBJECT
 public:
     explicit TabCompareNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent = nullptr);
 
     virtual void SetUiTexts() override;
+
+    void SetFontFromConfig();
 
 private:
     NavPanel *ui_NavPanel;
@@ -21,6 +24,11 @@ private:
     virtual void AddControls() override;
 
     void OnLocationChanged(qbv::Location loc);
+
+    void OnBibleNameClicked(const QString &name);
+
+signals:
+    void BibleNameClicked(QString name, qbv::Location loc);
 };
 
 #endif // TABCOMPARENEW_H

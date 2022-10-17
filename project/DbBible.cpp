@@ -37,13 +37,13 @@ bool DbBible::HasStrong() const
 QString DbBible::Info() const
 {
     return "File Path: " + FilePath() + "\n"
-           "Short Name: " + ShortName() + "\n"
+           "Short Name: " + GetShortName() + "\n"
            "Has Old Testament: " + (HasOT() ? "Yes" : "No" ) + "\n"
            "Has New Testament: " + (HasNT() ? "Yes" : "No" ) + "\n"
            "Has Strong: " + (HasStrong() ? "Yes" : "No" ) + "\n";
 }
 
-QString DbBible::ShortName() const
+QString DbBible::GetShortName() const
 {
     QString result = "";
     QSqlQuery query(m_db);

@@ -78,6 +78,7 @@ private:
     void OnImportMySwordModule();
     void OnImportTheWordModule();
 
+    void OnBibleNameClicked(const QString &name, qbv::Location loc);
     void OnAddNoteRequested(qbv::Location loc);
 
     void OnTabIndexChanged(int idx);

@@ -43,6 +43,7 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
     ui_TabBible->Initialize();
     ui_TabBible->SetTabIndexFromConfig();
     ui_TabBible->SetLocationFromConfig();
+    ui_TabBible->SetFontFromConfig();
 }
 
 void MainWindowNew::CreateMenuBar()
@@ -97,6 +98,9 @@ void MainWindowNew::ConnectSingals()
 
     QObject::connect(ui_TabSearch, QOverload<QString>::of(&TabSearchNew::StatusMsgSet),
                      [=] (QString msg) { ui_Label_Status->setText(msg); } );
+
+    QObject::connect(ui_TabCompare, QOverload<QString, qbv::Location>::of(&TabCompareNew::BibleNameClicked),
+                     [=] (QString name, qbv::Location loc) { OnBibleNameClicked(name, loc); } );
 }
 
 void MainWindowNew::OnOpenModule()
@@ -124,6 +128,18 @@ void MainWindowNew::OnImportTheWordModule()
 
 }
 
+void MainWindowNew::OnBibleNameClicked(const QString &name, qbv::Location loc)
+{
+    int idx = m_databaseService.IndexForBibleShortName(name);
+    ui_TabWidget_Main->setCurrentIndex(0);
+    int verse = loc.verse1;
+    loc.verse1 = 1;
+    ui_TabBible->SetLocation(loc, false);
+    ui_TabBible->SetBibleIndex(idx);
+    ui_TabBible->UpdatePassageBrowser(idx, loc);
+    ui_TabBible->HighlightBlock(idx, verse - 1);
+}
+
 void MainWindowNew::OnAddNoteRequested(qbv::Location loc)
 {
     ui_TabWidget_Main->setCurrentIndex(4);
@@ -149,6 +165,7 @@ void MainWindowNew::OnTabIndexChanged(int idx)
         case 2:
             if (!ui_TabCompare->IsInitialized()) {
                 ui_TabCompare->Initialize();
+                ui_TabCompare->SetFontFromConfig();
             }
             ui_Label_Status->setText(ui_TabCompare->LastStatusMsg());
             break;

@@ -116,10 +116,35 @@ void TabBibleNew::SaveTabIndexToConfig()
     m_pConfig->module_data.index = ui_TabWidget_Bibles->currentIndex();
 }
 
+void TabBibleNew::SetFontFromConfig()
+{
+    QFont font(m_pConfig->fonts.family, m_pConfig->fonts.size);
+    for (auto browser : m_passageBrowsers) {
+        browser->setFont(font);
+    }
+}
+
+void TabBibleNew::SetLocation(qbv::Location loc, bool emitSignal)
+{
+    ui_NavPanel->SetLocation(loc, emitSignal);
+}
+
+void TabBibleNew::SetBibleIndex(int idx)
+{
+    ui_TabWidget_Bibles->blockSignals(true);
+    ui_TabWidget_Bibles->setCurrentIndex(idx);
+    ui_TabWidget_Bibles->blockSignals(false);
+}
+
 void TabBibleNew::UpdatePassageBrowser(int idx, qbv::Location loc)
 {
     bool hasStrong = m_pDatabaseService->HasStrong(idx);
     QStringList scriptures = m_pDatabaseService->GetScripturesWithMissing(idx, loc);
     m_passageBrowsers[idx]->SetLocation(loc);
     m_passageBrowsers[idx]->SetScriptures(scriptures, hasStrong);
+}
+
+void TabBibleNew::HighlightBlock(int browserIdx, int blockIdx)
+{
+    m_passageBrowsers[browserIdx]->HiglightBlock(blockIdx);
 }

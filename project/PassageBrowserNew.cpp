@@ -7,6 +7,7 @@ PassageBrowserNew::PassageBrowserNew(AppConfig &config, qbv::DatabaseService &da
     QWidget::setContextMenuPolicy(Qt::CustomContextMenu);
     QTextBrowser::setOpenLinks(false);
     QTextBrowser::setOpenExternalLinks(false);
+    QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     QObject::connect(this, QOverload<const QPoint &>::of(&QWidget::customContextMenuRequested),
                      [=] (const QPoint &pos) { OnContextMenuRequested(pos); });
@@ -105,6 +106,22 @@ qbv::Location PassageBrowserNew::Location() const
 void PassageBrowserNew::SetLocation(qbv::Location loc)
 {
     m_location = loc;
+}
+
+void PassageBrowserNew::HiglightBlock(int idx)
+{
+    QTextBlock block = QTextEdit::document()->findBlockByNumber(idx);
+    QTextCursor cursor(block);
+    QTextBlockFormat format;
+    format.setBackground(QBrush(m_pConfig->appearance.verse_highlight_color));
+    cursor.setBlockFormat(format);
+    m_lastCursor = cursor;
+    if (idx > 0) {
+        QScrollBar *vScrollBar = QTextEdit::verticalScrollBar();
+        vScrollBar->triggerAction(QScrollBar::SliderToMaximum);
+    }
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    QTextEdit::setTextCursor(cursor);
 }
 
 void PassageBrowserNew::OnContextMenuRequested(const QPoint &pos)

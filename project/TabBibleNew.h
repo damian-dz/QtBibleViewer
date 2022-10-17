@@ -21,8 +21,13 @@ public:
     void SaveLocationToConfig();
     void SetTabIndexFromConfig();
     void SaveTabIndexToConfig();
+    void SetFontFromConfig();
+
+    void SetLocation(qbv::Location loc, bool emitSignal);
+    void SetBibleIndex(int idx);
 
     void UpdatePassageBrowser(int idx, qbv::Location loc);
+    void HighlightBlock(int browserIdx, int blockIdx);
 
 private:
     NavPanel *ui_NavPanel;

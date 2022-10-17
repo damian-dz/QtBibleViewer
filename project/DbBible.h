@@ -18,7 +18,7 @@ public:
     bool HasStrong() const;
 
     QString Info() const;
-    QString ShortName() const;
+    QString GetShortName() const;
 
     QStringList GetScriptures(Location loc) const;
     QStringList GetScripturesWithMissing(Location loc) const;
