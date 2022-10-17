@@ -1,9 +1,7 @@
 #include "TabSearchNew.h"
 
 TabSearchNew::TabSearchNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent) :
-    AbstractTab(parent),
-    m_pConfig(&config),
-    m_pDatabaseService(&databaseService)
+    AbstractTab(config, databaseService, parent)
 {
     QGridLayout *searchResultsGridLayout = new QGridLayout;
 
@@ -83,6 +81,8 @@ TabSearchNew::TabSearchNew(AppConfig &config, qbv::DatabaseService &databaseServ
     navVerLayout->addWidget(ui_Button_RandomVerse);
 
     ui_randomVerseBrowser = new SearchResultsBrowser(config, databaseService);
+    ui_randomVerseBrowser->SetIncludeResultNumber(false);
+    ui_randomVerseBrowser->SetShouldHighlightBackground(false);
     ui_randomVerseBrowser->setMaximumHeight(80);
 
     randomVerseHorLayout->addWidget(ui_randomVerseBrowser);
@@ -190,7 +190,11 @@ void TabSearchNew::OnButtonNextClicked()
 
 void TabSearchNew::OnButtonRandomClicked()
 {
-
+    SearchOptions options = ui_SearchOptionsPanel->GetSearchOptions();
+    m_lastIdx = ui_SearchOptionsPanel->GetBibleIndex();
+    qbv::PassageWithLocation passage = m_pDatabaseService->GetRandomPassage(m_lastIdx, options);
+    bool hasStrong = m_pDatabaseService->HasStrong(m_lastIdx);
+    ui_randomVerseBrowser->SetResult(passage, hasStrong);
 }
 
 void TabSearchNew::UpdateResults(int numResPerPage)

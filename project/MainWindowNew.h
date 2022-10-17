@@ -30,6 +30,7 @@
 #include "TabSearch.h"
 #include "TabSearchNew.h"
 #include "TabCompare.h"
+#include "TabCompareNew.h"
 #include "TabDictionary.h"
 #include "TabNotesNew.h"
 
@@ -45,7 +46,7 @@ private:
 
     TabBibleNew *ui_TabBible;
     TabSearchNew *ui_TabSearch;
-    TabCompare *ui_TabCompare;
+    TabCompareNew *ui_TabCompare;
     TabDictionary *ui_TabDictionary;
     TabNotesNew *ui_TabNotes;
 

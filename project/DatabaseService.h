@@ -52,6 +52,7 @@ public:
     QStringList Passage(int idx, Location loc);
     qbv::PassageWithNotes PassageWithNotesAndMissingVerses(int idx, Location loc);
     QList<PassageWithLocation> Search(int idx, const QString &phrase, SearchOptions options);
+    qbv::PassageWithLocation GetRandomPassage(int idx, SearchOptions options);
    // QList<qbv::PassageWithLocation> GetLastSearchResults(int idx) const;
    // QList<qbv::PassageWithLocation> GetLastSearchResults(int idx, int pos, int count = -1) const;
   //  int GetNumLastSearchResults(int idx) const;

@@ -25,21 +25,24 @@ public:
     bool HasPrev() const;
 
     void SetHighlightRegex(const QRegularExpression &highlightRgx);
-
+    void SetShouldHighlightBackground(bool shouldHighlightBackground);
 
 private:
     AppConfig *m_pConfig;
     qbv::DatabaseService *m_pDatabaseService;
 
     QTextCursor m_lastCursor;
-    bool m_includeResultNumber = true;
+    bool m_includeResultNumber;
+    bool m_shouldHighlightBackground;
     QList<QPair<int, int>> m_passageOffsets;
+    int m_numResultsPerPage;
+    int m_resultIdx;
 
+
+    QRegularExpression m_highlightRegex;
     QList<qbv::PassageWithLocation> m_results;
     bool m_hasStrong;
-    int m_numResultsPerPage = 25;
-    QRegularExpression m_highlightRegex;
-    int m_resultIdx = 0;
+
 
     bool IsBetween(int number, int first, int second) const;
     bool IsContainedInPassages(const QTextEdit::ExtraSelection &sel) const;

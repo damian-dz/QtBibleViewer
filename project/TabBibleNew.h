@@ -23,9 +23,6 @@ public:
     void SaveTabIndexToConfig();
 
 private:
-    AppConfig *m_pConfig;
-    qbv::DatabaseService *m_pDatabaseService;
-
     NavPanel *ui_NavPanel;
     QTabWidget *ui_TabWidget_Bibles;
 

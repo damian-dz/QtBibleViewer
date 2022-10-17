@@ -16,13 +16,14 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
 
     ui_TabBible = new TabBibleNew(config, m_databaseService);
     ui_TabSearch = new TabSearchNew(config, m_databaseService);
+    ui_TabCompare = new TabCompareNew(config, m_databaseService);
 
     ui_TabNotes = new TabNotesNew(config, m_databaseService);
 
     ui_TabWidget_Main = new QTabWidget;
     ui_TabWidget_Main->addTab(ui_TabBible, nullptr);
     ui_TabWidget_Main->addTab(ui_TabSearch, nullptr);
-    ui_TabWidget_Main->addTab(new QWidget, nullptr);
+    ui_TabWidget_Main->addTab(ui_TabCompare, nullptr);
     ui_TabWidget_Main->addTab(new QWidget, nullptr);
     ui_TabWidget_Main->addTab(ui_TabNotes, nullptr);
 
@@ -146,6 +147,10 @@ void MainWindowNew::OnTabIndexChanged(int idx)
             ui_Label_Status->setText(ui_TabSearch->LastStatusMsg());
             break;
         case 2:
+            if (!ui_TabCompare->IsInitialized()) {
+                ui_TabCompare->Initialize();
+            }
+            ui_Label_Status->setText(ui_TabCompare->LastStatusMsg());
             break;
         case 3:
             break;

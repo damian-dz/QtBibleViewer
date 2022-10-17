@@ -1,9 +1,7 @@
 #include "TabBibleNew.h"
 
 TabBibleNew::TabBibleNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent) :
-    AbstractTab(parent),
-    m_pConfig(&config),
-    m_pDatabaseService(&databaseService)
+    AbstractTab(config, databaseService, parent)
 {
 
 }

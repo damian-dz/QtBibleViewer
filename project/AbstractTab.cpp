@@ -8,6 +8,15 @@ AbstractTab::AbstractTab(QWidget *parent) :
     QWidget(parent),
     m_isInitialized(false)
 {
+
+}
+
+AbstractTab::AbstractTab(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent) :
+    QWidget(parent),
+    m_pConfig(&config),
+    m_pDatabaseService(&databaseService),
+    m_isInitialized(false)
+{
 }
 
 void AbstractTab::Initialize()

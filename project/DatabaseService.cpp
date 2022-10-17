@@ -211,6 +211,11 @@ QList<PassageWithLocation> DatabaseService::Search(int idx, const QString &phras
     return m_dbBibles[idx]->Search(phrase, options);
 }
 
+PassageWithLocation DatabaseService::GetRandomPassage(int idx, SearchOptions options)
+{
+    return m_dbBibles[idx]->GetRandomPassage(options);
+}
+
 //QList<PassageWithLocation> DatabaseService::GetLastSearchResults(int idx) const
 //{
 //    return m_dbBibles[idx]->GetLastSearchResults();

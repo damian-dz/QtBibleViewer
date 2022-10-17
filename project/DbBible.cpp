@@ -129,26 +129,43 @@ PassageWithNotes DbBible::PassageWithNotesAndMissingVerses(Location loc) const
 
  QList<qbv::PassageWithLocation> DbBible::SearchByStrong(const QString &number, SearchOptions options)
 {
-   // m_lastSearchResults.clear();
     QList<qbv::PassageWithLocation> results;
     QString pattern = QString("<W%1>").arg(number.toUpper());
-    QString command = "SELECT * FROM Bible WHERE Scripture LIKE '%" + pattern + "%'";
+    QString command = "SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Scripture LIKE '%" + pattern + "%'";
     LimitRange(options, command);
     QSqlQuery query(m_db);
     if (query.exec(command)) {
         while (query.next()) {
             QSqlRecord record = query.record();
-            QString book = record.value(1).toString();
-            QString chapter = record.value(2).toString();
-            QString verse = record.value(3).toString();
-            QString scripture = record.value(4).toString();
-            qbv::Location loc(book.toInt(), chapter.toInt(), verse.toInt(), verse.toInt());
+            int book = record.value(0).toInt();
+            int chapter = record.value(1).toInt();
+            int verse = record.value(2).toInt();
+            QString scripture = record.value(3).toString();
+            qbv::Location loc(book, chapter, verse, verse);
             results.append({ scripture, loc });
-           // m_lastSearchResults.append({ scripture, loc });
         }
     }
-    //QRegularExpression highlightRgx(QString("\\b%1\\b").arg(number.toUpper()));
     return results;
+ }
+
+PassageWithLocation DbBible::GetRandomPassage(SearchOptions options)
+{
+    PassageWithLocation result;
+    QSqlQuery query(m_db);
+    query.prepare("SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Book>=? AND Book<=? ORDER BY RANDOM() LIMIT 1");
+    query.addBindValue(options.bookFrom, QSql::Out);
+    query.addBindValue(options.bookTo, QSql::Out);
+    if (query.exec() && query.next()) {
+        QSqlRecord record = query.record();
+        int book = record.value(0).toInt();
+        int chapter = record.value(1).toInt();
+        int verse = record.value(2).toInt();
+        QString scripture = record.value(3).toString();
+        qbv::Location loc(book, chapter, verse, verse);
+        result.passage = scripture;
+        result.location = loc;
+    }
+    return result;
 }
 
 QList<qbv::PassageWithLocation> DbBible::SearchByPhrase(const QString &phrase, SearchOptions options)
@@ -210,15 +227,15 @@ QList<qbv::PassageWithLocation> DbBible::GetFilteredResults(const QRegularExpres
     QRegularExpression patterns("{TN}.*{tn}|{H}.*{h}|{[A-Za-z]{2}}|<.{1,2}>" + strong);
     while (query.next()) {
         QSqlRecord record = query.record();
-        QString inputText = record.value(4).toString();
+        QString inputText = record.value(3).toString();
         QString outputText(inputText);
         inputText.remove(patterns);
 
         if (inputText.contains(rgx)) {
-            QString book = record.value(1).toString();
-            QString chapter = record.value(2).toString();
-            QString verse = record.value(3).toString();
-            qbv::Location loc(book.toInt(), chapter.toInt(), verse.toInt(), verse.toInt());
+            int book = record.value(0).toInt();
+            int chapter = record.value(1).toInt();
+            int verse = record.value(2).toInt();
+            qbv::Location loc(book, chapter, verse, verse);
             results.append({ outputText, loc });
         }
     }
@@ -229,7 +246,7 @@ QString DbBible::MultipleWordCommand(const QStringList &words, const QString &co
 {
     QString command;
     if (words.count() > 0) {
-        command = "SELECT * FROM Bible WHERE Scripture LIKE '%" + words[0] + "%'";
+        command = "SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Scripture LIKE '%" + words[0] + "%'";
         for (int i = 1; i < words.count(); i++) {
             command += " " + conjunction + " Scripture LIKE '%" + words[i] + "%'";
         }

@@ -3,11 +3,15 @@
 
 #include "precomp.h"
 
+#include "AppConfig.h"
+#include "DatabaseService.h"
+
 class AbstractTab : public QWidget
 {
     Q_OBJECT
 public:
     explicit AbstractTab(QWidget *parent = nullptr);
+    explicit AbstractTab(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent = nullptr);
 
     virtual void AddControls() = 0;
     virtual void ConnectSignals() = 0;
@@ -18,11 +22,10 @@ public:
     QString LastStatusMsg() const;
     void SetLastStatusMsg(const QString &msg);
 
-signals:
-
-public slots:
-
 protected:
+    AppConfig *m_pConfig;
+    qbv::DatabaseService *m_pDatabaseService;
+
     bool m_isInitialized;
     QString m_lastStatusMsg;
 };

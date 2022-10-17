@@ -3,7 +3,11 @@
 SearchResultsBrowser::SearchResultsBrowser(AppConfig &config, qbv::DatabaseService &databaseService,QWidget *parent) :
     QTextBrowser(parent),
     m_pConfig(&config),
-    m_pDatabaseService(&databaseService)
+    m_pDatabaseService(&databaseService),
+    m_includeResultNumber(true),
+    m_shouldHighlightBackground(true),
+    m_numResultsPerPage(25),
+    m_resultIdx(0)
 {
     QTextBrowser::setOpenLinks(false);
     QTextBrowser::setOpenExternalLinks(false);
@@ -126,6 +130,11 @@ void SearchResultsBrowser::SetHighlightRegex(const QRegularExpression &highlight
     m_highlightRegex = highlightRgx;
 }
 
+void SearchResultsBrowser::SetShouldHighlightBackground(bool shouldHighlightBackground)
+{
+    m_shouldHighlightBackground = shouldHighlightBackground;
+}
+
 bool SearchResultsBrowser::IsBetween(int number, int first, int second) const
 {
     return number >= first && number <= second;
@@ -150,14 +159,16 @@ void SearchResultsBrowser::OnAnchorClicked(const QUrl &link)
 
 void SearchResultsBrowser::OnCursorPositionChanged()
 {
-    QTextCursor cursor = QTextEdit::textCursor();
-    QTextBlockFormat format = cursor.blockFormat();
-    format.setBackground(Qt::transparent);
-    format.setBottomMargin(10);
-    if (!m_lastCursor.isNull()) {
-        m_lastCursor.setBlockFormat(format);
+    if (m_shouldHighlightBackground) {
+        QTextCursor cursor = QTextEdit::textCursor();
+        QTextBlockFormat format = cursor.blockFormat();
+        format.setBackground(Qt::transparent);
+        format.setBottomMargin(10);
+        if (!m_lastCursor.isNull()) {
+            m_lastCursor.setBlockFormat(format);
+        }
+        format.setBackground(QBrush(QColor(205, 255, 205)));
+        cursor.setBlockFormat(format);
+        m_lastCursor = cursor;
     }
-    format.setBackground(QBrush(QColor(205, 255, 205)));
-    cursor.setBlockFormat(format);
-    m_lastCursor = cursor;
 }

@@ -3,9 +3,7 @@
 #include "PassageBrowser.h"
 
 TabNotesNew::TabNotesNew(AppConfig &config, qbv::DatabaseService &databaseService, QWidget *parent) :
-    AbstractTab(parent),
-    m_pConfig(&config),
-    m_pDatabaseService(&databaseService)
+    AbstractTab(config, databaseService, parent)
 {
 
 }
@@ -19,6 +17,7 @@ void TabNotesNew::AddControls()
     ui_Label_Passage = new QLabel;
     ui_PassageBrowser = new SearchResultsBrowser(*m_pConfig, *m_pDatabaseService);
     ui_PassageBrowser->SetIncludeResultNumber(false);
+    ui_PassageBrowser->SetShouldHighlightBackground(false);
 
     ui_Label_Notes = new QLabel;
     ui_TextEdit_Notes = new QTextEdit;
@@ -101,18 +100,6 @@ void TabNotesNew::AddToNotes(qbv::Location loc)
     ui_TextEdit_Notes->setFocus();
 }
 
-void TabNotesNew::SetPassage(const QString &bookName, int chapter, int verse, const QString &scripture)
-{
-//    ui_PassageBrowser->SetResult(scripture, QString("<b>—%1 %2:%3</b>")
-//                                 .arg(bookName, QString::number(chapter), QString::number(verse)));
-}
-
-void TabNotesNew::SetPassage(const QString &bookName, int chapter, int verse1, int verse2, const QString &scripture)
-{
-//    ui_PassageBrowser->SetResult(scripture, QString("<b>—%1 %2:%3-%4</b>")
-//                                 .arg(bookName, QString::number(chapter),
-//                                      QString::number(verse1), QString::number(verse2)));
-}
 
 void TabNotesNew::OnIndexChanged(int idx)
 {

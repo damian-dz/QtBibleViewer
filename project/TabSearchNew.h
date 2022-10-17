@@ -42,9 +42,6 @@ private:
     SearchOptionsPanelNew *ui_SearchOptionsPanel;
 
 
-    AppConfig *m_pConfig;
-    qbv::DatabaseService *m_pDatabaseService;
-
     int m_lastIdx = 0;
     QList<qbv::PassageWithLocation> m_results;
     int m_resultIdx = 0;

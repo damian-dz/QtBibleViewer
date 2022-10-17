@@ -17,10 +17,6 @@ public:
     virtual void Initialize() override;
 
     void AddToNotes(qbv::Location loc);
-
-    void SetPassage(const QString &bookName, int chapter, int verse, const QString &scripture);
-    void SetPassage(const QString &bookName, int chapter, int verse1, int verse2, const QString &scripture);
-
 signals:
 
 private:
@@ -34,9 +30,6 @@ private:
 
     QPushButton *ui_Button_Save;
     QPushButton *ui_Button_Delete;
-
-    AppConfig *m_pConfig;
-    qbv::DatabaseService *m_pDatabaseService;
 
     QList<qbv::Location> m_locations;
 
