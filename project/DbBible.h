@@ -20,8 +20,9 @@ public:
     QString Info() const;
     QString ShortName() const;
 
-    QStringList Passage(Location loc) const;
-    PassageWithNotes PassageWithNotesAndMissingVerses(Location loc) const;
+    QStringList GetScriptures(Location loc) const;
+    QStringList GetScripturesWithMissing(Location loc) const;
+    QString GetScripture(Location loc) const;
 
     QList<PassageWithLocation> Search(const QString &text, SearchOptions options);
     QList<qbv::PassageWithLocation> SearchByPhrase(const QString &phrase, SearchOptions options);

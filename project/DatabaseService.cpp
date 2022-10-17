@@ -195,15 +195,24 @@ void DatabaseService::SetActiveIdx(int idx)
     m_activeIdx = idx;
 }
 
-QStringList DatabaseService::Passage(int idx, Location loc)
+QStringList DatabaseService::GetScriptures(int idx, Location loc)
 {
-    return m_dbBibles[idx]->Passage(loc);
+    return m_dbBibles[idx]->GetScriptures(loc);
 }
 
-PassageWithNotes DatabaseService::PassageWithNotesAndMissingVerses(int idx, Location loc)
+QStringList DatabaseService::GetScripturesWithMissing(int idx, Location loc)
 {
-    m_activeIdx = idx;
-    return m_dbBibles[idx]->PassageWithNotesAndMissingVerses(loc);
+    return m_dbBibles[idx]->GetScripturesWithMissing(loc);
+}
+
+QStringList DatabaseService::GetScriptures(Location loc) const
+{
+    QStringList results;
+    for (const qbv::DbBible *item : m_dbBibles) {
+        QString scripture = item->GetScripture(loc);
+        results.append(scripture);
+    }
+    return results;
 }
 
 QList<PassageWithLocation> DatabaseService::Search(int idx, const QString &phrase, SearchOptions options)

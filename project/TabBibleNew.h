@@ -22,6 +22,8 @@ public:
     void SetTabIndexFromConfig();
     void SaveTabIndexToConfig();
 
+    void UpdatePassageBrowser(int idx, qbv::Location loc);
+
 private:
     NavPanel *ui_NavPanel;
     QTabWidget *ui_TabWidget_Bibles;

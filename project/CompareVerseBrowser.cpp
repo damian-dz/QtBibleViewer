@@ -43,7 +43,7 @@ void CompareVerseBrowser::LoadNamesAndVerses(const QList<qbv::Module> &modules)
                 QString shortName = QString("<b><a href='%1' style='text-decoration:none'>%2</a></b>")
                        .arg(QString::number(i), modules[i].shortName());
                 table->cellAt(i, 0).firstCursorPosition().insertHtml(shortName);
-                Formatting::FormatTextAndRemoveNotes(scripture);
+                Formatting::FormatScriptureAndRemoveNotes(scripture);
                 table->cellAt(i, 1).firstCursorPosition().insertHtml(scripture);
             }
         }
@@ -55,6 +55,25 @@ void CompareVerseBrowser::SetVerseLocation(int book, int chapter, int verse)
     m_book = book;
     m_chapter = chapter;
     m_verse = verse;
+}
+
+void CompareVerseBrowser::SetScriptures(const QStringList &scriptures, const QStringList &shortNames)
+{
+    QTextEdit::clear();
+    QTextCursor cursor(QTextEdit::textCursor());
+    cursor.movePosition(QTextCursor::Start);
+
+    QTextTable *table = cursor.insertTable(scriptures.count(), 2);
+    table->setFormat(m_tableFormat);
+
+    for (int i = 0; i < scriptures.count(); ++i) {
+        QString scripture  = scriptures[i];
+        QString shortName = QString("<b><a href='%1' style='text-decoration:none'>%2</a></b>")
+            .arg(QString::number(i), shortNames[i]);
+        table->cellAt(i, 0).firstCursorPosition().insertHtml(shortName);
+        Formatting::FormatScriptureAndRemoveNotes(scripture, true);
+        table->cellAt(i, 1).firstCursorPosition().insertHtml(scripture);
+    }
 }
 
 void CompareVerseBrowser::OnAnchorClicked(const QUrl &link)

@@ -18,8 +18,10 @@ public:
     static QRegularExpression GetHighlightRegex(const QString &phrase, SearchOptions options);
     static QString ExtractHeading(QString &text);
     static void FormatScripture(QString &text, QStringList &notes, bool hasStrong);
-    static void FormatTextAndAddNotes(QString &text, QStringList &notes, bool hasStrong = false);
-    static void FormatTextAndRemoveNotes(QString &text, bool hasStrong = false);
+    static void FormatScriptureAndAddNotes(QString &text, QStringList &notes, bool hasStrong = false);
+    static void FormatScriptureAndRemoveNotes(QString &text, bool hasStrong = false);
+    static void FormatStrongAsHtml(QString &text);
+    static void FormatStrongAsPlainText(QString &text);
     static void FormatAsTeX(QString &text);
     static void LeaveIntact(QString &text);
     static void RemoveNotes(QString &text);

@@ -90,7 +90,7 @@ void SearchResultBrowser::SetResults(const QStringList &results, const QStringLi
     for (int i = startIdx; i < endIdx; ++i) {
         QTextCursor cursor = QTextEdit::textCursor();
         QString result = results[i].trimmed();
-        Formatting::FormatTextAndRemoveNotes(result);
+        Formatting::FormatScriptureAndRemoveNotes(result);
         cursor.movePosition(QTextCursor::End);
         i > startIdx ? cursor.insertBlock(format) : cursor.setBlockFormat(format);
         QString resultNumberStr = QString::number(i + 1);

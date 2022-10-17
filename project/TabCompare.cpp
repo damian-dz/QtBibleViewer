@@ -52,7 +52,7 @@ void TabCompare::SetFont(const QFont &font)
 void TabCompare::OnVerseChanged(int book, int chapter, int verse)
 {
     ui_CompareTextBrowser->SetVerseLocation(book, chapter, verse);
-    ui_CompareTextBrowser->LoadNamesAndVerses(*m_pModules);
+   // ui_CompareTextBrowser->LoadNamesAndVerses(*m_pModules);
     m_lastStatusMsg = QString("%1 %2:%3").arg(m_pBookNames->at(book - 1)).arg(chapter).arg(verse);
     emit StatusMsgSet(m_lastStatusMsg);
 }

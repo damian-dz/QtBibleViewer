@@ -54,11 +54,30 @@ QString DbBible::ShortName() const
 }
 
 /*!
- * \brief Searches the database for verses from the specified location and removes the associated notes.
+ * \brief Searches the database for a scripture from the specified location.
  * \param loc — location of the passage
- * \return a list of verses without notes
+ * \return a string containing the scripture or a null string if it is not found
  */
-QStringList DbBible::Passage(Location loc) const
+QString DbBible::GetScripture(Location loc) const
+{
+    QSqlQuery query(m_db);
+    query.prepare("SELECT Scripture From Bible WHERE Book=? AND Chapter=? AND Verse=?");
+    query.addBindValue(loc.book, QSql::Out);
+    query.addBindValue(loc.chapter, QSql::Out);
+    query.addBindValue(loc.verse1, QSql::Out);
+    QString result;
+    if (query.exec() && query.next()) {
+        result = query.record().value(0).toString();
+    }
+    return result;
+}
+
+/*!
+ * \brief Searches the database for scriptures from the specified location.
+ * \param loc — location of the scriptures
+ * \return a list containing the scriptures or an empty list if none is found
+ */
+QStringList DbBible::GetScriptures(Location loc) const
 {
     QSqlQuery query(m_db);
     query.prepare("SELECT Scripture From Bible WHERE Book=? AND Chapter=? AND Verse>=? AND Verse<=?");
@@ -70,15 +89,21 @@ QStringList DbBible::Passage(Location loc) const
     if (query.exec()) {
         while (query.next()) {
             QString scripture = query.record().value(0).toString();
-            Formatting::FormatTextAndRemoveNotes(scripture);
-            results << scripture;
+            results.append(scripture);
         }
     }
     return results;
 }
 
-PassageWithNotes DbBible::PassageWithNotesAndMissingVerses(Location loc) const
+/*!
+ * \brief Searches the database for scriptures from the specified location.
+ *        If a verse is missing, an empty string is inserted.
+ * \param loc — location of the scriptures
+ * \return a list of scriptures
+ */
+QStringList DbBible::GetScripturesWithMissing(Location loc) const
 {
+    QStringList results;
     QSqlQuery query(m_db);
     query.prepare("SELECT Verse, Scripture From Bible WHERE Book=? AND Chapter=? AND Verse>=? AND Verse<=?");
     query.addBindValue(loc.book, QSql::Out);
@@ -88,35 +113,31 @@ PassageWithNotes DbBible::PassageWithNotesAndMissingVerses(Location loc) const
     int verseNumber = loc.verse1;
     int finalVerse = loc.verse2;
     int verse = loc.verse1;
-    bool hasStrong = HasStrong();
-    PassageWithNotes results;
     if (query.exec()) {
         while (query.next() && verseNumber <= finalVerse) {
             QSqlRecord record = query.record();
             verse = record.value(0).toInt();
-            results.verses << verse;
             if (verseNumber != verse) {
                 for (int i = 0; i < verse - verseNumber; ++i) {
-                    results.formatted << QString();
-                    results.unformatted << QString();
+                    results.append(QString());
                     ++verseNumber;
                 }
             }
             QString scripture = record.value(1).toString();
-            results.unformatted << scripture;
-            Formatting::FormatTextAndAddNotes(scripture, results.notes, hasStrong);
-            results.formatted << scripture;
+            results.append(scripture);
             ++verseNumber;
         }
     }
     if (verse < finalVerse) {
         for (int i = 0; i < finalVerse - verse; ++i) {
-            results.formatted << QString();
-            results.unformatted << QString();
+            results.append(QString());
         }
     }
+
     return results;
 }
+
+
 
  QList<qbv::PassageWithLocation> DbBible::Search(const QString &text, SearchOptions options)
 {
@@ -230,7 +251,6 @@ QList<qbv::PassageWithLocation> DbBible::GetFilteredResults(const QRegularExpres
         QString inputText = record.value(3).toString();
         QString outputText(inputText);
         inputText.remove(patterns);
-
         if (inputText.contains(rgx)) {
             int book = record.value(0).toInt();
             int chapter = record.value(1).toInt();

@@ -59,18 +59,14 @@ void TabBibleNew::AddNewPassageBrowser(int idx)
 void TabBibleNew::OnLocationChanged(qbv::Location loc)
 {
     int idx = ui_TabWidget_Bibles->currentIndex();
-    auto passageWithNotes = m_pDatabaseService->PassageWithNotesAndMissingVerses(idx, loc);
-    m_passageBrowsers[idx]->SetLocation(loc);
-    m_passageBrowsers[idx]->SetAndLoadPassageWithNotes(passageWithNotes);
+    UpdatePassageBrowser(idx, loc);
 }
 
 void TabBibleNew::OnTabChanged(int idx)
 {
-    auto loc = ui_NavPanel->Location();
+    auto loc = ui_NavPanel->GetLocation();
     if (!m_passageBrowsers[idx]->HasText() || m_passageBrowsers[idx]->Location() != loc) {
-        auto passageWithNotes = m_pDatabaseService->PassageWithNotesAndMissingVerses(idx, loc);
-        m_passageBrowsers[idx]->SetAndLoadPassageWithNotes(passageWithNotes);
-        m_passageBrowsers[idx]->SetLocation(loc);
+        UpdatePassageBrowser(idx, loc);
     }
 }
 
@@ -96,7 +92,7 @@ void TabBibleNew::SetLocationFromConfig()
 
 void TabBibleNew::SaveLocationToConfig()
 {
-    qbv::Location loc = ui_NavPanel->Location();
+    qbv::Location loc = ui_NavPanel->GetLocation();
     QStringList slLoc;
     slLoc << QString::number(loc.book)
           << QString::number(loc.chapter)
@@ -118,4 +114,12 @@ void TabBibleNew::SetTabIndexFromConfig()
 void TabBibleNew::SaveTabIndexToConfig()
 {
     m_pConfig->module_data.index = ui_TabWidget_Bibles->currentIndex();
+}
+
+void TabBibleNew::UpdatePassageBrowser(int idx, qbv::Location loc)
+{
+    bool hasStrong = m_pDatabaseService->HasStrong(idx);
+    QStringList scriptures = m_pDatabaseService->GetScripturesWithMissing(idx, loc);
+    m_passageBrowsers[idx]->SetLocation(loc);
+    m_passageBrowsers[idx]->SetScriptures(scriptures, hasStrong);
 }

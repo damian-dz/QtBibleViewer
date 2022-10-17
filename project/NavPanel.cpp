@@ -167,7 +167,7 @@ void NavPanel::OnRandomButtonClicked()
 
 void NavPanel::OnNavButtonClicked(int direction)
 {
-    int chapterId = m_pDatabaseService->ChapterIdForLocation(Location()) + direction;
+    int chapterId = m_pDatabaseService->ChapterIdForLocation(GetLocation()) + direction;
     auto loc = m_pDatabaseService->LocationForChapterId(chapterId);
     SetLocation(loc, true);
 
@@ -207,7 +207,7 @@ void NavPanel::UpdateLocationInConfig(qbv::Location loc)
 
 }
 
-qbv::Location NavPanel::Location() const
+qbv::Location NavPanel::GetLocation() const
 {
     return qbv::Location {
         ui_ListWidget_Book->currentRow() + 1,
@@ -258,7 +258,12 @@ void NavPanel::SetLocation(qbv::Location loc, bool emitSignal)
     }
 }
 
-int NavPanel::ChapterId() const
+int NavPanel::GetChapterId() const
 {
     return -1;
+}
+
+void NavPanel::HideVerseTo()
+{
+    ui_ListWidget_VerseTo->hide();
 }

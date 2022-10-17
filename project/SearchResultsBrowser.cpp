@@ -77,7 +77,7 @@ void SearchResultsBrowser::DisplayPage(int idx)
     for (int i = startIdx; i < qMin(startIdx + m_numResultsPerPage, m_results.count()); ++i) {
         QTextCursor cursor = QTextEdit::textCursor();
         QString result = m_results[i].passage.trimmed();
-        Formatting::FormatTextAndRemoveNotes(result, m_hasStrong);
+        Formatting::FormatScriptureAndRemoveNotes(result, m_hasStrong);
         cursor.movePosition(QTextCursor::End);
         i > startIdx ? cursor.insertBlock(format) : cursor.setBlockFormat(format);
         QString resultNumberStr = QString::number(i + 1);

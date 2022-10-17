@@ -57,6 +57,40 @@ void PassageBrowserNew::LoadPassageWithNotes()
     QObject::blockSignals(false);
 }
 
+void PassageBrowserNew::SetScriptures(const QStringList &scriptures, bool hasStrong)
+{
+    m_scriptures = scriptures;
+    m_notes.clear();
+    m_verses.clear();
+
+    QObject::blockSignals(true);
+    QTextEdit::clear();
+    QString symbolBefore = m_pConfig->formatting.symbol_before.toHtmlEscaped();
+    QString symbolAfter = m_pConfig->formatting.symbol_after.toHtmlEscaped();
+    QTextCursor cursor(QTextEdit::textCursor());
+    int verseCounter = m_location.verse1;
+    int scriptureCounter = 0;
+    for (const QString &scripture : scriptures) {
+        ++scriptureCounter;
+        m_verses.append(verseCounter);
+        QString verseId = QString("<b>%1%2%3</b>")
+            .arg(symbolBefore, QString::number(verseCounter), symbolAfter);
+        if (scripture.isNull() || scripture.isEmpty()) {
+            cursor.insertHtml(QString("%1 <font color='gray'><i>%2</i>").arg(verseId, tr("Not found.")));
+            cursor.insertBlock();
+        }
+        QString formatted(scripture);
+        Formatting::FormatScriptureAndAddNotes(formatted, m_notes, hasStrong);
+        cursor.insertHtml(verseId % " " % formatted);
+        if (scriptureCounter < scriptures.count()){
+            cursor.insertBlock();
+        }
+        ++verseCounter;
+    }
+    QTextEdit::moveCursor(QTextCursor::Start);
+    QObject::blockSignals(false);
+}
+
 bool PassageBrowserNew::HasText() const
 {
     QString plain = toPlainText();
@@ -79,8 +113,9 @@ void PassageBrowserNew::OnContextMenuRequested(const QPoint &pos)
     QMenu contextMenu(this);
     contextMenu.addAction(tr("Copy Selected Text"), this, [=] { QTextEdit::copy(); }, QKeySequence::Copy);
     contextMenu.addAction(tr("Copy with Reference"), this, [=] { OnCopyWithReference(); });
-   // contextMenu.addAction(tr("Copy with Reference as TeX"), this, [=] { OnCopyAsTeXWithReference(); });
-   // contextMenu.addAction(tr("Copy with Reference as HTML"), this, [=] { OnCopyAsHtmlWithReference(); });
+    contextMenu.addAction(tr("Copy as TeX with Reference"), this, [=] { OnCopyAsTeXWithReference(); });
+    contextMenu.addAction(tr("Copy as HTML with Reference"), this, [=] { OnCopyAsHtmlWithReference(); });
+    contextMenu.addAction(tr("Copy Unformatted with Reference"), this, [=] { OnCopyUnformattedWithReference(); });
     contextMenu.addAction(tr("Remove Highlight"), this, [=] { OnRemoveHighlight(); });
     contextMenu.addAction(tr("Select All"), this, [=] { QTextEdit::selectAll(); }, QKeySequence::SelectAll);
     contextMenu.addSeparator();
@@ -114,7 +149,7 @@ void PassageBrowserNew::OnCursorPositionChanged()
 void PassageBrowserNew::OnHighlighted(const QString &link)
 {
     if (!link.isEmpty() && link.startsWith("c:")) {
-        QString markupText = m_passage.notes[link.split(":")[1].toInt() - 1];
+        QString markupText = m_notes[link.split(":")[1].toInt() - 1];
         QString plainText = markupText.mid(4, markupText.size() - 8);
         plainText.replace("[i]", "<i>").replace("[/i]", "</i>");
         QString fontFamily = "font-family:" % QApplication::font().family();
@@ -128,7 +163,7 @@ void PassageBrowserNew::OnHighlighted(const QString &link)
     }
 }
 
-void PassageBrowserNew::CopyWithReferenceTemplate(PassageBrowserNew::FormattingFunc format)
+void PassageBrowserNew::CopyWithReferenceTemplate(PassageBrowserNew::FormattingFunc format, bool formatStrong)
 {
     int firstBlock = m_selectedBlockRange.first;
     int lastBlock = m_selectedBlockRange.second;
@@ -138,29 +173,47 @@ void PassageBrowserNew::CopyWithReferenceTemplate(PassageBrowserNew::FormattingF
             if (i > firstBlock) {
                 textToCopy += " ";
             }
-            if (m_passage.verses[i] > 0) {
-                textToCopy += m_pConfig->formatting.symbol_before + QString::number(m_passage.verses[i]) +
-                        m_pConfig->formatting.symbol_after + " ";
+            if (m_verses[i] > 0) {
+                textToCopy += m_pConfig->formatting.symbol_before + QString::number(m_verses[i]) +
+                    m_pConfig->formatting.symbol_after + " ";
             }
         }
-        QString scripture = m_passage.unformatted[i];
-        if (m_passage.verses[i] > 0) {
+        QString scripture = m_scriptures[i];
+        if (m_verses[i] > 0) {
             format(scripture);
+            if (formatStrong) {
+                Formatting::FormatStrongAsPlainText(scripture);
+            }
             textToCopy += scripture;
         }
     }
-    while (m_passage.verses[firstBlock] == 0) {
+    while (m_verses[firstBlock] == 0) {
         ++firstBlock;
     }
-    while (m_passage.verses[lastBlock] == 0) {
+    while (m_verses[lastBlock] == 0) {
         --lastBlock;
     }
-    CopyToClipboard(textToCopy, m_passage.verses[firstBlock], m_passage.verses[lastBlock]);
+    CopyToClipboard(textToCopy, m_verses[firstBlock], m_verses[lastBlock]);
 }
 
 void PassageBrowserNew::OnCopyWithReference()
 {
     CopyWithReferenceTemplate(Formatting::RemoveTagsAndNotes);
+}
+
+void PassageBrowserNew::OnCopyAsTeXWithReference()
+{
+    CopyWithReferenceTemplate(Formatting::FormatAsTeX);
+}
+
+void PassageBrowserNew::OnCopyAsHtmlWithReference()
+{
+    CopyWithReferenceTemplate(Formatting::RemoveNotes);
+}
+
+void PassageBrowserNew::OnCopyUnformattedWithReference()
+{
+    CopyWithReferenceTemplate(Formatting::LeaveIntact, false);
 }
 
 void PassageBrowserNew::OnRemoveHighlight()
@@ -185,13 +238,13 @@ void PassageBrowserNew::ComputeSelectedBlockAndVerseRanges()
     int firstBlock = doc->findBlock(cursor.selectionStart()).blockNumber();
     int lastBlock = doc->findBlock(cursor.selectionEnd()).blockNumber();
     m_selectedBlockRange = qMakePair(firstBlock, lastBlock);
-    while (m_passage.verses[firstBlock] == 0) {
+    while (m_verses[firstBlock] == 0) {
         ++firstBlock;
     }
-    while (m_passage.verses[lastBlock] == 0) {
+    while (m_verses[lastBlock] == 0) {
         --lastBlock;
     }
-    m_selectedVerseRange = qMakePair(m_passage.verses[firstBlock], m_passage.verses[lastBlock]);
+    m_selectedVerseRange = qMakePair(m_verses[firstBlock], m_verses[lastBlock]);
 }
 
 void PassageBrowserNew::CopyToClipboard(QString &textToCopy, int verse1, int verse2)

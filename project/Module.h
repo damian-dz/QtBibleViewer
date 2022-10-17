@@ -95,7 +95,7 @@ struct Module
         if (query.exec()) {
             while (query.next()) {
                 QString scripture = query.record().value(0).toString();
-                Formatting::FormatTextAndRemoveNotes(scripture);
+                Formatting::FormatScriptureAndRemoveNotes(scripture);
                 result << scripture;
             }
         }

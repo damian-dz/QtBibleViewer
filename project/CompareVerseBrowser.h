@@ -14,6 +14,7 @@ public:
 
     void LoadNamesAndVerses(const QList<qbv::Module> &modules);
     void SetVerseLocation(int book, int chapter, int verse);
+    void SetScriptures(const QStringList &scriptures, const QStringList &shortNames);
 
 private:
     QTextTableFormat m_tableFormat;

@@ -14,11 +14,11 @@ public:
     void SetUiTexts();
 
 
-    qbv::Location Location() const;
+    qbv::Location GetLocation() const;
     void SetLocation(qbv::Location loc, bool emitSignal);
 
-    int ChapterId() const;
-
+    int GetChapterId() const;
+    void HideVerseTo();
 
 signals:
     void LocationChanged(qbv::Location loc);

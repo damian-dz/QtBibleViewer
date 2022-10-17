@@ -71,7 +71,7 @@ void Formatting::FormatScripture(QString &text, QStringList &notes, bool hasStro
     }
 }
 
-void Formatting::FormatTextAndAddNotes(QString &text, QStringList &notes, bool hasStrong)
+void Formatting::FormatScriptureAndAddNotes(QString &text, QStringList &notes, bool hasStrong)
 {
     text.replace("{JW}", QStringLiteral("<span style='color:%1'>").arg(m_jwColor.name()));
     text.replace("{OT}", QStringLiteral("<span style='font-weight:bold'>"));
@@ -87,19 +87,11 @@ void Formatting::FormatTextAndAddNotes(QString &text, QStringList &notes, bool h
         }
     }
     if (hasStrong) {
-        QRegularExpressionMatchIterator iter = m_strongRgx.globalMatch(text);
-        while (iter.hasNext()) {
-            QRegularExpressionMatch match = iter.next();
-            if (match.hasMatch()) {
-                QString original = match.captured(0);
-                QString modified = original.mid(2, original.size() - 3);
-                text.replace(original, QStringLiteral(" <a href='%1'>%2</a>").arg(modified, modified));
-            }
-        }
+        FormatStrongAsHtml(text);
     }
 }
 
-void Formatting::FormatTextAndRemoveNotes(QString &text, bool hasStrong)
+void Formatting::FormatScriptureAndRemoveNotes(QString &text, bool hasStrong)
 {
     text.replace("{JW}", QStringLiteral("<span style='color:%1'>").arg(m_jwColor.name()));
     text.replace("{OT}", QStringLiteral("<span style='font-weight:bold'>"));
@@ -107,15 +99,33 @@ void Formatting::FormatTextAndRemoveNotes(QString &text, bool hasStrong)
     text.remove(m_noteRgx);
     text.remove(m_headingRgx);
     if (hasStrong) {
-        QRegularExpressionMatchIterator iter = m_strongRgx.globalMatch(text);
-        while (iter.hasNext()) {
-            QRegularExpressionMatch match = iter.next();
-            if (match.hasMatch()) {
-                QString original = match.captured(0);
-                QString modified = match.captured(1);
-                text.replace(original, QStringLiteral(" <a href='%1' style='font-weight:normal'>%2</a>")
-                             .arg(modified, modified));
-            }
+        FormatStrongAsHtml(text);
+    }
+}
+
+void Formatting::FormatStrongAsHtml(QString &text)
+{
+    QRegularExpressionMatchIterator iter = m_strongRgx.globalMatch(text);
+    while (iter.hasNext()) {
+        QRegularExpressionMatch match = iter.next();
+        if (match.hasMatch()) {
+            QString original = match.captured(0);
+            QString modified = match.captured(1);
+            text.replace(original, QStringLiteral(" <a href='%1' style='font-weight:normal'>%2</a>")
+                .arg(modified, modified));
+        }
+    }
+}
+
+void Formatting::FormatStrongAsPlainText(QString &text)
+{
+    QRegularExpressionMatchIterator iter = m_strongRgx.globalMatch(text);
+    while (iter.hasNext()) {
+        QRegularExpressionMatch match = iter.next();
+        if (match.hasMatch()) {
+            QString original = match.captured(0);
+            QString modified = match.captured(1);
+            text.replace(original, " " + modified);
         }
     }
 }

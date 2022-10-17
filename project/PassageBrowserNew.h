@@ -20,6 +20,7 @@ public:
     void SetAndLoadPassageWithNotes(qbv::PassageWithNotes passageWithNotes);
     void SetPassageWithNotes(qbv::PassageWithNotes passageWithNotes);
     void LoadPassageWithNotes();
+    void SetScriptures(const QStringList &scriptures, bool hasStrong = false);
 
     bool HasText() const;
 
@@ -37,13 +38,20 @@ private:
     QPair<int, int> m_selectedBlockRange;
     QPair<int, int> m_selectedVerseRange;
 
+    QStringList m_scriptures;
+    QStringList m_notes;
+    QList<int> m_verses;
+
     void OnContextMenuRequested(const QPoint &pos);
     void OnCursorPositionChanged();
     void OnHighlighted(const QString &link);
 
     typedef void (&FormattingFunc)(QString &);
-    void CopyWithReferenceTemplate(FormattingFunc format);
+    void CopyWithReferenceTemplate(FormattingFunc format, bool formatStrong = true);
     void OnCopyWithReference();
+    void OnCopyAsTeXWithReference();
+    void OnCopyAsHtmlWithReference();
+    void OnCopyUnformattedWithReference();
     void OnRemoveHighlight();
     void OnAddNote();
 
