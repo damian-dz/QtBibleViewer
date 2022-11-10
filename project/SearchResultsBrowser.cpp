@@ -11,6 +11,7 @@ SearchResultsBrowser::SearchResultsBrowser(AppConfig &config, qbv::DatabaseServi
 {
     QTextBrowser::setOpenLinks(false);
     QTextBrowser::setOpenExternalLinks(false);
+    QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     QObject::connect(this, QOverload<>::of(&QTextEdit::cursorPositionChanged),
                      [=] () { OnCursorPositionChanged(); });
@@ -33,7 +34,13 @@ void SearchResultsBrowser::SetResults(QList<qbv::PassageWithLocation> results, b
     m_results = results;
     m_hasStrong = hasStrong;
     m_resultIdx = 0;
-    DisplayPage(pageIdx);
+    if (results.empty()) {
+        QObject::blockSignals(true);
+        QTextBrowser::clear();
+        QObject::blockSignals(false);
+    } else {
+        DisplayPage(pageIdx);
+    }
 }
 
 void SearchResultsBrowser::HighlightKeywords(const QRegularExpression &rgx)
@@ -154,7 +161,13 @@ bool SearchResultsBrowser::IsContainedInPassages(const QTextEdit::ExtraSelection
 
 void SearchResultsBrowser::OnAnchorClicked(const QUrl &link)
 {
-
+    QString linkText = link.toString();
+    QStringList bookChapterVerse = linkText.split(",");
+    int book = bookChapterVerse[0].toInt();
+    int chapter = bookChapterVerse[1].toInt();
+    int verse = bookChapterVerse[2].toInt();
+    qbv::Location loc(book, chapter, verse, -1);
+    emit ReferenceClicked(loc);
 }
 
 void SearchResultsBrowser::OnCursorPositionChanged()

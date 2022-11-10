@@ -34,7 +34,7 @@ public:
    // int GetNumLastSearchResults() const;
 
 private:
-    QString MultipleWordCommand(const QStringList &words, const QString &conjunction);
+    QString MultipleWordCommand(const QStringList &words, SearchOptions options);
     void LimitRange(SearchOptions options, QString &command);
     void RegexStrings(QString &rgxStr, QString &highlightRgxStr);
     QList<PassageWithLocation> GetFilteredResults(const QRegularExpression &rgx, QSqlQuery &query);

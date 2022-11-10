@@ -96,11 +96,13 @@ void MainWindowNew::ConnectSingals()
     QObject::connect(ui_TabBible, QOverload<qbv::Location>::of(&TabBibleNew::AddNoteRequested),
                      [=] (qbv::Location loc) { OnAddNoteRequested(loc); } );
 
+    QObject::connect(ui_TabSearch, QOverload<QString, qbv::Location>::of(&TabSearchNew::ResultReferenceClicked),
+                     [=] (QString name, qbv::Location loc) { OnGoToVerseRequested(name, loc, true); } );
     QObject::connect(ui_TabSearch, QOverload<QString>::of(&TabSearchNew::StatusMsgSet),
                      [=] (QString msg) { ui_Label_Status->setText(msg); } );
 
     QObject::connect(ui_TabCompare, QOverload<QString, qbv::Location>::of(&TabCompareNew::BibleNameClicked),
-                     [=] (QString name, qbv::Location loc) { OnBibleNameClicked(name, loc); } );
+                     [=] (QString name, qbv::Location loc) { OnGoToVerseRequested(name, loc, false); } );
 }
 
 void MainWindowNew::OnOpenModule()
@@ -128,12 +130,13 @@ void MainWindowNew::OnImportTheWordModule()
 
 }
 
-void MainWindowNew::OnBibleNameClicked(const QString &name, qbv::Location loc)
+void MainWindowNew::OnGoToVerseRequested(const QString &name, qbv::Location loc, bool changeVerse2)
 {
     int idx = m_databaseService.IndexForBibleShortName(name);
     ui_TabWidget_Main->setCurrentIndex(0);
     int verse = loc.verse1;
     loc.verse1 = 1;
+    if (changeVerse2) loc.verse2 = m_databaseService.GetNumVerses(loc.book, loc.chapter);
     ui_TabBible->SetLocation(loc, false);
     ui_TabBible->SetBibleIndex(idx);
     ui_TabBible->UpdatePassageBrowser(idx, loc);

@@ -49,6 +49,9 @@ private:
 
     void OnAnchorClicked(const QUrl &link);
     void OnCursorPositionChanged();
+
+signals:
+    void ReferenceClicked(qbv::Location loc);
 };
 
 #endif // SEARCHRESULTSBROWSER_H

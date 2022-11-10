@@ -116,7 +116,7 @@ void NavPanel::OnCurrentBookChanged(int book)
 
 void NavPanel::OnCurrentChapterChanged(int chapter)
 {
-    int numVerses = m_pDatabaseService->NumVerses(ui_ListWidget_Book->currentRow() + 1, chapter);
+    int numVerses = m_pDatabaseService->GetNumVerses(ui_ListWidget_Book->currentRow() + 1, chapter);
     QStringList verseNumbers = GenerateRange(1, numVerses);
 
     ui_ListWidget_VerseFrom->blockSignals(true);
@@ -232,7 +232,7 @@ void NavPanel::SetLocation(qbv::Location loc, bool emitSignal)
     ui_ListWidget_Chapter->addItems(GenerateRange(1, numChapters));
     ui_ListWidget_Chapter->setCurrentRow(loc.chapter - 1);
 
-    int numVerses = m_pDatabaseService->NumVerses(loc.book, loc.chapter);
+    int numVerses = m_pDatabaseService->GetNumVerses(loc.book, loc.chapter);
     QStringList verseNumbers = GenerateRange(1, numVerses);
 
     ui_ListWidget_VerseFrom->clear();
@@ -241,7 +241,10 @@ void NavPanel::SetLocation(qbv::Location loc, bool emitSignal)
 
     ui_ListWidget_VerseTo->clear();
     ui_ListWidget_VerseTo->addItems(verseNumbers);
-    ui_ListWidget_VerseTo->setCurrentRow(loc.verse2 - 1);
+    if (loc.verse2 > -1)
+        ui_ListWidget_VerseTo->setCurrentRow(loc.verse2 - 1);
+    else
+        ui_ListWidget_VerseTo->setCurrentRow(verseNumbers.count() - 1);
 
     ui_ListWidget_Book->blockSignals(false);
     ui_ListWidget_Chapter->blockSignals(false);

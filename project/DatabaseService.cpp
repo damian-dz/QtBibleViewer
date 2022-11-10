@@ -155,7 +155,7 @@ int DatabaseService::NumChapters(int book) const
     return m_dbVerseData.NumChapters(book);
 }
 
-int DatabaseService::NumVerses(int book, int chapter) const
+int DatabaseService::GetNumVerses(int book, int chapter) const
 {
     return m_dbVerseData.NumVerses(book, chapter);
 }

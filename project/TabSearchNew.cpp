@@ -137,6 +137,8 @@ void TabSearchNew::ConnectSignals()
     QObject::connect(ui_LineEdit_Search, QOverload<>::of(&QLineEdit::returnPressed),
                      [=] { ui_Button_Search->click(); });
     QObject::connect(ui_Button_Search, QOverload<bool>::of(&QPushButton::clicked), [=] { OnSearchButtonClicked(); });
+    QObject::connect(ui_searchResultsBrowser, QOverload<qbv::Location>::of(&SearchResultsBrowser::ReferenceClicked),
+                     [=] (qbv::Location loc) { emit OnResultReferenceClicked(loc); });
 
     QObject::connect(ui_Button_Prev, QOverload<bool>::of(&QPushButton::clicked),
                      [=] { OnButtonPrevClicked(); });
@@ -172,6 +174,12 @@ void TabSearchNew::OnSearchButtonClicked()
     ui_searchResultsBrowser->SetResults(searchResults, hasStrong);
     ui_Button_Prev->setEnabled(ui_searchResultsBrowser->HasPrev());
     ui_Button_Next->setEnabled(ui_searchResultsBrowser->HasNext());
+}
+
+void TabSearchNew::OnResultReferenceClicked(qbv::Location loc)
+{
+    QString name = ui_SearchOptionsPanel->GetBibleName();
+    emit ResultReferenceClicked(name, loc);
 }
 
 void TabSearchNew::OnButtonPrevClicked()

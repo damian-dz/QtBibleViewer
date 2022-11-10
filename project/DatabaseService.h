@@ -39,7 +39,7 @@ public:
     int NumBibles() const;
 
     int NumChapters(int book) const;
-    int NumVerses(int book, int chapter) const;
+    int GetNumVerses(int book, int chapter) const;
     int ChapterId(int book, int chapter) const;
     int VerseId(int book, int chapter, int verse) const;
 

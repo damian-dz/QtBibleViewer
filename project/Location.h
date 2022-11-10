@@ -31,6 +31,15 @@ struct Location
 
     }
 
+    Location(int book, int chapter, int verse) :
+        book(book),
+        chapter(chapter),
+        verse1(verse),
+        verse2(verse)
+    {
+
+    }
+
     Location(const Location &other) :
         book(other.book),
         chapter(other.chapter),

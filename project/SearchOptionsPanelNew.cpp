@@ -137,6 +137,11 @@ int SearchOptionsPanelNew::GetBibleIndex() const
     return ui_ComboBox_Translation->currentIndex();
 }
 
+QString SearchOptionsPanelNew::GetBibleName() const
+{
+    return ui_ComboBox_Translation->currentText();
+}
+
 int SearchOptionsPanelNew::GetNumResultsPerPage() const
 {
     return ui_ComboBox_ResPerPage->currentText().toInt();

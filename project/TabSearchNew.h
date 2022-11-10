@@ -52,6 +52,7 @@ private:
     virtual void ConnectSignals() override;
 
     void OnSearchButtonClicked();
+    void OnResultReferenceClicked(qbv::Location loc);
 
     void OnButtonPrevClicked();
     void OnButtonNextClicked();
@@ -62,6 +63,7 @@ private:
 
 signals:
     void StatusMsgSet(QString msg);
+    void ResultReferenceClicked(QString name, qbv::Location loc);
 };
 
 #endif // TABSEARCHNEW_H

@@ -14,6 +14,7 @@ public:
 
     SearchOptions GetSearchOptions();
     int GetBibleIndex() const;
+    QString GetBibleName() const;
     int GetNumResultsPerPage() const;
 
 private:

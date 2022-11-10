@@ -6,7 +6,7 @@ bool DbBible::HasOT() const
 {
     bool result = false;
     QSqlQuery query(m_db);
-    if (query.exec("SELECT Scripture FROM Bible WHERE Book=40 AND Chapter=1 AND Verse =1") && query.next()) {
+    if (query.exec("SELECT Scripture FROM Bible WHERE Book<40 LIMIT 1") && query.next()) {
         result = true;
     }
     return result;
@@ -16,7 +16,7 @@ bool DbBible::HasNT() const
 {
     bool result = false;
     QSqlQuery query(m_db);
-    if (query.exec("SELECT Scripture FROM Bible WHERE Book=1 AND Chapter=1 AND Verse=1") && query.next()) {
+    if (query.exec("SELECT Scripture FROM Bible WHERE Book>39 LIMIT 1") && query.next()) {
         result = true;
     }
     return result;
@@ -105,11 +105,13 @@ QStringList DbBible::GetScripturesWithMissing(Location loc) const
 {
     QStringList results;
     QSqlQuery query(m_db);
-    query.prepare("SELECT Verse, Scripture From Bible WHERE Book=? AND Chapter=? AND Verse>=? AND Verse<=?");
+    QString command = "SELECT Verse, Scripture From Bible WHERE Book=? AND Chapter=? AND Verse>=?";
+    if (loc.verse2 > -1) command += " AND Verse<=?";
+    query.prepare(command);
     query.addBindValue(loc.book, QSql::Out);
     query.addBindValue(loc.chapter, QSql::Out);
     query.addBindValue(loc.verse1, QSql::Out);
-    query.addBindValue(loc.verse2, QSql::Out);
+    if (loc.verse2 > -1) query.addBindValue(loc.verse2, QSql::Out);
     int verseNumber = loc.verse1;
     int finalVerse = loc.verse2;
     int verse = loc.verse1;
@@ -125,6 +127,7 @@ QStringList DbBible::GetScripturesWithMissing(Location loc) const
             }
             QString scripture = record.value(1).toString();
             results.append(scripture);
+            //qDebug() << scripture;
             ++verseNumber;
         }
     }
@@ -192,9 +195,8 @@ PassageWithLocation DbBible::GetRandomPassage(SearchOptions options)
 QList<qbv::PassageWithLocation> DbBible::SearchByPhrase(const QString &phrase, SearchOptions options)
 {
     QStringList words = phrase.split(" ");
-    QString conj = options.searchMode == SearchMode::anyWords ? "OR" : "AND";
 
-    QString command = MultipleWordCommand(words, conj);
+    QString command = MultipleWordCommand(words, options);
     LimitRange(options, command);
 
     QString rgxStr = "";
@@ -262,13 +264,18 @@ QList<qbv::PassageWithLocation> DbBible::GetFilteredResults(const QRegularExpres
     return results;
 }
 
-QString DbBible::MultipleWordCommand(const QStringList &words, const QString &conjunction)
+QString DbBible::MultipleWordCommand(const QStringList &words, SearchOptions options)
 {
     QString command;
-    if (words.count() > 0) {
-        command = "SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Scripture LIKE '%" + words[0] + "%'";
-        for (int i = 1; i < words.count(); i++) {
-            command += " " + conjunction + " Scripture LIKE '%" + words[i] + "%'";
+    if (options.searchMode == SearchMode::exactPhrase) {
+        command = "SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Scripture LIKE '%" + words.join("%") + "%'";
+    } else {
+        QString conjunction = options.searchMode == SearchMode::anyWords ? "OR" : "AND";
+        if (words.count() > 0) {
+            command = "SELECT Book, Chapter, Verse, Scripture FROM Bible WHERE Scripture LIKE '%" + words[0] + "%'";
+            for (int i = 1; i < words.count(); i++) {
+                command += " " + conjunction + " Scripture LIKE '%" + words[i] + "%'";
+            }
         }
     }
     return command;
