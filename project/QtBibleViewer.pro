@@ -39,6 +39,7 @@ SOURCES += \
     DbNotes.cpp \
     DbVerseData.cpp \
     DialogImport.cpp \
+    DialogPreferencesNew.cpp \
     FindOnPageBox.cpp \
     Formatting.cpp \
     Main.cpp \
@@ -86,6 +87,7 @@ HEADERS += \
     DbNotes.h \
     DbVerseData.h \
     DialogImport.h \
+    DialogPreferencesNew.h \
     FindOnPageBox.h \
     Formatting.h \
     DialogInfo.h \

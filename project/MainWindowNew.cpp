@@ -1,6 +1,7 @@
 #include "MainWindowNew.h"
 
 #include "DialogImport.h"
+#include "DialogPreferencesNew.h"
 
 MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslator &appTs, QTranslator &qtTs,
                              QWidget *parent) :
@@ -32,8 +33,6 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
     ui_Label_Status = new QLabel;
     QMainWindow::statusBar()->addWidget(ui_Label_Status);
 
-
-
     SetWindowGeometry();
     CreateMenuBar();
     ConnectSingals();
@@ -46,7 +45,6 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
     for (QAction *action : m_langActions) {
         action->setChecked(m_languages[action->text()] == m_pConfig->general.language);
     }
-
 
     ui_TabBible->Initialize();
     ui_TabBible->SetTabIndexFromConfig();
@@ -108,6 +106,14 @@ void MainWindowNew::SetUiTexts()
     ui_Menu_Options->setTitle(tr("Options"));
     ui_Act_Preferences->setText(tr("Preferences"));
     ui_Menu_Language->setTitle(tr("Language"));
+
+    if (ui_TabCompare->IsInitialized()) {
+        ui_TabCompare->SetUiTexts();
+    }
+
+    if (ui_TabNotes->IsInitialized()) {
+        ui_TabNotes->SetUiTexts();
+    }
 }
 
 void MainWindowNew::ConnectSingals()
@@ -145,8 +151,12 @@ void MainWindowNew::SetLanguage(const QString &lang)
        m_databaseService.PopulateBookNames();
        m_databaseService.PopulateShortBookNames();
        ui_TabBible->ReloadBookNames();
-       ui_TabBible->SetUiTexts();
+
+       if (ui_TabCompare->IsInitialized()) {
+           ui_TabCompare->ReloadBookNames();
+       }
        SetUiTexts();
+
     }
 }
 
@@ -177,7 +187,12 @@ void MainWindowNew::OnImportTheWordModule()
 
 void MainWindowNew::OnPreferences()
 {
+    DialogPreferencesNew dlgPreferences(m_pConfig);
+    dlgPreferences.setWindowIcon(QIcon(ICON_COGWHEEL));
+    QString oldWindowStyle = m_pConfig->appearance.window_style;
+    if (dlgPreferences.exec()) {
 
+    }
 }
 
 void MainWindowNew::OnLanguage()

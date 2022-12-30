@@ -8,7 +8,7 @@ TabCompareNew::TabCompareNew(AppConfig &config, qbv::DatabaseService &databaseSe
 
 void TabCompareNew::SetUiTexts()
 {
-
+    ui_NavPanel->SetUiTexts();
 }
 
 void TabCompareNew::SetFontFromConfig()
@@ -52,4 +52,9 @@ void TabCompareNew::OnBibleNameClicked(const QString &name)
 {
     qbv::Location loc = ui_NavPanel->GetLocation();
     emit BibleNameClicked(name, loc);
+}
+
+void TabCompareNew::ReloadBookNames()
+{
+    ui_NavPanel->ReloadBookNames();
 }

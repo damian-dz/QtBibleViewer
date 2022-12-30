@@ -15,6 +15,7 @@ public:
     virtual void SetUiTexts() override;
 
     void SetFontFromConfig();
+        void ReloadBookNames();
 
 private:
     NavPanel *ui_NavPanel;
@@ -26,6 +27,8 @@ private:
     void OnLocationChanged(qbv::Location loc);
 
     void OnBibleNameClicked(const QString &name);
+
+
 
 signals:
     void BibleNameClicked(QString name, qbv::Location loc);

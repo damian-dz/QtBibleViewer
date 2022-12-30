@@ -2514,23 +2514,23 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <name>TabNotesNew</name>
     <message>
         <source>References:</source>
-        <translation type="unfinished"></translation>
+        <translation>Odnośniki:</translation>
     </message>
     <message>
         <source>Passage:</source>
-        <translation type="unfinished"></translation>
+        <translation>Fragment:</translation>
     </message>
     <message>
         <source>Note:</source>
-        <translation type="unfinished"></translation>
+        <translation>Notatka:</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished">Zapisz</translation>
+        <translation>Zapisz</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Usuń</translation>
+        <translation>Usuń</translation>
     </message>
 </context>
 <context>
