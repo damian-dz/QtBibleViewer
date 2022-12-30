@@ -44,7 +44,7 @@ void TabBibleNew::ConnectSignals()
 
 void TabBibleNew::SetUiTexts()
 {
-
+    ui_NavPanel->SetUiTexts();
 }
 
 void TabBibleNew::AddNewPassageBrowser(int idx)

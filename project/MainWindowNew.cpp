@@ -6,7 +6,7 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
                              QWidget *parent) :
     QMainWindow(parent),
     m_pAppDir(&appDir),
-    m_dataDir(appDir + "/Data/"),
+    m_dataDir(appDir + "/Data"),
     m_pConfig(&config),
     m_pTsApp(&appTs),
     m_pTsQt(&qtTs),
@@ -42,6 +42,10 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
     m_languages.insert("English", "EN");
     m_languages.insert("español", "ES");
     m_languages.insert("polski", "PL");
+
+    for (QAction *action : m_langActions) {
+        action->setChecked(m_languages[action->text()] == m_pConfig->general.language);
+    }
 
 
     ui_TabBible->Initialize();
@@ -130,9 +134,9 @@ void MainWindowNew::SetLanguage(const QString &lang)
     if (m_languages[lang] != m_pConfig->general.language) {
         m_pConfig->general.language = m_languages[lang];
         if (m_pConfig->general.language != "EN") {
-            m_pTsApp->load(m_pConfig->general.language.toLower(), m_dataDir % "Lang");
+            m_pTsApp->load(m_pConfig->general.language.toLower(), m_dataDir % "/Lang");
             qApp->installTranslator(m_pTsApp);
-            m_pTsQt->load("qt_" + m_pConfig->general.language.toLower(), m_dataDir % "Lang");
+            m_pTsQt->load("qt_" + m_pConfig->general.language.toLower(), m_dataDir % "/Lang");
             qApp->installTranslator(m_pTsQt);
         } else {
             qApp->removeTranslator(m_pTsApp);
@@ -141,6 +145,7 @@ void MainWindowNew::SetLanguage(const QString &lang)
        m_databaseService.PopulateBookNames();
        m_databaseService.PopulateShortBookNames();
        ui_TabBible->ReloadBookNames();
+       ui_TabBible->SetUiTexts();
        SetUiTexts();
     }
 }

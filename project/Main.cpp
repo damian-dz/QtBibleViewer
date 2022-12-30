@@ -42,9 +42,9 @@ int main(int argc, char *argv[])
     QTranslator appTranslator;
     QTranslator qtTranslator;
     if (config.general.language != "EN") {
-        appTranslator.load(config.general.language.toLower(), appDir + "/App/lang");
+        appTranslator.load(config.general.language.toLower(), appDir + "/Data/Lang");
         app.installTranslator(&appTranslator);
-        qtTranslator.load("qt_" + config.general.language.toLower(), appDir + "/App/lang");
+        qtTranslator.load("qt_" + config.general.language.toLower(), appDir + "/Data/Lang");
         app.installTranslator(&qtTranslator);
     }
     MainWindowNew win(appDir, config, appTranslator, qtTranslator, nullptr);

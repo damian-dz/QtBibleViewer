@@ -7,9 +7,9 @@ namespace qbv {
 DatabaseService::DatabaseService(const QString &dataDir, AppConfig &config) :
     m_dataDir(&dataDir),
     m_pConfig(&config),
-    m_dirCommon(dataDir + "Common"),
-    m_dirBibles(dataDir + "Bibles"),
-    m_dirUser(dataDir + "User")
+    m_dirCommon(dataDir + "/Common"),
+    m_dirBibles(dataDir + "/Bibles"),
+    m_dirUser(dataDir + "/User")
 {
     m_dbVerseData.Open(m_dirCommon + "/verse_data.qbv");
 
