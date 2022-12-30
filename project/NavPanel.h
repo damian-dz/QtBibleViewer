@@ -20,6 +20,7 @@ public:
     int GetChapterId() const;
     void HideVerseTo();
 
+    void ReloadBookNames();
 signals:
     void LocationChanged(qbv::Location loc);
 

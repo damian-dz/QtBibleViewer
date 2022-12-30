@@ -25,9 +25,6 @@ TabSearchNew::TabSearchNew(AppConfig &config, qbv::DatabaseService &databaseServ
     QVBoxLayout *navVerLayout = new QVBoxLayout;
     randomVerseHorLayout->addLayout(navVerLayout);
 
-
-
-
     ui_Button_First = new QPushButton("|<");
     ui_Button_First->setDisabled(true);
     ui_Button_First->setMaximumWidth(40);
@@ -147,6 +144,8 @@ void TabSearchNew::ConnectSignals()
 
     QObject::connect(ui_Button_RandomVerse, QOverload<bool>::of(&QPushButton::clicked),
                      [=] { OnButtonRandomClicked(); });
+    QObject::connect(ui_randomVerseBrowser, QOverload<qbv::Location>::of(&SearchResultsBrowser::ReferenceClicked),
+                     [=] (qbv::Location loc) { emit OnResultReferenceClicked(loc); });
 }
 
 void TabSearchNew::OnSearchButtonClicked()

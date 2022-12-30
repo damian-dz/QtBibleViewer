@@ -50,6 +50,9 @@ private:
     TabDictionary *ui_TabDictionary;
     TabNotesNew *ui_TabNotes;
 
+    QList<QAction *> m_langActions;
+    QMap<QString, QString> m_languages;
+
     QMenu *ui_Menu_File;
     QAction *ui_Act_AddModule;
     QAction *ui_Act_ModuleInfo;
@@ -57,6 +60,10 @@ private:
     QAction *ui_Act_MySwordModule;
     QAction *ui_Act_TheWordModule;
     QAction *ui_Act_Exit;
+
+    QMenu *ui_Menu_Options;
+    QAction *ui_Act_Preferences;
+    QMenu *ui_Menu_Language;
 
     QLabel *ui_Label_Status;
 
@@ -73,10 +80,15 @@ private:
     void SetUiTexts();
     void ConnectSingals();
 
+    void SetLanguage(const QString &lang);
+
     void OnOpenModule();
     void OnModuleInfo();
     void OnImportMySwordModule();
     void OnImportTheWordModule();
+
+    void OnPreferences();
+    void OnLanguage();
 
     void OnGoToVerseRequested(const QString &name, qbv::Location loc, bool changeVerse2);
     void OnAddNoteRequested(qbv::Location loc);

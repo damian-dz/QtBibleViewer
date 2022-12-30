@@ -148,3 +148,8 @@ void TabBibleNew::HighlightBlock(int browserIdx, int blockIdx)
 {
     m_passageBrowsers[browserIdx]->HiglightBlock(blockIdx);
 }
+
+void TabBibleNew::ReloadBookNames()
+{
+    ui_NavPanel->ReloadBookNames();
+}

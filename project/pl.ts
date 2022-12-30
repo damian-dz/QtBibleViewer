@@ -5,12 +5,12 @@
     <name>BibleModuleTabWidget</name>
     <message>
         <source>Confirm Removal</source>
-        <translation type="unfinished">Potwierdź usunięcie</translation>
+        <translation type="obsolete">Potwierdź usunięcie</translation>
     </message>
     <message>
         <source>Are you sure you want to remove this module?
 It will not be visible unless you re-add it manually.</source>
-        <translation type="unfinished">Czy jesteś pewien, że chcesz usunąć ten moduł?
+        <translation type="obsolete">Czy jesteś pewien, że chcesz usunąć ten moduł?
 Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
 </context>
@@ -18,66 +18,596 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <name>BibleNavigationPanel</name>
     <message>
         <source>Book chapter:from-to (eg. Gen 3:1-4)</source>
-        <translation>Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
+        <translation type="vanished">Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
     </message>
     <message>
         <source>Book:</source>
-        <translation>Księga:</translation>
+        <translation type="vanished">Księga:</translation>
     </message>
     <message>
         <source>Chapter:</source>
-        <translation>Rozdział:</translation>
+        <translation type="vanished">Rozdział:</translation>
     </message>
     <message>
         <source>Verses:</source>
-        <translation>Wersety:</translation>
+        <translation type="vanished">Wersety:</translation>
     </message>
     <message>
         <source>Random</source>
-        <translation>Losowy</translation>
+        <translation type="vanished">Losowy</translation>
     </message>
     <message>
         <source>Go to a random chapter.</source>
-        <translation>Przejdź do losowego rozdziału.</translation>
+        <translation type="vanished">Przejdź do losowego rozdziału.</translation>
     </message>
     <message>
         <source>Go to the previous chapter.</source>
-        <translation>Przejdź do poprzedniego rozdziału.</translation>
+        <translation type="vanished">Przejdź do poprzedniego rozdziału.</translation>
     </message>
     <message>
         <source>Go to the next chapter.</source>
-        <translation>Przejdź do następnego rozdziału.</translation>
+        <translation type="vanished">Przejdź do następnego rozdziału.</translation>
     </message>
 </context>
 <context>
     <name>BiblePassageBrowser</name>
     <message>
-        <source>Not found.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopiuj</translation>
+        <translation type="obsolete">Kopiuj</translation>
     </message>
     <message>
         <source>Copy with Reference</source>
-        <translation type="unfinished">Kopiuj z odnośnikiem</translation>
+        <translation type="obsolete">Kopiuj z odnośnikiem</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished">Zaznacz wszystko</translation>
+        <translation type="obsolete">Zaznacz wszystko</translation>
     </message>
     <message>
         <source>Add Verse </source>
-        <translation type="unfinished">Dodaj Werset </translation>
+        <translation type="obsolete">Dodaj Werset </translation>
     </message>
     <message>
         <source> to Favorites</source>
-        <translation type="unfinished"> do Ulubionych</translation>
+        <translation type="obsolete"> do Ulubionych</translation>
     </message>
     <message>
         <source>Add Verses </source>
-        <translation type="unfinished">Dodaj wersety </translation>
+        <translation type="obsolete">Dodaj wersety </translation>
+    </message>
+</context>
+<context>
+    <name>CrossReferenceBox</name>
+    <message>
+        <source>Cross-References:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DatabaseService</name>
+    <message>
+        <source>Genesis</source>
+        <translation type="vanished">Rodzaju</translation>
+    </message>
+    <message>
+        <source>Exodus</source>
+        <translation type="vanished">Wyjścia</translation>
+    </message>
+    <message>
+        <source>Leviticus</source>
+        <translation type="vanished">Kapłańska</translation>
+    </message>
+    <message>
+        <source>Numbers</source>
+        <translation type="vanished">Liczb</translation>
+    </message>
+    <message>
+        <source>Deuteronomy</source>
+        <translation type="vanished">Powtórzonego Prawa</translation>
+    </message>
+    <message>
+        <source>Joshua</source>
+        <translation type="vanished">Jozuego</translation>
+    </message>
+    <message>
+        <source>Judges</source>
+        <translation type="vanished">Sędziów</translation>
+    </message>
+    <message>
+        <source>Ruth</source>
+        <translation type="vanished">Rut</translation>
+    </message>
+    <message>
+        <source>1 Samuel</source>
+        <translation type="vanished">1 Samuela</translation>
+    </message>
+    <message>
+        <source>2 Samuel</source>
+        <translation type="vanished">2 Samuela</translation>
+    </message>
+    <message>
+        <source>1 Kings</source>
+        <translation type="vanished">1 Królów</translation>
+    </message>
+    <message>
+        <source>2 Kings</source>
+        <translation type="vanished">2 Królów</translation>
+    </message>
+    <message>
+        <source>1 Chronicles</source>
+        <translation type="vanished">1 Kronik</translation>
+    </message>
+    <message>
+        <source>2 Chronicles</source>
+        <translation type="vanished">2 Kronik</translation>
+    </message>
+    <message>
+        <source>Ezra</source>
+        <translation type="vanished">Ezdrasza</translation>
+    </message>
+    <message>
+        <source>Nehemiah</source>
+        <translation type="vanished">Nehemiasza</translation>
+    </message>
+    <message>
+        <source>Esther</source>
+        <translation type="vanished">Estery</translation>
+    </message>
+    <message>
+        <source>Job</source>
+        <translation type="vanished">Hioba</translation>
+    </message>
+    <message>
+        <source>Psalms</source>
+        <translation type="vanished">Psalmów</translation>
+    </message>
+    <message>
+        <source>Proverbs</source>
+        <translation type="vanished">Przysłów</translation>
+    </message>
+    <message>
+        <source>Ecclesiastes</source>
+        <translation type="vanished">Kaznodziei</translation>
+    </message>
+    <message>
+        <source>Song of Solomon</source>
+        <translation type="vanished">Pieśń nad Pieśniami</translation>
+    </message>
+    <message>
+        <source>Isaiah</source>
+        <translation type="vanished">Izajasza</translation>
+    </message>
+    <message>
+        <source>Jeremiah</source>
+        <translation type="vanished">Jeremiasza</translation>
+    </message>
+    <message>
+        <source>Lamentations</source>
+        <translation type="vanished">Lamentacji</translation>
+    </message>
+    <message>
+        <source>Ezekiel</source>
+        <translation type="vanished">Ezechiela</translation>
+    </message>
+    <message>
+        <source>Daniel</source>
+        <translation type="vanished">Daniela</translation>
+    </message>
+    <message>
+        <source>Hosea</source>
+        <translation type="vanished">Ozeasza</translation>
+    </message>
+    <message>
+        <source>Joel</source>
+        <translation type="vanished">Joela</translation>
+    </message>
+    <message>
+        <source>Amos</source>
+        <translation type="vanished">Amosa</translation>
+    </message>
+    <message>
+        <source>Obadiah</source>
+        <translation type="vanished">Abdiasza</translation>
+    </message>
+    <message>
+        <source>Jonah</source>
+        <translation type="vanished">Jonasza</translation>
+    </message>
+    <message>
+        <source>Micah</source>
+        <translation type="vanished">Micheasza</translation>
+    </message>
+    <message>
+        <source>Nahum</source>
+        <translation type="vanished">Nahuma</translation>
+    </message>
+    <message>
+        <source>Habakkuk</source>
+        <translation type="vanished">Habakuka</translation>
+    </message>
+    <message>
+        <source>Zephaniah</source>
+        <translation type="vanished">Sofoniasza</translation>
+    </message>
+    <message>
+        <source>Haggai</source>
+        <translation type="vanished">Aggeusza</translation>
+    </message>
+    <message>
+        <source>Zechariah</source>
+        <translation type="vanished">Zachariasza</translation>
+    </message>
+    <message>
+        <source>Malachi</source>
+        <translation type="vanished">Malachiasza</translation>
+    </message>
+    <message>
+        <source>Matthew</source>
+        <translation type="vanished">Mateusza</translation>
+    </message>
+    <message>
+        <source>Mark</source>
+        <translation type="vanished">Marka</translation>
+    </message>
+    <message>
+        <source>Luke</source>
+        <translation type="vanished">Łukasza</translation>
+    </message>
+    <message>
+        <source>John</source>
+        <translation type="vanished">Jana</translation>
+    </message>
+    <message>
+        <source>Acts</source>
+        <translation type="vanished">Dzieje</translation>
+    </message>
+    <message>
+        <source>Romans</source>
+        <translation type="vanished">Rzymian</translation>
+    </message>
+    <message>
+        <source>1 Corinthians</source>
+        <translation type="vanished">1 Koryntian</translation>
+    </message>
+    <message>
+        <source>2 Corinthians</source>
+        <translation type="vanished">2 Koryntian</translation>
+    </message>
+    <message>
+        <source>Galatians</source>
+        <translation type="vanished">Galatów</translation>
+    </message>
+    <message>
+        <source>Ephesians</source>
+        <translation type="vanished">Efezjan</translation>
+    </message>
+    <message>
+        <source>Philippians</source>
+        <translation type="vanished">Filipian</translation>
+    </message>
+    <message>
+        <source>Colossians</source>
+        <translation type="vanished">Kolosan</translation>
+    </message>
+    <message>
+        <source>1 Thessalonians</source>
+        <translation type="vanished">1 Tesaloniczan</translation>
+    </message>
+    <message>
+        <source>2 Thessalonians</source>
+        <translation type="vanished">2 Tesaloniczan</translation>
+    </message>
+    <message>
+        <source>1 Timothy</source>
+        <translation type="vanished">1 Tymoteusza</translation>
+    </message>
+    <message>
+        <source>2 Timothy</source>
+        <translation type="vanished">2 Tymoteusza</translation>
+    </message>
+    <message>
+        <source>Titus</source>
+        <translation type="vanished">Tytusa</translation>
+    </message>
+    <message>
+        <source>Philemon</source>
+        <translation type="vanished">Filemona</translation>
+    </message>
+    <message>
+        <source>Hebrews</source>
+        <translation type="vanished">Hebrajczyków</translation>
+    </message>
+    <message>
+        <source>James</source>
+        <translation type="vanished">Jakuba</translation>
+    </message>
+    <message>
+        <source>1 Peter</source>
+        <translation type="vanished">1 Piotra</translation>
+    </message>
+    <message>
+        <source>2 Peter</source>
+        <translation type="vanished">2 Piotra</translation>
+    </message>
+    <message>
+        <source>1 John</source>
+        <translation type="vanished">1 Jana</translation>
+    </message>
+    <message>
+        <source>2 John</source>
+        <translation type="vanished">2 Jana</translation>
+    </message>
+    <message>
+        <source>3 John</source>
+        <translation type="vanished">3 Jana</translation>
+    </message>
+    <message>
+        <source>Jude</source>
+        <translation type="vanished">Judy</translation>
+    </message>
+    <message>
+        <source>Revelation</source>
+        <translation type="vanished">Apokalipsa</translation>
+    </message>
+    <message>
+        <source>Gen</source>
+        <translation type="vanished">Rdz</translation>
+    </message>
+    <message>
+        <source>Exo</source>
+        <translation type="vanished">Wj</translation>
+    </message>
+    <message>
+        <source>Lev</source>
+        <translation type="vanished">Kpł</translation>
+    </message>
+    <message>
+        <source>Num</source>
+        <translation type="vanished">Lb</translation>
+    </message>
+    <message>
+        <source>Deu</source>
+        <translation type="vanished">Pwt</translation>
+    </message>
+    <message>
+        <source>Jos</source>
+        <translation type="vanished">Joz</translation>
+    </message>
+    <message>
+        <source>Jdg</source>
+        <translation type="vanished">Sdz</translation>
+    </message>
+    <message>
+        <source>Rut</source>
+        <translation type="vanished">Rt</translation>
+    </message>
+    <message>
+        <source>1Sa</source>
+        <translation type="vanished">1Sm</translation>
+    </message>
+    <message>
+        <source>2Sa</source>
+        <translation type="vanished">2Sm</translation>
+    </message>
+    <message>
+        <source>1Ki</source>
+        <translation type="vanished">1Krl</translation>
+    </message>
+    <message>
+        <source>2Ki</source>
+        <translation type="vanished">2Krl</translation>
+    </message>
+    <message>
+        <source>1Ch</source>
+        <translation type="vanished">1Krn</translation>
+    </message>
+    <message>
+        <source>2Ch</source>
+        <translation type="vanished">2Krn</translation>
+    </message>
+    <message>
+        <source>Ezr</source>
+        <translation type="vanished">Ezd</translation>
+    </message>
+    <message>
+        <source>Neh</source>
+        <translation type="vanished">Ne</translation>
+    </message>
+    <message>
+        <source>Est</source>
+        <translation type="vanished">Est</translation>
+    </message>
+    <message>
+        <source>Psa</source>
+        <translation type="vanished">Ps</translation>
+    </message>
+    <message>
+        <source>Pro</source>
+        <translation type="vanished">Prz</translation>
+    </message>
+    <message>
+        <source>Ecc</source>
+        <translation type="vanished">Koh</translation>
+    </message>
+    <message>
+        <source>Sol</source>
+        <translation type="vanished">Pnp</translation>
+    </message>
+    <message>
+        <source>Isa</source>
+        <translation type="vanished">Iz</translation>
+    </message>
+    <message>
+        <source>Jer</source>
+        <translation type="vanished">Jr</translation>
+    </message>
+    <message>
+        <source>Lam</source>
+        <translation type="vanished">Lm</translation>
+    </message>
+    <message>
+        <source>Eze</source>
+        <translation type="vanished">Ez</translation>
+    </message>
+    <message>
+        <source>Dan</source>
+        <translation type="vanished">Dn</translation>
+    </message>
+    <message>
+        <source>Hos</source>
+        <translation type="vanished">Oz</translation>
+    </message>
+    <message>
+        <source>Joe</source>
+        <translation type="vanished">Jl</translation>
+    </message>
+    <message>
+        <source>Amo</source>
+        <translation type="vanished">Am</translation>
+    </message>
+    <message>
+        <source>Oba</source>
+        <translation type="vanished">Ab</translation>
+    </message>
+    <message>
+        <source>Jon</source>
+        <translation type="vanished">Jon</translation>
+    </message>
+    <message>
+        <source>Mic</source>
+        <translation type="vanished">Mi</translation>
+    </message>
+    <message>
+        <source>Nah</source>
+        <translation type="vanished">Na</translation>
+    </message>
+    <message>
+        <source>Hab</source>
+        <translation type="vanished">Ha</translation>
+    </message>
+    <message>
+        <source>Zep</source>
+        <translation type="vanished">So</translation>
+    </message>
+    <message>
+        <source>Hag</source>
+        <translation type="vanished">Ag</translation>
+    </message>
+    <message>
+        <source>Zec</source>
+        <translation type="vanished">Za</translation>
+    </message>
+    <message>
+        <source>Mal</source>
+        <translation type="vanished">Ml</translation>
+    </message>
+    <message>
+        <source>Mat</source>
+        <translation type="vanished">Mt</translation>
+    </message>
+    <message>
+        <source>Mar</source>
+        <translation type="vanished">Mk</translation>
+    </message>
+    <message>
+        <source>Luk</source>
+        <translation type="vanished">Łk</translation>
+    </message>
+    <message>
+        <source>Joh</source>
+        <translation type="vanished">J</translation>
+    </message>
+    <message>
+        <source>Act</source>
+        <translation type="vanished">Dz</translation>
+    </message>
+    <message>
+        <source>Rom</source>
+        <translation type="vanished">Rz</translation>
+    </message>
+    <message>
+        <source>1Co</source>
+        <translation type="vanished">1Kor</translation>
+    </message>
+    <message>
+        <source>2Co</source>
+        <translation type="vanished">2Kor</translation>
+    </message>
+    <message>
+        <source>Gal</source>
+        <translation type="vanished">Ga</translation>
+    </message>
+    <message>
+        <source>Eph</source>
+        <translation type="vanished">Ef</translation>
+    </message>
+    <message>
+        <source>Phi</source>
+        <translation type="vanished">Flp</translation>
+    </message>
+    <message>
+        <source>Col</source>
+        <translation type="vanished">Kol</translation>
+    </message>
+    <message>
+        <source>1Th</source>
+        <translation type="vanished">1Tes</translation>
+    </message>
+    <message>
+        <source>2Th</source>
+        <translation type="vanished">2Tes</translation>
+    </message>
+    <message>
+        <source>1Ti</source>
+        <translation type="vanished">1Tm</translation>
+    </message>
+    <message>
+        <source>2Ti</source>
+        <translation type="vanished">2Tm</translation>
+    </message>
+    <message>
+        <source>Tit</source>
+        <translation type="vanished">Tt</translation>
+    </message>
+    <message>
+        <source>Phm</source>
+        <translation type="vanished">Flm</translation>
+    </message>
+    <message>
+        <source>Heb</source>
+        <translation type="vanished">Hbr</translation>
+    </message>
+    <message>
+        <source>Jam</source>
+        <translation type="vanished">Jk</translation>
+    </message>
+    <message>
+        <source>1Pe</source>
+        <translation type="vanished">1P</translation>
+    </message>
+    <message>
+        <source>2Pe</source>
+        <translation type="vanished">2P</translation>
+    </message>
+    <message>
+        <source>1Jo</source>
+        <translation type="vanished">1J</translation>
+    </message>
+    <message>
+        <source>2Jo</source>
+        <translation type="vanished">2J</translation>
+    </message>
+    <message>
+        <source>3Jo</source>
+        <translation type="vanished">3J</translation>
+    </message>
+    <message>
+        <source>Jud</source>
+        <translation type="vanished">Jud</translation>
+    </message>
+    <message>
+        <source>Rev</source>
+        <translation type="vanished">Ap</translation>
     </message>
 </context>
 <context>
@@ -291,6 +821,14 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <message>
         <source>Genesis 1:1</source>
         <translation>Rodzaju 1:1</translation>
+    </message>
+    <message>
+        <source>Before:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>After:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -742,7 +1280,7 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Favorites</source>
-        <translation>Ulubione</translation>
+        <translation type="vanished">Ulubione</translation>
     </message>
     <message>
         <source>Dictionary</source>
@@ -1121,24 +1659,20 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add Bible Module</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Dodaj moduł Biblii</translation>
     </message>
     <message>
         <source>Import...</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Importuj...</translation>
     </message>
     <message>
         <source>MySword Module</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Moduł MySword</translation>
     </message>
     <message>
         <source>TheWord Module</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Moduł TheWord</translation>
     </message>
     <message>
         <source>Gen</source>
@@ -1400,53 +1934,249 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
         <source>Rev</source>
         <translation>Ap</translation>
     </message>
+    <message>
+        <source>Could not open the cross-reference data file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The directory </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation type="unfinished">Notatki</translation>
+    </message>
+</context>
+<context>
+    <name>MainWindowNew</name>
+    <message>
+        <source>Bible</source>
+        <translation>Biblia</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Szukaj</translation>
+    </message>
+    <message>
+        <source>Compare</source>
+        <translation>Porównaj</translation>
+    </message>
+    <message>
+        <source>Dictionary</source>
+        <translation>Słownik</translation>
+    </message>
+    <message>
+        <source>Notes</source>
+        <translation>Notatki</translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation>Plik</translation>
+    </message>
+    <message>
+        <source>Add Bible Module</source>
+        <translation>Dodaj moduł Biblii</translation>
+    </message>
+    <message>
+        <source>Module Info</source>
+        <translation>Informacje o module</translation>
+    </message>
+    <message>
+        <source>Import...</source>
+        <translation>Importuj...</translation>
+    </message>
+    <message>
+        <source>MySword Module</source>
+        <translation>Moduł MySword</translation>
+    </message>
+    <message>
+        <source>TheWord Module</source>
+        <translation>Moduł TheWord</translation>
+    </message>
+    <message>
+        <source>Exit</source>
+        <translation>Wyjście</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Opcje</translation>
+    </message>
+    <message>
+        <source>Preferences</source>
+        <translation>Preferencje</translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation>Język</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Błąd</translation>
+    </message>
+    <message>
+        <source>Specified index not found.</source>
+        <translation>Nie znaleziono wybranego indeksu.</translation>
+    </message>
 </context>
 <context>
     <name>ModuleTabWidget</name>
     <message>
         <source>Confirm Removal</source>
-        <translation type="obsolete">Potwierdź usunięcie</translation>
+        <translation>Potwierdź usunięcie</translation>
     </message>
     <message>
         <source>Are you sure you want to remove this module?
 It will not be visible unless you re-add it manually.</source>
-        <translation type="obsolete">Czy jesteś pewien, że chcesz usunąć ten moduł?
+        <translation>Czy jesteś pewien, że chcesz usunąć ten moduł?
 Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
+    </message>
+</context>
+<context>
+    <name>NavPanel</name>
+    <message>
+        <source>Book chapter:from-to (eg. Gen 3:1-4)</source>
+        <translation>Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
+    </message>
+    <message>
+        <source>Book:</source>
+        <translation>Księga:</translation>
+    </message>
+    <message>
+        <source>Chapter:</source>
+        <translation>Rozdział:</translation>
+    </message>
+    <message>
+        <source>Verses:</source>
+        <translation>Wersety:</translation>
+    </message>
+    <message>
+        <source>Random</source>
+        <translation>Losowy</translation>
     </message>
 </context>
 <context>
     <name>NavigationPanel</name>
     <message>
         <source>Book chapter:from-to (eg. Gen 3:1-4)</source>
-        <translation type="vanished">Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
+        <translation>Księga rozdział:od-do (np. Rdz 3:1-4)</translation>
     </message>
     <message>
         <source>Book:</source>
-        <translation type="vanished">Księga:</translation>
+        <translation>Księga:</translation>
     </message>
     <message>
         <source>Chapter:</source>
-        <translation type="vanished">Rozdział:</translation>
+        <translation>Rozdział:</translation>
     </message>
     <message>
         <source>Verses:</source>
-        <translation type="vanished">Wersety:</translation>
+        <translation>Wersety:</translation>
     </message>
     <message>
         <source>Random</source>
-        <translation type="vanished">Losowy</translation>
+        <translation>Losowy</translation>
     </message>
     <message>
         <source>Go to a random chapter.</source>
-        <translation type="vanished">Przejdź do losowego rozdziału.</translation>
+        <translation>Przejdź do losowego rozdziału.</translation>
     </message>
     <message>
         <source>Go to the previous chapter.</source>
-        <translation type="vanished">Przejdź do poprzedniego rozdziału.</translation>
+        <translation>Przejdź do poprzedniego rozdziału.</translation>
     </message>
     <message>
         <source>Go to the next chapter.</source>
-        <translation type="vanished">Przejdź do następnego rozdziału.</translation>
+        <translation>Przejdź do następnego rozdziału.</translation>
+    </message>
+</context>
+<context>
+    <name>PassageBrowser</name>
+    <message>
+        <source>Not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not found in this module.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Highlighted Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy with Reference</source>
+        <translation type="unfinished">Kopiuj z odnośnikiem</translation>
+    </message>
+    <message>
+        <source>Copy with Reference as TeX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy with Reference as HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation type="unfinished">Zaznacz wszystko</translation>
+    </message>
+    <message>
+        <source>Show Cross-References for Verse </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Verse </source>
+        <translation type="unfinished">Dodaj Werset </translation>
+    </message>
+    <message>
+        <source> to Favorites</source>
+        <translation type="unfinished"> do Ulubionych</translation>
+    </message>
+    <message>
+        <source>Add Verses </source>
+        <translation type="unfinished">Dodaj wersety </translation>
+    </message>
+</context>
+<context>
+    <name>PassageBrowserNew</name>
+    <message>
+        <source>Not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Selected Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy with Reference</source>
+        <translation type="unfinished">Kopiuj z odnośnikiem</translation>
+    </message>
+    <message>
+        <source>Copy as TeX with Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy as HTML with Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Unformatted with Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Highlight</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select All</source>
+        <translation type="unfinished">Zaznacz wszystko</translation>
+    </message>
+    <message>
+        <source>Add Note to Verse </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Note to Verses </source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1577,6 +2307,160 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
 </context>
 <context>
+    <name>SearchOptionsPanelNew</name>
+    <message>
+        <source>Search Options</source>
+        <translation type="unfinished">Opcje wyszukiwania</translation>
+    </message>
+    <message>
+        <source>Entire Bible</source>
+        <translation type="unfinished">Cała Biblia</translation>
+    </message>
+    <message>
+        <source>Old Testament</source>
+        <translation type="unfinished">Stary Testament</translation>
+    </message>
+    <message>
+        <source>Pentateuch</source>
+        <translation type="unfinished">Pięcioksiąg</translation>
+    </message>
+    <message>
+        <source>Historical Books</source>
+        <translation type="unfinished">Księgi historyczne</translation>
+    </message>
+    <message>
+        <source>Poetical Books</source>
+        <translation type="unfinished">Księgi poetyckie</translation>
+    </message>
+    <message>
+        <source>Major Prophets</source>
+        <translation type="unfinished">Prorocy więksi</translation>
+    </message>
+    <message>
+        <source>Minor Prophets</source>
+        <translation type="unfinished">Prorocy mniejsi</translation>
+    </message>
+    <message>
+        <source>New Testament</source>
+        <translation type="unfinished">Nowy Testament</translation>
+    </message>
+    <message>
+        <source>Gospels &amp; Acts</source>
+        <translation type="unfinished">Ewangelie i Dzieje</translation>
+    </message>
+    <message>
+        <source>Pauline Epistles</source>
+        <translation type="unfinished">Listy Pawła</translation>
+    </message>
+    <message>
+        <source>General Epistles &amp; Revelation</source>
+        <translation type="unfinished">Listy ogólne i Objawienie</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation type="unfinished">Dowolny</translation>
+    </message>
+    <message>
+        <source>Translation:</source>
+        <translation type="unfinished">Przekład:</translation>
+    </message>
+    <message>
+        <source>Range:</source>
+        <translation type="unfinished">Zakres:</translation>
+    </message>
+    <message>
+        <source>Limit the search to a specific Bible section.</source>
+        <translation type="unfinished">Ogranicz wyszukiwanie do określonej części Biblii.</translation>
+    </message>
+    <message>
+        <source>From:</source>
+        <translation type="unfinished">Od:</translation>
+    </message>
+    <message>
+        <source>To:</source>
+        <translation type="unfinished">Do:</translation>
+    </message>
+    <message>
+        <source>Results per Page</source>
+        <translation type="unfinished">wyników na stronę</translation>
+    </message>
+    <message>
+        <source>Case-Sensitive</source>
+        <translation type="unfinished">Rozróżniaj wielkość liter</translation>
+    </message>
+    <message>
+        <source>Make the search case-sensitive.</source>
+        <translation type="unfinished">Ignoruj wielkość liter przy wyszukiwaniu.</translation>
+    </message>
+    <message>
+        <source>Whole Words Only</source>
+        <translation type="unfinished">Tylko całe słowa</translation>
+    </message>
+    <message>
+        <source>Ignore word fragments.</source>
+        <translation type="unfinished">Pomiń fragmenty słów.</translation>
+    </message>
+    <message>
+        <source>Exact Phrase</source>
+        <translation type="unfinished">Dokładna fraza</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain the exact sequence of characters.</source>
+        <translation type="unfinished">Szukaj wersetów zawierających dokładny ciąg znaków.</translation>
+    </message>
+    <message>
+        <source>All of the Words</source>
+        <translation type="unfinished">Wszystkie ze słów</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain all of the words (in any order).</source>
+        <translation type="unfinished">Szukaj wersetów zawierających wszystkie ze słów (w dowolnej kolejności).</translation>
+    </message>
+    <message>
+        <source>Any of the Words</source>
+        <translation type="unfinished">Dowolne ze słów</translation>
+    </message>
+    <message>
+        <source>Look for verses that contain at least one of the words.</source>
+        <translation type="unfinished">Szukaj wersetów zawierających co najmniej jedno ze słów.</translation>
+    </message>
+    <message>
+        <source>By Strong&apos;s Number</source>
+        <translation type="unfinished">Po numerze Stronga</translation>
+    </message>
+    <message>
+        <source>Look for verses containing the specified Strong&apos;s Number (if available).</source>
+        <translation type="unfinished">Szukaj wersetów zawierających określony numer Stronga (jeśli są dostępne).</translation>
+    </message>
+</context>
+<context>
+    <name>SearchResultArea</name>
+    <message>
+        <source>Enter a Word or a Phrase:</source>
+        <translation type="unfinished">Wpisz słowo lub frazę:</translation>
+    </message>
+    <message>
+        <source>Results:</source>
+        <translation type="unfinished">Wyniki:</translation>
+    </message>
+    <message>
+        <source>Go to Page:</source>
+        <translation type="unfinished">Idź do strony:</translation>
+    </message>
+    <message>
+        <source>of</source>
+        <translation type="unfinished">z</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished">Szukaj</translation>
+    </message>
+    <message>
+        <source>Random Verse</source>
+        <translation type="unfinished">Losowy werset</translation>
+    </message>
+</context>
+<context>
     <name>SearchResultsArea</name>
     <message>
         <source>Enter a Word or a Phrase:</source>
@@ -1588,11 +2472,11 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Go to Page:</source>
-        <translation>Idź do strony:</translation>
+        <translation type="vanished">Idź do strony:</translation>
     </message>
     <message>
         <source>of</source>
-        <translation>z</translation>
+        <translation type="vanished">z</translation>
     </message>
     <message>
         <source>Search</source>
@@ -1600,7 +2484,99 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     </message>
     <message>
         <source>Random Verse</source>
-        <translation>Losowy werset</translation>
+        <translation type="vanished">Losowy werset</translation>
+    </message>
+</context>
+<context>
+    <name>TabNotes</name>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Zapisz</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Usuń</translation>
+    </message>
+    <message>
+        <source>References:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Passage:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TabNotesNew</name>
+    <message>
+        <source>References:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Passage:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Zapisz</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Usuń</translation>
+    </message>
+</context>
+<context>
+    <name>TabSearch</name>
+    <message>
+        <source>The search took %1 s. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of verses found: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TabSearchNew</name>
+    <message>
+        <source>Enter a Word or a Phrase:</source>
+        <translation type="unfinished">Wpisz słowo lub frazę:</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished">Szukaj</translation>
+    </message>
+    <message>
+        <source>Results:</source>
+        <translation type="unfinished">Wyniki:</translation>
+    </message>
+    <message>
+        <source>Go to Page:</source>
+        <translation type="unfinished">Idź do strony:</translation>
+    </message>
+    <message>
+        <source>of</source>
+        <translation type="unfinished">z</translation>
+    </message>
+    <message>
+        <source>Random Verse</source>
+        <translation type="unfinished">Losowy werset</translation>
+    </message>
+    <message>
+        <source>The search took %1 s. </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of verses found: %1.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2249,6 +3225,533 @@ Nie będzie widoczny, chyba że ponownie dodasz go ręcznie.</translation>
     <message>
         <source>Rev</source>
         <translation type="vanished">Ap</translation>
+    </message>
+</context>
+<context>
+    <name>qbv::DatabaseService</name>
+    <message>
+        <source>Genesis</source>
+        <translation>Rodzaju</translation>
+    </message>
+    <message>
+        <source>Exodus</source>
+        <translation>Wyjścia</translation>
+    </message>
+    <message>
+        <source>Leviticus</source>
+        <translation>Kapłańska</translation>
+    </message>
+    <message>
+        <source>Numbers</source>
+        <translation>Liczb</translation>
+    </message>
+    <message>
+        <source>Deuteronomy</source>
+        <translation>Powtórzonego Prawa</translation>
+    </message>
+    <message>
+        <source>Joshua</source>
+        <translation>Jozuego</translation>
+    </message>
+    <message>
+        <source>Judges</source>
+        <translation>Sędziów</translation>
+    </message>
+    <message>
+        <source>Ruth</source>
+        <translation>Rut</translation>
+    </message>
+    <message>
+        <source>1 Samuel</source>
+        <translation>1 Samuela</translation>
+    </message>
+    <message>
+        <source>2 Samuel</source>
+        <translation>2 Samuela</translation>
+    </message>
+    <message>
+        <source>1 Kings</source>
+        <translation>1 Królów</translation>
+    </message>
+    <message>
+        <source>2 Kings</source>
+        <translation>2 Królów</translation>
+    </message>
+    <message>
+        <source>1 Chronicles</source>
+        <translation>1 Kronik</translation>
+    </message>
+    <message>
+        <source>2 Chronicles</source>
+        <translation>2 Kronik</translation>
+    </message>
+    <message>
+        <source>Ezra</source>
+        <translation>Ezdrasza</translation>
+    </message>
+    <message>
+        <source>Nehemiah</source>
+        <translation>Nehemiasza</translation>
+    </message>
+    <message>
+        <source>Esther</source>
+        <translation>Estery</translation>
+    </message>
+    <message>
+        <source>Job</source>
+        <translation>Hioba</translation>
+    </message>
+    <message>
+        <source>Psalms</source>
+        <translation>Psalmów</translation>
+    </message>
+    <message>
+        <source>Proverbs</source>
+        <translation>Przysłów</translation>
+    </message>
+    <message>
+        <source>Ecclesiastes</source>
+        <translation>Kaznodziei</translation>
+    </message>
+    <message>
+        <source>Song of Solomon</source>
+        <translation>Pieśń nad Pieśniami</translation>
+    </message>
+    <message>
+        <source>Isaiah</source>
+        <translation>Izajasza</translation>
+    </message>
+    <message>
+        <source>Jeremiah</source>
+        <translation>Jeremiasza</translation>
+    </message>
+    <message>
+        <source>Lamentations</source>
+        <translation>Lamentacji</translation>
+    </message>
+    <message>
+        <source>Ezekiel</source>
+        <translation>Ezechiela</translation>
+    </message>
+    <message>
+        <source>Daniel</source>
+        <translation>Daniela</translation>
+    </message>
+    <message>
+        <source>Hosea</source>
+        <translation>Ozeasza</translation>
+    </message>
+    <message>
+        <source>Joel</source>
+        <translation>Joela</translation>
+    </message>
+    <message>
+        <source>Amos</source>
+        <translation>Amosa</translation>
+    </message>
+    <message>
+        <source>Obadiah</source>
+        <translation>Abdiasza</translation>
+    </message>
+    <message>
+        <source>Jonah</source>
+        <translation>Jonasza</translation>
+    </message>
+    <message>
+        <source>Micah</source>
+        <translation>Micheasza</translation>
+    </message>
+    <message>
+        <source>Nahum</source>
+        <translation>Nahuma</translation>
+    </message>
+    <message>
+        <source>Habakkuk</source>
+        <translation>Habakuka</translation>
+    </message>
+    <message>
+        <source>Zephaniah</source>
+        <translation>Sofoniasza</translation>
+    </message>
+    <message>
+        <source>Haggai</source>
+        <translation>Aggeusza</translation>
+    </message>
+    <message>
+        <source>Zechariah</source>
+        <translation>Zachariasza</translation>
+    </message>
+    <message>
+        <source>Malachi</source>
+        <translation>Malachiasza</translation>
+    </message>
+    <message>
+        <source>Matthew</source>
+        <translation>Mateusza</translation>
+    </message>
+    <message>
+        <source>Mark</source>
+        <translation>Marka</translation>
+    </message>
+    <message>
+        <source>Luke</source>
+        <translation>Łukasza</translation>
+    </message>
+    <message>
+        <source>John</source>
+        <translation>Jana</translation>
+    </message>
+    <message>
+        <source>Acts</source>
+        <translation>Dzieje</translation>
+    </message>
+    <message>
+        <source>Romans</source>
+        <translation>Rzymian</translation>
+    </message>
+    <message>
+        <source>1 Corinthians</source>
+        <translation>1 Koryntian</translation>
+    </message>
+    <message>
+        <source>2 Corinthians</source>
+        <translation>2 Koryntian</translation>
+    </message>
+    <message>
+        <source>Galatians</source>
+        <translation>Galatów</translation>
+    </message>
+    <message>
+        <source>Ephesians</source>
+        <translation>Efezjan</translation>
+    </message>
+    <message>
+        <source>Philippians</source>
+        <translation>Filipian</translation>
+    </message>
+    <message>
+        <source>Colossians</source>
+        <translation>Kolosan</translation>
+    </message>
+    <message>
+        <source>1 Thessalonians</source>
+        <translation>1 Tesaloniczan</translation>
+    </message>
+    <message>
+        <source>2 Thessalonians</source>
+        <translation>2 Tesaloniczan</translation>
+    </message>
+    <message>
+        <source>1 Timothy</source>
+        <translation>1 Tymoteusza</translation>
+    </message>
+    <message>
+        <source>2 Timothy</source>
+        <translation>2 Tymoteusza</translation>
+    </message>
+    <message>
+        <source>Titus</source>
+        <translation>Tytusa</translation>
+    </message>
+    <message>
+        <source>Philemon</source>
+        <translation>Filemona</translation>
+    </message>
+    <message>
+        <source>Hebrews</source>
+        <translation>Hebrajczyków</translation>
+    </message>
+    <message>
+        <source>James</source>
+        <translation>Jakuba</translation>
+    </message>
+    <message>
+        <source>1 Peter</source>
+        <translation>1 Piotra</translation>
+    </message>
+    <message>
+        <source>2 Peter</source>
+        <translation>2 Piotra</translation>
+    </message>
+    <message>
+        <source>1 John</source>
+        <translation>1 Jana</translation>
+    </message>
+    <message>
+        <source>2 John</source>
+        <translation>2 Jana</translation>
+    </message>
+    <message>
+        <source>3 John</source>
+        <translation>3 Jana</translation>
+    </message>
+    <message>
+        <source>Jude</source>
+        <translation>Judy</translation>
+    </message>
+    <message>
+        <source>Revelation</source>
+        <translation>Apokalipsa</translation>
+    </message>
+    <message>
+        <source>Gen</source>
+        <translation>Rdz</translation>
+    </message>
+    <message>
+        <source>Exo</source>
+        <translation>Wj</translation>
+    </message>
+    <message>
+        <source>Lev</source>
+        <translation>Kpł</translation>
+    </message>
+    <message>
+        <source>Num</source>
+        <translation>Lb</translation>
+    </message>
+    <message>
+        <source>Deu</source>
+        <translation>Pwt</translation>
+    </message>
+    <message>
+        <source>Jos</source>
+        <translation>Joz</translation>
+    </message>
+    <message>
+        <source>Jdg</source>
+        <translation>Sdz</translation>
+    </message>
+    <message>
+        <source>Rut</source>
+        <translation>Rt</translation>
+    </message>
+    <message>
+        <source>1Sa</source>
+        <translation>1Sm</translation>
+    </message>
+    <message>
+        <source>2Sa</source>
+        <translation>2Sm</translation>
+    </message>
+    <message>
+        <source>1Ki</source>
+        <translation>1Krl</translation>
+    </message>
+    <message>
+        <source>2Ki</source>
+        <translation>2Krl</translation>
+    </message>
+    <message>
+        <source>1Ch</source>
+        <translation>1Krn</translation>
+    </message>
+    <message>
+        <source>2Ch</source>
+        <translation>2Krn</translation>
+    </message>
+    <message>
+        <source>Ezr</source>
+        <translation>Ezd</translation>
+    </message>
+    <message>
+        <source>Neh</source>
+        <translation>Ne</translation>
+    </message>
+    <message>
+        <source>Est</source>
+        <translation>Est</translation>
+    </message>
+    <message>
+        <source>Psa</source>
+        <translation>Ps</translation>
+    </message>
+    <message>
+        <source>Pro</source>
+        <translation>Prz</translation>
+    </message>
+    <message>
+        <source>Ecc</source>
+        <translation>Koh</translation>
+    </message>
+    <message>
+        <source>Sol</source>
+        <translation>Pnp</translation>
+    </message>
+    <message>
+        <source>Isa</source>
+        <translation>Iz</translation>
+    </message>
+    <message>
+        <source>Jer</source>
+        <translation>Jr</translation>
+    </message>
+    <message>
+        <source>Lam</source>
+        <translation>Lm</translation>
+    </message>
+    <message>
+        <source>Eze</source>
+        <translation>Ez</translation>
+    </message>
+    <message>
+        <source>Dan</source>
+        <translation>Dn</translation>
+    </message>
+    <message>
+        <source>Hos</source>
+        <translation>Oz</translation>
+    </message>
+    <message>
+        <source>Joe</source>
+        <translation>Jl</translation>
+    </message>
+    <message>
+        <source>Amo</source>
+        <translation>Am</translation>
+    </message>
+    <message>
+        <source>Oba</source>
+        <translation>Ab</translation>
+    </message>
+    <message>
+        <source>Jon</source>
+        <translation>Jon</translation>
+    </message>
+    <message>
+        <source>Mic</source>
+        <translation>Mi</translation>
+    </message>
+    <message>
+        <source>Nah</source>
+        <translation>Na</translation>
+    </message>
+    <message>
+        <source>Hab</source>
+        <translation>Ha</translation>
+    </message>
+    <message>
+        <source>Zep</source>
+        <translation>So</translation>
+    </message>
+    <message>
+        <source>Hag</source>
+        <translation>Ag</translation>
+    </message>
+    <message>
+        <source>Zec</source>
+        <translation>Za</translation>
+    </message>
+    <message>
+        <source>Mal</source>
+        <translation>Ml</translation>
+    </message>
+    <message>
+        <source>Mat</source>
+        <translation>Mt</translation>
+    </message>
+    <message>
+        <source>Mar</source>
+        <translation>Mk</translation>
+    </message>
+    <message>
+        <source>Luk</source>
+        <translation>Łk</translation>
+    </message>
+    <message>
+        <source>Joh</source>
+        <translation>J</translation>
+    </message>
+    <message>
+        <source>Act</source>
+        <translation>Dz</translation>
+    </message>
+    <message>
+        <source>Rom</source>
+        <translation>Rz</translation>
+    </message>
+    <message>
+        <source>1Co</source>
+        <translation>1Kor</translation>
+    </message>
+    <message>
+        <source>2Co</source>
+        <translation>2Kor</translation>
+    </message>
+    <message>
+        <source>Gal</source>
+        <translation>Ga</translation>
+    </message>
+    <message>
+        <source>Eph</source>
+        <translation>Ef</translation>
+    </message>
+    <message>
+        <source>Phi</source>
+        <translation>Flp</translation>
+    </message>
+    <message>
+        <source>Col</source>
+        <translation>Kol</translation>
+    </message>
+    <message>
+        <source>1Th</source>
+        <translation>1Tes</translation>
+    </message>
+    <message>
+        <source>2Th</source>
+        <translation>2Tes</translation>
+    </message>
+    <message>
+        <source>1Ti</source>
+        <translation>1Tm</translation>
+    </message>
+    <message>
+        <source>2Ti</source>
+        <translation>2Tm</translation>
+    </message>
+    <message>
+        <source>Tit</source>
+        <translation>Tt</translation>
+    </message>
+    <message>
+        <source>Phm</source>
+        <translation>Flm</translation>
+    </message>
+    <message>
+        <source>Heb</source>
+        <translation>Hbr</translation>
+    </message>
+    <message>
+        <source>Jam</source>
+        <translation>Jk</translation>
+    </message>
+    <message>
+        <source>1Pe</source>
+        <translation>1P</translation>
+    </message>
+    <message>
+        <source>2Pe</source>
+        <translation>2P</translation>
+    </message>
+    <message>
+        <source>1Jo</source>
+        <translation>1J</translation>
+    </message>
+    <message>
+        <source>2Jo</source>
+        <translation>2J</translation>
+    </message>
+    <message>
+        <source>3Jo</source>
+        <translation>3J</translation>
+    </message>
+    <message>
+        <source>Jud</source>
+        <translation>Jud</translation>
+    </message>
+    <message>
+        <source>Rev</source>
+        <translation>Ap</translation>
     </message>
 </context>
 </TS>

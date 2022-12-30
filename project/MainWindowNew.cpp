@@ -11,7 +11,6 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
     m_pTsApp(&appTs),
     m_pTsQt(&qtTs),
     m_databaseService(m_dataDir, config)
-
 {
 
     ui_TabBible = new TabBibleNew(config, m_databaseService);
@@ -40,6 +39,11 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
     ConnectSingals();
     SetUiTexts();
 
+    m_languages.insert("English", "EN");
+    m_languages.insert("español", "ES");
+    m_languages.insert("polski", "PL");
+
+
     ui_TabBible->Initialize();
     ui_TabBible->SetTabIndexFromConfig();
     ui_TabBible->SetLocationFromConfig();
@@ -59,6 +63,16 @@ void MainWindowNew::CreateMenuBar()
     ui_Menu_File->addSeparator();
     ui_Act_Exit = ui_Menu_File->addAction(QIcon(ICON_EXIT), nullptr,
                                           this, &MainWindowNew::OnExit, QKeySequence("Ctrl+Q"));
+
+    ui_Menu_Options = menuBar()->addMenu(QString());
+    ui_Act_Preferences = ui_Menu_Options->addAction(QIcon(ICON_COGWHEEL), nullptr, this, &MainWindowNew::OnPreferences);
+    ui_Menu_Language = ui_Menu_Options->addMenu(QIcon(ICON_BUBBLE), QString());
+    QStringList languages = { "English", "español", "polski" };
+    for (const QString &language : languages) {
+        QAction *action = ui_Menu_Language->addAction(language, this, &MainWindowNew::OnLanguage);
+        action->setCheckable(true);
+        m_langActions.append(action);
+    }
 }
 
 void MainWindowNew::SetWindowGeometry()
@@ -87,6 +101,9 @@ void MainWindowNew::SetUiTexts()
     ui_Act_TheWordModule->setText(tr("TheWord Module"));
     ui_Act_Exit->setText(tr("Exit"));
 
+    ui_Menu_Options->setTitle(tr("Options"));
+    ui_Act_Preferences->setText(tr("Preferences"));
+    ui_Menu_Language->setTitle(tr("Language"));
 }
 
 void MainWindowNew::ConnectSingals()
@@ -103,6 +120,29 @@ void MainWindowNew::ConnectSingals()
 
     QObject::connect(ui_TabCompare, QOverload<QString, qbv::Location>::of(&TabCompareNew::BibleNameClicked),
                      [=] (QString name, qbv::Location loc) { OnGoToVerseRequested(name, loc, false); } );
+}
+
+void MainWindowNew::SetLanguage(const QString &lang)
+{
+    for (QAction *action : m_langActions) {
+        action->setChecked(action->text() == lang);
+    }
+    if (m_languages[lang] != m_pConfig->general.language) {
+        m_pConfig->general.language = m_languages[lang];
+        if (m_pConfig->general.language != "EN") {
+            m_pTsApp->load(m_pConfig->general.language.toLower(), m_dataDir % "Lang");
+            qApp->installTranslator(m_pTsApp);
+            m_pTsQt->load("qt_" + m_pConfig->general.language.toLower(), m_dataDir % "Lang");
+            qApp->installTranslator(m_pTsQt);
+        } else {
+            qApp->removeTranslator(m_pTsApp);
+            qApp->removeTranslator(m_pTsQt);
+        }
+       m_databaseService.PopulateBookNames();
+       m_databaseService.PopulateShortBookNames();
+       ui_TabBible->ReloadBookNames();
+       SetUiTexts();
+    }
 }
 
 void MainWindowNew::OnOpenModule()
@@ -128,6 +168,17 @@ void MainWindowNew::OnImportMySwordModule()
 void MainWindowNew::OnImportTheWordModule()
 {
 
+}
+
+void MainWindowNew::OnPreferences()
+{
+
+}
+
+void MainWindowNew::OnLanguage()
+{
+    const QString lang = qobject_cast<QAction *>(QObject::sender())->text();
+    SetLanguage(lang);
 }
 
 void MainWindowNew::OnGoToVerseRequested(const QString &name, qbv::Location loc, bool changeVerse2)

@@ -270,3 +270,13 @@ void NavPanel::HideVerseTo()
 {
     ui_ListWidget_VerseTo->hide();
 }
+
+void NavPanel::ReloadBookNames()
+{
+    int idx = ui_ListWidget_Book->currentRow();
+    ui_ListWidget_Book->blockSignals(true);
+    ui_ListWidget_Book->clear();
+    ui_ListWidget_Book->addItems(m_pDatabaseService->BookNames());
+    ui_ListWidget_Book->setCurrentRow(idx);
+    ui_ListWidget_Book->blockSignals(false);
+}

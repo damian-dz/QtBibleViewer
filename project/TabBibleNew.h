@@ -29,6 +29,8 @@ public:
     void UpdatePassageBrowser(int idx, qbv::Location loc);
     void HighlightBlock(int browserIdx, int blockIdx);
 
+    void ReloadBookNames();
+
 private:
     NavPanel *ui_NavPanel;
     QTabWidget *ui_TabWidget_Bibles;

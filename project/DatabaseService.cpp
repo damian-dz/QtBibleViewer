@@ -20,12 +20,12 @@ DatabaseService::DatabaseService(const QString &dataDir, AppConfig &config) :
 DatabaseService::~DatabaseService()
 {
     CloseAll();
-    for (DbBible *dbBible : m_dbBibles) {
+    for (qbv::DbBible *dbBible : m_dbBibles) {
         delete dbBible;
     }
 }
 
-void DatabaseService::AddDbBible(DbBible *dbBible)
+void DatabaseService::AddDbBible(qbv::DbBible *dbBible)
 {
     m_dbBibles.append(dbBible);
 }
@@ -44,7 +44,7 @@ void DatabaseService::RemoveDbBible(int idx)
 
 void DatabaseService::CloseAll()
 {
-    for (DbBible *dbBible : m_dbBibles) {
+    for (qbv::DbBible *dbBible : m_dbBibles) {
         dbBible->Close();
     }
     m_dbVerseData.Close();
@@ -82,7 +82,7 @@ void DatabaseService::LoadDbBibles()
 
     for (const QString &filePath: m_pConfig->module_data.paths) {
         qDebug() << filePath;
-        DbBible *dbBible = new DbBible;
+        qbv::DbBible *dbBible = new qbv::DbBible;
         dbBible->Open(filePath);
         AddDbBible(dbBible);
     }
@@ -106,12 +106,12 @@ QStringList DatabaseService::BibleFilePaths()
     return results;
 }
 
-QStringList DatabaseService::BookNames() const
+QStringList DatabaseService::BookNames()
 {
     return m_bookNames;
 }
 
-QStringList DatabaseService::ShortBookNames() const
+QStringList DatabaseService::ShortBookNames()
 {
     return m_shortBookNames;
 }
@@ -170,17 +170,17 @@ int DatabaseService::VerseId(int book, int chapter, int verse) const
     return  m_dbVerseData.VerseId(book, chapter, verse);
 }
 
-int DatabaseService::ChapterIdForLocation(Location loc) const
+int DatabaseService::ChapterIdForLocation(qbv::Location loc) const
 {
     return m_dbVerseData.ChapterIdForLocation(loc);
 }
 
-Location DatabaseService::LocationForChapterId(int id) const
+qbv::Location DatabaseService::LocationForChapterId(int id) const
 {
     return m_dbVerseData.LocationForChapterId(id);
 }
 
-QString DatabaseService::PassageIdForLocation(Location loc)
+QString DatabaseService::PassageIdForLocation(qbv::Location loc)
 {
     QString result = BookNameForNumber(loc.book) + " " + QString::number(loc.chapter) +
             ":" + QString::number(loc.verse1);
@@ -207,17 +207,17 @@ void DatabaseService::SetActiveIdx(int idx)
     m_activeIdx = idx;
 }
 
-QStringList DatabaseService::GetScriptures(int idx, Location loc)
+QStringList DatabaseService::GetScriptures(int idx, qbv::Location loc)
 {
     return m_dbBibles[idx]->GetScriptures(loc);
 }
 
-QStringList DatabaseService::GetScripturesWithMissing(int idx, Location loc)
+QStringList DatabaseService::GetScripturesWithMissing(int idx, qbv::Location loc)
 {
     return m_dbBibles[idx]->GetScripturesWithMissing(loc);
 }
 
-QStringList DatabaseService::GetScriptures(Location loc) const
+QStringList DatabaseService::GetScriptures(qbv::Location loc) const
 {
     QStringList results;
     for (const qbv::DbBible *item : m_dbBibles) {
@@ -227,12 +227,12 @@ QStringList DatabaseService::GetScriptures(Location loc) const
     return results;
 }
 
-QList<PassageWithLocation> DatabaseService::Search(int idx, const QString &phrase, SearchOptions options)
+QList<qbv::PassageWithLocation> DatabaseService::Search(int idx, const QString &phrase, SearchOptions options)
 {
     return m_dbBibles[idx]->Search(phrase, options);
 }
 
-PassageWithLocation DatabaseService::GetRandomPassage(int idx, SearchOptions options)
+qbv::PassageWithLocation DatabaseService::GetRandomPassage(int idx, SearchOptions options)
 {
     return m_dbBibles[idx]->GetRandomPassage(options);
 }
@@ -250,22 +250,22 @@ void DatabaseService::OpenUserNotesDb()
     m_dbNotes.Init();
 }
 
-void DatabaseService::AddToNotes(Location loc)
+void DatabaseService::AddToNotes(qbv::Location loc)
 {
     m_dbNotes.Add(loc);
 }
 
-QList<Location> DatabaseService::NotesLocations()
+QList<qbv::Location> DatabaseService::NotesLocations()
 {
     return m_dbNotes.Locations();
 }
 
-QString DatabaseService::Note(Location loc)
+QString DatabaseService::Note(qbv::Location loc)
 {
     return m_dbNotes.Note(loc);
 }
 
-void DatabaseService::SaveNote(const QString &note, Location loc)
+void DatabaseService::SaveNote(const QString &note, qbv::Location loc)
 {
     m_dbNotes.Save(note, loc);
 }

@@ -125,9 +125,7 @@ SearchOptions SearchOptionsPanelNew::GetSearchOptions()
     } else if (ui_RadioButton_AnyWords->isChecked()) {
         searchMode = SearchMode::anyWords;
     } else if (ui_RadioButton_ByStrong->isChecked()) {
-        qDebug() << "before";
         searchMode = SearchMode::byStrong;
-        qDebug() << "after";
     }
     return { translation, bookFrom, bookTo, caseSensitive, wholeWordsOnly, searchMode };
 }
