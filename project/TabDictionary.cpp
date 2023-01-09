@@ -37,9 +37,9 @@ void TabDictionary::AddControls()
     numberLineEdit->setMaximumWidth(180);
     numberEntriesVerLayout->addWidget(numberLineEdit);
     numberLineEdit->setFocus();
-    QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
-    QValidator *validator = new QRegExpValidator(regex, this);
-    numberLineEdit->setValidator(validator);
+   // QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
+  //  QValidator *validator = new QRegExpValidator(regex, this);
+   // numberLineEdit->setValidator(validator);
 
     QLabel *allEntriesLabel = new QLabel("All Entries:");
     numberEntriesVerLayout->addWidget(allEntriesLabel);

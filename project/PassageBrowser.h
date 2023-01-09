@@ -62,7 +62,7 @@ private:
     void OnCopyWithReference();
     void OnCopyAsTeXWithReference();
     void OnCopyAsHtmlWithReference();
-    void OnHighlighted(const QString &link);
+    void OnHighlighted(const QUrl &link);
     void OnShowCrossReferences();
 
 signals:

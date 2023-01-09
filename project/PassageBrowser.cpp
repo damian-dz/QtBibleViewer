@@ -12,12 +12,12 @@ PassageBrowser::PassageBrowser(const QStringList &bookNames, AppConfig *config, 
     QTextBrowser::setOpenLinks(false);
     QTextBrowser::setOpenExternalLinks(false);
 
-    QObject::connect(this, QOverload<const QString &>::of(&QTextBrowser::highlighted),
-                     [=] (const QString &link) { OnHighlighted(link); });
-    QObject::connect(this, QOverload<>::of(&QTextEdit::cursorPositionChanged),
-                     [=] () { OnCursorPositionChanged(); });
-    QObject::connect(this, QOverload<const QPoint &>::of(&QWidget::customContextMenuRequested),
-                     [=] (const QPoint &pos) { OnContextMenuRequested(pos); });
+//    QObject::connect(this, QOverload<const QUrl &>::of(&QTextBrowser::highlighted),
+//                     [=] (const QString &link) { OnHighlighted(link); });
+//    QObject::connect(this, QOverload<>::of(&QTextEdit::cursorPositionChanged),
+//                     [=] () { OnCursorPositionChanged(); });
+//    QObject::connect(this, QOverload<const QPoint &>::of(&QWidget::customContextMenuRequested),
+//                     [=] (const QPoint &pos) { OnContextMenuRequested(pos); });
 
 }
 
@@ -392,11 +392,12 @@ void PassageBrowser::SelectPassage(int verse1, int verse2)
     QWidget::setFocus();
 }
 
-void PassageBrowser::OnHighlighted(const QString &link)
+void PassageBrowser::OnHighlighted(const QUrl &link)
 {
-    if (!link.isEmpty()) {
-        if (link.startsWith("c:")) {
-            QString markupText = m_notes[link.split(":")[1].toInt() - 1];
+    QString slink =link.toString();
+    if (!slink.isEmpty()) {
+        if (slink.startsWith("c:")) {
+            QString markupText = m_notes[slink.split(":")[1].toInt() - 1];
             QString plainText = markupText.mid(4, markupText.size() - 8);
             plainText.replace("[i]", "<i>").replace("[/i]", "</i>");
             QString fontFamily = "font-family:" % QApplication::font().family();

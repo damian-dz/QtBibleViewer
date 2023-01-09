@@ -128,6 +128,7 @@ void ConversionTools::ReplaceMySwordTags(QString &text)
     text.replace(m_TSMySwordRgx, "{H}").replace("<Ts>", "{h}");
     text.replace(m_PIMySwordRgx, "");
     text.replace("<RF>", "{TN}").replace("<Rf>", "{tn}");
+   // text.replace("<TS>", "{T}").replace("<Ts>", "{t}");
     text.replace("<CI>", "");
     text.replace("--", "—");
 }

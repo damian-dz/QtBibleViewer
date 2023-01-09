@@ -63,9 +63,9 @@ void WidgetWordFrequency::setUpChartsAndValidator(int animType)
     m_chartViewNT->setContextMenuPolicy(Qt::CustomContextMenu);
     ui_mainVerLayout->addWidget(m_chartViewNT);
 
-    QRegExp rgx("([^\\s]+)");
-    QValidator *validator = new QRegExpValidator(rgx, this);
-    ui_wordLineEdit->setValidator(validator);
+    //QRegExp rgx("([^\\s]+)");
+   // QValidator *validator = new QRegExpValidator(rgx, this);
+   // ui_wordLineEdit->setValidator(validator);
 }
 
 void WidgetWordFrequency::showSaveContextMenu(const QPoint &pos)
@@ -281,10 +281,10 @@ void WidgetWordFrequency::SearchAndPlot(const QString &word)
 void WidgetWordFrequency::on_visualizeButton_clicked()
 {
     QString text = ui_wordLineEdit->text();
-    QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
-    if (regex.exactMatch(text)) {
-        text = "<W" % text % ">";
-    }
+//    QRegExp regex("^[HG][0-9]{1,4}$", Qt::CaseInsensitive);
+//    if (regex.exactMatch(text)) {
+//        text = "<W" % text % ">";
+//    }
     SearchAndPlot(text);
 }
 void WidgetWordFrequency::on_wordLineEdit_returnPressed()

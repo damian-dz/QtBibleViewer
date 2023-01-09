@@ -29,7 +29,7 @@ bool DbBible::HasStrong() const
     int book = HasOT() ? 1 : 40;
     if (query.exec(QString("SELECT Scripture FROM Bible WHERE Book=%1 AND Chapter=1 AND Verse=1").arg(book))
             && query.next()) {
-        result = query.record().value(0).toString().contains(QRegExp("<W[HG][0-9]{1,4}>"));
+        result = query.record().value(0).toString().contains(QRegularExpression("<W[HG][0-9]{1,4}>"));
     }
     return result;
 }

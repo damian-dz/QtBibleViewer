@@ -65,6 +65,11 @@ private:
     QAction *ui_Act_Preferences;
     QMenu *ui_Menu_Language;
 
+    QMenu *ui_Menu_Help;
+    QAction *ui_Act_ShowHelp;
+    QAction *ui_Act_About;
+    QAction *ui_Act_AboutQt;
+
     QLabel *ui_Label_Status;
 
     const QString *m_pAppDir;
@@ -89,6 +94,10 @@ private:
 
     void OnPreferences();
     void OnLanguage();
+
+    void OnShowHelp();
+    void OnAbout();
+    void OnAboutQt();
 
     void OnGoToVerseRequested(const QString &name, qbv::Location loc, bool changeVerse2);
     void OnAddNoteRequested(qbv::Location loc);

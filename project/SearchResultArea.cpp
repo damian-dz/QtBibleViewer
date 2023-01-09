@@ -124,7 +124,7 @@ void SearchResultArea::ConnectSignals()
 
 void SearchResultArea::DisplayResults()
 {
-    int endIdx = std::min(m_currentIdx + m_numResPerPage, m_pResults->count());
+    int endIdx = qMin(m_currentIdx + m_numResPerPage, m_pResults->count());
     ui_SearchResultsBrowser->SetResults(*m_pResults, *m_pRefs, m_currentIdx, endIdx);
     ui_SearchResultsBrowser->HighlightKeywords(m_highlightRegex);
 }

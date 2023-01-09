@@ -21,4 +21,6 @@ dox/
 old/
 Release_x64*/*
 Release_x86*/*
+Release_Qt_6_5_0_MSVC2019_64bit/
+*/.qtc_clangd/
 *.autosave

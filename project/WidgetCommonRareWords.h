@@ -3,7 +3,7 @@
 
 #include "precomp.h"
 
-using namespace QtCharts;
+//using namespace QtCharts;
 
 class WidgetCommonRareWords : public QWidget
 {

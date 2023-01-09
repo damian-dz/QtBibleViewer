@@ -55,16 +55,16 @@ MainWindowNew::MainWindowNew(const QString &appDir, AppConfig &config, QTranslat
 void MainWindowNew::CreateMenuBar()
 {
     ui_Menu_File = menuBar()->addMenu(QString());
-    ui_Act_AddModule = ui_Menu_File->addAction(QIcon(ICON_FOLDER), nullptr,
-                                                this, &MainWindowNew::OnOpenModule, QKeySequence::Open);
-    ui_Act_ModuleInfo = ui_Menu_File->addAction(nullptr, this, &MainWindowNew::OnModuleInfo, QKeySequence("Ctrl+I"));
+    ui_Act_AddModule = ui_Menu_File->addAction(QIcon(ICON_FOLDER), nullptr, QKeySequence::Open,
+        this, &MainWindowNew::OnOpenModule);
+    ui_Act_ModuleInfo = ui_Menu_File->addAction(nullptr, QKeySequence("Ctrl+I"), this, &MainWindowNew::OnModuleInfo);
     ui_Menu_Import = ui_Menu_File->addMenu(QString());
     ui_Act_MySwordModule = ui_Menu_Import->addAction(nullptr, this, &MainWindowNew::OnImportMySwordModule);
 
     ui_Act_TheWordModule = ui_Menu_Import->addAction(nullptr, this, &MainWindowNew::OnImportTheWordModule);
     ui_Menu_File->addSeparator();
-    ui_Act_Exit = ui_Menu_File->addAction(QIcon(ICON_EXIT), nullptr,
-                                          this, &MainWindowNew::OnExit, QKeySequence("Ctrl+Q"));
+    ui_Act_Exit = ui_Menu_File->addAction(QIcon(ICON_EXIT), nullptr, QKeySequence("Ctrl+Q"),
+        this, &MainWindowNew::OnExit);
 
     ui_Menu_Options = menuBar()->addMenu(QString());
     ui_Act_Preferences = ui_Menu_Options->addAction(QIcon(ICON_COGWHEEL), nullptr, this, &MainWindowNew::OnPreferences);
@@ -75,6 +75,12 @@ void MainWindowNew::CreateMenuBar()
         action->setCheckable(true);
         m_langActions.append(action);
     }
+
+    ui_Menu_Help = menuBar()->addMenu(QString());
+    ui_Act_ShowHelp = ui_Menu_Help->addAction(nullptr, QKeySequence::HelpContents, this, &MainWindowNew::OnShowHelp);
+    ui_Act_About = ui_Menu_Help->addAction(QIcon(ICON_INFO), nullptr, this, &MainWindowNew::OnAbout);
+    ui_Act_AboutQt = ui_Menu_Help->addAction(nullptr, this, &MainWindowNew::OnAboutQt);
+
 }
 
 void MainWindowNew::SetWindowGeometry()
@@ -107,6 +113,11 @@ void MainWindowNew::SetUiTexts()
     ui_Act_Preferences->setText(tr("Preferences"));
     ui_Menu_Language->setTitle(tr("Language"));
 
+    ui_Menu_Help->setTitle(tr("Help"));
+    ui_Act_ShowHelp->setText(tr("Show Help"));
+    ui_Act_About->setText(tr("About"));
+    ui_Act_AboutQt->setText(tr("About Qt"));
+
     if (ui_TabCompare->IsInitialized()) {
         ui_TabCompare->SetUiTexts();
     }
@@ -119,17 +130,17 @@ void MainWindowNew::SetUiTexts()
 void MainWindowNew::ConnectSingals()
 {
     QObject::connect(ui_TabWidget_Main, QOverload<int>::of(&QTabWidget::currentChanged),
-                     [=] (int idx) { OnTabIndexChanged(idx); } );
+                     this, [=] (int idx) { OnTabIndexChanged(idx); } );
     QObject::connect(ui_TabBible, QOverload<qbv::Location>::of(&TabBibleNew::AddNoteRequested),
-                     [=] (qbv::Location loc) { OnAddNoteRequested(loc); } );
+                     this, [=] (qbv::Location loc) { OnAddNoteRequested(loc); } );
 
     QObject::connect(ui_TabSearch, QOverload<QString, qbv::Location>::of(&TabSearchNew::ResultReferenceClicked),
-                     [=] (QString name, qbv::Location loc) { OnGoToVerseRequested(name, loc, true); } );
+                     this, [=] (QString name, qbv::Location loc) { OnGoToVerseRequested(name, loc, true); } );
     QObject::connect(ui_TabSearch, QOverload<QString>::of(&TabSearchNew::StatusMsgSet),
-                     [=] (QString msg) { ui_Label_Status->setText(msg); } );
+                     this, [=] (QString msg) { ui_Label_Status->setText(msg); } );
 
     QObject::connect(ui_TabCompare, QOverload<QString, qbv::Location>::of(&TabCompareNew::BibleNameClicked),
-                     [=] (QString name, qbv::Location loc) { OnGoToVerseRequested(name, loc, false); } );
+                     this, [=] (QString name, qbv::Location loc) { OnGoToVerseRequested(name, loc, false); } );
 }
 
 void MainWindowNew::SetLanguage(const QString &lang)
@@ -140,10 +151,10 @@ void MainWindowNew::SetLanguage(const QString &lang)
     if (m_languages[lang] != m_pConfig->general.language) {
         m_pConfig->general.language = m_languages[lang];
         if (m_pConfig->general.language != "EN") {
-            m_pTsApp->load(m_pConfig->general.language.toLower(), m_dataDir % "/Lang");
-            qApp->installTranslator(m_pTsApp);
-            m_pTsQt->load("qt_" + m_pConfig->general.language.toLower(), m_dataDir % "/Lang");
-            qApp->installTranslator(m_pTsQt);
+            if (m_pTsApp->load(m_pConfig->general.language.toLower(), m_dataDir % "/Lang"))
+                qApp->installTranslator(m_pTsApp);
+            if (m_pTsQt->load("qt_" + m_pConfig->general.language.toLower(), m_dataDir % "/Lang"))
+                qApp->installTranslator(m_pTsQt);
         } else {
             qApp->removeTranslator(m_pTsApp);
             qApp->removeTranslator(m_pTsQt);
@@ -199,6 +210,28 @@ void MainWindowNew::OnLanguage()
 {
     const QString lang = qobject_cast<QAction *>(QObject::sender())->text();
     SetLanguage(lang);
+}
+
+void MainWindowNew::OnShowHelp()
+{
+
+}
+
+void MainWindowNew::OnAbout()
+{
+    QMessageBox infoMsgBox(QMessageBox::NoIcon, tr("About Qt Bible Viewer"),
+                           tr("<p><b>Qt Bible Viewer</b> is an open-source application "
+                              "currently being developed by Damian Dzienniak. "
+                              "The GitHub repositiory for the project can be found at "
+                              "<a href='https://github.com/damian-dz/QtBibleViewer'> "
+                              "github.com/damian-dz/QtBibleViewer</a>.</p>"));
+    infoMsgBox.setWindowIcon(QIcon(ICON_INFO));
+    infoMsgBox.exec();
+}
+
+void MainWindowNew::OnAboutQt()
+{
+    QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
 void MainWindowNew::OnGoToVerseRequested(const QString &name, qbv::Location loc, bool changeVerse2)

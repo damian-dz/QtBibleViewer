@@ -20,9 +20,9 @@ void TabCompareNew::SetFontFromConfig()
 void TabCompareNew::ConnectSignals()
 {
     QObject::connect(ui_NavPanel, QOverload<qbv::Location>::of(&NavPanel::LocationChanged),
-                     [=] (qbv::Location loc) { OnLocationChanged(loc); });
+                     this, [=] (qbv::Location loc) { OnLocationChanged(loc); });
     QObject::connect(ui_CompareVerseBrowser, QOverload<QString>::of(&CompareVerseBrowser::BibleNameClicked),
-                     [=] (QString name) { emit OnBibleNameClicked(name); });
+                     this, [=] (QString name) { OnBibleNameClicked(name); });
 }
 
 void TabCompareNew::AddControls()

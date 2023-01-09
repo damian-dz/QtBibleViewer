@@ -7,8 +7,8 @@ CompareVerseBrowser::CompareVerseBrowser(QWidget *parent) :
     QTextBrowser::setOpenLinks(false);
     QTextBrowser::setOpenExternalLinks(false);
 
-    QVector<QTextLength> colWidths;
-    colWidths.append(QTextLength(QTextLength::VariableLength, 5));
+    QList<QTextLength> colWidths;
+    colWidths.append(QTextLength(QTextLength::FixedLength, 80));
     colWidths.append(QTextLength(QTextLength::PercentageLength, 100));
 
     m_tableFormat.setColumnWidthConstraints(colWidths);

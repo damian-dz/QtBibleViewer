@@ -45,7 +45,7 @@ private:
 
     void OnContextMenuRequested(const QPoint &pos);
     void OnCursorPositionChanged();
-    void OnHighlighted(const QString &link);
+    void OnHighlighted(const QUrl &url);
 
     typedef void (&FormattingFunc)(QString &);
     void CopyWithReferenceTemplate(FormattingFunc format, bool formatStrong = true);

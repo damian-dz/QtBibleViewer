@@ -6,27 +6,25 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     QApplication app(argc, argv);
     QString appDir = app.applicationDirPath();
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
     QString configPath = appDir + "/Data/Config/settings.ini";
-    if (!QFileInfo(configPath).exists()) {
+    if (!QFileInfo::exists(configPath)) {
         bool settingsFound = false;
-        for (QString location : locations) {
-            if (QFileInfo(location + "/settings.ini").exists()) {
+        for (const QString &location : locations) {
+            if (QFileInfo::exists(location + "/settings.ini")) {
                 configPath = location + "/settings.ini";
                 settingsFound = true;
                 break;
             }
         }
-        if (!settingsFound) {
+        if (!settingsFound && locations.count() > 0) {
             configPath = locations[0] + "/settings.ini";
         }
     } else {
-        for (QString location : locations) {
-            if (QFileInfo(location + "/settings.ini").exists()) {
+        for (const QString &location : locations) {
+            if (QFileInfo::exists(location + "/settings.ini")) {
                 QFile file(location + "/settings.ini");
                 file.remove();
                 if (location.contains("QtBibleViewer")) {
@@ -42,10 +40,10 @@ int main(int argc, char *argv[])
     QTranslator appTranslator;
     QTranslator qtTranslator;
     if (config.general.language != "EN") {
-        appTranslator.load(config.general.language.toLower(), appDir + "/Data/Lang");
-        app.installTranslator(&appTranslator);
-        qtTranslator.load("qt_" + config.general.language.toLower(), appDir + "/Data/Lang");
-        app.installTranslator(&qtTranslator);
+        if (appTranslator.load(config.general.language.toLower(), appDir + "/Data/Lang"))
+            app.installTranslator(&appTranslator);
+        if (qtTranslator.load("qt_" + config.general.language.toLower(), appDir + "/Data/Lang"))
+            app.installTranslator(&qtTranslator);
     }
     MainWindowNew win(appDir, config, appTranslator, qtTranslator, nullptr);
     win.show();

@@ -13,8 +13,8 @@ PassageBrowserNew::PassageBrowserNew(AppConfig &config, qbv::DatabaseService &da
                      [=] (const QPoint &pos) { OnContextMenuRequested(pos); });
     QObject::connect(this, QOverload<>::of(&QTextEdit::cursorPositionChanged),
                      [=] () { OnCursorPositionChanged(); });
-    QObject::connect(this, QOverload<const QString &>::of(&QTextBrowser::highlighted),
-                     [=] (const QString &link) { OnHighlighted(link); });
+    QObject::connect(this, QOverload<const QUrl &>::of(&QTextBrowser::highlighted),
+                     [=] (const QUrl &url) { OnHighlighted(url); });
 }
 
 PassageBrowserNew::~PassageBrowserNew()
@@ -163,8 +163,9 @@ void PassageBrowserNew::OnCursorPositionChanged()
     m_lastCursor = cursor;
 }
 
-void PassageBrowserNew::OnHighlighted(const QString &link)
+void PassageBrowserNew::OnHighlighted(const QUrl &url)
 {
+    QString link = url.toString();
     if (!link.isEmpty() && link.startsWith("c:")) {
         QString markupText = m_notes[link.split(":")[1].toInt() - 1];
         QString plainText = markupText.mid(4, markupText.size() - 8);
