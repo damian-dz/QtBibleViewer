@@ -61,6 +61,12 @@ private:
     QAction *ui_Act_TheWordModule;
     QAction *ui_Act_Exit;
 
+    QMenu *ui_Menu_Edit;
+    QAction *ui_Act_Back;
+    QAction *ui_Act_Forward;
+    QAction *ui_Act_Copy;
+    QAction *ui_Act_Find;
+
     QMenu *ui_Menu_Options;
     QAction *ui_Act_Preferences;
     QMenu *ui_Menu_Language;
@@ -91,6 +97,11 @@ private:
     void OnModuleInfo();
     void OnImportMySwordModule();
     void OnImportTheWordModule();
+
+    void OnBack();
+    void OnForward();
+    void OnCopy();
+    void OnFind();
 
     void OnPreferences();
     void OnLanguage();

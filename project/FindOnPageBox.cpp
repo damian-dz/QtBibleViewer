@@ -18,8 +18,8 @@ FindOnPageBox::FindOnPageBox(QWidget *parent) :
     findHorLayout->addWidget(ui_Button_Close);
 
     QObject::connect(ui_LineEdit_Find, QOverload<const QString &>::of(&QLineEdit::textChanged),
-                     [=] (const QString &text) { emit TextChanged(text); });
-    QObject::connect(ui_Button_Close, QOverload<bool>::of(&QPushButton::clicked), [=] { QWidget::hide(); });
+                     this, [=] (const QString &text) { emit TextChanged(text); });
+    QObject::connect(ui_Button_Close, QOverload<bool>::of(&QPushButton::clicked), this, [=] { QWidget::hide(); });
 
     QWidget::setLayout(findHorLayout);
     QWidget::hide();

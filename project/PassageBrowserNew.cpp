@@ -124,17 +124,39 @@ void PassageBrowserNew::HiglightBlock(int idx)
     QTextEdit::setTextCursor(cursor);
 }
 
+void PassageBrowserNew::HighlightText(const QString &text)
+{
+       QObject::blockSignals(true);
+    auto selections = QTextEdit::extraSelections();
+    selections.clear();
+    QTextEdit::moveCursor(QTextCursor::Start);
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    QColor color(Qt::yellow);
+    QTextEdit::ExtraSelection extra;
+    while (QTextEdit::find(text)) {
+        extra.format.setBackground(color);
+        extra.cursor = QTextEdit::textCursor();
+        extraSelections << extra;
+    }
+    QTextEdit::setExtraSelections(extraSelections);
+    if (!text.isNull() && !text.isEmpty()) {
+        extra.cursor.clearSelection();
+        QTextEdit::setTextCursor(extra.cursor);
+    }
+       QObject::blockSignals(false);
+}
+
 void PassageBrowserNew::OnContextMenuRequested(const QPoint &pos)
 {
     QPoint globalPos = QWidget::mapToGlobal(pos);
     QMenu contextMenu(this);
-    contextMenu.addAction(tr("Copy Selected Text"), this, [=] { QTextEdit::copy(); }, QKeySequence::Copy);
+    contextMenu.addAction(tr("Copy Selected Text"), QKeySequence::Copy, this, [=] { QTextEdit::copy(); });
     contextMenu.addAction(tr("Copy with Reference"), this, [=] { OnCopyWithReference(); });
     contextMenu.addAction(tr("Copy as TeX with Reference"), this, [=] { OnCopyAsTeXWithReference(); });
     contextMenu.addAction(tr("Copy as HTML with Reference"), this, [=] { OnCopyAsHtmlWithReference(); });
     contextMenu.addAction(tr("Copy Unformatted with Reference"), this, [=] { OnCopyUnformattedWithReference(); });
     contextMenu.addAction(tr("Remove Highlight"), this, [=] { OnRemoveHighlight(); });
-    contextMenu.addAction(tr("Select All"), this, [=] { QTextEdit::selectAll(); }, QKeySequence::SelectAll);
+    contextMenu.addAction(tr("Select All"), QKeySequence::SelectAll, this, [=] { QTextEdit::selectAll(); });
     contextMenu.addSeparator();
     QList<QAction *> contextActions = contextMenu.actions();
     QTextCursor cursor = QTextEdit::textCursor();

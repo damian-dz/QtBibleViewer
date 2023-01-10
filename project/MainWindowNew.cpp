@@ -60,11 +60,21 @@ void MainWindowNew::CreateMenuBar()
     ui_Act_ModuleInfo = ui_Menu_File->addAction(nullptr, QKeySequence("Ctrl+I"), this, &MainWindowNew::OnModuleInfo);
     ui_Menu_Import = ui_Menu_File->addMenu(QString());
     ui_Act_MySwordModule = ui_Menu_Import->addAction(nullptr, this, &MainWindowNew::OnImportMySwordModule);
-
     ui_Act_TheWordModule = ui_Menu_Import->addAction(nullptr, this, &MainWindowNew::OnImportTheWordModule);
     ui_Menu_File->addSeparator();
     ui_Act_Exit = ui_Menu_File->addAction(QIcon(ICON_EXIT), nullptr, QKeySequence("Ctrl+Q"),
         this, &MainWindowNew::OnExit);
+
+    ui_Menu_Edit = menuBar()->addMenu(QString());
+    ui_Act_Back = ui_Menu_Edit->addAction(QIcon(ICON_ARROW_LEFT), nullptr, this, &MainWindowNew::OnBack);
+    ui_Act_Back->setDisabled(true);
+    ui_Act_Forward = ui_Menu_Edit->addAction(QIcon(ICON_ARROW_RIGHT),
+                                             nullptr, this, &MainWindowNew::OnForward);
+    ui_Act_Forward->setDisabled(true);
+    ui_Menu_Edit->addSeparator();
+    ui_Act_Copy = ui_Menu_Edit->addAction(QIcon(ICON_COPY), nullptr,
+                                          this, &MainWindowNew::OnCopy);
+    ui_Act_Find = ui_Menu_Edit->addAction(QIcon(ICON_FIND), nullptr, QKeySequence::Find, this, &MainWindowNew::OnFind);
 
     ui_Menu_Options = menuBar()->addMenu(QString());
     ui_Act_Preferences = ui_Menu_Options->addAction(QIcon(ICON_COGWHEEL), nullptr, this, &MainWindowNew::OnPreferences);
@@ -108,6 +118,12 @@ void MainWindowNew::SetUiTexts()
     ui_Act_MySwordModule->setText(tr("MySword Module"));
     ui_Act_TheWordModule->setText(tr("TheWord Module"));
     ui_Act_Exit->setText(tr("Exit"));
+
+    ui_Menu_Edit->setTitle(tr("Edit"));
+    ui_Act_Back->setText(tr("Back"));
+    ui_Act_Forward->setText(tr("Forward"));
+    ui_Act_Copy->setText(tr("Copy"));
+    ui_Act_Find->setText(tr("Find"));
 
     ui_Menu_Options->setTitle(tr("Options"));
     ui_Act_Preferences->setText(tr("Preferences"));
@@ -194,6 +210,26 @@ void MainWindowNew::OnImportMySwordModule()
 void MainWindowNew::OnImportTheWordModule()
 {
 
+}
+
+void MainWindowNew::OnBack()
+{
+
+}
+
+void MainWindowNew::OnForward()
+{
+
+}
+
+void MainWindowNew::OnCopy()
+{
+
+}
+
+void MainWindowNew::OnFind()
+{
+    ui_TabBible->FindPhrase();
 }
 
 void MainWindowNew::OnPreferences()

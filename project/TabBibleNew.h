@@ -4,6 +4,8 @@
 #include "AbstractTab.h"
 #include "AppConfig.h"
 #include "DatabaseService.h"
+#include "CrossReferenceBox.h"
+#include "FindOnPageBox.h"
 #include "NavPanel.h"
 #include "PassageBrowserNew.h"
 
@@ -30,12 +32,19 @@ public:
     void HighlightBlock(int browserIdx, int blockIdx);
 
     void ReloadBookNames();
+    void FindPhrase();
 
 private:
     NavPanel *ui_NavPanel;
     QTabWidget *ui_TabWidget_Bibles;
 
     QList<PassageBrowserNew *> m_passageBrowsers;
+
+
+     QVBoxLayout *ui_VerLayout_Modules;
+    QSplitter *ui_Splitter_ModuleCrossRef;
+    CrossReferenceBox *ui_CrossRefBox;
+    FindOnPageBox *ui_FindOnPageBox;
 
     virtual void ConnectSignals() override;
     virtual void AddControls() override;

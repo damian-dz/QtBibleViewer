@@ -24,11 +24,26 @@ void TabBibleNew::AddControls()
         AddNewPassageBrowser(i);
     }
 
+    ui_FindOnPageBox = new FindOnPageBox;
+
+
+
+    ui_Splitter_ModuleCrossRef = new QSplitter(Qt::Vertical);
+    ui_Splitter_ModuleCrossRef->addWidget(ui_TabWidget_Bibles);
+    ui_Splitter_ModuleCrossRef->addWidget(new QWidget);
+    ui_Splitter_ModuleCrossRef->restoreState(m_pConfig->general.splitter_layout);
+
+
+    ui_VerLayout_Modules = new QVBoxLayout;
+   // ui_VerLayout_Modules->addWidget(ui_CrossRefBox);
+    ui_VerLayout_Modules->addWidget(ui_Splitter_ModuleCrossRef);
+    ui_VerLayout_Modules->addWidget(ui_FindOnPageBox);
+
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->setSpacing(5);
     mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->addLayout(ui_NavPanel);
-    mainLayout->addWidget(ui_TabWidget_Bibles);
+    mainLayout->addLayout(ui_VerLayout_Modules);
     QWidget::setLayout(mainLayout);
 }
 
@@ -40,6 +55,8 @@ void TabBibleNew::ConnectSignals()
                      [=] (int idx) { OnTabChanged(idx); } );
     QObject::connect(ui_TabWidget_Bibles->tabBar(), QOverload<int, int>::of(&QTabBar::tabMoved),
                      [=] (int from, int to) { OnTabMoved(from, to); } );
+    QObject::connect(ui_FindOnPageBox, QOverload<const QString &>::of(&FindOnPageBox::TextChanged),
+                     [=] (const QString &text) { m_passageBrowsers[ui_TabWidget_Bibles->currentIndex()]->HighlightText(text); });
 }
 
 void TabBibleNew::SetUiTexts()
@@ -152,4 +169,10 @@ void TabBibleNew::HighlightBlock(int browserIdx, int blockIdx)
 void TabBibleNew::ReloadBookNames()
 {
     ui_NavPanel->ReloadBookNames();
+}
+
+void TabBibleNew::FindPhrase()
+{
+    ui_FindOnPageBox->show();
+    ui_FindOnPageBox->SelectAllText();
 }
