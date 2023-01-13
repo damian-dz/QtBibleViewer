@@ -18,7 +18,7 @@ int DbVerseData::ChapterId(int book, int chapter) const
 int DbVerseData::VerseId(int book, int chapter, int verse) const
 {
     QSqlQuery query(m_db);
-    query.prepare("SELECT Id FROM ChapterMap WHERE Book=? AND Chapter=? AND Verse=?");
+    query.prepare("SELECT Id FROM VerseMap WHERE Book=? AND Chapter=? AND Verse=?");
     query.addBindValue(book, QSql::Out);
     query.addBindValue(chapter, QSql::Out);
     query.addBindValue(verse, QSql::Out);

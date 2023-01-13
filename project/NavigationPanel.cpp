@@ -333,18 +333,18 @@ void NavigationPanel::SetLocation(qbv::Location location, bool load)
 
     ui_ListWidget_Book->setCurrentRow(location.book - 1);
     ui_ListWidget_Chapter->setCurrentRow(location.chapter - 1);
-    if (location.verse1 > -1) {
-        ui_ListWidget_VerseFrom->setCurrentRow(location.verse1 - 1);
+    if (location.verse > -1) {
+        ui_ListWidget_VerseFrom->setCurrentRow(location.verse - 1);
     } else {
         ui_ListWidget_VerseFrom->setCurrentRow(0);
     }
-    if (location.verse2 > -1) {
-        ui_ListWidget_VerseTo->setCurrentRow(location.verse2 - 1);
+    if (location.endVerse > -1) {
+        ui_ListWidget_VerseTo->setCurrentRow(location.endVerse - 1);
     } else {
-        if (location.verse1 == -1) {
+        if (location.verse == -1) {
             ui_ListWidget_VerseTo->setCurrentRow(verseCount - 1);
         } else {
-            ui_ListWidget_VerseTo->setCurrentRow(location.verse1 - 1);
+            ui_ListWidget_VerseTo->setCurrentRow(location.verse - 1);
         }
 
     }

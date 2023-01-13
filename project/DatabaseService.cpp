@@ -15,6 +15,7 @@ DatabaseService::DatabaseService(const QString &dataDir, AppConfig &config) :
 
     LoadBookNames();
     LoadDbBibles();
+        OpenXRefDb();
 }
 
 DatabaseService::~DatabaseService()
@@ -66,7 +67,7 @@ void DatabaseService::LoadDbBibles()
     for (const QString &path : paths) {
         if (!m_pConfig->module_data.paths.contains(path) &&
                 !m_pConfig->module_data.removed_paths.contains(path) &&
-                QFileInfo(path).exists()) {
+                QFileInfo::exists(path)) {
             m_pConfig->module_data.paths << path;
         }
     }
@@ -74,7 +75,7 @@ void DatabaseService::LoadDbBibles()
         throw std::invalid_argument("No Bible modules found.");
     } else {
         for (int i = 0; i < m_pConfig->module_data.paths.count(); ++i) {
-            if (!QFileInfo(m_pConfig->module_data.paths[i]).exists()) {
+            if (!QFileInfo::exists(m_pConfig->module_data.paths[i])) {
                 m_pConfig->module_data.paths.removeAt(i--);
             }
         }
@@ -183,9 +184,9 @@ qbv::Location DatabaseService::LocationForChapterId(int id) const
 QString DatabaseService::PassageIdForLocation(qbv::Location loc)
 {
     QString result = BookNameForNumber(loc.book) + " " + QString::number(loc.chapter) +
-            ":" + QString::number(loc.verse1);
-    if (loc.verse1 != loc.verse2) {
-        result += "-" % QString::number(loc.verse2);
+        ":" + QString::number(loc.verse);
+    if (loc.verse != loc.endVerse) {
+        result += "-" % QString::number(loc.endVerse);
     }
     return result;
 }
@@ -205,6 +206,11 @@ int DatabaseService::IndexForBibleShortName(const QString &name)
 void DatabaseService::SetActiveIdx(int idx)
 {
     m_activeIdx = idx;
+}
+
+QStringList DatabaseService::GetScriptures(int idx, int verseId, int endVerseId) const
+{
+    return m_dbBibles[idx]->GetScriptures(verseId, endVerseId);
 }
 
 QStringList DatabaseService::GetScriptures(int idx, qbv::Location loc)
@@ -237,6 +243,11 @@ qbv::PassageWithLocation DatabaseService::GetRandomPassage(int idx, SearchOption
     return m_dbBibles[idx]->GetRandomPassage(options);
 }
 
+QList<Location> DatabaseService::GetXRefLocations(Location loc) const
+{
+    return m_dbXRef.GetLocations(loc);
+}
+
 void DatabaseService::CreateUserDir()
 {
     if (!QDir(m_dirUser).exists()) {
@@ -248,6 +259,12 @@ void DatabaseService::OpenUserNotesDb()
 {
     m_dbNotes.Open(m_dirUser + "/notes.qbv");
     m_dbNotes.Init();
+}
+
+void DatabaseService::OpenXRefDb()
+{
+    if (!m_dbXRef.IsOpen())
+        m_dbXRef.Open(m_dirCommon + "/xref.qbv");
 }
 
 void DatabaseService::AddToNotes(qbv::Location loc)

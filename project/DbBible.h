@@ -20,6 +20,7 @@ public:
     QString Info() const;
     QString GetShortName() const;
 
+    QStringList GetScriptures(int verseId, int endVerseId) const;
     QStringList GetScriptures(Location loc) const;
     QStringList GetScripturesWithMissing(Location loc) const;
     QString GetScripture(Location loc) const;

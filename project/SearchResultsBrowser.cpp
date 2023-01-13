@@ -16,7 +16,7 @@ SearchResultsBrowser::SearchResultsBrowser(AppConfig &config, qbv::DatabaseServi
     QObject::connect(this, QOverload<>::of(&QTextEdit::cursorPositionChanged),
                      [=] () { OnCursorPositionChanged(); });
     QObject::connect(this, QOverload<const QUrl &>::of(&QTextBrowser::anchorClicked),
-                     [=] (const QUrl &link) { OnAnchorClicked(link); } );
+                     [=] (const QUrl &url) { OnAnchorClicked(url); } );
 }
 
 void SearchResultsBrowser::SetIncludeResultNumber(bool includeResNumber)
@@ -97,10 +97,32 @@ void SearchResultsBrowser::DisplayPage(int idx)
         }
         m_passageOffsets << qMakePair(start, cursor.position());
         auto loc = m_results[i].location;
-        QString reference =  QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
-            .arg(QString::number(loc.book), QString::number(loc.chapter), QString::number(loc.verse1),
-                 m_pDatabaseService->BookNameForNumber(loc.book),
-                 QString::number(loc.chapter), QString::number(loc.verse1));
+//        QString reference =  QString("<b><a href='%1,%2,%3' style='text-decoration:none'>—%4 %5:%6</a></b>")
+//            .arg(QString::number(loc.book), QString::number(loc.chapter), QString::number(loc.verse),
+//                 m_pDatabaseService->BookNameForNumber(loc.book),
+//                 QString::number(loc.chapter), QString::number(loc.verse));
+//        QString verseRange = loc.endVerse > loc.verse ? "%3-%4" : "%3";
+//        QString chapterRange = loc.endChapter > loc.chapter ?
+//            QString("%1:%2-%3:%4").arg(loc.chapter).arg(loc.verse).arg(loc.endChapter).arg(loc.endVerse) :
+//            QString("%1:%2");
+//        if (loc.endChapter <= loc.chapter)
+//            chapterRange = chapterRange.arg(loc.chapter);
+
+        QString chapVers;
+        if (loc.endChapter > loc.chapter) {
+            chapVers = QString("%1:%2–%3:%4").arg(loc.chapter).arg(loc.verse).arg(loc.endChapter).arg(loc.endVerse);
+        } else {
+            if (loc.endVerse > loc.verse)
+                chapVers = QString("%1:%2–%3").arg(loc.chapter).arg(loc.verse).arg(loc.endVerse);
+            else {
+                chapVers = QString("%1:%2").arg(loc.chapter).arg(loc.verse);
+            }
+        }
+
+        QString reference =  QString("<b><a href='%1,%2,%3' style='text-decoration:none'>&nbsp;— %4 %5</a></b>")
+            .arg(loc.book).arg(loc.chapter).arg(loc.verse).arg(m_pDatabaseService->BookNameForNumber(loc.book))
+            .arg(chapVers);
+
         cursor.insertHtml(reference);
         QTextEdit::moveCursor(QTextCursor::Start);
     }
@@ -159,10 +181,10 @@ bool SearchResultsBrowser::IsContainedInPassages(const QTextEdit::ExtraSelection
     return res;
 }
 
-void SearchResultsBrowser::OnAnchorClicked(const QUrl &link)
+void SearchResultsBrowser::OnAnchorClicked(const QUrl &url)
 {
-    QString linkText = link.toString();
-    QStringList bookChapterVerse = linkText.split(",");
+    QString link = url.toString();
+    QStringList bookChapterVerse = link.split(",");
     int book = bookChapterVerse[0].toInt();
     int chapter = bookChapterVerse[1].toInt();
     int verse = bookChapterVerse[2].toInt();

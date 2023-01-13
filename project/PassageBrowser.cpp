@@ -46,12 +46,12 @@ qbv::Location PassageBrowser::GetLocation() const
 
 int PassageBrowser::GetVerse1() const
 {
-    return m_location.verse1;
+    return m_location.verse;
 }
 
 int PassageBrowser::GetVerse2() const
 {
-    return m_location.verse2;
+    return m_location.endVerse;
 }
 
 void PassageBrowser::HighlightText(const QString &text)
@@ -112,8 +112,8 @@ void PassageBrowser::LoadPassage(const QSqlDatabase &module)
 
     QString book = QString::number(m_location.book);
     QString chapter = QString::number(m_location.chapter);
-    QString verseFrom = QString::number(m_location.verse1);
-    QString verseTo = QString::number(m_location.verse2);
+    QString verseFrom = QString::number(m_location.verse);
+    QString verseTo = QString::number(m_location.endVerse);
 
     QString command = QStringLiteral("SELECT Verse, Scripture FROM Bible "
                                      "WHERE Book = %1 "
@@ -121,8 +121,8 @@ void PassageBrowser::LoadPassage(const QSqlDatabase &module)
                                      "AND Verse >= %3 "
                                      "AND Verse <= %4").arg(book, chapter, verseFrom, verseTo);
 
-    int verseNumber = m_location.verse1;
-    int finalVerse = m_location.verse2;
+    int verseNumber = m_location.verse;
+    int finalVerse = m_location.endVerse;
 
     bool hasNoRecords = true;
     int verse = 1;
@@ -175,8 +175,8 @@ void PassageBrowser::LoadPassage_New(const QSqlDatabase &module)
 
     QString book = QString::number(m_location.book);
     QString chapter = QString::number(m_location.chapter);
-    QString verse1 = QString::number(m_location.verse1);
-    QString verse2 = QString::number(m_location.verse2);
+    QString verse1 = QString::number(m_location.verse);
+    QString verse2 = QString::number(m_location.endVerse);
 
     QString command = QStringLiteral("SELECT Verse, Scripture FROM Bible "
                                      "WHERE Book = %1 "
@@ -184,8 +184,8 @@ void PassageBrowser::LoadPassage_New(const QSqlDatabase &module)
                                      "AND Verse >= %3 "
                                      "AND Verse <= %4").arg(book, chapter, verse1, verse2);
 
-    int verseNumber = m_location.verse1;
-    int finalVerse = m_location.verse2;
+    int verseNumber = m_location.verse;
+    int finalVerse = m_location.endVerse;
 
     bool hasNoRecords = true;
     int verse = 1;
@@ -275,18 +275,18 @@ void PassageBrowser::SetLocation(int book, int chapter, int verse1, int verse2)
 {
     m_location.book = book;
     m_location.chapter = chapter;
-    m_location.verse1 = verse1;
-    m_location.verse2 = verse2;
+    m_location.verse = verse1;
+    m_location.endVerse = verse2;
 }
 
 void PassageBrowser::SetVerse1(int verse1)
 {
-    m_location.verse1 = verse1;
+    m_location.verse = verse1;
 }
 
 void PassageBrowser::SetVerse2(int verse2)
 {
-    m_location.verse2 = verse2;
+    m_location.endVerse = verse2;
 }
 
 void PassageBrowser::ComputeSelectedBlockAndVerseRange()

@@ -38,6 +38,7 @@ SOURCES += \
     DbBible.cpp \
     DbNotes.cpp \
     DbVerseData.cpp \
+    DbXRef.cpp \
     DialogImport.cpp \
     DialogPreferencesNew.cpp \
     FindOnPageBox.cpp \
@@ -86,6 +87,7 @@ HEADERS += \
     DbBible.h \
     DbNotes.h \
     DbVerseData.h \
+    DbXRef.h \
     DialogImport.h \
     DialogPreferencesNew.h \
     FindOnPageBox.h \

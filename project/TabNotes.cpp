@@ -32,8 +32,8 @@ void TabNotes::CurrentIndexChanged(int idx)
                   "WHERE Book=? AND Chapter=? AND Verse1=? AND Verse2=?");
     query.addBindValue(loc.book, QSql::Out);
     query.addBindValue(loc.chapter, QSql::Out);
-    query.addBindValue(loc.verse1, QSql::Out);
-    query.addBindValue(loc.verse2, QSql::Out);
+    query.addBindValue(loc.verse, QSql::Out);
+    query.addBindValue(loc.endVerse, QSql::Out);
     if (query.exec() && query.next()) {
         QString note = query.record().value(0).toString();
         ui_TextEdit_Notes->setPlainText(note);
@@ -41,10 +41,10 @@ void TabNotes::CurrentIndexChanged(int idx)
         QStringList passage = m_pModules->at(0).GetPassage(loc);
        // passage.join(" ")
         QString bookName = m_pBookNames->at(loc.book - 1);
-        if (loc.verse1 == loc.verse2) {
-            SetPassage(bookName, loc.chapter, loc.verse1, passage.join(" "));
+        if (loc.verse == loc.endVerse) {
+            SetPassage(bookName, loc.chapter, loc.verse, passage.join(" "));
         } else {
-            SetPassage(bookName, loc.chapter, loc.verse1, loc.verse2, passage.join(" "));
+            SetPassage(bookName, loc.chapter, loc.verse, loc.endVerse, passage.join(" "));
         }
     }
 }
@@ -60,8 +60,8 @@ void TabNotes::SaveButtonClicked()
     query.addBindValue(note);
     query.addBindValue(loc.book);
     query.addBindValue(loc.chapter);
-    query.addBindValue(loc.verse1);
-    query.addBindValue(loc.verse2);
+    query.addBindValue(loc.verse);
+    query.addBindValue(loc.endVerse);
     query.exec();
 }
 
@@ -163,15 +163,15 @@ void TabNotes::AddToNotes(qbv::Location loc)
     query.prepare("INSERT INTO Notes (Book, Chapter, Verse1, Verse2) VALUES (?, ?, ?, ?)");
     query.addBindValue(loc.book);
     query.addBindValue(loc.chapter);
-    query.addBindValue(loc.verse1);
-    query.addBindValue(loc.verse2);
+    query.addBindValue(loc.verse);
+    query.addBindValue(loc.endVerse);
     query.exec();
 
     m_locations.append(loc);
     QString passageId = m_pBookNames->at(loc.book - 1) + " " + QString::number(loc.chapter) +
-            ":" + QString::number(loc.verse1);
-    if (loc.verse1 != loc.verse2) {
-        passageId += "-" % QString::number(loc.verse2);
+            ":" + QString::number(loc.verse);
+    if (loc.verse != loc.endVerse) {
+        passageId += "-" % QString::number(loc.endVerse);
     }
     ui_ListView_References->addItem(passageId);
     ui_ListView_References->setCurrentRow(ui_ListView_References->count() - 1);

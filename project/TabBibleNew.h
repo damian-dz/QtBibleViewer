@@ -4,10 +4,10 @@
 #include "AbstractTab.h"
 #include "AppConfig.h"
 #include "DatabaseService.h"
-#include "CrossReferenceBox.h"
 #include "FindOnPageBox.h"
 #include "NavPanel.h"
 #include "PassageBrowserNew.h"
+#include "SearchResultsBrowser.h"
 
 class TabBibleNew : public AbstractTab
 {
@@ -41,9 +41,10 @@ private:
     QList<PassageBrowserNew *> m_passageBrowsers;
 
 
-     QVBoxLayout *ui_VerLayout_Modules;
+    QVBoxLayout *ui_VerLayout_Modules;
     QSplitter *ui_Splitter_ModuleCrossRef;
-    CrossReferenceBox *ui_CrossRefBox;
+    //CrossReferenceBox *ui_CrossRefBox;
+    SearchResultsBrowser *ui_XRefBrowser;
     FindOnPageBox *ui_FindOnPageBox;
 
     virtual void ConnectSignals() override;
@@ -52,6 +53,8 @@ private:
     void OnLocationChanged(qbv::Location loc);
     void OnTabChanged(int idx);
     void OnTabMoved(int from, int to);
+
+    void OnVerseSelected(qbv::Location loc);
 
 signals:
     void AddNoteRequested(qbv::Location loc);

@@ -24,18 +24,20 @@ void TabBibleNew::AddControls()
         AddNewPassageBrowser(i);
     }
 
+    ui_XRefBrowser = new SearchResultsBrowser(*m_pConfig, *m_pDatabaseService);
     ui_FindOnPageBox = new FindOnPageBox;
 
 
 
     ui_Splitter_ModuleCrossRef = new QSplitter(Qt::Vertical);
     ui_Splitter_ModuleCrossRef->addWidget(ui_TabWidget_Bibles);
-    ui_Splitter_ModuleCrossRef->addWidget(new QWidget);
+    ui_Splitter_ModuleCrossRef->addWidget(ui_XRefBrowser);
     ui_Splitter_ModuleCrossRef->restoreState(m_pConfig->general.splitter_layout);
 
 
     ui_VerLayout_Modules = new QVBoxLayout;
    // ui_VerLayout_Modules->addWidget(ui_CrossRefBox);
+
     ui_VerLayout_Modules->addWidget(ui_Splitter_ModuleCrossRef);
     ui_VerLayout_Modules->addWidget(ui_FindOnPageBox);
 
@@ -50,13 +52,13 @@ void TabBibleNew::AddControls()
 void TabBibleNew::ConnectSignals()
 {
     QObject::connect(ui_NavPanel, QOverload<qbv::Location>::of(&NavPanel::LocationChanged),
-                     [=] ( qbv::Location loc ) { OnLocationChanged(loc); } );
+        this, [=] ( qbv::Location loc ) { OnLocationChanged(loc); } );
     QObject::connect(ui_TabWidget_Bibles, QOverload<int>::of(&QTabWidget::currentChanged),
-                     [=] (int idx) { OnTabChanged(idx); } );
+        this, [=] (int idx) { OnTabChanged(idx); } );
     QObject::connect(ui_TabWidget_Bibles->tabBar(), QOverload<int, int>::of(&QTabBar::tabMoved),
-                     [=] (int from, int to) { OnTabMoved(from, to); } );
+        this, [=] (int from, int to) { OnTabMoved(from, to); } );
     QObject::connect(ui_FindOnPageBox, QOverload<const QString &>::of(&FindOnPageBox::TextChanged),
-                     [=] (const QString &text) { m_passageBrowsers[ui_TabWidget_Bibles->currentIndex()]->HighlightText(text); });
+        this, [=] (const QString &text) { m_passageBrowsers[ui_TabWidget_Bibles->currentIndex()]->HighlightText(text); });
 }
 
 void TabBibleNew::SetUiTexts()
@@ -69,7 +71,9 @@ void TabBibleNew::AddNewPassageBrowser(int idx)
     PassageBrowserNew *passageBrowser = new PassageBrowserNew(*m_pConfig, *m_pDatabaseService);
     m_passageBrowsers.append(passageBrowser);
     QObject::connect(passageBrowser, QOverload<qbv::Location>::of(&PassageBrowserNew::AddNoteRequested),
-                     [=] (qbv::Location loc) { emit AddNoteRequested(loc); });
+        this, [=] (qbv::Location loc) { emit AddNoteRequested(loc); });
+    QObject::connect(passageBrowser, QOverload<qbv::Location>::of(&PassageBrowserNew::VerseSelected),
+        this, [=] (qbv::Location loc) { OnVerseSelected(loc); });
     ui_TabWidget_Bibles->addTab(passageBrowser, m_pDatabaseService->BibleShortName(idx));
 }
 
@@ -95,6 +99,27 @@ void TabBibleNew::OnTabMoved(int from, int to)
     m_passageBrowsers.swapItemsAt(from, to);
 }
 
+void TabBibleNew::OnVerseSelected(qbv::Location loc)
+{
+    qDebug() << loc.ToQString();
+    QList<qbv::Location> locations = m_pDatabaseService->GetXRefLocations(loc);
+    int idx = ui_TabWidget_Bibles->currentIndex();
+    QList<QString> passages;
+    for (const qbv::Location &location : locations) {
+        int verseId =  m_pDatabaseService->VerseId(location.book, location.chapter, location.verse);
+        int endVerseId = location.IsSingleVerse() ?
+            verseId : m_pDatabaseService->VerseId(location.endBook, location.endChapter, location.endVerse);
+        passages << m_pDatabaseService->GetScriptures(idx, verseId, endVerseId).join(" ");
+    }
+    QList<qbv::PassageWithLocation> results;
+    for (int i = 0; i < locations.count(); ++i) {
+        results << qbv::PassageWithLocation { passages[i], locations[i] };
+    }
+
+    ui_XRefBrowser->SetResults(results);
+    //ui_XRefBrowser.set
+}
+
 void TabBibleNew::SetLocationFromConfig()
 {
     QStringList slLoc = m_pConfig->module_data.last_passage;
@@ -113,8 +138,8 @@ void TabBibleNew::SaveLocationToConfig()
     QStringList slLoc;
     slLoc << QString::number(loc.book)
           << QString::number(loc.chapter)
-          << QString::number(loc.verse1)
-          << QString::number(loc.verse2);
+          << QString::number(loc.verse)
+          << QString::number(loc.endVerse);
     m_pConfig->module_data.last_passage = slLoc;
 }
 

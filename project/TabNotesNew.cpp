@@ -108,7 +108,7 @@ void TabNotesNew::OnIndexChanged(int idx)
     ui_TextEdit_Notes->setPlainText(note);
 
     QStringList passage = m_pDatabaseService->GetScriptures(0, loc);
-    ui_PassageBrowser->SetResult( qbv::PassageWithLocation { passage.join(" "), loc  } );
+    ui_PassageBrowser->SetResult( qbv::PassageWithLocation { passage.join(" "), loc } );
 }
 
 void TabNotesNew::OnButtonSaveClicked()

@@ -90,8 +90,8 @@ struct Module
                       "WHERE Book=? AND Chapter=? AND Verse>=? AND Verse<=?");
         query.addBindValue(loc.book, QSql::Out);
         query.addBindValue(loc.chapter, QSql::Out);
-        query.addBindValue(loc.verse1, QSql::Out);
-        query.addBindValue(loc.verse2, QSql::Out);
+        query.addBindValue(loc.verse, QSql::Out);
+        query.addBindValue(loc.endVerse, QSql::Out);
         if (query.exec()) {
             while (query.next()) {
                 QString scripture = query.record().value(0).toString();

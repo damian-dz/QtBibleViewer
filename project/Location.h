@@ -9,42 +9,63 @@ namespace qbv {
 struct Location
 {
     int book;
+    int endBook;
     int chapter;
-    int verse1;
-    int verse2;
+    int endChapter;
+    int verse;
+    int endVerse;
 
     Location() :
         book(-1),
+        endBook(-1),
         chapter(-1),
-        verse1(-1),
-        verse2(-1)
+        endChapter(-1),
+        verse(-1),
+        endVerse(-1)
     {
 
     }
 
-    Location(int book, int chapter, int verseFrom, int verseTo) :
+    Location(int book, int endBook, int chapter, int endChapter, int verse, int endVerse) :
         book(book),
+        endBook(endBook),
         chapter(chapter),
-        verse1(verseFrom),
-        verse2(verseTo)
+        endChapter(endChapter),
+        verse(verse),
+        endVerse(endVerse)
+    {
+
+    }
+
+    Location(int book, int chapter, int verse, int endVerse) :
+        book(book),
+        endBook(book),
+        chapter(chapter),
+        endChapter(chapter),
+        verse(verse),
+        endVerse(endVerse)
     {
 
     }
 
     Location(int book, int chapter, int verse) :
         book(book),
+        endBook(book),
         chapter(chapter),
-        verse1(verse),
-        verse2(verse)
+        endChapter(chapter),
+        verse(verse),
+        endVerse(verse)
     {
 
     }
 
     Location(const Location &other) :
         book(other.book),
+        endBook(other.endBook),
         chapter(other.chapter),
-        verse1(other.verse1),
-        verse2(other.verse2)
+        endChapter(other.endChapter),
+        verse(other.verse),
+        endVerse(other.endVerse)
     {
 
     }
@@ -59,46 +80,55 @@ struct Location
         return QString::number(chapter);
     }
 
-    QString VerseFromAsStr() const
+    QString VerseAsStr() const
     {
-        return QString::number(verse1);
+        return QString::number(verse);
     }
 
-    QString VerseToAsStr() const
+    QString EndVerseAsStr() const
     {
-        return QString::number(verse2);
+        return QString::number(endVerse);
     }
 
     bool IsValid()
     {
-        return (book > 0 && chapter > 0 && verse1 > 0 && verse2 > 0);
+        return (book > 0 && chapter > 0 && verse > 0 && endVerse > 0);
     }
 
-    bool IsValidChapter() const
+    bool IsChapterValid() const
     {
         return (book > 0 && chapter > 0);
+    }
+
+    bool IsSingleVerse() const
+    {
+        return book == endBook && chapter == endChapter && verse == endVerse;
     }
 
     bool IsSameAs(const Location &other) const
     {
         return (book == other.book &&
+                endBook == other.endBook &&
                 chapter == other.chapter &&
-                verse1 == other.verse1 &&
-                verse2 == other.verse2);
+                endChapter == other.endChapter &&
+                verse == other.verse &&
+                endVerse == other.endVerse);
     }
 
     QString ToQString() const
     {
         return QString::number(book) + " " + QString::number(chapter) + ":" +
-               QString::number(verse1) + "-" + QString::number(verse2);
+               QString::number(verse) + "-" + QString::number(endVerse);
     }
 
     Location operator =(const Location &other)
     {
         book = other.book;
+        endBook = other.endBook;
         chapter = other.chapter;
-        verse1 = other.verse1;
-        verse2 = other.verse2;
+        endVerse = other.endVerse;
+        verse = other.verse;
+        endVerse = other.endVerse;
         return *this;
     }
 
@@ -116,10 +146,10 @@ struct Location
     {
         bool result = false;
         if (!this->IsSameAs(other)) {
-            if (other.book == book && other.chapter == chapter && other.verse1 == verse1) {
-                result = verse2 < other.verse2;
+            if (other.book == book && other.chapter == chapter && other.verse == verse) {
+                result = endVerse < other.endVerse;
             } else if (other.book == book && other.chapter == chapter) {
-                result = verse1 < other.verse1;
+                result = verse < other.verse;
             } else if (other.book == book) {
                 result = chapter < other.chapter;
             } else {

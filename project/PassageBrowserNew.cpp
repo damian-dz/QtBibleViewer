@@ -69,7 +69,7 @@ void PassageBrowserNew::SetScriptures(const QStringList &scriptures, bool hasStr
     QString symbolBefore = m_pConfig->formatting.symbol_before.toHtmlEscaped();
     QString symbolAfter = m_pConfig->formatting.symbol_after.toHtmlEscaped();
     QTextCursor cursor(QTextEdit::textCursor());
-    int verseCounter = m_location.verse1;
+    int verseCounter = m_location.verse;
     int scriptureCounter = 0;
     for (const QString &scripture : scriptures) {
         ++scriptureCounter;
@@ -165,9 +165,9 @@ void PassageBrowserNew::OnContextMenuRequested(const QPoint &pos)
    // QString crossRefMsg = tr("Show Cross-References for Verse ") + QString::number(m_selectedVerseRange.second);
    // contextMenu.addAction(crossRefMsg, this, [=] { OnShowCrossReferences(); });
     QString addVerseMsg = m_selectedVerseRange.first == m_selectedVerseRange.second ?
-                   tr("Add Note to Verse ") + QString::number(m_selectedVerseRange.first) :
-                   tr("Add Note to Verses ") + QString::number(m_selectedVerseRange.first) +
-                   "–" + QString::number(m_selectedVerseRange.second);
+        tr("Add Note to Verse ") + QString::number(m_selectedVerseRange.first) :
+        tr("Add Note to Verses ") + QString::number(m_selectedVerseRange.first) +
+        "–" + QString::number(m_selectedVerseRange.second);
     contextMenu.addAction(addVerseMsg, this, [=] { OnAddNote(); });
     contextMenu.exec(globalPos);
 }
@@ -183,6 +183,8 @@ void PassageBrowserNew::OnCursorPositionChanged()
     format.setBackground(QBrush(m_pConfig->appearance.verse_highlight_color));
     cursor.setBlockFormat(format);
     m_lastCursor = cursor;
+    ComputeSelectedBlockAndVerseRanges();
+    emit VerseSelected(qbv::Location(m_location.book, m_location.chapter, m_selectedVerseRange.second));
 }
 
 void PassageBrowserNew::OnHighlighted(const QUrl &url)
@@ -195,7 +197,7 @@ void PassageBrowserNew::OnHighlighted(const QUrl &url)
         QString fontFamily = "font-family:" % QApplication::font().family();
         QString fontSize = "font-size:" % QString::number(QFontInfo(QWidget::font()).pixelSize()) % "px";
         QString note = QString("<p style='white-space:pre;%1;%2'>%3</p>")
-                               .arg(fontFamily, fontSize, plainText);
+            .arg(fontFamily, fontSize, plainText);
         QToolTip::showText(QCursor::pos(), note, nullptr, QRect(), 2147483647);
     }
     else {

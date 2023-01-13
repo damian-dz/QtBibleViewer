@@ -77,7 +77,7 @@ void CrossReferenceBox::ParseMultiBookCrossReference(int moduleIdx, const qbv::T
 {
     QSqlQuery query(m_pModules->at(moduleIdx).translation);
     query.exec(QString("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3")
-               .arg(loc.BookAsStr(), loc.ChapterAsStr(), loc.VerseFromAsStr()));
+               .arg(loc.BookAsStr(), loc.ChapterAsStr(), loc.VerseAsStr()));
     QString result;
     bool isFirst = true;
     while (query.next()) {
@@ -111,14 +111,14 @@ void CrossReferenceBox::ParseMultiBookCrossReference(int moduleIdx, const qbv::T
         }
     }
     query.exec(QString("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse <= %3")
-               .arg(QString::number(bookTo), QString::number(chapterTo), loc.VerseToAsStr()));
+               .arg(QString::number(bookTo), QString::number(chapterTo), loc.EndVerseAsStr()));
     while (query.next()) {
         result += " " % query.record().value("Scripture").toString();
     }
     results << result;
     refs << QString("<b><a href='#' style='text-decoration:none'>—%1 %2:%3-%4 %5:%6</a></b>")
-            .arg(m_pBookNames->at(loc.book - 1), loc.ChapterAsStr(), loc.VerseFromAsStr(),
-                 m_pBookNames->at(bookTo - 1), QString::number(chapterTo), loc.VerseToAsStr());
+            .arg(m_pBookNames->at(loc.book - 1), loc.ChapterAsStr(), loc.VerseAsStr(),
+                 m_pBookNames->at(bookTo - 1), QString::number(chapterTo), loc.EndVerseAsStr());
 }
 
 void CrossReferenceBox::ParseMultiChapterCrossReference(int moduleIdx, const qbv::TabbedLocation &loc, int chapterTo,
@@ -126,7 +126,7 @@ void CrossReferenceBox::ParseMultiChapterCrossReference(int moduleIdx, const qbv
 {
     QSqlQuery query(m_pModules->at(moduleIdx).translation);
     query.exec(QString("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3")
-               .arg(loc.BookAsStr(), loc.ChapterAsStr(), loc.VerseFromAsStr()));
+               .arg(loc.BookAsStr(), loc.ChapterAsStr(), loc.VerseAsStr()));
     QString result;
     bool isFirst = true;
     while (query.next()) {
@@ -142,14 +142,14 @@ void CrossReferenceBox::ParseMultiChapterCrossReference(int moduleIdx, const qbv
         }
     }
     query.exec(QString("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse <= %3")
-               .arg(loc.BookAsStr(), QString::number(chapterTo), loc.VerseToAsStr()));
+               .arg(loc.BookAsStr(), QString::number(chapterTo), loc.EndVerseAsStr()));
     while (query.next()) {
         result += " " % query.record().value("Scripture").toString();
     }
     results << result;
     refs << QString("<b><a href='#' style='text-decoration:none'>—%1 %2:%3-%4:%5</a></b>")
-            .arg(m_pBookNames->at(loc.book - 1), loc.ChapterAsStr(), loc.VerseFromAsStr(), QString::number(chapterTo),
-                 loc.VerseToAsStr());
+            .arg(m_pBookNames->at(loc.book - 1), loc.ChapterAsStr(), loc.VerseAsStr(), QString::number(chapterTo),
+                 loc.EndVerseAsStr());
 }
 
 void CrossReferenceBox::ParseMultiVerseCrossReference(int moduleIdx, const qbv::TabbedLocation &loc, QStringList &results,
@@ -157,7 +157,7 @@ void CrossReferenceBox::ParseMultiVerseCrossReference(int moduleIdx, const qbv::
 {
     QSqlQuery query(m_pModules->at(moduleIdx).translation);
     query.exec(QString("SELECT Scripture FROM Bible WHERE Book = %1 AND Chapter = %2 AND Verse >= %3 AND Verse <= %4")
-               .arg(loc.BookAsStr(), loc.ChapterAsStr(), loc.VerseFromAsStr(), loc.VerseToAsStr()));
+               .arg(loc.BookAsStr(), loc.ChapterAsStr(), loc.VerseAsStr(), loc.EndVerseAsStr()));
     QString result;
     bool isFirst = true;
     while (query.next()) {
@@ -167,7 +167,7 @@ void CrossReferenceBox::ParseMultiVerseCrossReference(int moduleIdx, const qbv::
     }
     results << result;
     refs << QString("<b><a href='#' style='text-decoration:none'>—%1 %2:%3-%4</a></b>")
-            .arg(m_pBookNames->at(loc.book - 1), loc.ChapterAsStr(), loc.VerseFromAsStr(),  loc.VerseToAsStr());
+            .arg(m_pBookNames->at(loc.book - 1), loc.ChapterAsStr(), loc.VerseAsStr(),  loc.EndVerseAsStr());
 }
 
 void CrossReferenceBox::ParseSingleVerseCrossReference(int moduleIdx, const QString &xRef, QStringList &results,

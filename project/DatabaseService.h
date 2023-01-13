@@ -1,18 +1,17 @@
 #ifndef DATABASESERVICE_H
 #define DATABASESERVICE_H
 
-#include "precomp.h"
-
 #include "AppConfig.h"
 #include "DbBible.h"
 #include "DbVerseData.h"
 #include "DbNotes.h"
+#include "DbXRef.h"
 
 namespace qbv {
 
 class DatabaseService : public QObject
 {
-     Q_OBJECT
+    Q_OBJECT
 public:
     DatabaseService(const QString &dataDir, AppConfig &config);
     ~DatabaseService();
@@ -51,14 +50,18 @@ public:
 
     void SetActiveIdx(int idx);
 
+    QStringList GetScriptures(int idx, int verseId, int endVerseId) const;
     QStringList GetScriptures(int idx, qbv::Location loc);
     QStringList GetScripturesWithMissing(int idx, qbv::Location loc);
     QStringList GetScriptures(qbv::Location loc) const;
     QList<qbv::PassageWithLocation> Search(int idx, const QString &phrase, SearchOptions options);
     qbv::PassageWithLocation GetRandomPassage(int idx, SearchOptions options);
 
+    QList<Location> GetXRefLocations(Location loc) const;
+
     void CreateUserDir();
     void OpenUserNotesDb();
+    void OpenXRefDb();
 
     void AddToNotes(qbv::Location loc);
     QList<qbv::Location> NotesLocations();
@@ -80,6 +83,7 @@ private:
     QList<qbv::DbBible *> m_dbBibles;
     qbv::DbVerseData m_dbVerseData;
     qbv::DbNotes m_dbNotes;
+    qbv::DbXRef m_dbXRef;
 
     QStringList m_bookNames;
     QStringList m_shortBookNames;

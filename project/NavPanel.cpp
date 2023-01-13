@@ -237,12 +237,12 @@ void NavPanel::SetLocation(qbv::Location loc, bool emitSignal)
 
     ui_ListWidget_VerseFrom->clear();
     ui_ListWidget_VerseFrom->addItems(verseNumbers);
-    ui_ListWidget_VerseFrom->setCurrentRow(loc.verse1 - 1);
+    ui_ListWidget_VerseFrom->setCurrentRow(loc.verse - 1);
 
     ui_ListWidget_VerseTo->clear();
     ui_ListWidget_VerseTo->addItems(verseNumbers);
-    if (loc.verse2 > -1)
-        ui_ListWidget_VerseTo->setCurrentRow(loc.verse2 - 1);
+    if (loc.endVerse > -1)
+        ui_ListWidget_VerseTo->setCurrentRow(loc.endVerse - 1);
     else
         ui_ListWidget_VerseTo->setCurrentRow(verseNumbers.count() - 1);
 

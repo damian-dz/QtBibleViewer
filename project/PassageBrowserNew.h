@@ -62,6 +62,7 @@ private:
 
 signals:
     void AddNoteRequested(qbv::Location loc);
+    void VerseSelected(qbv::Location loc);
 };
 
 #endif // PASSAGEBROWSERNEW_H

@@ -274,9 +274,9 @@ void MainWindowNew::OnGoToVerseRequested(const QString &name, qbv::Location loc,
 {
     int idx = m_databaseService.IndexForBibleShortName(name);
     ui_TabWidget_Main->setCurrentIndex(0);
-    int verse = loc.verse1;
-    loc.verse1 = 1;
-    if (changeVerse2) loc.verse2 = m_databaseService.GetNumVerses(loc.book, loc.chapter);
+    int verse = loc.verse;
+    loc.verse = 1;
+    if (changeVerse2) loc.endVerse = m_databaseService.GetNumVerses(loc.book, loc.chapter);
     ui_TabBible->SetLocation(loc, false);
     ui_TabBible->SetBibleIndex(idx);
     ui_TabBible->UpdatePassageBrowser(idx, loc);

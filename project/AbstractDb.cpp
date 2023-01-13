@@ -39,4 +39,9 @@ QString AbstractDb::FilePath() const
     return m_db.databaseName();
 }
 
+bool AbstractDb::IsOpen() const
+{
+    return m_db.isOpen();
+}
+
 }

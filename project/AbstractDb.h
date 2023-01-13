@@ -13,6 +13,7 @@ public:
     bool Open(const QString &filePath);
     void Close();
     QString FilePath() const;
+    bool IsOpen() const;
 
 protected:
     QSqlDatabase m_db;

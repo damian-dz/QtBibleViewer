@@ -53,6 +53,22 @@ QString DbBible::GetShortName() const
     return result;
 }
 
+QStringList DbBible::GetScriptures(int verseId, int endVerseId) const
+{
+    QSqlQuery query(m_db);
+    query.prepare("SELECT Scripture From Bible WHERE Id>=? AND Id<=?");
+    query.addBindValue(verseId, QSql::Out);
+    query.addBindValue(endVerseId, QSql::Out);
+    QStringList results;
+    if (query.exec()) {
+        while (query.next()) {
+            QString scripture = query.record().value(0).toString();
+            results.append(scripture);
+        }
+    }
+    return results;
+}
+
 /*!
  * \brief Searches the database for a scripture from the specified location.
  * \param loc — location of the passage
@@ -64,13 +80,15 @@ QString DbBible::GetScripture(Location loc) const
     query.prepare("SELECT Scripture From Bible WHERE Book=? AND Chapter=? AND Verse=?");
     query.addBindValue(loc.book, QSql::Out);
     query.addBindValue(loc.chapter, QSql::Out);
-    query.addBindValue(loc.verse1, QSql::Out);
+    query.addBindValue(loc.verse, QSql::Out);
     QString result;
     if (query.exec() && query.next()) {
         result = query.record().value(0).toString();
     }
     return result;
 }
+
+
 
 /*!
  * \brief Searches the database for scriptures from the specified location.
@@ -83,8 +101,8 @@ QStringList DbBible::GetScriptures(Location loc) const
     query.prepare("SELECT Scripture From Bible WHERE Book=? AND Chapter=? AND Verse>=? AND Verse<=?");
     query.addBindValue(loc.book, QSql::Out);
     query.addBindValue(loc.chapter, QSql::Out);
-    query.addBindValue(loc.verse1, QSql::Out);
-    query.addBindValue(loc.verse2, QSql::Out);
+    query.addBindValue(loc.verse, QSql::Out);
+    query.addBindValue(loc.endVerse, QSql::Out);
     QStringList results;
     if (query.exec()) {
         while (query.next()) {
@@ -106,17 +124,19 @@ QStringList DbBible::GetScripturesWithMissing(Location loc) const
     QStringList results;
     QSqlQuery query(m_db);
     QString command = "SELECT Verse, Scripture From Bible WHERE Book=? AND Chapter=? AND Verse>=?";
-    if (loc.verse2 > -1) command += " AND Verse<=?";
+    if (loc.endVerse > -1)
+        command += " AND Verse<=?";
     query.prepare(command);
     query.addBindValue(loc.book, QSql::Out);
     query.addBindValue(loc.chapter, QSql::Out);
-    query.addBindValue(loc.verse1, QSql::Out);
-    if (loc.verse2 > -1) query.addBindValue(loc.verse2, QSql::Out);
-    int verseNumber = loc.verse1;
-    int finalVerse = loc.verse2;
-    int verse = loc.verse1;
+    query.addBindValue(loc.verse, QSql::Out);
+    if (loc.endVerse > -1)
+        query.addBindValue(loc.endVerse, QSql::Out);
+    int verseNumber = loc.verse;
+    int endVerse = loc.endVerse;
+    int verse = loc.verse;
     if (query.exec()) {
-        while (query.next() && verseNumber <= finalVerse) {
+        while (query.next() && verseNumber <= endVerse) {
             QSqlRecord record = query.record();
             verse = record.value(0).toInt();
             if (verseNumber != verse) {
@@ -131,8 +151,8 @@ QStringList DbBible::GetScripturesWithMissing(Location loc) const
             ++verseNumber;
         }
     }
-    if (verse < finalVerse) {
-        for (int i = 0; i < finalVerse - verse; ++i) {
+    if (verse < endVerse) {
+        for (int i = 0; i < endVerse - verse; ++i) {
             results.append(QString());
         }
     }

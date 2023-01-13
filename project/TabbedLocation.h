@@ -26,7 +26,7 @@ struct TabbedLocation : public Location
     }
 
     TabbedLocation(const TabbedLocation &other) :
-        Location(other.book, other.chapter, other.verse1, other.verse2),
+        Location(other.book, other.chapter, other.verse, other.endVerse),
         tab(other.tab)
     {
 
@@ -36,13 +36,13 @@ struct TabbedLocation : public Location
     {
         return (book == other.book &&
                 chapter == other.chapter &&
-                verse1 == other.verse1 &&
-                verse2 == other.verse2);
+                verse == other.verse &&
+                endVerse == other.endVerse);
     }
 
     bool IsLocationValid()
     {
-        return (book > 0 && chapter > 0 && verse1 > 0 && verse2 > 0);
+        return (book > 0 && chapter > 0 && verse > 0 && endVerse > 0);
     }
 
     bool IsSameAs(const TabbedLocation &other)
@@ -50,8 +50,8 @@ struct TabbedLocation : public Location
         return (tab == other.tab &&
                 book == other.book &&
                 chapter == other.chapter &&
-                verse1 == other.verse1 &&
-                verse2 == other.verse2);
+                verse == other.verse &&
+                endVerse == other.endVerse);
     }
 
     TabbedLocation operator =(const TabbedLocation &other)
@@ -59,8 +59,8 @@ struct TabbedLocation : public Location
         tab = other.tab;
         book = other.book;
         chapter = other.chapter;
-        verse1 = other.verse1;
-        verse2 = other.verse2;
+        verse = other.verse;
+        endVerse = other.endVerse;
         return *this;
     }
 

@@ -36,8 +36,8 @@ void DbNotes::Add(Location loc)
     query.prepare("INSERT INTO Notes (Book, Chapter, Verse1, Verse2, Created) VALUES (?, ?, ?, ?, DATETIME('now'))");
     query.addBindValue(loc.book);
     query.addBindValue(loc.chapter);
-    query.addBindValue(loc.verse1);
-    query.addBindValue(loc.verse2);
+    query.addBindValue(loc.verse);
+    query.addBindValue(loc.endVerse);
     query.exec();
 }
 
@@ -49,8 +49,8 @@ void DbNotes::Save(const QString &note, Location loc)
     query.addBindValue(note);
     query.addBindValue(loc.book);
     query.addBindValue(loc.chapter);
-    query.addBindValue(loc.verse1);
-    query.addBindValue(loc.verse2);
+    query.addBindValue(loc.verse);
+    query.addBindValue(loc.endVerse);
     query.exec();
 }
 
@@ -61,8 +61,8 @@ QString DbNotes::Note(Location loc)
     query.prepare("SELECT Note FROM Notes WHERE Book=? AND Chapter=? AND Verse1=? AND Verse2=?");
     query.addBindValue(loc.book, QSql::Out);
     query.addBindValue(loc.chapter, QSql::Out);
-    query.addBindValue(loc.verse1, QSql::Out);
-    query.addBindValue(loc.verse2, QSql::Out);
+    query.addBindValue(loc.verse, QSql::Out);
+    query.addBindValue(loc.endVerse, QSql::Out);
     if (query.exec() && query.next()) {
         result = query.record().value(0).toString();
     }
