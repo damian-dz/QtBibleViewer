@@ -74,6 +74,7 @@ void SearchResultsBrowser::SetNumResultsPerPage(int numResults)
 
 void SearchResultsBrowser::DisplayPage(int idx)
 {
+
     int startIdx = qMin(idx * m_numResultsPerPage, m_results.count() - 1);
 
     QObject::blockSignals(true);

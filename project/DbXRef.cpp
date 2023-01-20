@@ -21,6 +21,8 @@ QList<Location> DbXRef::GetLocations(Location loc) const
 
     QList<Location> locations;
 
+    if (refs.isNull() || refs.isEmpty())
+        return locations;
     QStringList refsSplit = refs.split(',');
     for (const QString &refSplit : refsSplit) {
         if (refSplit.contains('-')) {

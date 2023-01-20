@@ -35,12 +35,16 @@ private:
     QLabel *ui_Label_ResultsPerPassage;
     QLabel *ui_Label_To;
     QLabel *ui_Label_Translation;
+    QRadioButton *ui_RadioButton_ExactPhrase;
     QRadioButton *ui_RadioButton_AllWords;
     QRadioButton *ui_RadioButton_AnyWords;
-    QRadioButton *ui_RadioButton_ByStrong;
-    QRadioButton *ui_RadioButton_ExactPhrase;
+    QRadioButton *ui_RadioButton_ByStrongsNumber;
+    QRadioButton *ui_RadioButton_ByVerseNumber;
 
     void OnRangeChanged(int idx);
+
+    void OnBookFromChanged(int idx);
+    void OnBookToChanged(int idx);
 };
 
 #endif // SEARCHOPTIONSPANELNEW_H

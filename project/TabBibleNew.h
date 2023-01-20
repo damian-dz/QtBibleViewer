@@ -40,9 +40,9 @@ private:
 
     QList<PassageBrowserNew *> m_passageBrowsers;
 
-
     QVBoxLayout *ui_VerLayout_Modules;
     QSplitter *ui_Splitter_ModuleCrossRef;
+    QTabWidget *ui_TabWidget_Tools;
     //CrossReferenceBox *ui_CrossRefBox;
     SearchResultsBrowser *ui_XRefBrowser;
     FindOnPageBox *ui_FindOnPageBox;

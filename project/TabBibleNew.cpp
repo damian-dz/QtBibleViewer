@@ -29,9 +29,19 @@ void TabBibleNew::AddControls()
 
 
 
+
+
     ui_Splitter_ModuleCrossRef = new QSplitter(Qt::Vertical);
     ui_Splitter_ModuleCrossRef->addWidget(ui_TabWidget_Bibles);
-    ui_Splitter_ModuleCrossRef->addWidget(ui_XRefBrowser);
+
+
+    ui_TabWidget_Tools = new QTabWidget;
+    auto ui_StrongsBrowser = new QTextBrowser;
+    ui_TabWidget_Tools->addTab(ui_XRefBrowser, QString());
+    ui_TabWidget_Tools->addTab(ui_StrongsBrowser, QString());
+
+
+    ui_Splitter_ModuleCrossRef->addWidget(ui_TabWidget_Tools);
     ui_Splitter_ModuleCrossRef->restoreState(m_pConfig->general.splitter_layout);
 
 
@@ -63,6 +73,8 @@ void TabBibleNew::ConnectSignals()
 
 void TabBibleNew::SetUiTexts()
 {
+    ui_TabWidget_Tools->setTabText(0, tr("Cross-references"));
+    ui_TabWidget_Tools->setTabText(1, tr("Strong's"));
     ui_NavPanel->SetUiTexts();
 }
 
@@ -101,8 +113,8 @@ void TabBibleNew::OnTabMoved(int from, int to)
 
 void TabBibleNew::OnVerseSelected(qbv::Location loc)
 {
-    qDebug() << loc.ToQString();
     QList<qbv::Location> locations = m_pDatabaseService->GetXRefLocations(loc);
+
     int idx = ui_TabWidget_Bibles->currentIndex();
     QList<QString> passages;
     for (const qbv::Location &location : locations) {
@@ -117,7 +129,6 @@ void TabBibleNew::OnVerseSelected(qbv::Location loc)
     }
 
     ui_XRefBrowser->SetResults(results);
-    //ui_XRefBrowser.set
 }
 
 void TabBibleNew::SetLocationFromConfig()

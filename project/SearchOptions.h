@@ -6,7 +6,8 @@ enum SearchMode
     exactPhrase,
     allWords,
     anyWords,
-    byStrong
+    byStrong,
+    byVerse
 };
 
 struct SearchOptions

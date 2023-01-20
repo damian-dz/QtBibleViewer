@@ -71,6 +71,8 @@ public:
 
     void PopulateBookNames();
     void PopulateShortBookNames();
+    void PopulateBookNamesAlt();
+    void PopulateShortBookNamesAlt();
 
 private:
     const QString *m_dataDir;
@@ -87,6 +89,8 @@ private:
 
     QStringList m_bookNames;
     QStringList m_shortBookNames;
+    QStringList m_bookNamesAlt;
+    QStringList m_shortBookNamesAlt;
 
     int m_activeIdx = 0;
 

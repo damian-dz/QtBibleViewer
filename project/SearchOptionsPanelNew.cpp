@@ -17,10 +17,11 @@ SearchOptionsPanelNew::SearchOptionsPanelNew(AppConfig &config, qbv::DatabaseSer
     ui_Label_ResultsPerPassage(new QLabel),
     ui_Label_To(new QLabel),
     ui_Label_Translation(new QLabel),
+    ui_RadioButton_ExactPhrase(new QRadioButton),
     ui_RadioButton_AllWords(new QRadioButton),
     ui_RadioButton_AnyWords(new QRadioButton),
-    ui_RadioButton_ByStrong(new QRadioButton),
-    ui_RadioButton_ExactPhrase(new QRadioButton)
+    ui_RadioButton_ByStrongsNumber(new QRadioButton),
+    ui_RadioButton_ByVerseNumber(new QRadioButton)
 {
     ui_ComboBox_Translation->setStyleSheet(m_popup0);
     ui_ComboBox_Translation->addItems(m_pDatabaseService->BibleShortNames());
@@ -59,13 +60,19 @@ SearchOptionsPanelNew::SearchOptionsPanelNew(AppConfig &config, qbv::DatabaseSer
     mainFormLayout->addRow(ui_RadioButton_ExactPhrase);
     mainFormLayout->addRow(ui_RadioButton_AllWords);
     mainFormLayout->addRow(ui_RadioButton_AnyWords);
-    mainFormLayout->addRow(ui_RadioButton_ByStrong);
+    mainFormLayout->addRow(ui_RadioButton_ByStrongsNumber);
+    mainFormLayout->addRow(ui_RadioButton_ByVerseNumber);
     mainFormLayout->addRow(resPerPageHorLayout);
 
     QWidget::setLayout(mainFormLayout);
 
     QObject::connect(ui_ComboBox_Range, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                     [=] (int idx) { OnRangeChanged(idx); });
+        this, [=] (int idx) { OnRangeChanged(idx); });
+
+    QObject::connect(ui_ComboBox_From, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        this, [=] (int idx) { OnBookFromChanged(idx); });
+    QObject::connect(ui_ComboBox_To, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        this, [=] (int idx) { OnBookToChanged(idx); });
 
 }
 
@@ -107,9 +114,12 @@ void SearchOptionsPanelNew::SetUiTexts()
     ui_RadioButton_AnyWords->setText(tr("Any of the Words"));
     ui_RadioButton_AnyWords->setToolTip(
                 tr("Look for verses that contain at least one of the words."));
-    ui_RadioButton_ByStrong->setText(tr("By Strong's Number"));
-    ui_RadioButton_ByStrong->setToolTip(
+    ui_RadioButton_ByStrongsNumber->setText(tr("Strong's Number"));
+    ui_RadioButton_ByStrongsNumber->setToolTip(
                 tr("Look for verses containing the specified Strong's Number (if available)."));
+    ui_RadioButton_ByVerseNumber->setText(tr("Verse References"));
+    ui_RadioButton_ByVerseNumber->setToolTip(
+                tr("Look for verses with the specified locations."));
 }
 
 SearchOptions SearchOptionsPanelNew::GetSearchOptions()
@@ -124,8 +134,10 @@ SearchOptions SearchOptionsPanelNew::GetSearchOptions()
         searchMode = SearchMode::allWords;
     } else if (ui_RadioButton_AnyWords->isChecked()) {
         searchMode = SearchMode::anyWords;
-    } else if (ui_RadioButton_ByStrong->isChecked()) {
+    } else if (ui_RadioButton_ByStrongsNumber->isChecked()) {
         searchMode = SearchMode::byStrong;
+    } else if (ui_RadioButton_ByVerseNumber->isChecked()) {
+        searchMode = SearchMode::byVerse;
     }
     return { translation, bookFrom, bookTo, caseSensitive, wholeWordsOnly, searchMode };
 }
@@ -147,6 +159,8 @@ int SearchOptionsPanelNew::GetNumResultsPerPage() const
 
 void SearchOptionsPanelNew::OnRangeChanged(int idx)
 {
+    ui_ComboBox_From->blockSignals(true);
+    ui_ComboBox_To->blockSignals(true);
     switch (idx) {
        case 0:
            ui_ComboBox_From->setCurrentIndex(0);
@@ -194,5 +208,31 @@ void SearchOptionsPanelNew::OnRangeChanged(int idx)
            break;
        default:
            break;
-       }
+    }
+    ui_ComboBox_From->blockSignals(false);
+    ui_ComboBox_To->blockSignals(false);
+}
+
+void SearchOptionsPanelNew::OnBookFromChanged(int idx)
+{
+    if (idx > ui_ComboBox_To->currentIndex()) {
+        ui_ComboBox_To->blockSignals(true);
+        ui_ComboBox_To->setCurrentIndex(idx);
+        ui_ComboBox_To->blockSignals(false);
+    }
+    ui_ComboBox_Range->blockSignals(true);
+    ui_ComboBox_Range->setCurrentIndex(ui_ComboBox_Range->count() - 1);
+    ui_ComboBox_Range->blockSignals(false);
+}
+
+void SearchOptionsPanelNew::OnBookToChanged(int idx)
+{
+    if (idx < ui_ComboBox_From->currentIndex()) {
+        ui_ComboBox_From->blockSignals(true);
+        ui_ComboBox_From->setCurrentIndex(idx);
+        ui_ComboBox_From->blockSignals(false);
+    }
+    ui_ComboBox_Range->blockSignals(true);
+    ui_ComboBox_Range->setCurrentIndex(ui_ComboBox_Range->count() - 1);
+    ui_ComboBox_Range->blockSignals(false);
 }

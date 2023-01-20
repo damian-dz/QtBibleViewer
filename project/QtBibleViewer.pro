@@ -49,6 +49,7 @@ SOURCES += \
     ModuleTabWidget.cpp \
     NavPanel.cpp \
     NavigationPanel.cpp \
+    Parsers.cpp \
     PassageBrowser.cpp \
     PassageBrowserNew.cpp \
     SearchEngine.cpp \
@@ -102,6 +103,8 @@ HEADERS += \
     ModuleTabWidget.h \
     NavPanel.h \
     NavigationPanel.h \
+    ParsedVerseLocation.h \
+    Parsers.h \
     PassageBrowser.h \
     PassageBrowserNew.h \
     PassageWithNotes.h \
