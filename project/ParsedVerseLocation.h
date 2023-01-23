@@ -9,6 +9,12 @@ struct ParsedVerseLocation
     QString bookName;
     int chapter;
     int verse;
+
+
+    QString ToQString() const
+    {
+        return bookName + " " + QString::number(chapter) + ":" + QString::number(verse);
+    }
 };
 
 }

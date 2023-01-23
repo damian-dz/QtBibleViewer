@@ -266,6 +266,54 @@ int SearchEngine::FindBestMatchIndex(QString pattern, QStringList values)
     return lastSimilarityCs > lastSimilarityCi ? lastIndexCs : lastIndexCi;
 }
 
+int SearchEngine::FindBestBookMatchNumber(QString pattern, const QList<qbv::BookStringMapping> &mappings)
+{
+    if (mappings.empty() || mappings.length() == 0)
+        return -1;
+
+    for (const qbv::BookStringMapping mapping : mappings) {
+        if (pattern == mapping.nameVariant)
+            return mapping.number;
+    }
+
+    QString patternLower = pattern.toLower();
+    for (const qbv::BookStringMapping mapping : mappings) {
+        if (patternLower == mapping.nameVariant.toLower())
+            return mapping.number;
+    }
+
+    for (const qbv::BookStringMapping mapping : mappings) {
+        if (mapping.nameVariant.startsWith(pattern))
+            return mapping.number;
+    }
+
+    for (const qbv::BookStringMapping mapping : mappings) {
+        if (mapping.nameVariant.toLower().startsWith(patternLower))
+            return mapping.number;
+    }
+
+    double lastSimilarityCs = 0.0;
+    int lastNumberCs = 0;
+    for (const qbv::BookStringMapping mapping : mappings) {
+        double similarity = CalculateSimilarity(pattern, mapping.nameVariant);
+        if (similarity > lastSimilarityCs) {
+            lastNumberCs = mapping.number;
+            lastSimilarityCs = similarity;
+        }
+    }
+
+    double lastSimilarityCi = 0.0;
+    int lastNumberCi = 0;
+    for (const qbv::BookStringMapping mapping : mappings) {
+        double similarity = CalculateSimilarity(pattern, mapping.nameVariant, false);
+        if (similarity > lastSimilarityCi) {
+            lastNumberCi = mapping.number;
+            lastSimilarityCi = similarity;
+        }
+    }
+    return lastSimilarityCs > lastSimilarityCi ? lastNumberCs : lastNumberCi;
+}
+
 
 qbv::Location SearchEngine::parseLocationStr(QString raw,
                                              const QStringList& bookNames,

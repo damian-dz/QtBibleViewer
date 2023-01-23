@@ -81,6 +81,7 @@ HEADERS += \
     AbstractTab.h \
     AppConfig.h \
     BiblesTabWidget.h \
+    BookStringMapping.h \
     CompareVerseBrowser.h \
     ConversionTools.h \
     CrossReferenceBox.h \
@@ -128,6 +129,8 @@ HEADERS += \
     TabSearch.h \
     TabSearchNew.h \
     TabbedLocation.h \
+    Typedefs.h \
+    VerseLocation.h \
     WidgetCommonRare.h \
     WidgetCommonRareWords.h \
     WidgetWordFrequency.h

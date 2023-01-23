@@ -7,8 +7,8 @@ QList<qbv::ParsedVerseLocation> Parsers::ToVerseLocations(const QString &str)
 
     const QString s = str.trimmed();
 
-    int count = s.count();
-    if (count < 3)
+    int length = s.length();
+    if (length < 3)
         throw std::invalid_argument("The input string is too short after trimming.");
 
     const QString num12345 = QStringLiteral("12345");
@@ -21,18 +21,19 @@ QList<qbv::ParsedVerseLocation> Parsers::ToVerseLocations(const QString &str)
     QList<qbv::ParsedVerseLocation> locations;
     bool shouldParseLocations = false;
 
-    for (int i = 1; i < count; ++i) {
+    for (int i = 1; i < length; ++i) {
         QChar c = s[i];
         if (isLetter && !c.isLetter() && !c.isSpace()) {
            startIdx = i;
-           lastBookName = str.mid(startIdx, endIdx - startIdx).trimmed();
+           lastBookName = str.mid(endIdx, startIdx - endIdx).trimmed();
+           qDebug() << "lastBookName: " << lastBookName;
            isLetter = false;
-        } else if (!isLetter && c.isLetter() || i == count - 1) {
-           endIdx = i == count - 1 ? count : i;
+        } else if (!isLetter && c.isLetter() || i == length - 1) {
+           endIdx = i == length - 1 ? length : i;
            shouldParseLocations = true;
            isLetter = true;
         } else if (!isLetter && num12345.contains(c)
-            && i > 0 && i + 1 < count && !s[i - 1].isDigit()) {
+            && i > 0 && i + 1 < length && !s[i - 1].isDigit()) {
             int numberCount = CountNumbers(str.mid(startIdx, i - startIdx));
             bool canBeBookName = CanBeBookName(s, i + 1);
             if (numberCount > 1 && numberCount % 2 == 0 && canBeBookName)
@@ -102,6 +103,7 @@ bool Parsers::CanBeBookName(const QString &str, int offset)
 QList<int> Parsers::ToNumbers(const QString &str)
 {
     const QString s = str.trimmed();
+    qDebug() << "ToNumbers: " << s;
     if (s.isEmpty())
         throw std::invalid_argument("The input string cannot be empty.");
 

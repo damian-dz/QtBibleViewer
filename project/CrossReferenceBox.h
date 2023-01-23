@@ -12,7 +12,7 @@ class CrossReferenceBox : public QWidget
     Q_OBJECT
 public:
     CrossReferenceBox(const QList<qbv::Module>& modules, const QSqlDatabase &crossRefs, const QStringList &bookNames,
-                      QWidget *parent = nullptr);
+        QWidget *parent = nullptr);
 
     void LoadCrossReferences(int moduleIdx, int book, int chapter, int verse);
     void SetUiTexts();

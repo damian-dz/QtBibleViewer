@@ -175,8 +175,7 @@ void MainWindowNew::SetLanguage(const QString &lang)
             qApp->removeTranslator(m_pTsApp);
             qApp->removeTranslator(m_pTsQt);
         }
-       m_databaseService.PopulateBookNames();
-       m_databaseService.PopulateShortBookNames();
+       m_databaseService.LoadBookNames();
        ui_TabBible->ReloadBookNames();
 
        if (ui_TabCompare->IsInitialized()) {
@@ -245,6 +244,7 @@ void MainWindowNew::OnPreferences()
 void MainWindowNew::OnLanguage()
 {
     const QString lang = qobject_cast<QAction *>(QObject::sender())->text();
+
     SetLanguage(lang);
 }
 

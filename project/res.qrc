@@ -19,4 +19,10 @@
         <file>img_res/close-button.svg</file>
         <file>img_res/close-button-active.svg</file>
     </qresource>
+    <qresource prefix="/str">
+        <file>str_res/en_book_names_alt.json</file>
+        <file>str_res/pl_book_names_alt.json</file>
+        <file>str_res/en_short_book_names_alt.json</file>
+        <file>str_res/pl_short_book_names_alt.json</file>
+    </qresource>
 </RCC>

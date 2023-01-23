@@ -137,7 +137,7 @@ SearchOptions SearchOptionsPanelNew::GetSearchOptions()
     } else if (ui_RadioButton_ByStrongsNumber->isChecked()) {
         searchMode = SearchMode::byStrong;
     } else if (ui_RadioButton_ByVerseNumber->isChecked()) {
-        searchMode = SearchMode::byVerse;
+        searchMode = SearchMode::byVerses;
     }
     return { translation, bookFrom, bookTo, caseSensitive, wholeWordsOnly, searchMode };
 }

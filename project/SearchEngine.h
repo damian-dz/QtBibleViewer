@@ -3,6 +3,7 @@
 
 #include "Location.h"
 #include "SearchOptions.h"
+#include "BookStringMapping.h"
 
 class SearchEngine
 {
@@ -24,6 +25,7 @@ public:
                               const QStringList &bookNames, QStringList &results);
 
     static int FindBestMatchIndex(QString pattern, QStringList values);
+    static int FindBestBookMatchNumber(QString pattern, const QList<qbv::BookStringMapping> &mappings);
     static qbv::Location parseLocationStr(QString raw,
                                           const QStringList& bookNames,
                                           const QStringList& shortBookNames);

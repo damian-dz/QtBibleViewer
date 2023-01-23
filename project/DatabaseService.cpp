@@ -15,7 +15,9 @@ DatabaseService::DatabaseService(const QString &dataDir, AppConfig &config) :
 
     LoadBookNames();
     LoadDbBibles();
-        OpenXRefDb();
+    InitBookKeys();
+    LoadBookNameMappings();
+    OpenXRefDb();
 }
 
 DatabaseService::~DatabaseService()
@@ -58,6 +60,12 @@ void DatabaseService::LoadBookNames()
     PopulateShortBookNames();
 }
 
+void DatabaseService::LoadBookNameMappings()
+{
+    PopulateBookNameMappings(m_bookNameMappings, m_bookNames, m_bookNameKeys, "book_names_alt");
+    PopulateBookNameMappings(m_shortBookNameMappings, m_shortBookNames, m_shortBookNameKeys, "short_book_names_alt");
+}
+
 void DatabaseService::LoadDbBibles()
 {
     if (!QDir(m_dirBibles).exists()) {
@@ -83,7 +91,9 @@ void DatabaseService::LoadDbBibles()
 
     for (const QString &filePath: m_pConfig->module_data.paths) {
         qDebug() << filePath;
-        qbv::DbBible *dbBible = new qbv::DbBible;
+        qbv::DbBible *dbBible = new qbv::DbBible(m_bookNameMappings, m_shortBookNameMappings);
+        //dbBible->SetToVerseLocation(&DatabaseService::ToVerseLocation);
+       // dbBible->SetDatabaseService(this);
         dbBible->Open(filePath);
         AddDbBible(dbBible);
     }
@@ -106,6 +116,7 @@ QStringList DatabaseService::BibleFilePaths()
     }
     return results;
 }
+
 
 QStringList DatabaseService::BookNames()
 {
@@ -433,82 +444,182 @@ void DatabaseService::PopulateShortBookNames()
                      << tr("Rev");
 }
 
-void DatabaseService::PopulateBookNamesAlt()
+
+void DatabaseService::PopulateBookNameMappings(QList<BookStringMapping> &mappings, const QStringList &names,
+    const QStringList &nameKeys, const QString &fileName)
 {
-    if (!m_bookNamesAlt.isEmpty()) {
-        m_bookNamesAlt.clear();
+    if (!mappings.isEmpty()) {
+        mappings.clear();
     }
-    m_bookNamesAlt << "" // Genesis
-                   << "" // Exodus
-                   << "" // Leviticus
-                   << "" // Numbers
-                   << "" // Deuteronomy
-                   << "" // Joshua
-                   << "" // Judges
-                   << "" // Ruth
-                   << "" // 1 Samuel
-                   << "" // 2 Samuel
-                   << "" // 1 Kings
-                   << "" // 2 Kings
-                   << "" // 1 Chronicles
-                   << "" // 2 Chronicles
-                   << "" // Ezra
-                   << "" // Nehemiah
-                   << "" // Esther
-                   << "" // Job
-                   << "" // Psalms
-                   << "" // Proverbs
-                   << "" // Ecclesiastes
-                   << "" // Song of Solomon
-                   << "" // Isaiah
-                   << "" // Jeremiah
-                   << "" // Lamentations
-                   << "" // Ezekiel
-                   << "" // Daniel
-                   << "" // Hosea
-                   << "" // Joel
-                   << "" // Amos
-                   << "" // Obadiah
-                   << "" // Jonah
-                   << "" // Micah
-                   << "" // Nahum
-                   << "" // Habakkuk
-                   << "" // Zephaniah
-                   << "" // Haggai
-                   << "" // Zechariah
-                   << "" // Malachi
-                   << "" // Matthew
-                   << "" // Mark
-                   << "" // Luke
-                   << "" // John
-                   << "" // Acts
-                   << "" // Romans
-                   << "" // 1 Corinthians
-                   << "" // 2 Corinthians
-                   << "" // Galatians
-                   << "" // Ephesians
-                   << "" // Philippians
-                   << "" // Colossians
-                   << "" // 1 Thessalonians
-                   << "" // 2 Thessalonians
-                   << "" // 1 Timothy
-                   << "" // 2 Timothy
-                   << "" // Titus
-                   << "" // Philemon
-                   << "" // Hebrews
-                   << "" // James
-                   << "" // 1 Peter
-                   << "" // 2 Peter
-                   << "" // 1 John
-                   << "" // 2 John
-                   << "" // 3 John
-                   << "" // Jude
-                   << ""; // Revelation
+
+    QJsonObject json = LoadJsonObject(fileName);
+
+    int length = names.length();
+    for (int i = 0; i < length; ++i) {
+        mappings.append({ names[i], i + 1 });
+        QJsonArray altNames = json[nameKeys[i]].toArray();
+        for (const QJsonValue &altName : altNames) {
+            mappings.append({ altName.toString(), i + 1 });
+        }
+    }
 }
 
-void DatabaseService::PopulateShortBookNamesAlt()
-{
 
+
+void DatabaseService::InitBookKeys()
+{
+    m_bookNameKeys = {
+        "Genesis",
+        "Exodus",
+        "Leviticus",
+        "Numbers",
+        "Deuteronomy",
+        "Joshua",
+        "Judges",
+        "Ruth",
+        "1Samuel",
+        "2Samuel",
+        "1Kings",
+        "2Kings",
+        "1Chronicles",
+        "2Chronicles",
+        "Ezra",
+        "Nehemiah",
+        "Esther",
+        "Job",
+        "Psalms",
+        "Proverbs",
+        "Ecclesiastes",
+        "SongOfSolomon",
+        "Isaiah",
+        "Jeremiah",
+        "Lamentations",
+        "Ezekiel",
+        "Daniel",
+        "Hosea",
+        "Joel",
+        "Amos",
+        "Obadiah",
+        "Jonah",
+        "Micah",
+        "Nahum",
+        "Habakkuk",
+        "Zephaniah",
+        "Haggai",
+        "Zechariah",
+        "Malachi",
+        "Matthew",
+        "Mark",
+        "Luke",
+        "John",
+        "Acts",
+        "Romans",
+        "1Corinthians",
+        "2Corinthians",
+        "Galatians",
+        "Ephesians",
+        "Philippians",
+        "Colossians",
+        "1Thessalonians",
+        "2Thessalonians",
+        "1Timothy",
+        "2Timothy",
+        "Titus",
+        "Philemon",
+        "Hebrews",
+        "James",
+        "1Peter",
+        "2Peter",
+        "1John",
+        "2John",
+        "3John",
+        "Jude",
+        "Revelation"
+    };
+
+    m_shortBookNameKeys = {
+        "Gn",
+        "Ex",
+        "Lv",
+        "Nm",
+        "Dt",
+        "Jo",
+        "Jgs",
+        "Ru",
+        "1Sm",
+        "2Sm",
+        "1Kgs",
+        "2Kgs",
+        "1Chr",
+        "2Chr",
+        "Ezr",
+        "Neh",
+        "Est",
+        "Jb",
+        "Ps",
+        "Prv",
+        "Eccl",
+        "Sg",
+        "Is",
+        "Jer",
+        "Lam",
+        "Ez",
+        "Dn",
+        "Hos",
+        "Jl",
+        "Am",
+        "Ob",
+        "Jon",
+        "Mi",
+        "Na",
+        "Hb",
+        "Zep",
+        "Hg",
+        "Zec",
+        "Mal",
+        "Mt",
+        "Mk",
+        "Lk",
+        "Jn",
+        "Act",
+        "Rom",
+        "1Cor",
+        "2Cor",
+        "Gal",
+        "Eph",
+        "Phil",
+        "Col",
+        "1Thes",
+        "2Thes",
+        "1Tm",
+        "2Tm",
+        "Ti",
+        "Phlm",
+        "Heb",
+        "Jas",
+        "1Pt",
+        "2Pt",
+        "1Jn",
+        "2Jn",
+        "3Jn",
+        "Jud",
+        "Rv"
+    };
+}
+
+QJsonObject DatabaseService::LoadJsonObject(const QString &fileName)
+{
+    QString lang = m_pConfig->general.language.toLower();
+    QString filePath = QString(":/str/str_res/%1_%2.json").arg(lang, fileName);
+
+    QFile jsonFile(filePath);
+    jsonFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray jsonData = jsonFile.readAll();
+    jsonFile.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject json = doc.object();
+    return json;
 }
 
 }

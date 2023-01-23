@@ -2,6 +2,22 @@
 
 namespace qbv {
 
+
+
+//void DbBible::SetDatabaseService(DatabaseService &databaseService)
+//{
+//    m_databaseService = databaseService;
+//}
+
+
+
+DbBible::DbBible(const QList<BookStringMapping> &bookNameMappings, const QList<BookStringMapping> &shortBookNameMappings)
+    : m_bookNameMappings(bookNameMappings),
+      m_shortBookNameMappings(shortBookNameMappings)
+{
+
+}
+
 bool DbBible::HasOT() const
 {
     bool result = false;
@@ -88,6 +104,19 @@ QString DbBible::GetScripture(Location loc) const
     return result;
 }
 
+QString DbBible::GetScripture(VerseLocation loc) const
+{
+    QSqlQuery query(m_db);
+    query.prepare("SELECT Scripture From Bible WHERE Book=? AND Chapter=? AND Verse=?");
+    query.addBindValue(loc.book, QSql::Out);
+    query.addBindValue(loc.chapter, QSql::Out);
+    query.addBindValue(loc.verse, QSql::Out);
+    QString result;
+    if (query.exec() && query.next()) {
+        result = query.record().value(0).toString();
+    }
+    return result;
+}
 
 
 /*!
@@ -164,8 +193,11 @@ QStringList DbBible::GetScripturesWithMissing(Location loc) const
 
  QList<qbv::PassageWithLocation> DbBible::Search(const QString &text, SearchOptions options)
 {
+
     if (options.searchMode == SearchMode::byStrong) {
         return SearchByStrong(text, options);
+    } else if (options.searchMode == SearchMode::byVerses) {
+        return SearchByVerses(text);
     } else {
         return SearchByPhrase(text, options);
     }
@@ -192,6 +224,34 @@ QStringList DbBible::GetScripturesWithMissing(Location loc) const
     return results;
  }
 
+ QList<PassageWithLocation> DbBible::SearchByVerses(const QString &verses)
+ {
+    QList<qbv::PassageWithLocation> results;
+
+    try
+    {
+        QList<ParsedVerseLocation> locations = Parsers::ToVerseLocations(verses);
+        for (const ParsedVerseLocation &loc : locations) {
+            VerseLocation verseLoc = ToVerseLocation(loc);
+            QString scripture = GetScripture(verseLoc);
+            qbv::Location outLoc(verseLoc.book, loc.chapter, loc.verse, loc.verse);
+            results.append({ scripture, outLoc });
+
+          //  qDebug() << verseLoc.ToQString();
+        }
+    }
+    catch (std::invalid_argument const& ex)
+    {
+       qDebug() << ex.what();
+    }
+
+
+
+
+
+    return results;
+ }
+
 PassageWithLocation DbBible::GetRandomPassage(SearchOptions options)
 {
     PassageWithLocation result;
@@ -210,6 +270,19 @@ PassageWithLocation DbBible::GetRandomPassage(SearchOptions options)
         result.location = loc;
     }
     return result;
+}
+
+VerseLocation DbBible::ToVerseLocation(ParsedVerseLocation loc)
+{
+    QString bookStrLower = loc.bookName.toLower();
+    for (const BookStringMapping &mapping : m_shortBookNameMappings) {
+        if (bookStrLower == mapping.nameVariant.toLower()) {
+            return { mapping.number, loc.chapter, loc.verse };
+        }
+    }
+
+    int bookNumber = SearchEngine::FindBestBookMatchNumber(loc.bookName, m_bookNameMappings);
+    return { bookNumber, loc.chapter, loc.verse };
 }
 
 QList<qbv::PassageWithLocation> DbBible::SearchByPhrase(const QString &phrase, SearchOptions options)

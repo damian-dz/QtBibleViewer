@@ -2,10 +2,15 @@
 #define DATABASESERVICE_H
 
 #include "AppConfig.h"
+#include "BookStringMapping.h"
 #include "DbBible.h"
 #include "DbVerseData.h"
 #include "DbNotes.h"
 #include "DbXRef.h"
+#include "ParsedVerseLocation.h"
+#include "VerseLocation.h"
+#include "SearchEngine.h"
+#include "Typedefs.h"
 
 namespace qbv {
 
@@ -22,6 +27,7 @@ public:
     void CloseAll();
 
     void LoadBookNames();
+    void LoadBookNameMappings();
     void LoadDbBibles();
 
     QString DirBibles() const;
@@ -71,8 +77,9 @@ public:
 
     void PopulateBookNames();
     void PopulateShortBookNames();
-    void PopulateBookNamesAlt();
-    void PopulateShortBookNamesAlt();
+
+    void PopulateBookNameMappings(QList<BookStringMapping> &mappings, const QStringList &names, const QStringList &nameKeys, const QString &fileName);
+   // VerseLocation ToVerseLocation(ParsedVerseLocation loc);
 
 private:
     const QString *m_dataDir;
@@ -87,15 +94,20 @@ private:
     qbv::DbNotes m_dbNotes;
     qbv::DbXRef m_dbXRef;
 
+    QStringList m_bookNameKeys;
+    QStringList m_shortBookNameKeys;
+
+    QList<BookStringMapping> m_bookNameMappings;
+    QList<BookStringMapping> m_shortBookNameMappings;
+
     QStringList m_bookNames;
     QStringList m_shortBookNames;
-    QStringList m_bookNamesAlt;
-    QStringList m_shortBookNamesAlt;
 
     int m_activeIdx = 0;
 
+    void InitBookKeys();
+    QJsonObject LoadJsonObject(const QString &fileName);
     QStringList BibleFilePaths();
-
 };
 
 }
