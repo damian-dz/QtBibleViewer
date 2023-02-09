@@ -6,6 +6,7 @@
 class Parsers
 {
 public:
+    static qbv::ParsedVerseLocation ToVerseLocation(const QString &str);
     static QList<qbv::ParsedVerseLocation> ToVerseLocations(const QString &str);
 
 private:

@@ -1,5 +1,58 @@
 #include "Parsers.h"
 
+qbv::ParsedVerseLocation Parsers::ToVerseLocation(const QString &str)
+{
+    if (str.isNull() || str.isEmpty())
+        throw std::invalid_argument("The input string cannot be empty.");
+
+    const QString s = str.trimmed();
+
+    const QString num12345 = QStringLiteral("12345");
+    bool isLetter = s[0].isLetter() || num12345.contains(s[0]);
+    if (!isLetter)
+        throw std::invalid_argument("The input string must start with a book name.");
+
+    bool shouldParseLocation = false;
+    int startIdx = 0;
+    int endIdx = 0;
+    int length = s.length();
+    qbv::ParsedVerseLocation location;
+    for (int i = 1; i < length; i++) {
+        QChar c = s[i];
+
+        if (isLetter && !c.isLetter() && !c.isSpace()) {
+            startIdx = i;
+            location.bookName = s.mid(endIdx, startIdx - endIdx).trimmed();
+            isLetter = false;
+        } else if (!isLetter && c.isLetter()) {
+            endIdx = i;
+            shouldParseLocation = true;
+        }
+
+        if (i == length - 1) {
+            endIdx = length;
+            shouldParseLocation = true;
+        }
+
+        if (shouldParseLocation && endIdx > startIdx) {
+             QList<int> numbers = ToNumbers(s.mid(startIdx, endIdx - startIdx));
+            if (numbers.count() == 0) {
+                location.bookName = s;
+                location.chapter = 0;
+                location.verse = 0;
+            } else if (numbers.count() == 1) {
+                location.chapter = numbers[0];
+                location.verse = 0;
+            } else if (numbers.count() > 1) {
+                location.chapter = numbers[0];
+                location.verse = numbers[1];
+            }
+        }
+    }
+    return location;
+
+}
+
 QList<qbv::ParsedVerseLocation> Parsers::ToVerseLocations(const QString &str)
 {
     if (str.isNull() || str.isEmpty())
@@ -13,6 +66,8 @@ QList<qbv::ParsedVerseLocation> Parsers::ToVerseLocations(const QString &str)
 
     const QString num12345 = QStringLiteral("12345");
     bool isLetter = s[0].isLetter() || num12345.contains(s[0]);
+    if (!isLetter)
+        throw std::invalid_argument("The input string must start with a book name.");
 
     int startIdx = 0;
     int endIdx = 0;
@@ -25,7 +80,7 @@ QList<qbv::ParsedVerseLocation> Parsers::ToVerseLocations(const QString &str)
         QChar c = s[i];
         if (isLetter && !c.isLetter() && !c.isSpace()) {
            startIdx = i;
-           lastBookName = str.mid(endIdx, startIdx - endIdx).trimmed();
+           lastBookName = s.mid(endIdx, startIdx - endIdx).trimmed();
            qDebug() << "lastBookName: " << lastBookName;
            isLetter = false;
         } else if (!isLetter && c.isLetter() || i == length - 1) {
@@ -34,7 +89,7 @@ QList<qbv::ParsedVerseLocation> Parsers::ToVerseLocations(const QString &str)
            isLetter = true;
         } else if (!isLetter && num12345.contains(c)
             && i > 0 && i + 1 < length && !s[i - 1].isDigit()) {
-            int numberCount = CountNumbers(str.mid(startIdx, i - startIdx));
+            int numberCount = CountNumbers(s.mid(startIdx, i - startIdx));
             bool canBeBookName = CanBeBookName(s, i + 1);
             if (numberCount > 1 && numberCount % 2 == 0 && canBeBookName)
             {
@@ -42,6 +97,7 @@ QList<qbv::ParsedVerseLocation> Parsers::ToVerseLocations(const QString &str)
                 shouldParseLocations = true;
             }
         }
+
         if (shouldParseLocations) {
            if (endIdx > startIdx) {
                QList<int> numbers = ToNumbers(s.mid(startIdx, endIdx - startIdx));
@@ -104,13 +160,13 @@ QList<int> Parsers::ToNumbers(const QString &str)
 {
     const QString s = str.trimmed();
     qDebug() << "ToNumbers: " << s;
+    QList<int> numbers;
     if (s.isEmpty())
-        throw std::invalid_argument("The input string cannot be empty.");
+        return numbers;
 
     bool isDigit = s[0].isDigit();
     int count = s.count();
 
-    QList<int> numbers;
     if (count == 1) {
         if (isDigit) {
             int digit = QString(s[0]).toInt();
@@ -132,8 +188,7 @@ QList<int> Parsers::ToNumbers(const QString &str)
             startIdx = i;
             isDigit = true;
         }
-        if (i == count - 1)
-        {
+        if (i == count - 1) {
             endIdx = count;
             if (endIdx > startIdx && isDigit) {
                 int number = s.mid(startIdx, endIdx - startIdx).toInt();

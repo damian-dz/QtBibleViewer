@@ -31,7 +31,7 @@
 #include "TabSearchNew.h"
 #include "TabCompare.h"
 #include "TabCompareNew.h"
-#include "TabDictionary.h"
+#include "TabDictionaryNew.h"
 #include "TabNotesNew.h"
 
 class MainWindowNew : public QMainWindow
@@ -39,7 +39,7 @@ class MainWindowNew : public QMainWindow
     Q_OBJECT
 public:
     explicit MainWindowNew(const QString &appDir, AppConfig &config, QTranslator &appTs, QTranslator &qtTs,
-                           QWidget *parent = nullptr);
+        QWidget *parent = nullptr);
 
 private:
     QTabWidget *ui_TabWidget_Main;
@@ -47,7 +47,7 @@ private:
     TabBibleNew *ui_TabBible;
     TabSearchNew *ui_TabSearch;
     TabCompareNew *ui_TabCompare;
-    TabDictionary *ui_TabDictionary;
+    TabDictionaryNew *ui_TabDictionary;
     TabNotesNew *ui_TabNotes;
 
     QList<QAction *> m_langActions;

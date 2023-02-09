@@ -68,6 +68,7 @@ SOURCES += \
     TabCompare.cpp \
     TabCompareNew.cpp \
     TabDictionary.cpp \
+    TabDictionaryNew.cpp \
     TabNotes.cpp \
     TabNotesNew.cpp \
     TabSearch.cpp \
@@ -124,6 +125,7 @@ HEADERS += \
     TabCompare.h \
     TabCompareNew.h \
     TabDictionary.h \
+    TabDictionaryNew.h \
     TabNotes.h \
     TabNotesNew.h \
     TabSearch.h \

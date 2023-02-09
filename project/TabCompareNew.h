@@ -15,7 +15,7 @@ public:
     virtual void SetUiTexts() override;
 
     void SetFontFromConfig();
-        void ReloadBookNames();
+    void ReloadBookNames();
 
 private:
     NavPanel *ui_NavPanel;
